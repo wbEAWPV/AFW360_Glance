@@ -1,0 +1,18 @@
+
+```{python}
+#| content: valuebox
+#| title: "Poverty Patterns and Trends"
+Markdown("<span style='font-size:16px;'>In 2026, stronger economic activity and easing inflation are expected to reduce poverty to ## percent, leaving over ## million people below the $4.20/day (2021 PPP) line. Growth has been driven in part by hydrocarbons, but employment gains remain limited, as mining and extractives employ few workers. By contrast, favorable rainfall and sustained agricultural growth are expected to raise incomes among poorer households.</span>")
+```
+
+```{python}
+#| content: valuebox
+#| title: "Inequality"
+Markdown("<span style='font-size:16px;'>Monetary inequality has remained relatively stable (Gini: 36.0), but disparities in access to services and opportunities remain pronounced. Poverty is higher in rural areas (## percent in 2026), where most poor households depend on agriculture, while in urban areas (## percent), the poor are concentrated in informal services. Despite lower poverty rates, large populations in Thiès and Diourbel mean many poor people reside in urban areas. Spatial disparities between Dakar and other regions remain stark, reflecting overlapping deficits in income and human development.</span>")
+```
+
+```{python}
+#| content: valuebox
+#| title: "Constraints to Inclusive Growth"
+Markdown("<span style='font-size:16px;'>Inclusive growth remains constrained by low human capital, infrastructure gaps, and limited access to productive jobs, keeping many households in low-productivity agriculture and informal activities. Spatial disparities and weak market integration further limit participation in growth, particularly in rural and lagging areas. External pressures—including climate shocks, regional instability, and youth outmigration—amplify these constraints and undermine resilience.</span>")
+```
