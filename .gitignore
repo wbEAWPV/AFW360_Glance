@@ -3,7 +3,9 @@
 .Rhistory
 *.quarto_ipynb
 _site/
+*_libs/
 .quarto/
 
 /.quarto/
 **/*.quarto_ipynb
+site_libs/clipboard/clipboard.min.js
