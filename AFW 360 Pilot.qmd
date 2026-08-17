@@ -402,14 +402,28 @@ gdf_map.plot(
     cmap="Reds",
     linewidth=0.8,
     edgecolor="black",
-    legend=True,
-    legend_kwds={"title": "Poverty rate (%)", "orientation": "vertical"},
+    legend=False,
     ax=ax,
 )
+
+# Add labels for each polygon
+for idx, row in gdf_map.iterrows():
+    centroid = row.geometry.centroid
+    ax.annotate(
+        text=f"{row['poverty_rate']:.0f}%",
+        xy=(centroid.x, centroid.y),
+        ha="center",
+        va="center",
+        fontsize=9,
+        fontweight="bold",
+        color="black",
+    )
+
 ax.set_title("Senegal – Poverty at $4.20/day (2021 PPP), ADM1 level")
 ax.axis("off")
 plt.tight_layout()
-plt.show()
+plt.show();
+
 ```
 
 ```{python}
