@@ -1,7 +1,12 @@
 ---
 title: "AFW 360 PILOT"
 author: "AFW DIP/POV Team"
-format: dashboard
+format:
+  html:
+    theme: cosmo
+    toc: false
+    code-fold: true
+
 scrolling: true 
 ---
 
