@@ -2,7 +2,7 @@
 
 Draft v0.2, 2026-09-19. Status: proposal, not yet applied to any file.
 
-This document defines how data for the AFW 360 dashboard are structured, coded and documented, and how producers create data files and extend the codelists. It follows the SDMX information model and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.
+This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, and how producers create data files and extend the codelists. It follows the SDMX information model and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.
 
 Background on the current inputs is in [input-tables-findings.md](input-tables-findings.md). Nothing here changes the current `INPUT Tables/` files. A Python converter will produce the new files from them, and the dashboard will switch over later.
 
@@ -10,17 +10,11 @@ Background on the current inputs is in [input-tables-findings.md](input-tables-f
 
 # 1. The idea in one page
 
-<!-- TODO IMPROVE WRITEUP BASED ON THE STARTING TEXT: -->
-This document describes the data provenance standard proposed for the West Africa Micro Data 360 platform.
-It describes how the data must be stored and organized following the SDMX standard.
-The key purpose of this document is to be a guiding principle of data preparation by the country economists and data scientist who deal with the micro data. 
-The resulting database is meant to be a one-stop-shop about the country-level insights. 
+This standard exists so that every country's numbers arrive in the same shape. It is written for the country economists and data scientists who prepare indicators from household microdata, and it is what they work from when they add a country, an indicator or a new way of cutting the data.
 
-In this data base, all indicators are derived from the country-level micro data.
-In order to store these indicators in a structured way, each number in this data is attributed to the country through a `code` needed to say what that value is.
-Those codes fall into two families, and telling them apart is the whole model:
+The database it describes is meant to be a one-stop shop for country-level insight. Every indicator in it comes from national household microdata, and every number is stored the same way for every country.
 
-<!-- END OFTHE STARTING INFO -->
+**One row is one number.** Each row carries the value and the full set of codes that say what that value is: which country, which population, which measure. Those codes fall into two families, and telling them apart is the whole model:
 
 |  | **Breakdown** | **Qualifier** |
 |---|---|---|
@@ -30,12 +24,11 @@ Those codes fall into two families, and telling them apart is the whole model:
 | Test with `N_POP` | Categories **sum** to the parent | Each category **equals** the parent |
 | Empty value means | `_T` — everyone, not split | `_Z` — does not apply |
 | Declared in | `TAB_PLAN.csv`, per cut | `CL_INDICATOR.csv`, per indicator |
-| Columns | `GEO`, `URBANISATION`, `SEX`, `AGE`, `COMP_BREAKDOWN_1…5` | `POV_HC`, `MEASURE_QUAL_1…5` |
+| Columns | `GEO`, `URBANISATION`, `SEX`, `AGE`, `COMP_BREAKDOWN_1…5` | `INDICATOR`, `MEASURE_QUAL_1…5` |
 
 The reason it matters: poverty at four lines is one indicator, not eight; every population share is one indicator, not thirty; and a new grouping such as sector of employment is a row in a codelist, not a change to the file format.
 
-This is a guiding principle of this data base construction and it must be respected diligently.
-
+This distinction is the foundation of the database. Every rule in the rest of this document follows from it, and it has to be applied consistently by everyone who adds data.
 
 ## 1.1 Common compositions, and how each number is checked
 
@@ -79,7 +72,7 @@ Everything in the last column reduces to three generic rules, and each indicator
 | Incidence of direct transfers, poorest decile | `_T` | `_T` | `FISC_INCIDENCE` | `WELFARE_INC_MARKET` | `FI_DIR_TRANSF` | `_Z` | `DEC_MKT_D01` |
 | Poverty rate, 2017 PPP (legacy `Departement`) | `SN03` | `_T` | `POV_HC` | `POVLINE_PL300` | `PPP_2017` | `_Z` | `_T` |
 
-In every row `REF_AREA=SEN`, `TIME_PERIOD=2021`, `SEX` and `AGE` are `_T` (total), `COMP_BREAKDOWN_2…5` are `_T` (total), and `MEASURE_QUAL_4…5` are `_Z` (not applicalbe).
+In every row `REF_AREA=SEN`, `TIME_PERIOD=2021`, `SEX` and `AGE` are `_T` (total), `COMP_BREAKDOWN_2…5` are `_T` (total), and `MEASURE_QUAL_4…5` are `_Z` (not applicable).
 
 Qualifiers occupy the slots in `slot_order`: welfare concept 10, poverty line 20, PPP 30, COICOP 40, fiscal instrument 50. That is why the COICOP code lands in slot 3 on the "food share among the poor" row.
 
