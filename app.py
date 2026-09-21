@@ -87,16 +87,35 @@ SIDEBAR = ui.sidebar(
             "Breakdown",
             {k: v.label for k, v in data.BREAKDOWNS.items()},
         ),
+        # "Youth" and "29+" overlap semantically and the underlying cutoff is
+        # undocumented (plan section 11.3). Showing two age groups with no
+        # definition invites a reader to assume one; say what we actually know.
+        ui.panel_conditional(
+            "input.breakdown === 'age'",
+            ui.p(
+                "Head age groups are shown as supplied. The cutoff between "
+                "“Youth” and “29+” is not documented in the source data.",
+                class_="text-muted small",
+            ),
+        ),
     ),
     ui.panel_conditional(
         _GEO_PAGES,
-        ui.input_select("geo_level", "Geography", GEO_LABELS),
+        # selected="adm1": the hierarchy reads National > Region > Zone, but
+        # National has nothing to map or rank, so landing there shows two empty
+        # cards. The initial filter state has to produce a real result.
+        ui.input_select("geo_level", "Geography", GEO_LABELS, selected="adm1"),
     ),
     ui.hr(),
-    ui.download_button("dl_workbook", "Download summary tables", class_="btn-outline-primary btn-sm"),
+    ui.download_button("dl_workbook", "Download summary tables", class_="btn-primary btn-sm"),
     ui.input_dark_mode(id="mode"),
     title="Filters",
     width=280,
+    # Explicit per-breakpoint state. Left to itself the sidebar stayed expanded on
+    # a phone with no toggle rendered, so it flowed below the whole page and the
+    # global filters sat ~3000px down - unreachable in practice. Closed-on-mobile
+    # gives back the collapse control.
+    open={"desktop": "open", "mobile": "closed"},
 )
 
 

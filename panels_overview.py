@@ -381,7 +381,20 @@ def server(input, output, session, shared) -> None:
     def _message(index: int):
         iso3, country, _line = scope()
         if iso3 == "SEN":
-            return ui.tags.p(MESSAGES_SEN[index], class_="mb-0")
+            # The `##` are the author's unfilled placeholders. Guinea-Bissau's
+            # missing text is explained on screen, so Senegal's gaps need the
+            # same courtesy -- otherwise they read as broken copy rather than
+            # as numbers still to come.
+            body = ui.tags.p(MESSAGES_SEN[index], class_="mb-0")
+            if "##" in MESSAGES_SEN[index]:
+                return ui.TagList(
+                    body,
+                    ui.tags.p(
+                        "“##” marks a figure the authors have not filled in yet.",
+                        class_="text-muted small mb-0 mt-2",
+                    ),
+                )
+            return body
         return ui.TagList(
             ui.tags.p(
                 ui.tags.em(MESSAGES_MISSING[0].format(country=country)),
@@ -413,7 +426,7 @@ def server(input, output, session, shared) -> None:
 
     def _table_grid(line_key: str) -> render.DataGrid:
         frame = poverty_tables()[line_key].reset_index()
-        return render.DataGrid(frame, filters=True)
+        return render.DataGrid(frame, filters=True, width="100%")
 
     def _table_note(line_key: str):
         iso3, country, _line = scope()

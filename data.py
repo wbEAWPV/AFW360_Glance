@@ -27,6 +27,8 @@ from the `indicator` column rather than typed here.
 
 from __future__ import annotations
 
+import functools
+import json
 import math
 import re
 import unicodedata
@@ -178,26 +180,29 @@ DATA_FLAGS: dict[str, str] = {
     "Cultivated area (ha)": (
         "Guinea-Bissau only: corrupt. Isolated cells in the tens of millions of "
         "hectares (National total 9.09M, Quinara 148.4M) where the rest of the "
-        "row is 1-15 ha. Senegal's values are clean."
+        "row is 1–15 ha. Senegal's values are clean."
     ),
     "HH has internet access": (
         "0.00 or empty in every cell of both countries; carries no information."
     ),
     "wood_dist [ALL MISSING]": "Entirely empty in both countries.",
     "Access to electricity (grid, SDG 7.1.1)": (
-        "One of three overlapping electricity definitions (with 'Connected to "
-        "electricity grid' and 'Uses grid electricity') spanning a 32-point "
-        "spread in Senegal. The definitions are undocumented."
+        "One of three overlapping electricity definitions (with "
+        "'Connected to electricity grid (SDG7.1.1)' and 'Uses grid electricity'). The three "
+        "definitions are undocumented and disagree: in Senegal they span 32 "
+        "percentage points."
     ),
     "Connected to electricity grid (SDG7.1.1)": (
-        "One of three overlapping electricity definitions (with 'Access to "
-        "electricity (grid, SDG 7.1.1)' and 'Uses grid electricity') spanning a "
-        "32-point spread in Senegal. The definitions are undocumented."
+        "One of three overlapping electricity definitions (with "
+        "'Access to electricity (grid, SDG 7.1.1)' and 'Uses grid electricity'). The three "
+        "definitions are undocumented and disagree: in Senegal they span 32 "
+        "percentage points."
     ),
     "Uses grid electricity": (
-        "One of three overlapping electricity definitions (with 'Access to "
-        "electricity (grid, SDG 7.1.1)' and 'Connected to electricity grid') "
-        "spanning a 32-point spread in Senegal. The definitions are undocumented."
+        "One of three overlapping electricity definitions (with "
+        "'Access to electricity (grid, SDG 7.1.1)' and 'Connected to electricity grid (SDG7.1.1)'). The three "
+        "definitions are undocumented and disagree: in Senegal they span 32 "
+        "percentage points."
     ),
     "Food consumption share": (
         "Exact duplicate of 'COICOP 1: food & non-alc. beverages (share)'. Show "
@@ -223,7 +228,7 @@ CAPITAL_FLAG_ISO3 = "GNB"
 CAPITAL_FLAG_TEXT = (
     "Guinea-Bissau's 'Capital' column is a copy of a zone, not Bissau: it is "
     "identical to the Zonas Costeiras do Sul zone on all 97 indicators. The "
-    "residence breakdown therefore does not add up -- it gives about 14% more "
+    "residence breakdown therefore does not add up — it gives about 14% more "
     "poor than the national total. Reported upstream; shown unaltered."
 )
 
@@ -499,7 +504,55 @@ def region_table(iso3: str, indicator: str) -> pd.DataFrame:
     """
     out = _long(iso3, indicator, "adm1")
     out.insert(0, "join_key", [normalise_region(r) for r in out["region"]])
+    labels = region_labels(iso3)
+    out["region"] = [labels.get(k, r) for k, r in zip(out["join_key"], out["region"])]
     return out
+
+
+@functools.lru_cache(maxsize=None)
+def region_labels(iso3: str) -> dict[str, str]:
+    """join_key -> the one name a reader should see for that ADM1 region.
+
+    There are two candidate names for every region and neither source wins
+    outright:
+
+    * the workbook column (`estimateDAKAR`, `estimateBafatá`) - SHOUTS Senegal's
+      names in block capitals, and calls Guinea-Bissau's capital `SAB`;
+    * the shapefile, via `geo/adm1_*.json` - properly cased and carries Senegal's
+      accents (`Kédougou`, `Sédhiou`), already aliases `SAB` to `Bissau`, but has
+      no accents for Guinea-Bissau (`Bafata`, `Gabu`).
+
+    So: take whichever candidate actually carries accents, and fall back to the
+    GeoJSON when neither does. That yields `Dakar`, `Kédougou`, `Bafatá`, `Gabú`
+    and `Bissau` - correct in every case, and identical on every page. Before
+    this, the same region read `DAKAR` on Explore and `Dakar` on Geography, and
+    the capital was `SAB` on one page and `Bissau` on the other.
+    """
+    path = ROOT / "geo" / f"adm1_{iso3.lower()}.json"
+    geo: dict[str, str] = {}
+    if path.exists():
+        features = json.loads(path.read_text(encoding="utf-8"))["features"]
+        for feature in features:
+            props = feature["properties"]
+            geo[props["join_key"]] = props["region"]
+
+    out: dict[str, str] = {}
+    for column in sheet(iso3, "adm1").columns:
+        key = normalise_region(column)
+        workbook = _display_region(column)
+        candidate = geo.get(key)
+        if candidate is None:
+            out[key] = workbook
+        elif _has_accents(workbook) and not _has_accents(candidate):
+            out[key] = workbook
+        else:
+            out[key] = candidate
+    return out
+
+
+def _has_accents(name: str) -> bool:
+    """True when the name carries non-ASCII characters, i.e. real diacritics."""
+    return any(ord(ch) > 127 for ch in name)
 
 
 def zone_table(iso3: str, indicator: str) -> pd.DataFrame:

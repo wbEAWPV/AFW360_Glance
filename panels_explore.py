@@ -36,7 +36,9 @@ PREFIX = "ex"
 
 # One accent plus neutrals (skill: dashboard-design). The amber is reserved for
 # values the data note says are not trustworthy -- it is meaning, not decoration.
-ACCENT = "#2c7be5"
+# The theme primary (app.py's ui.Theme). Was an unrelated blue, which read as
+# a second accent system next to the navbar and buttons.
+ACCENT = "#1F4E78"
 FLAG_ACCENT = "#c77700"
 FLAG_CELL_STYLE = {
     "background-color": "#fff3cd",
@@ -153,6 +155,10 @@ def _message_figure(message: str, template: str) -> go.Figure:
     )
     fig.update_layout(
         template=template,
+        # Transparent, so the chart takes the card's colour instead of
+        # plotly_dark's #111 showing as a black block inside a grey card.
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         xaxis={"visible": False},
         yaxis={"visible": False},
         margin={"l": 20, "r": 20, "t": 20, "b": 20},
@@ -478,7 +484,7 @@ def server(input, output, session, shared) -> None:
             if suspect()
             else []
         )
-        return render.DataGrid(display_frame(), filters=True, styles=styles)
+        return render.DataGrid(display_frame(), filters=True, width="100%", styles=styles)
 
     @render_plotly
     def ex_chart():
@@ -539,6 +545,8 @@ def server(input, output, session, shared) -> None:
         )
         fig.update_layout(
             template=template,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
             showlegend=False,
             margin={"l": 10, "r": 40, "t": 10, "b": 40},
             xaxis_title=_UNIT_AXIS[unit()],
@@ -566,4 +574,4 @@ def server(input, output, session, shared) -> None:
                 "flag": "Data note",
             }
         )
-        return render.DataGrid(cat, filters=True, selection_mode="row", height="340px")
+        return render.DataGrid(cat, filters=True, width="100%", selection_mode="row", height="340px")

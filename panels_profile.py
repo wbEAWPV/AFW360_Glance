@@ -256,19 +256,19 @@ def server(input, output, session, shared) -> None:
 
     @render.data_frame
     def pr_welfare():
-        return render.DataGrid(welfare_data(), filters=True)
+        return render.DataGrid(welfare_data(), filters=True, width="100%")
 
     @render.data_frame
     def pr_jobs():
-        return render.DataGrid(jobs_data(), filters=True)
+        return render.DataGrid(jobs_data(), filters=True, width="100%")
 
     @render.data_frame
     def pr_agri():
-        return render.DataGrid(agri_data(), filters=True)
+        return render.DataGrid(agri_data(), filters=True, width="100%")
 
     @render.data_frame
     def pr_energy():
-        return render.DataGrid(energy_data(), filters=True)
+        return render.DataGrid(energy_data(), filters=True, width="100%")
 
     @render.ui
     def pr_scope():

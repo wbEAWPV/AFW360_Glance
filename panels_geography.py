@@ -59,14 +59,10 @@ _GEOJSON: dict[str, dict] = {
     for iso3 in data.COUNTRIES
 }
 
-# join key -> the shapefile's own spelling of the region. Preferred over the
-# workbook's column name for every label the user sees: `region_table()` keeps
-# the workbook casing, which renders Guinea-Bissau's capital as "SAB" and
-# Senegal's regions in block capitals.
-_REGION_LABELS: dict[str, dict[str, str]] = {
-    iso3: {f["properties"]["join_key"]: f["properties"]["region"] for f in gj["features"]}
-    for iso3, gj in _GEOJSON.items()
-}
+# Region display names come from data.region_labels(), which is the single source
+# for every page. Reading the GeoJSON spelling directly here was almost right --
+# it fixed "SAB" and Senegal's block capitals -- but it lost Guinea-Bissau's
+# accents, so the same region read "Bafata" here and "Bafatá" on Explore.
 
 _DEFAULT_INDICATOR = data.POVERTY_LINES["420"].rate_indicator
 _POVERTY_RATE_INDICATORS = {p.rate_indicator for p in data.POVERTY_LINES.values()}
@@ -221,11 +217,8 @@ def place_values(iso3: str, indicator: str, level: str) -> pd.DataFrame:
     """
     if level == "adm1":
         df = data.region_table(iso3, indicator)
-        labels = _REGION_LABELS[iso3]
-        # The GeoJSON spelling, not the workbook's: "Bissau", not "SAB".
-        df["label"] = [
-            labels.get(key, region) for key, region in zip(df["join_key"], df["region"])
-        ]
+        # region_table() already carries the resolved display name.
+        df["label"] = list(df["region"])
     elif level == "zae":
         df = data.zone_table(iso3, indicator)
         # Zone names are truncated at 32 characters in the workbook. Shown as
@@ -604,21 +597,24 @@ def server(input, output, session, shared) -> None:
     def ge_table():
         level = shared.geo_level()
         df = frame().sort_values("value", ascending=False, na_position="last")
-        # Numbers, not formatted strings, with the unit in the header. Every row
-        # here is the same indicator, so the unit factors out of the cells - and a
-        # string column would sort lexically when the user clicks the header,
-        # putting "9%" above "71%". data.numeric_for_display() rounds to exactly
-        # the precision data.fmt() shows, so the two cannot disagree.
-        ind = indicator()
+        # Formatted strings, through data.fmt(), so this grid reads identically to
+        # the bars beside it and to the same indicator on the Explore page.
+        #
+        # A numeric column was tried here so that clicking the header would sort
+        # numerically rather than lexically ("9%" above "71%"). It sorts, but a
+        # DataGrid renders a number raw: hectares came out as 148439533.9 with no
+        # separators, and 2 sat next to a neighbouring 2.0. Losing the units is a
+        # worse defect than an odd sort order, and the grid is already sorted
+        # high-to-low with the ranked bars carrying the comparison, so the sort
+        # buys little. If this needs fixing properly it needs a grid that can
+        # format a numeric column, not a different column value.
         out = pd.DataFrame(
             {
                 _LEVEL_NOUN[level]: list(df["label"]),
-                f"Value ({data.unit_label(ind)})": [
-                    data.numeric_for_display(ind, v) for v in df["value"]
-                ],
+                f"Value ({data.unit_label(indicator())})": list(df["display"]),
             }
         )
-        return render.DataGrid(out, filters=True)
+        return render.DataGrid(out, filters=True, width="100%")
 
     @render.ui
     def ge_table_footer():

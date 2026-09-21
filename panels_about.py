@@ -136,9 +136,10 @@ def server(input, output, session, shared) -> None:
                     ".",
                 ),
                 ui.p(
-                    f"INPUT Text/About_{iso3}.txt is still a placeholder. Senegal's "
-                    "methodology is not shown here because it describes a different "
-                    "survey, a different statistical agency and a different sample.",
+                    "The methodology note supplied with this dataset is still a "
+                    "placeholder. Senegal's note is not shown here because it "
+                    "describes a different survey, a different statistical agency "
+                    "and a different sample.",
                     class_="text-muted mb-0",
                 ),
                 style=_BOX,

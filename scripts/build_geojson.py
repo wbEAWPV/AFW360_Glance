@@ -303,15 +303,27 @@ def topology_preserving_simplify(geoms, tolerance):
 
 
 def _canonical(geom):
-    """Deterministic, RFC 7946-friendly form: 2D, CCW exterior rings, stable part order."""
+    """Deterministic form: 2D, CLOCKWISE exterior rings, stable part order.
+
+    Clockwise, not the counter-clockwise that RFC 7946 recommends. Plotly's geo
+    renderer is d3-geo, which uses the spherical winding convention: a
+    counter-clockwise exterior ring names the COMPLEMENT of the polygon -- the
+    whole sphere minus the region. With CCW rings every choropleth painted the
+    entire canvas one colour with a small pale hole where the country was, and
+    `fitbounds="locations"` silently fell back to the whole globe
+    (lonaxis [-180,180], lataxis [-90,90]).
+
+    The join was never the problem: 14/14 and 9/9 matched all along. Only the
+    winding was wrong, and nothing catches it except looking at the rendered map.
+    """
     from shapely.geometry import MultiPolygon, Polygon  # noqa: PLC0415
     from shapely.geometry.polygon import orient  # noqa: PLC0415
 
     if isinstance(geom, Polygon):
-        return orient(geom, sign=1.0)
+        return orient(geom, sign=-1.0)
     if isinstance(geom, MultiPolygon):
         parts = sorted(geom.geoms, key=lambda p: (-p.area, p.bounds[0], p.bounds[1]))
-        return MultiPolygon([orient(p, sign=1.0) for p in parts])
+        return MultiPolygon([orient(p, sign=-1.0) for p in parts])
     raise TypeError(f"unexpected geometry type after simplification: {geom.geom_type}")
 
 
