@@ -389,6 +389,39 @@ def fmt(indicator: str, v) -> str:
         return EMPTY_DISPLAY
 
 
+def unit_label(indicator: str) -> str:
+    """The unit to put in a column header when that column holds one indicator.
+
+    Shares are scaled to whole percent by `numeric_for_display`, so their label
+    is "%" rather than "share".
+    """
+    unit = LEVEL_FORMATS.get(indicator, "share")
+    return "%" if unit == "share" else unit
+
+
+def numeric_for_display(indicator: str, v) -> float | None:
+    """The numeric counterpart to `fmt()`: same rounding, but still a number.
+
+    `fmt()` returns a string, which is right for a cell the user only reads.
+    A sortable grid column needs a number, or clicking the header sorts
+    lexically and puts "9%" above "71%". Both funnel through `_FORMAT_SPECS`
+    so the two can never disagree about precision; pair this with
+    `unit_label()` so the unit lives in the header.
+    """
+    try:
+        if v is None or isinstance(v, str) or pd.isna(v):
+            return None
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(x):
+        return None
+    spec = _FORMAT_SPECS[LEVEL_FORMATS.get(indicator, "share")]
+    decimals = int(spec[spec.index(".") + 1])
+    scale = 100 if spec.endswith("%") else 1
+    return round(x * scale, decimals)
+
+
 def fmt_table(df: pd.DataFrame) -> pd.DataFrame:
     """Apply `fmt()` cell by cell, each row formatted by its own indicator.
 
