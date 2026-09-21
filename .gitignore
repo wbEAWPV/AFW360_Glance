@@ -9,3 +9,11 @@ _site/
 /.quarto/
 **/*.quarto_ipynb
 site_libs/clipboard/clipboard.min.js
+
+# Python / Shiny app
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+rsconnect-python/
+_shinylive/

@@ -1,0 +1,5 @@
+# Development-only dependencies. Never deployed to Connect.
+-r requirements.txt
+pytest==9.1.1
+geopandas==1.1.4   # scripts/build_geojson.py only; run offline, output committed
+rsconnect-python==1.31.1

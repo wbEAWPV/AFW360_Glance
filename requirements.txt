@@ -1,0 +1,14 @@
+# Runtime dependencies for the AFW 360 At A Glance Shiny app.
+# Deployed to Posit Connect; rsconnect builds the bundle manifest from this file.
+#
+# Deliberately NOT here:
+#   geopandas / shapely / pyproj  - only scripts/build_geojson.py needs them, and it is
+#                                   run offline. geo/*.json is committed, so the running
+#                                   app never touches GDAL/GEOS/PROJ. See plan section 6.
+#   pytest, rsconnect-python      - development only, see requirements-dev.txt.
+shiny==1.8.0
+shinywidgets==0.8.1
+plotly==7.1.0
+pandas==3.0.6
+openpyxl==3.1.5
+faicons==0.2.2
