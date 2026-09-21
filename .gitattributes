@@ -1,0 +1,16 @@
+# Line endings. core.autocrlf=true on this machine would otherwise check text
+# files out with CRLF in every new worktree, which breaks the LF rule and the
+# byte-identity checks on generated files (see .docs/transition/plan.qmd).
+*.csv    text eol=lf
+*.R      text eol=lf
+*.md     text eol=lf
+*.qmd    text eol=lf
+*.sha256 text eol=lf
+metadata/VERSION text eol=lf
+
+# Raw legacy inputs are byte-frozen: never convert them.
+data_raw/** -text
+
+*.gpkg binary
+*.xlsx binary
+*.png  binary

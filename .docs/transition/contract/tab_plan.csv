@@ -1,0 +1,9 @@
+cut_id,ref_area,geo_scheme,urbanisation,sex,age,comp_breakdowns,themes
+TOTAL,ALL,_T,_T,_T,_T,,ALL
+URB,ALL,_T,CAP OU R,_T,_T,,ALL
+HHH_SEX,ALL,_T,_T,_T,_T,HHH_SEX,ALL
+HHH_AGE,ALL,_T,_T,_T,_T,HHH_AGE,ALL
+QUINT,ALL,_T,_T,_T,_T,QUINT,ALL
+ADM1,ALL,ADM1,_T,_T,_T,,ALL
+ZONES,SEN,ZONES,_T,_T,_T,,ALL
+AEZ,GNB,AEZ,_T,_T,_T,,ALL

@@ -1,0 +1,14 @@
+column,cut_id,URBANISATION,COMP_BREAKDOWN
+estimateTotal,TOTAL,,
+estimateCapital,URB,CAP,
+estimateOther_Urban,URB,OU,
+estimateRural,URB,R,
+estimateFemale_HH,HHH_SEX,,HHH_SEX_F
+estimateMale_HH,HHH_SEX,,HHH_SEX_M
+estimateYouth_HH,HHH_AGE,,HHH_AGE_LT35
+estimateOlder_HH,HHH_AGE,,HHH_AGE_GE35
+estimateQ1,QUINT,,QUINT_Q1
+estimateQ2,QUINT,,QUINT_Q2
+estimateQ3,QUINT,,QUINT_Q3
+estimateQ4,QUINT,,QUINT_Q4
+estimateQ5,QUINT,,QUINT_Q5

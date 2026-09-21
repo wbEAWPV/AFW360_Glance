@@ -1,38 +1,58 @@
 # Template: verifier prompt
 
-Use once per implementer (or patch) attempt, immediately after that agent reports it finished — never before. Agent-tool parameters: no `subagent_type` (fresh agent — verifiers must not see the implementer's reasoning, so never use `fork`), `model: "sonnet"`, `isolation: "worktree"`, `description`: e.g. `"Verify {WP_ID} attempt {K}"`. The `prompt` parameter is the block below with every `{...}` placeholder below substituted (`{SOURCE_BRANCH}` = the implementer's or patch agent's branch being verified).
+Use once per implementer or patch attempt, as soon as that agent reports `STATUS: DONE`. Never use it before that, and never reuse a verifier. Agent parameters: `model: "sonnet"`, `isolation: "worktree"`, no `subagent_type` (never `fork`, because a verifier must not see the implementer's reasoning), and a `description` such as "Verify WP05 v1".
+
+| Placeholder | Value |
+|---|---|
+| `{WP_ID}`, `{WP_TITLE}`, `{wp_id_lower}`, `{slug}` | From the package table in `plan.qmd` |
+| `{K}` | 1 for the first verification, then 2, 3 |
+| `{SOURCE_BRANCH}` | The implementer's branch, or the patch branch being verified. For WP17 it is `transition/main`. |
+| `{VERIFY_BRANCH}` | `transition/wpNN-<slug>-v{K}` |
+| `{NOTES}` | "None", or the same notes the implementer received, so that both work to the same corrections |
 
 ```
-You are the VERIFIER for work package {WP_ID} ({WP_TITLE}), attempt {K}, on the AFW 360 data-transition project.
+You are the VERIFIER of work package {WP_ID} ({WP_TITLE}), attempt {K}, in the AFW 360 data transition.
+You did not build this package. Your job is to find out whether it meets its card, not to make it pass.
 
-## Setup
-1. `git switch -c {VERIFY_BRANCH} {SOURCE_BRANCH}`
-2. Read, in order — do NOT read the implementer's tests, report or reasoning, only the specification:
-   - The card: `.docs/transition/work-packages.qmd`, anchor `{CARD_ANCHOR}`
-   - `.docs/transition/contract.qmd` and `.docs/transition/contract/*.csv`
-   - `.docs/data-standard.qmd`
+1. Set up your branch: git switch -c {VERIFY_BRANCH} {SOURCE_BRANCH}
+2. Read .docs/transition/packages/COMMON.md, then the card .docs/transition/packages/{WP_ID}.md,
+   then the skeleton .docs/transition/templates/acceptance-script.R. Read nothing beyond what the
+   card's "Read" section lists; your session must stay under 100,000 tokens.
+3. Write pipeline/acceptance/{wp_id_lower}_{slug}.R from the card's "Acceptance checks": one check()
+   call per check ID, with the ID spelled exactly as on the card. If a later attempt finds the
+   script already on the branch, review it against the card and keep or correct it.
+   - Build it from the card and the contract only. Do not open the implementer's code, tests or
+     report before the script is written. Afterwards, read the report only where the card says so.
+   - It must run standalone (Rscript pipeline/acceptance/{wp_id_lower}_{slug}.R --root .), must not
+     source anything under pipeline/R/ unless the check is about those functions, must read expected
+     numbers from contract/expected_counts.csv by check_id rather than hard-coding them, and must
+     write only to temporary directories.
+   - It must keep passing after the branch is merged. Compare against the tag transition-base and
+     against files, never against transition/main or against the branch's diff.
+4. Run it. Then do the card's "Verifier focus" by hand.
+5. Ownership check (by hand, not in the script): every path in
+   `git diff --name-only transition/main...{SOURCE_BRANCH}` must be owned by {WP_ID} in
+   .docs/transition/contract/output_ownership.csv, or be that package's own report.
+   An unowned path is a FAIL.
+6. Write your report to .docs/transition/reports/{WP_ID}-verifier-v{K}.md in the format of COMMON.md
+   section 8, with one more heading at the end:
+   ## Failures to fix   (numbered; for each: the check ID, the exact command or comparison, expected
+                         against actual. Write "None" on PASS.)
+7. Commit your script and report in one commit with the subject
+   "{WP_ID}: verify v{K} - VERDICT: PASS" or "... - VERDICT: FAIL", then run `git switch --detach`.
+8. Your final message starts with "VERDICT: PASS" or "VERDICT: FAIL". On FAIL, repeat the
+   "Failures to fix" block word for word; it is handed to the patch agent as it stands.
 
-## Task
-Write your own acceptance script at `pipeline/acceptance/{wp_id_lower}_{slug}.R`, built only from the card's "Acceptance checks" and the contract — never from the implementer's code, tests or report. Follow the skeleton in `.docs/transition/templates/acceptance-script.R`. Read raw inputs yourself — `data_raw/` if it exists on this branch, otherwise the original `INPUT …` folders (the card's "Verifier focus" section says which). Your script must:
-- print one line per check: `CHECK <id> PASS|FAIL <evidence>`
-- exit 0 only if every check passes, non-zero otherwise
-- run standalone: `Rscript pipeline/acceptance/{wp_id_lower}_{slug}.R --root .`
-- write nothing outside a temp directory
+The verdict is FAIL if any acceptance check fails, if the verifier focus finds a defect, or if the
+ownership check finds an unowned path. It is PASS only when all three are clean.
 
-Run it against the deliverables on this branch. Separately, spot-check at least 10 random items by tracing them back to the raw source by hand (e.g. 10 random output rows, each cell confirmed against the exact source cell/file it came from).
+Rules that override everything else:
+- You add exactly two files: the acceptance script and your report. Never edit, fix or work around
+  a deliverable; a verifier that fixes things verifies nothing.
+- If the card or the contract looks wrong or incomplete, do not bend a check to fit. Report it under
+  "Questions" and in your final message as a CONTRACT DOUBT.
+- Never push. Never touch dev/eb, master or transition/main. Do not launch other agents.
 
-## Hard rules
-- You may add ONLY two files to this branch: the acceptance script above, and your report. Never edit, fix, or work around a deliverable — fixing is the patch agent's job, not yours; if you fix something yourself the verification is worthless.
-- Never edit the card, the contract, or anything under `data_raw/`.
-- If the card or the contract looks wrong, inconsistent or incomplete while you write the acceptance script, do not bend the checks to fit. Report it as a contract doubt in your report and final message, so the orchestrator can escalate it.
-- Quarto on this machine: `QUARTO_R` is broken. Always run `env -u QUARTO_R quarto render <file>` (Git Bash), and delete the render outputs afterwards.
-- Ownership check command: `git diff --name-only transition/main...HEAD`. Every path except your own script and report must be owned by {WP_ID} in `contract/output_ownership.csv`.
-- Never push, and never switch to or touch `dev/eb`, `master`, or `transition/main` directly.
-- You are a Sonnet agent: do not launch other agents.
-
-## Finishing
-1. Commit on `{VERIFY_BRANCH}` with message `{WP_ID}: verifier attempt {K}`, ending with the Co-Authored-By trailer your harness appends to commits.
-2. Write your report at `.docs/transition/reports/{WP_ID}-verifier-v{K}.md`, following every section of `.docs/transition/templates/verifier-report.md` — including the ownership check: list every file changed on this branch since it diverged from `{SOURCE_BRANCH}`'s implementer commit and confirm each is owned by `{WP_ID}` in `.docs/transition/contract/output_ownership.csv`. Any unowned path is an automatic FAIL, independent of the acceptance script's result.
-3. `git switch --detach`.
-4. Your final message to the orchestrator starts with the literal line `VERDICT: PASS` or `VERDICT: FAIL`, then at most 150 words: which checks failed, if any, and the single most important piece of evidence for each. If FAIL, this text becomes `{FAIL_REPORT}` for the patch agent — be precise and reproducible, not general.
+Notes from the orchestrator:
+{NOTES}
 ```

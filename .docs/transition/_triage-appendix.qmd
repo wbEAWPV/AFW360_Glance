@@ -1,6 +1,6 @@
 # Appendix: label triage {#sec-appendix-triage .unnumbered}
 
-The machine-readable version of the label triage is `contract/label_triage.csv`, one row per legacy label of the current Excel tables; it is authoritative, and this appendix is its readable view. Every `MAP` row carries `status = DRAFT`: none of the 91 series it defines becomes `ACTIVE` until the user confirms or flips its hard case (@sec-hard-cases) at gate G1.
+The machine-readable version of the label triage is `contract/label_triage.csv`, one row per legacy label of the current Excel tables; it is authoritative, and this appendix is its readable view. Every `MAP` row carries `status = DRAFT`: none of the 91 series it defines becomes `ACTIVE` until the user confirms or flips its hard case (@sec-hard-cases) at gate G0.
 
 ## Summary {#sec-appendix-triage-summary .unnumbered}
 

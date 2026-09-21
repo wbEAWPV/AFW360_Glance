@@ -43,9 +43,9 @@ META.CL_INDICATOR,CL_INDICATOR.csv,rows,62,0,Report: sec 1 summary line
 META.SERIES_PLAN,SERIES_PLAN.csv,rows,91,0,Report: sec 0 expected outputs
 META.TAB_PLAN,TAB_PLAN.csv,rows,8,0,"Standard: tbl-initial-plan (TOTAL, URB, HHH_SEX, HHH_AGE, QUINT, ADM1, ZONES, AEZ)"
 META.CL_BRK_VAR,CL_BRK_VAR.csv,rows,13,0,"Report sec 2: 8 standard + 5 new (EMP_ISIC, EMP_TYPE, EMP_FORMAL, HEO_SEX, HEO_MSTAT)"
-META.CL_COMP_BREAKDOWN,CL_COMP_BREAKDOWN.csv,rows (approx),60,5,Report sec 0: 'CL_COMP_BREAKDOWN ~60'
+META.CL_COMP_BREAKDOWN,CL_COMP_BREAKDOWN.csv,rows,60,0,contract/codes.csv: rows with codelist=CL_COMP_BREAKDOWN
 META.CL_QUAL_VAR,CL_QUAL_VAR.csv,rows,6,0,Report sec 2: 5 standard + ACQ
-META.CL_QUALIFIER,CL_QUALIFIER.csv,rows (approx),40,3,Report sec 0: '7 WELFARE + 8 POVLINE + 3 PPP + 13 COICOP + 7 FI + 2 ACQ (+ 2 DRAFT optional)'
+META.CL_QUALIFIER,CL_QUALIFIER.csv,rows,42,0,contract/codes.csv: 7 WELFARE + 8 POVLINE + 3 PPP + 13 COICOP + 4 ACQ + 7 FI
 META.CL_GEO,CL_GEO.csv,rows,35,0,"Recomputed above: geo_codes.csv, 35 rows"
 META.CL_GEO_SCHEME,CL_GEO_SCHEME.csv,rows,6,0,"Report sec 0: 'CL_GEO_SCHEME 6' (SEN ADM0/ADM1/ZONES, GNB ADM0/ADM1/AEZ)"
 META.CL_AREA,CL_AREA.csv,rows,2,0,"SEN, GNB"
@@ -53,13 +53,13 @@ META.GEO_SOURCES,GEO_SOURCES.csv,rows,2,0,"SEN_CODAB_v02, GNB_CODAB_V01"
 META.SURVEYS,SURVEYS.csv,rows,2,0,"SEN_EHCVM_2021, GNB_EHCVM_2021 (D6)"
 META.LEGACY_LABELS,LEGACY_LABELS.csv,rows,179,0,= LABELS.TOTAL (97 shared + 82 Departement)
 META.LEGACY_COLUMNS,LEGACY_COLUMNS.csv,rows,73,0,Report sec 0: 'SEN 47 incl. Departement 14; GNB 26'
-META.LEGACY_OVERRIDES,LEGACY_OVERRIDES.csv,rows (approx),10,2,Report sec 0: 'LEGACY_OVERRIDES ~10'
-META.TEXT,TEXT.csv,rows (approx),8,1,Report sec 0: 'TEXT ~8'
+META.LEGACY_OVERRIDES,LEGACY_OVERRIDES.csv,rows,12,0,contract/legacy_overrides.csv: 8 WITHHOLD + 4 COMMENT
+META.TEXT,TEXT.csv,rows,8,0,SEN about + 3 messages; GNB about + 3 messages
 META.FIGURES,FIGURES.csv,rows,1,0,1 figure: Fiscal Equity SEN.png
 META.DSD,DSD_AFW360_HH.csv,rows,26,0,Standard tbl-columns: 26 data-file columns
 META.SMALL_CODELISTS,metadata/codelists/,small-codelist files (CL_SEX..CL_UNIT per tbl-small-codelists),9,0,"Standard tbl-small-codelists: CL_SEX, CL_AGE, CL_URBANISATION, CL_OBS_STATUS, CL_THEME, CL_STAT_UNIT, CL_STATISTIC, CL_WEIGHT, CL_UNIT"
-GEOM.SEN.ADM0,SEN_CODAB_v02.gpkg / adm0,features,1,0,R: sf::st_read(INPUT shp/sen_admin0.shp) |> nrow()
-GEOM.SEN.ADM1,SEN_CODAB_v02.gpkg / adm1,features,14,0,R: sf::st_read(INPUT shp/sen_admin1.shp) |> nrow()
-GEOM.GNB.ADM0,GNB_CODAB_V01.gpkg / adm0,features,1,0,R: sf::st_read(INPUT shp/gnb_admin0.shp) |> nrow()
-GEOM.GNB.ADM1,GNB_CODAB_V01.gpkg / adm1,features,9,0,R: sf::st_read(INPUT shp/gnb_admin1.shp) |> nrow()
+GEOM.SEN.ADM0,SEN_CODAB_v02.gpkg / adm0,features,1,0,R: sf::st_read(data_raw/shp/sen_admin0.shp) |> nrow()
+GEOM.SEN.ADM1,SEN_CODAB_v02.gpkg / adm1,features,14,0,R: sf::st_read(data_raw/shp/sen_admin1.shp) |> nrow()
+GEOM.GNB.ADM0,GNB_CODAB_V01.gpkg / adm0,features,1,0,R: sf::st_read(data_raw/shp/gnb_admin0.shp) |> nrow()
+GEOM.GNB.ADM1,GNB_CODAB_V01.gpkg / adm1,features,9,0,R: sf::st_read(data_raw/shp/gnb_admin1.shp) |> nrow()
 LEGACY.FILES,data_raw/** (D2),tracked legacy files to move,122,0,git ls-files 'INPUT Tables' 'INPUT shp' 'INPUT Text' 'INPUT Figures' dsf.qqqww map_test.png | wc -l

@@ -1,0 +1,13 @@
+ref_area,sheet,column,legacy_label,action,hard_case,reason
+GNB,National,estimateCapital,*,WITHHOLD,H18,"The column is a copy of the zone Zonas_Costeiras_do_Sul, not Bissau (D5)."
+GNB,National,estimateTotal,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,National,estimateRural,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,National,estimateMale_HH,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,National,estimateOlder_HH,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,National,estimateQ4,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,ADM 1,estimateQuinara,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+GNB,ZAE,estimateZonas_Costeiras_do_Sul,Cultivated area (ha),WITHHOLD,H19,Cultivated area above 100 ha: outlier records inflate the mean (D5).
+SEN,*,*,Connected to electricity grid (SDG7.1.1),COMMENT,H7,"Implausible: 0.96-1.00 in every cell, including Q1 and Rural."
+SEN,*,*,HE has external (non-HH) employees,COMMENT,H12,Implausible: share 0.96 while mean non-HH employees is 0.54.
+GNB,*,*,HE has external (non-HH) employees,COMMENT,H12,Implausible: share 1.00 while mean non-HH employees is 0.48.
+SEN,*,*,Primary cooking fuel clean (gas/electricity),COMMENT,H9,Implausible pattern: higher in Rural and Q1 than in Capital and Q4.

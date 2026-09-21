@@ -6,6 +6,11 @@ DSD_AFW360_HH.csv,4,codelist,C,"The CL_* file that constrains this column, where
 DSD_AFW360_HH.csv,5,required,R,"R, C or O, as in tbl-columns."
 DSD_AFW360_HH.csv,6,sentinel,C,"Which of _T/_Z is valid here, where either sentinel applies."
 DSD_AFW360_HH.csv,7,description,R,What the column holds.
+COLUMNS.csv,1,file,R,"File name of a metadata or content CSV, e.g. CL_GEO.csv."
+COLUMNS.csv,2,position,R,1-based position of the column in that file.
+COLUMNS.csv,3,column,R,"Column name, exactly as in the file's header."
+COLUMNS.csv,4,status,R,"R (required), C (required when relevant) or O (optional)."
+COLUMNS.csv,5,description,R,What the column holds.
 AFW360_HH_<ISO3>_<YEAR>.csv,1,DATAFLOW,R,Constant AFW360_HH.
 AFW360_HH_<ISO3>_<YEAR>.csv,2,REF_AREA,R,CL_AREA (ISO 3166-1 alpha-3).
 AFW360_HH_<ISO3>_<YEAR>.csv,3,GEO,R,"CL_GEO, or _T for the whole country."
@@ -196,7 +201,7 @@ CL_INDICATOR.csv,13,numerator,C,For shares and ratios: the units in the breakdow
 CL_INDICATOR.csv,14,statistic,R,CL_STATISTIC.
 CL_INDICATOR.csv,15,weight,R,CL_WEIGHT.
 CL_INDICATOR.csv,16,ref_period,R,"ISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW; always P12M, never P1Y."
-CL_INDICATOR.csv,17,qualifiers,R,"Qualifier variables this indicator takes, with allowed categories or *; _Z if none."
+CL_INDICATOR.csv,17,qualifiers,R,"_Z if none; otherwise space-separated VAR:CODE,CODE entries in qualifier slot_order, e.g. 'POVLINE:POVLINE_PL300,POVLINE_PL420 PPP:PPP_2021'; VAR:* allows every category."
 CL_INDICATOR.csv,18,excluded_breakdowns,O,Breakdown variables or categories outside its universe; must not be produced.
 CL_INDICATOR.csv,19,unit_measure,R,CL_UNIT.
 CL_INDICATOR.csv,20,unit_denom,C,"What the value is per, for levels."
@@ -205,9 +210,9 @@ CL_INDICATOR.csv,22,price_basis,C,"NOMINAL or DEFLATED, for money."
 CL_INDICATOR.csv,23,price_ref_year,C,Required when price_basis=DEFLATED.
 CL_INDICATOR.csv,24,display_as,R,"PERCENT, NUMBER, THOUSANDS, MILLIONS, CURRENCY."
 CL_INDICATOR.csv,25,decimals,R,Decimals to display.
-CL_INDICATOR.csv,26,valid_min,R,Plausible minimum; empty means unbounded.
-CL_INDICATOR.csv,27,valid_max,R,Plausible maximum; empty means unbounded.
-CL_INDICATOR.csv,28,checks,R,"Space-separated checks vocabulary (RANGE_0_1, AGG_SUM, SUM_TO_1_OVER:<QUAL_VAR>, etc.)."
+CL_INDICATOR.csv,26,valid_min,C,Plausible minimum; empty means unbounded (gap i).
+CL_INDICATOR.csv,27,valid_max,C,Plausible maximum; empty means unbounded (gap i).
+CL_INDICATOR.csv,28,checks,R,"Space-separated tokens from the checks vocabulary in contract.qmd (RANGE_0_1, RANGE_NONNEG, AGG_SUM, AGG_BRACKET, AGG_NPOP_MEAN, SUM_TO_1_OVER:<QUAL_VAR>, SUM_TO_1_OVER_BRK, EQUALS_NPOP_RATIO, MONOTONE_IN:POVLINE, NONE)."
 CL_INDICATOR.csv,29,higher_is,R,"BETTER, WORSE or NEUTRAL: colour direction on maps."
 CL_INDICATOR.csv,30,sdg_indicator,O,"SDG indicator code, if any."
 CL_INDICATOR.csv,31,classification,O,"COICOP2018, ISIC4:A, etc."
@@ -292,7 +297,7 @@ TAB_PLAN.csv,5,sex,R,"_T, or F M."
 TAB_PLAN.csv,6,age,R,"_T, or a set of CL_AGE codes."
 TAB_PLAN.csv,7,comp_breakdowns,C,"Breakdown variable codes in slot order, e.g. QUINT HHH_SEX."
 TAB_PLAN.csv,8,themes,R,"ALL, or a list of CL_THEME codes."
-TAB_PLAN.csv,9,status,R,ACTIVE or DRAFT.
+TAB_PLAN.csv,9,status,R,ACTIVE or DRAFT; every row is DRAFT in this transition.
 AFW360_HH_<ISO3>_<YEAR>_manifest.csv,1,key,R,"One of the 16 manifest keys (sec-manifest): dataflow, dsd_version, metadata_version, ref_area, time_period, source_type, survey_id, precision, file_name, n_rows, producer, program, software, run_timestamp, status, notes."
 AFW360_HH_<ISO3>_<YEAR>_manifest.csv,2,value,R,The value for that key.
 SERIES_PLAN.csv,1,series_id,R,Stable identifier for one indicator x qualifier-set x defining-breakdown combination.
@@ -306,29 +311,29 @@ LEGACY_LABELS.csv,1,legacy_label,R,Free-text indicator label exactly as it appea
 LEGACY_LABELS.csv,2,sheet,R,"National, ADM 1, ZAE, Departement, or * for National+ADM 1+ZAE."
 LEGACY_LABELS.csv,3,action,R,"MAP, DUPLICATE_OF, DERIVED, or SKIP."
 LEGACY_LABELS.csv,4,series_id,C,SERIES_PLAN.series_id; required when action=MAP.
-LEGACY_LABELS.csv,5,duplicate_of,C,legacy_label this one duplicates; required when action=DUPLICATE_OF.
-LEGACY_LABELS.csv,6,scale,R,Multiplier applied to the raw cell value to reach base units (e.g. 1e6 for millions).
-LEGACY_LABELS.csv,7,assert_rule,C,"Converter-checked assertion, e.g. EQUALS:<label>, ONE_MINUS:<label> tol=0.02."
+LEGACY_LABELS.csv,5,duplicate_of,C,series_id of the MAP row this label resolves against; required when action is DUPLICATE_OF or DERIVED.
+LEGACY_LABELS.csv,6,scale,R,"Multiplier applied to the raw cell value to reach base units, written as a plain decimal (1 or 1000000, never 1e6); empty on rows that are not MAP."
+LEGACY_LABELS.csv,7,assert_rule,C,"EQUALS:<series_id> or ONE_MINUS:<series_id>, optionally followed by ' tol=<number>' (default tolerance 0); required when action is DUPLICATE_OF or DERIVED."
 LEGACY_LABELS.csv,8,notes,O,"Free text, e.g. the hard-case ID (H1-H19) that decided this row."
 LEGACY_COLUMNS.csv,1,ref_area,R,SEN or GNB.
-LEGACY_COLUMNS.csv,2,sheet,R,"National, ADM 1, or ZAE."
+LEGACY_COLUMNS.csv,2,sheet,R,"National, ADM 1, ZAE or Departement."
 LEGACY_COLUMNS.csv,3,column,R,"Exact workbook header, e.g. estimateFemale_HH."
-LEGACY_COLUMNS.csv,4,cut_id,R,TAB_PLAN.cut_id this column belongs to.
+LEGACY_COLUMNS.csv,4,cut_id,C,TAB_PLAN.cut_id this column belongs to; empty on SKIP rows.
 LEGACY_COLUMNS.csv,5,GEO,C,"GEO code this column maps to, for ADM 1 / ZAE columns."
 LEGACY_COLUMNS.csv,6,URBANISATION,C,"URBANISATION code this column maps to, for National urban/rural columns."
 LEGACY_COLUMNS.csv,7,COMP_BREAKDOWN,C,"COMP_BREAKDOWN code this column maps to, for National group columns."
-LEGACY_COLUMNS.csv,8,action,R,How the converter uses this column (e.g. MAP).
+LEGACY_COLUMNS.csv,8,action,R,"MAP, or SKIP for every Departement column (D3)."
 LEGACY_COLUMNS.csv,9,notes,O,Free text.
 LEGACY_OVERRIDES.csv,1,ref_area,R,SEN or GNB.
-LEGACY_OVERRIDES.csv,2,sheet,R,"National, ADM 1, ZAE, or *."
+LEGACY_OVERRIDES.csv,2,sheet,R,"National, ADM 1, ZAE, or * for all three."
 LEGACY_OVERRIDES.csv,3,column,R,"Exact workbook header, or * for every column."
 LEGACY_OVERRIDES.csv,4,legacy_label,R,"Exact workbook label, or * for every label."
 LEGACY_OVERRIDES.csv,5,action,R,"WITHHOLD (row absent from the data file) or COMMENT (value kept, OBS_COMMENT added)."
 LEGACY_OVERRIDES.csv,6,obs_comment,C,Required when action=COMMENT: the text written to OBS_COMMENT.
 LEGACY_OVERRIDES.csv,7,reason,R,Why the cell is overridden.
 LEGACY_OVERRIDES.csv,8,evidence,R,The value(s) or comparison that justify the override.
-validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),1,check_id,R,"<MODULE>.<NAME>, module in STRUCT/CODES/META/COVER/VALUE/RULE/ASSET/TEXT."
-validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),2,severity,R,"ERROR, WARN, or INFO."
-validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),3,file,R,The file the finding is about.
-validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),4,row_key,C,"The 18 key-column values of the offending row, space-separated; empty for file-level findings."
-validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),5,message,R,Human-readable explanation.
+validator findings (any pipeline/validate.R --out file),1,check_id,R,"<MODULE>.<NAME>, module in STRUCT/CODES/META/COVER/VALUE/RULE/ASSET/TEXT."
+validator findings (any pipeline/validate.R --out file),2,severity,R,"ERROR, WARN, or INFO."
+validator findings (any pipeline/validate.R --out file),3,file,R,The file the finding is about.
+validator findings (any pipeline/validate.R --out file),4,row_key,C,"The 18 key-column values of the offending row, space-separated; empty for file-level findings."
+validator findings (any pipeline/validate.R --out file),5,message,R,Human-readable explanation.

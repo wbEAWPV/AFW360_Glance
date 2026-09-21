@@ -1,6 +1,6 @@
 ---
 title: "AFW 360 transition: decisions"
-subtitle: "Decisions taken, hard cases to confirm at gate G1, and gaps in the standard"
+subtitle: "Decisions taken, hard cases to confirm at gate G0, and gaps in the standard"
 date: 2026-09-21
 format:
   html:
@@ -18,25 +18,28 @@ format:
 
 Agents build the transition pipeline with the *recommended* coding of every open hard case (@sec-hard-cases), marked `DRAFT`. Nothing built from a `DRAFT` coding is `ACTIVE` until the user says so.
 
-At gate G1 the user confirms or flips each open case. The SCRIBE agent records the outcome in two places: the `status` and user-note columns of this sheet, and a dated record in `reports/DECISION-<id>.md`, built from the template `templates/decision-change.md`. A flip is then implemented by a patch agent working on the case's owning package (@sec-hard-cases lists which one); the patch only changes CSV rows in that package, never the pipeline code or the validator logic.
+At gate G0, which is asked at the start of the run and before anything is built, the user confirms or flips each open case (decision D10). The wave-1 integrator records the answers in the `Status` and `User note` lines of this sheet and in `reports/GATE-G0.md`. A flip is applied once, by package WP99, to the contract seeds (`contract/label_triage.csv`, `codes.csv`, `legacy_overrides.csv`), and `contract/check_contract.R` recomputes the expected counts. Every later package then builds the flipped coding from the start.
 
-Related documents: [plan](plan.qmd), [contract](contract.qmd), [work packages](work-packages.qmd), [standard](../data-standard.qmd), [input findings](../input-tables-findings.md).
+Related documents: [plan](plan.qmd), [contract](contract.qmd), [package cards](packages/), [standard](../data-standard.qmd), [input findings](../input-tables-findings.md).
 
 # Decisions taken
 
-@tbl-decisions-taken lists the nine decisions the user made on 2026-09-21, overriding the triage report where the two differ. All are final; none needs confirmation at G1.
+@tbl-decisions-taken lists the nine decisions the user made on 2026-09-21, overriding the triage report where the two differ. All are final; none needs confirmation at a gate. D10 to D12 were added on 2026-09-21 after the review of the first plan; the user accepted the review's proposals ("go ahead update the plan").
 
 | ID | Topic | Decision | Date | Rationale | Applied in |
 |---|---|---|---|---|---|
-| D1 | Tooling | R for the metadata bootstrap, the converter and the validator. The dashboard stays Python/Quarto and later reads the harmonized CSVs through one loader. The standard's references to "Python" (data-standard.qmd lines 19, 768, 848) are changed to R. | 2026-09-21 | Keeps the language boundary at the CSV files: the dashboard's runtime does not change, only the pipeline that produces its inputs. | WP02 (standard text), WP03 (pipeline scaffold, R modules), WP10–WP12 (validator), WP13 (converter) |
-| D2 | Raw inputs | All 122 tracked legacy files move to `data_raw/`, split into `tables/`, `shp/` (110 files), `text/`, `figures/` and `scratch/`. File names and bytes are unchanged, proven by `data_raw/CHECKSUMS.sha256`. `index.qmd` (12 path references) and `CLAUDE.md` are updated in the same package. | 2026-09-21 | Separates raw legacy inputs from the new harmonized outputs while proving byte-for-byte that nothing in the inputs themselves was altered. | WP01 |
-| D3 | `Departement` sheet | Skip it entirely — all 82 labels. Remove the `PPP_2017` exception for `POVLINE_PL300` (standard line 343) and the example row (standard line 271); close open decision 9 (@sec-open-decisions-v03). | 2026-09-21 | The sheet's poverty totals disagree with `ADM 1` (4.13M/7.88M vs 3.13M/6.52M poor), and several of its "shared" indicators are impossible (`HE has any credit access` = 1.00 in all 14 regions; `HH has 4+ HE` = 0.80–1.00 — see input-tables-findings.md §6.1). Loading it would create duplicate keys with mostly conflicting values. | WP02 (standard text), WP08 (`LEGACY_LABELS.csv`: action `SKIP` on all 82 rows) |
-| D4 | Share indicators | Three codes: `POP_SH` (`stat_unit IND`, `weight IND`), `POP_HH_SH` (`HH`, `weight HH`), `POP_HE_SH` (`HE`, `weight HE`). This is report case H15's recommended coding. | 2026-09-21 | A single `POP_SH` cannot hold one `stat_unit`: `HE_COUNT` breakdowns describe households (standard line 77) while `EMP_*` shares are individual-level (standard line 386 says `IND`). Three codes let each keep its own `stat_unit` and weight. | WP07 (`CL_INDICATOR` rows), WP08 (legacy maps use the three codes) |
-| D5 | Defective cells | "Excluded" means the row is absent from the data file, not present with a value or a comment. Each exclusion is registered in `metadata/plans/LEGACY_OVERRIDES.csv` (action `WITHHOLD`, reason, evidence), and the coverage check reads the register to account for the gap. Covers the whole GNB `estimateCapital` column on `National` (it is a copy of the `Zonas_Costeiras_do_Sul` zone, not Bissau) and the 7 other GNB `Cultivated area (ha)` cells above 100 ha (`National` Total, Rural, Male_HH, Older_HH, Q4; `ADM 1` Quinara; `ZAE` Zonas_Costeiras_do_Sul). This supersedes the report's H18/H19 text, which said "O rows" — the rows are absent, not `OBS_STATUS=O`. `COMMENT` overrides (value kept, `OBS_COMMENT` added) remain available for values that are suspicious but worth keeping. | 2026-09-21 | The GNB `Capital` values are known to be wrong (a coding error in the residence variable, not a definitional difference — input-tables-findings.md §6.3), and the 7 outlier cultivated-area cells reach up to 148.4M ha. Keeping them as rows, even flagged, would make `AGG_SUM`/`AGG_NPOP_MEAN` checks fail on values already known to be corrupt. | WP08 (`LEGACY_OVERRIDES.csv`), WP11 (validator coverage reads the register), WP13 (converter drops withheld rows) |
-| D6 | GNB survey | EHCVM 2021/22 maps to `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021` (user-confirmed; `About_GNB.txt` is a placeholder with no real survey metadata). | 2026-09-21 | Closes open decision 4 of the standard (@sec-open-decisions-v03) so the GNB data file has a `TIME_PERIOD` and a `SURVEYS` row to key against. | WP09 (`SURVEYS.csv`) |
-| D7 | Hard cases H1–H19 | Built with the recommended coding, all `DRAFT`. The user confirms or flips each at gate G1. A flip only changes CSV rows. | 2026-09-21 | Lets the build proceed in parallel across 19 unresolved judgment calls instead of blocking on each one individually. | WP07, WP08 (per case; see @sec-hard-cases for the owning package of each) |
-| D8 | Execution | Parallel agents only. The Opus orchestrator never edits, runs or merges; Sonnet agents implement, verify and integrate. | 2026-09-21 | Keeps the orchestrator's role to coordination only, so review effort concentrates on the Sonnet agents' actual changes. | Process decision — governs execution in work-packages.qmd; not a data-file WP |
-| D9 | Empty legacy cells | `OBS_STATUS=O` is widened to mean "no value available" generally, not only "in the universe but no observations fell in this cell". In `ROUNDED_2DP` files, every `O` row requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | 2026-09-21 | Makes an empty legacy cell traceable to a specific, checked reason instead of an unexplained gap, without inventing a value that was never estimated. | WP02 (standard text), WP08 (legacy maps generate the comment), WP13 (converter writes it) |
+| D1 | Tooling | R for the metadata bootstrap, the converter and the validator. The dashboard stays Python/Quarto and later reads the harmonized CSVs through one loader. The standard's references to "Python" (data-standard.qmd lines 19, 768, 848) are changed to R. | 2026-09-21 | Keeps the language boundary at the CSV files: the dashboard's runtime does not change, only the pipeline that produces its inputs. | WP02 (standard text), WP03 (pipeline scaffold, R modules), WP11–WP14 (validator), WP15 (converter) |
+| D2 | Raw inputs | All 122 tracked legacy files move to `data_raw/`, split into `tables/`, `shp/` (110 files), `text/`, `figures/` and `scratch/`. File names and bytes are unchanged, proven by `data_raw/CHECKSUMS.sha256`. `index.qmd` (12 path references) and `CLAUDE.md` are updated in the same package. | 2026-09-21 | Separates raw legacy inputs from the new harmonized outputs while proving byte-for-byte that nothing in the inputs themselves was altered. | WP01 (the move), WP02 (layout in the standard) |
+| D3 | `Departement` sheet | Skip it entirely — all 82 labels. Remove the `PPP_2017` exception for `POVLINE_PL300` (standard line 343) and the example row (standard line 271); close open decision 9 (@sec-open-decisions-v03). | 2026-09-21 | The sheet's poverty totals disagree with `ADM 1` (4.13M/7.88M vs 3.13M/6.52M poor), and several of its "shared" indicators are impossible (`HE has any credit access` = 1.00 in all 14 regions; `HH has 4+ HE` = 0.80–1.00 — see input-tables-findings.md §6.1). Loading it would create duplicate keys with mostly conflicting values. | WP02 (standard text), WP09 (`LEGACY_LABELS.csv`: action `SKIP` on all 82 rows) |
+| D4 | Share indicators | Three codes: `POP_SH` (`stat_unit IND`, `weight IND`), `POP_HH_SH` (`HH`, `weight HH`), `POP_HE_SH` (`HE`, `weight HE`). This is report case H15's recommended coding. | 2026-09-21 | A single `POP_SH` cannot hold one `stat_unit`: `HE_COUNT` breakdowns describe households (standard line 77) while `EMP_*` shares are individual-level (standard line 386 says `IND`). Three codes let each keep its own `stat_unit` and weight. | WP02 (standard text), WP07 (`CL_INDICATOR` rows), WP09 (legacy maps use the three codes) |
+| D5 | Defective cells | "Excluded" means the row is absent from the data file, not present with a value or a comment. Each exclusion is registered in `metadata/plans/LEGACY_OVERRIDES.csv` (action `WITHHOLD`, reason, evidence), and the coverage check reads the register to account for the gap. Covers the whole GNB `estimateCapital` column on `National` (it is a copy of the `Zonas_Costeiras_do_Sul` zone, not Bissau) and the 7 other GNB `Cultivated area (ha)` cells above 100 ha (`National` Total, Rural, Male_HH, Older_HH, Q4; `ADM 1` Quinara; `ZAE` Zonas_Costeiras_do_Sul). This supersedes the report's H18/H19 text, which said "O rows" — the rows are absent, not `OBS_STATUS=O`. `COMMENT` overrides (value kept, `OBS_COMMENT` added) remain available for values that are suspicious but worth keeping. | 2026-09-21 | The GNB `Capital` values are known to be wrong (a coding error in the residence variable, not a definitional difference — input-tables-findings.md §6.3), and the 7 outlier cultivated-area cells reach up to 148.4M ha. Keeping them as rows, even flagged, would make `AGG_SUM`/`AGG_NPOP_MEAN` checks fail on values already known to be corrupt. | WP02 (standard text), WP09 (`LEGACY_OVERRIDES.csv`), WP12 (validator coverage reads the register), WP15 (converter drops withheld rows) |
+| D6 | GNB survey | EHCVM 2021/22 maps to `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021` (user-confirmed; `About_GNB.txt` is a placeholder with no real survey metadata). | 2026-09-21 | Closes open decision 4 of the standard (@sec-open-decisions-v03) so the GNB data file has a `TIME_PERIOD` and a `SURVEYS` row to key against. | WP02 (open decision 4 closed), WP10 (`SURVEYS.csv`) |
+| D7 | Hard cases H1–H19 | Built with the recommended coding, all `DRAFT`. The user confirms or flips each at a gate (moved to G0 by D10). | 2026-09-21 | Lets the build proceed in parallel across 19 unresolved judgment calls instead of blocking on each one individually. | WP99 applies any flip to the contract seeds before the build (see D10); WP06–WP09 then build from the seeds |
+| D8 | Execution | Parallel agents only. The Opus orchestrator never edits, runs or merges; Sonnet agents implement, verify and integrate. | 2026-09-21 | Keeps the orchestrator's role to coordination only, so review effort concentrates on the Sonnet agents' actual changes. | Process decision — governs execution in plan.qmd and orchestrator-prompt.md; not a data-file WP |
+| D9 | Empty legacy cells | `OBS_STATUS=O` is widened to mean "no value available" generally, not only "in the universe but no observations fell in this cell". In `ROUNDED_2DP` files, every `O` row requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | 2026-09-21 | Makes an empty legacy cell traceable to a specific, checked reason instead of an unexplained gap, without inventing a value that was never estimated. | WP02 (standard text), WP09 (legacy maps generate the comment), WP15 (converter writes it) |
+| D10 | Gate order | The open hard cases (H1–H14, H17) and the key-messages question (T1) are asked at gate **G0, at the start of the run**, while wave 1 works. A flip is applied once to the contract seeds by package WP99, and `contract/check_contract.R` recomputes the expected counts. The standard v0.4 and the contract are approved at G1, after wave 1; the results are accepted at G2. This supersedes the timing in D7. | 2026-09-21 | Every hard case can be answered from the evidence on this sheet, without any built file. Asked after the build, one flip would need patches in up to three packages and would change counts that the acceptance scripts had already fixed, with nobody allowed to update them. | WP99; `templates/gate-review.md` |
+| D11 | Metadata by code | Every metadata file is generated by an R script under `pipeline/bootstrap/` from the contract seeds (`contract/*.csv`) and a small authored text file (`pipeline/bootstrap/text/*.csv`). The scripts take `--out-root`, so any file can be rebuilt and compared. From metadata version 0.1.0 onward the CSV files are the source of truth and are edited by hand through pull requests; the bootstrap scripts are then frozen. | 2026-09-21 | The goal is clear code that turns the inputs into structured data **and** its metadata. Hand-typed codelists cannot be rerun or checked, and they are where agents make silent errors. | WP02 (standard text), WP04–WP10 |
+| D12 | Line endings | `.gitattributes` pins `*.csv`, `*.R`, `*.md`, `*.qmd` and `*.sha256` to LF, and marks `data_raw/**` as binary. | 2026-09-21 | `core.autocrlf=true` on this machine would check every generated CSV out with CRLF in a new worktree, which breaks the LF rule and every byte-identity check. | `.gitattributes`; WP00 (check), WP01 (restores the exact bytes after the move) |
 
 : Decisions taken, 2026-09-21 {#tbl-decisions-taken}
 
@@ -44,9 +47,9 @@ D2 overrides the CLAUDE.md working rule "until objective 3 is done, don't restru
 
 # Hard cases {#sec-hard-cases}
 
-Report cases H1–H19 are open judgment calls: places where a label, a value or a cross-check did not resolve cleanly to one coding. Each is built with its *recommended* coding as `DRAFT`; the user confirms or flips it at gate G1. `DECIDED` cases (H15, H16, H18, H19) were already settled by the user decisions in @tbl-decisions-taken and are listed here for completeness and cross-reference, with an empty user note since no further input is expected.
+Report cases H1–H19 are open judgment calls: places where a label, a value or a cross-check did not resolve cleanly to one coding. Each is built with its *recommended* coding as `DRAFT`; the user confirms or flips it at gate G0. `DECIDED` cases (H15, H16, H18, H19) were already settled by the user decisions in @tbl-decisions-taken and are listed here for completeness and cross-reference, with an empty user note since no further input is expected.
 
-Each case below gives: the question, the evidence for the recommended coding, the recommended (built) coding, the alternative, which work package's CSV rows a flip would change, its status, and the user's note (empty until G1).
+Each case below gives: the question, the evidence for the recommended coding, the recommended (built) coding, the alternative, which packages build the coding, its status, and the user's note (empty until G0).
 
 ## H1 — Non-food consumption share {#sec-h01}
 
@@ -58,7 +61,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** An aggregate qualifier `COICOP_CP02T13` — needs an aggregate-category flag the standard does not have, and the closure check currently excludes aggregates.
 
-**Owner WP.** WP07 (`SERIES_PLAN.csv` — no series row for label #72), WP08 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>`).
+**Built by.** WP08 (`SERIES_PLAN.csv` — no series row for label #72), WP09 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>`).
 
 **Status.** DEFAULT.
 
@@ -74,7 +77,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Two separate indicators, `CONS_FOOD_OWN_SH` and `CONS_FOOD_MKT_SH`.
 
-**Owner WP.** WP06 (`CL_QUAL_VAR.csv`, `CL_QUALIFIER.csv` — the `ACQ` variable and its categories), WP07 (`SERIES_PLAN.csv`), WP08 (legacy maps).
+**Built by.** WP06 (`CL_QUAL_VAR.csv`, `CL_QUALIFIER.csv` — the `ACQ` variable and its categories), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
 **Status.** DEFAULT.
 
@@ -90,7 +93,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** A single proportion indicator `JOB_WAGE`, with non-wage `DERIVED` as 1 − `JOB_WAGE`.
 
-**Owner WP.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_TYPE`), WP07 (`SERIES_PLAN.csv`), WP08 (legacy maps).
+**Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_TYPE`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
 **Status.** DEFAULT.
 
@@ -106,7 +109,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** None proposed in the report.
 
-**Owner WP.** WP08 (`LEGACY_LABELS.csv` mapping only; no new codelist rows).
+**Built by.** WP09 (`LEGACY_LABELS.csv` mapping only; no new codelist rows).
 
 **Status.** DEFAULT.
 
@@ -122,7 +125,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Nest trade and transport as children of `EMP_SECTOR_SER`, or register them as separate `JOB_*` proportion indicators.
 
-**Owner WP.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_ISIC`), WP07 (`SERIES_PLAN.csv`), WP08 (legacy maps).
+**Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_ISIC`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
 **Status.** DEFAULT.
 
@@ -138,7 +141,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Universe = wage employees only, matching how the dashboard currently reads the figure.
 
-**Owner WP.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_FORMAL`), WP07 (`SERIES_PLAN.csv`), WP08 (legacy maps).
+**Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_FORMAL`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
 **Status.** DEFAULT.
 
@@ -154,7 +157,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Skip `EN_GRID_CONN` in both countries until its definition is documented.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — the three codes and their `related` fields), WP08 (`LEGACY_OVERRIDES.csv` `COMMENT` on SEN `EN_GRID_CONN`).
+**Built by.** WP07 (`CL_INDICATOR.csv` — the three codes and their `related` fields), WP09 (`LEGACY_OVERRIDES.csv` `COMMENT` on SEN `EN_GRID_CONN`).
 
 **Status.** DEFAULT.
 
@@ -170,7 +173,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Skip #3 until the code scale is documented.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — `EN_OUTAGE_DUR_CODE`, `unit_measure INDEX`), WP08 (legacy map).
+**Built by.** WP07 (`CL_INDICATOR.csv` — `EN_OUTAGE_DUR_CODE`, `unit_measure INDEX`), WP09 (legacy map).
 
 **Status.** DEFAULT.
 
@@ -186,7 +189,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Skip label #86 entirely.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — name and `related` field), WP08 (legacy map, `LEGACY_OVERRIDES.csv` `COMMENT`).
+**Built by.** WP07 (`CL_INDICATOR.csv` — name and `related` field), WP09 (legacy map, `LEGACY_OVERRIDES.csv` `COMMENT`).
 
 **Status.** DEFAULT.
 
@@ -202,7 +205,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Code #60 as `POP_HH_SH` with a new aggregate breakdown category `HE_COUNT_1P` (parent of `HE_COUNT_1`…`HE_COUNT_4P`).
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — `HE_HH_OWNER`), WP08 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>` for #60).
+**Built by.** WP07 (`CL_INDICATOR.csv` — `HE_HH_OWNER`), WP09 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>` for #60).
 
 **Status.** DEFAULT.
 
@@ -218,7 +221,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Two proportion indicators, `HE_OWNER_FEMALE` and `HE_OWNER_MARRIED`.
 
-**Owner WP.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `HEO_SEX`, `HEO_MSTAT`), WP07 (`SERIES_PLAN.csv`), WP08 (legacy maps).
+**Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `HEO_SEX`, `HEO_MSTAT`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
 **Status.** DEFAULT.
 
@@ -234,7 +237,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Skip label #38.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — `universe_filter`), WP08 (`LEGACY_OVERRIDES.csv` `COMMENT`).
+**Built by.** WP07 (`CL_INDICATOR.csv` — `universe_filter`), WP09 (`LEGACY_OVERRIDES.csv` `COMMENT`).
 
 **Status.** DEFAULT.
 
@@ -250,7 +253,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** `POP_HH_SH` with a new breakdown variable.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — `SP_HEALTH_COV_HH`), WP08 (legacy map).
+**Built by.** WP07 (`CL_INDICATOR.csv` — `SP_HEALTH_COV_HH`), WP09 (legacy map).
 
 **Status.** DEFAULT.
 
@@ -266,7 +269,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Map it with a `COMMENT` override instead of skipping.
 
-**Owner WP.** WP08 (`LEGACY_LABELS.csv`, action `SKIP`).
+**Built by.** WP09 (`LEGACY_LABELS.csv`, action `SKIP`).
 
 **Status.** DEFAULT.
 
@@ -282,7 +285,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative (not taken).** One `POP_SH` with `stat_unit` inferred from the breakdown's `describes` field.
 
-**Owner WP.** WP07 (`CL_INDICATOR.csv` — the three codes).
+**Built by.** WP07 (`CL_INDICATOR.csv` — the three codes).
 
 **Status.** DECIDED — D4.
 
@@ -298,7 +301,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative (not taken).** Keep the sheet's two poverty rows as `POV_HC` with `PPP_2017`.
 
-**Owner WP.** WP02 (standard text — removes the `PPP_2017` exception and example row, closes open decision 9), WP08 (`LEGACY_LABELS.csv`, action `SKIP`).
+**Built by.** WP02 (standard text — removes the `PPP_2017` exception and example row, closes open decision 9), WP09 (`LEGACY_LABELS.csv`, action `SKIP`).
 
 **Status.** DECIDED — D3.
 
@@ -314,7 +317,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative.** Keep `HHH_AGE_LT35`/`HHH_AGE_GE35` as written in the standard.
 
-**Owner WP.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — the `HHH_AGE` categories).
+**Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — the `HHH_AGE` categories).
 
 **Status.** DEFAULT.
 
@@ -330,7 +333,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative (not taken).** Keep it with a `COMMENT` override, accepting that `AGG_SUM` would fail on it.
 
-**Owner WP.** WP08 (`LEGACY_OVERRIDES.csv`, action `WITHHOLD`).
+**Built by.** WP09 (`LEGACY_OVERRIDES.csv`, action `WITHHOLD`).
 
 **Status.** DECIDED — D5.
 
@@ -346,7 +349,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Alternative (not taken).** Withhold the whole `AGR_CULT_AREA` indicator for GNB (26 rows), rather than just the affected cells.
 
-**Owner WP.** WP08 (`LEGACY_OVERRIDES.csv`, action `WITHHOLD`, 7 rows).
+**Built by.** WP09 (`LEGACY_OVERRIDES.csv`, action `WITHHOLD`, 7 rows).
 
 **Status.** DECIDED — D5.
 
@@ -354,45 +357,47 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 # Gaps in the standard and their resolutions
 
-The triage report found 25 places where data-standard.qmd v0.3 does not say enough to write the converter or the validator, lettered (a)–(y). @tbl-gaps lists the resolution adopted for each. The column lists in this table are summaries; where they differ from `contract/csv_headers.csv`, the contract file is authoritative. WP02 writes all of these into data-standard v0.4; the user approves them at gate G0, before the metadata packages (WP04–WP12) that depend on the updated text begin.
+The triage report found 25 places where data-standard.qmd v0.3 does not say enough to write the converter or the validator, lettered (a)–(y). The review of the first plan added (z) and (aa). @tbl-gaps lists the resolution adopted for each. The column lists in this table are summaries; where they differ from `contract/csv_headers.csv`, the contract file is authoritative. WP02 writes all of these into data-standard v0.4; the user approves them at gate G1, before the metadata packages (WP04–WP10) begin. The package cards already carry the resolutions that each package needs.
 
 | ID | Gap (standard reference) | Resolution adopted | Applied in |
 |---|---|---|---|
-| (a) | `LEGACY_LABELS` columns (line 869) are not enough to drive a converter. | Add columns `legacy_label, sheet, action (MAP\|DUPLICATE_OF\|DERIVED\|SKIP), series_id, scale, assert_rule, notes`; `assert_rule` values such as `EQUALS:<label#>`, `ONE_MINUS:<label#>`, `ONE_MINUS:<label#> tol=0.02`, checked by the converter. `sheet` is single-valued (`*` = National+ADM 1+ZAE) because "ADM 1" contains a space. Add `plans/LEGACY_COLUMNS.csv` (`ref_area, sheet, column, cut_id, GEO, URBANISATION, COMP_BREAKDOWN, action`) and `plans/LEGACY_OVERRIDES.csv` (`ref_area, sheet, column\|*, legacy_label\|*, action (WITHHOLD\|COMMENT), obs_comment, reason, evidence`). | WP02 (spec), WP08 (the three CSV files) |
-| (b) | The coverage rule (line 250) cannot generate share rows, and a Cartesian product over qualifiers over-generates (e.g. `CONS_SH` COICOP × ACQ gives 39 combinations, only 15 real). | Add an explicit `plans/SERIES_PLAN.csv` (`series_id, ref_area, INDICATOR, qualifiers, defining_breakdown, status`). Required rows = `SERIES_PLAN` × compatible `TAB_PLAN` cut categories − excluded breakdowns − `LEGACY_OVERRIDES` withheld. `CL_INDICATOR.qualifiers` lists allowed values only, grammar `VAR:CODE,CODE\|* …`. The validator keeps each generated row's provenance (`cut_id`, defining variable). | WP02 (spec), WP07 (`SERIES_PLAN.csv`), WP11 (validator coverage) |
-| (c) | Empty cells with unknown reason. | `OBS_STATUS=O` widened; `ROUNDED_2DP` files require an `OBS_COMMENT` prefixed `LEGACY_EMPTY:` (D9). | WP02 (spec), WP08 (legacy maps), WP13 (converter) |
-| (d) | Unknowable required fields (`source_vars`, etc.) block filling every **R** column. | Reserved token `TBD` allowed in required text columns only on `status=DRAFT` rows (warning); error once `ACTIVE`. `owner = "AFW DIP/POV team"` where known; `source_vars` taken from variable names inside labels (`activ12m`, `couvmal`, `cuisin`, `superf`), else `TBD`. In `ROUNDED_2DP` files, `N_OBS`, `N_POP`, `STD_ERR`, `CI_*` are empty (reconciles standard lines 800 vs. 590 and the **R**/**C** marks in the standard's columns table, sec-columns). `DRAFT` codes are allowed only in files whose manifest `status=DRAFT` (warning); `DRAFT` codes stay renamable; the "never changes" rule (line 373) applies only from first `ACTIVE` onward. | WP02 (spec), WP07/WP08 (`DRAFT` rows), WP10 (validator `TBD` check) |
+| (a) | `LEGACY_LABELS` columns (line 869) are not enough to drive a converter. | Add columns `legacy_label, sheet, action (MAP\|DUPLICATE_OF\|DERIVED\|SKIP), series_id, scale, assert_rule, notes`; `assert_rule` values `EQUALS:<series_id>`, `ONE_MINUS:<series_id>` and `ONE_MINUS:<series_id> tol=0.02`, checked by the converter, plus a `duplicate_of` column holding the same target `series_id` (the triage seed points at its own row IDs, such as `L008`; WP09 translates them). `sheet` is single-valued (`*` = National+ADM 1+ZAE) because "ADM 1" contains a space. Add `plans/LEGACY_COLUMNS.csv` (`ref_area, sheet, column, cut_id, GEO, URBANISATION, COMP_BREAKDOWN, action`) and `plans/LEGACY_OVERRIDES.csv` (`ref_area, sheet, column\|*, legacy_label\|*, action (WITHHOLD\|COMMENT), obs_comment, reason, evidence`). | WP02 (spec), WP09 (the three CSV files) |
+| (b) | The coverage rule (line 250) cannot generate share rows, and a Cartesian product over qualifiers over-generates (e.g. `CONS_SH` COICOP × ACQ gives 39 combinations, only 15 real). | Add an explicit `plans/SERIES_PLAN.csv` (`series_id, ref_area, INDICATOR, qualifiers, defining_breakdown, status`). Required rows = `SERIES_PLAN` × compatible `TAB_PLAN` cut categories − excluded breakdowns − `LEGACY_OVERRIDES` withheld. `CL_INDICATOR.qualifiers` lists allowed values only, grammar `VAR:CODE,CODE\|* …`. The validator keeps each generated row's provenance (`cut_id`, defining variable). | WP02 (spec), WP08 (`SERIES_PLAN.csv`), WP12 (validator coverage) |
+| (c) | Empty cells with unknown reason. | `OBS_STATUS=O` widened; `ROUNDED_2DP` files require an `OBS_COMMENT` prefixed `LEGACY_EMPTY:` (D9). | WP02 (spec), WP09 (legacy maps), WP15 (converter) |
+| (d) | Unknowable required fields (`source_vars`, etc.) block filling every **R** column. | Reserved token `TBD` allowed in required text columns only on `status=DRAFT` rows (warning); error once `ACTIVE`. `owner = "AFW DIP/POV team"` where known; `source_vars` taken from variable names inside labels (`activ12m`, `couvmal`, `cuisin`, `superf`), else `TBD`. In `ROUNDED_2DP` files, `N_OBS`, `N_POP`, `STD_ERR`, `CI_*` are empty (reconciles standard lines 800 vs. 590 and the **R**/**C** marks in the standard's columns table, sec-columns). `DRAFT` codes are allowed only in files whose manifest `status=DRAFT` (warning); `DRAFT` codes stay renamable; the "never changes" rule (line 373) applies only from first `ACTIVE` onward. | WP02 (spec), WP07–WP09 (`DRAFT` rows), WP11 (validator `TBD` check) |
 | (e) | R code location is unspecified; standard still says "Python" (lines 19, 768, 848). | Top-level `pipeline/` folder: `R/` modules, `convert_legacy.R`, `build_geo.R`, `validate.R` as CLI entry points with `--root`, `tests/testthat/` with fixtures, `acceptance/`, `README.md`. | WP02 (spec, updates the three lines), WP03 (pipeline scaffold) |
-| (f) | `Departement` sheet handling was undecided (line 862 area). | Skip entirely (D3); remove the `PPP_2017` exception and example row. | WP02 (spec), WP08 (legacy maps) |
-| (g) | Age cutoff and GNB survey year were unknown. | H17 (age cutoff, `DRAFT`, confirm at/after G1) and D6 (GNB year). Add a `status` column to `SURVEYS.csv` (lines 505–526) so a placeholder survey record can be told apart from a confirmed one. | WP02 (spec, `SURVEYS.status`), WP06 (H17 codes), WP09 (`SURVEYS.csv` GNB row) |
-| (h) | Several validation rules are ambiguous: "parent of a row" (line 811) undefined for share rows; `N_POP` meaning differs between line 232 and `EQUALS_NPOP_RATIO` (line 808); `ROUNDED_2DP` tolerance (line 813) unspecified; closure/partition checks need a full category set. | (1) A row's parent comes from cut variables only (provenance), not from breakdown structure in general. (2) `N_POP` for share rows is defined explicitly as the universe's population. (3) Tolerance `h = 0.005 × scale`; single value ±h; sum of k children vs. parent ±(k+1)h; closure over k categories ±k·h (COICOP ±0.065; observed range 0.96–1.02); monotonicity gets no tolerance; `AGG_NPOP_MEAN` is impossible without `N_POP`, replaced by `AGG_BRACKET` (parent within [min child − h, max child + h]) — 0 violations found across all mean/share series in both countries; only `POV_NUM` totals fail, as expected of a total, not a mean; every tolerance comparison is `abs(dev) <= tol + 1e-9`, so floating-point noise at the boundary does not fail a valid value. (4) Partial category sets: `INFO` (skip) when categories are partial, `WARN` when a child is `O` or withheld. | WP02 (spec), WP11 (validator rules) |
+| (f) | `Departement` sheet handling was undecided (line 862 area). | Skip entirely (D3); remove the `PPP_2017` exception and example row. | WP02 (spec), WP09 (legacy maps) |
+| (g) | Age cutoff and GNB survey year were unknown. | H17 (age cutoff, `DRAFT`, asked at G0) and D6 (GNB year). Add a `status` column to `SURVEYS.csv` (lines 505–526) so a placeholder survey record can be told apart from a confirmed one. | WP02 (spec, `SURVEYS.status`), WP06 (H17 codes), WP10 (`SURVEYS.csv` GNB row) |
+| (h) | Several validation rules are ambiguous: "parent of a row" (line 811) undefined for share rows; `N_POP` meaning differs between line 232 and `EQUALS_NPOP_RATIO` (line 808); `ROUNDED_2DP` tolerance (line 813) unspecified; closure/partition checks need a full category set. | (1) A row's parent comes from cut variables only (provenance), not from breakdown structure in general. (2) `N_POP` for share rows is defined explicitly as the universe's population. (3) Tolerance `h = 0.005 × scale`; single value ±h; sum of k children vs. parent ±(k+1)h; closure over k categories ±k·h (COICOP ±0.065; observed range 0.96–1.02); monotonicity gets no tolerance; `AGG_NPOP_MEAN` is impossible without `N_POP`, replaced by `AGG_BRACKET` (parent within [min child − h, max child + h]) — 0 violations found across all mean/share series in both countries; only `POV_NUM` totals fail, as expected of a total, not a mean; every tolerance comparison is `abs(dev) <= tol + 1e-9`, so floating-point noise at the boundary does not fail a valid value. (4) Partial category sets: `INFO` (skip) when categories are partial, `WARN` when a child is `O` or withheld. | WP02 (spec), WP13 (validator rules) |
 | (i) | `valid_min`/`valid_max` marked **R**, yet "empty means unbounded" (line 402 vs. 831). | Change both to **C**. | WP02 (spec), WP07 (`CL_INDICATOR` rows) |
-| (j) | `valid_from`/`valid_to` for geography vs. what they are compared against (line 780 vs. 681) was unclear. | Compare against the manifest's `run_timestamp`, never against `TIME_PERIOD`. | WP02 (spec), WP05 (geography), WP12 (validator assets) |
-| (k) | ADM0 geometry needs `CL_GEO` rows, but `GEO=SN` vs. `GEO=_T` would be two spellings of "the whole country". | ADM0 codes are registered in `CL_GEO` as geometry-only and rejected if used in the `GEO` breakdown column of a data row. | WP02 (spec), WP05 (`CL_GEO` rows for SN, GW), WP10/WP11 (validator code check) |
-| (l) | `TAB_PLAN` writes `sex=_T`, but HH/HE indicator rows must write `SEX=_Z` (lines 205, 784). | The coverage generator converts `_T` to `_Z` for `SEX`/`AGE` based on the indicator's `stat_unit`. | WP02 (spec), WP07 (coverage generator), WP11 (validator) |
-| (m) | "Cuts that cover its theme and unit" (line 250) assumes `TAB_PLAN` has a unit column, which it does not. | Derive applicable cuts from `applies_to_units` instead; geography and urbanisation cuts cover all units. | WP02 (spec), WP06 (`CL_BRK_VAR.applies_to_units`), WP07 |
+| (j) | `valid_from`/`valid_to` for geography vs. what they are compared against (line 780 vs. 681) was unclear. | Compare against the manifest's `run_timestamp`, never against `TIME_PERIOD`. | WP02 (spec), WP05 (geography), WP14 (validator assets) |
+| (k) | ADM0 geometry needs `CL_GEO` rows, but `GEO=SN` vs. `GEO=_T` would be two spellings of "the whole country". | ADM0 codes are registered in `CL_GEO` as geometry-only and rejected if used in the `GEO` breakdown column of a data row. | WP02 (spec), WP05 (`CL_GEO` rows for SN, GW), WP11 (validator check `CODES.GEO_ADM0`) |
+| (l) | `TAB_PLAN` writes `sex=_T`, but HH/HE indicator rows must write `SEX=_Z` (lines 205, 784). | The coverage generator converts `_T` to `_Z` for `SEX`/`AGE` based on the indicator's `stat_unit`. | WP02 (spec), WP08 (required-row generator), WP11 (validator check `CODES.SEX_AGE_UNIT`) |
+| (m) | "Cuts that cover its theme and unit" (line 250) assumes `TAB_PLAN` has a unit column, which it does not. | Derive applicable cuts from `applies_to_units` instead; geography and urbanisation cuts cover all units. | WP02 (spec), WP06 (`CL_BRK_VAR.applies_to_units`), WP08 |
 | (n) | `CL_QUAL_VAR.requires` (`POVLINE` requires `PPP`) conflicts with `POVLINE_NPL`'s `valid_with _Z` (line 346). | `valid_with _Z` overrides `requires` for that category. | WP02 (spec), WP06 (`CL_QUAL_VAR`/`CL_QUALIFIER` rows) |
 | (o) | "Statistic admits a standard error" (line 191) was never defined anywhere. | Add an `admits_se` column to `CL_STATISTIC`. | WP02 (spec), WP04 (small codelists) |
-| (p) | No registry exists of which text/number slots the dashboard requests (line 826). | Add `content/SLOTS.csv`, read by the validator. | WP02 (spec), WP09/WP12 |
-| (q) | Validator output format is undefined. | A findings CSV: `check_id, severity (ERROR\|WARN\|INFO), file, row_key, message`; non-zero process exit on any `ERROR`. | WP02 (spec), WP10 (validator core) |
-| (r) | Deterministic output was not specified. | Sort rows by the 18 key columns in DSD order; UTF-8, LF line endings, `NA` written as `""`, never scientific notation (`round(x*scale, 10)` plus a fixed formatter), and an injectable `run_timestamp` for reproducible test runs. | WP02 (spec), WP03 (R writer), WP13 (converter) |
-| (s) | `dsd_version` (line 532) has no stated source. | Taken from the `DSD_AFW360_HH.csv` file itself, via the metadata `VERSION`. | WP02 (spec), WP03/WP13 |
+| (p) | No registry exists of which text/number slots the dashboard requests (line 826). | Add `content/SLOTS.csv`, read by the validator. | WP02 (spec only). The file and its validator check are **deferred** to the dashboard switch-over; no package of this transition builds them. |
+| (q) | Validator output format is undefined. | A findings CSV: `check_id, severity (ERROR\|WARN\|INFO), file, row_key, message`; non-zero process exit on any `ERROR`. | WP02 (spec), WP11 (validator core) |
+| (r) | Deterministic output was not specified. | Sort rows by the 18 key columns in DSD order; UTF-8, LF line endings, `NA` written as `""`, never scientific notation (`round(x*scale, 10)` plus a fixed formatter), and an injectable `run_timestamp` for reproducible test runs. | WP02 (spec), WP03 (R writer), WP15 (converter) |
+| (s) | `dsd_version` (line 532) has no stated source. | Taken from the `DSD_AFW360_HH.csv` file itself, via the metadata `VERSION`. | WP02 (spec), WP03/WP15 |
 | (t) | No rule against inferring a category's variable by string-prefix matching (`HE_` is a prefix of `HE_COUNT_…`). | Category → variable lookup goes only through `CL_COMP_BREAKDOWN.var_code`, never prefix parsing. | WP02 (spec), WP06 (`CL_COMP_BREAKDOWN`), WP11 (validator) |
 | (u) | Geometry validity engine unspecified; SN01 and SN13 fail s2/GEOS validity. | Build with GEOS (`sf_use_s2(FALSE)`) plus `st_make_valid`; check with GEOS; use the plain (non-`_em`) shapefiles as source. | WP02 (spec), WP05 (geography build) |
 | (v) | `CL_GEO.name_en` says "as issued by the boundary source" (line 473), which does not fit zones/AEZ names, and legacy zone column names are truncated at 32 characters. | Full zone names marked `TBD` pending confirmation with the producer; the boundary-sourced name rule stays for ADM0/ADM1. | WP02 (spec), WP05 (`CL_GEO` zone rows) |
 | (w) | `weight`, `statistic` (`MEAN` vs. `RATIO_TOTALS`) and `unit_time` for every HE flow indicator are unknown from the legacy labels alone. | Best guess recorded with `notes: LEGACY assumed`, rows kept `DRAFT` until a producer confirms. | WP02 (spec), WP07 (`CL_INDICATOR` HE rows) |
-| (x) | Text handling was unspecified: `About_SEN.txt` has 2 paragraphs; `Messages_SEN.txt` is Python chunks with raw HTML (not allowed, line 731) and `##` placeholders and 2026 projections not present in the data; `index.qmd`'s hardcoded message titles differ from `Messages_SEN.txt` ("Drivers of Inequality" vs. "Inequality"); scope of `About.txt` vs. `About_SEN.txt` was unclear. | `About_SEN.txt` → `content/text/SEN/about.md`. `Messages_SEN.txt` stripped of chunk/HTML wrappers and stored as `DRAFT` literal prose with no invented numbers; both title variants recorded, with the `index.qmd` version as the candidate, `DRAFT`. `About.txt` is treated as SEN-specific (`ref_area = SEN`, not `ALL`). `Messages_SEN.txt2` and `Tables_SEN_TEST.xlsx` are ignored as scratch files. | WP02 (spec), WP09 (`TEXT.csv`, `content/text/SEN/about.md`) |
-| (y) | 1-decimal percent display implies false precision for data that is only 2-decimal-place accurate. | The dashboard caps displayed decimals by the file's declared precision (`ROUNDED_2DP` vs. exact). | WP02 (spec); the dashboard loader change itself is out of scope of WP01–WP15 and deferred to the later dashboard switch-over (objective 3 of CLAUDE.md) |
+| (x) | Text handling was unspecified: `About_SEN.txt` has 2 paragraphs; `Messages_SEN.txt` is Python chunks with raw HTML (not allowed, line 731) and `##` placeholders and 2026 projections not present in the data; `index.qmd`'s hardcoded message titles differ from `Messages_SEN.txt` ("Drivers of Inequality" vs. "Inequality"); scope of `About.txt` vs. `About_SEN.txt` was unclear. | `About_SEN.txt` → `content/text/SEN/about.md`. `Messages_SEN.txt` stripped of chunk/HTML wrappers and stored as `DRAFT` literal prose with no invented numbers; both title variants recorded, with the `index.qmd` version as the candidate, `DRAFT`. `About.txt` is treated as SEN-specific (`ref_area = SEN`, not `ALL`). `Messages_SEN.txt2` and `Tables_SEN_TEST.xlsx` are ignored as scratch files. | WP02 (spec), WP10 (`TEXT.csv`, `content/text/SEN/about.md`) |
+| (y) | 1-decimal percent display implies false precision for data that is only 2-decimal-place accurate. | The dashboard caps displayed decimals by the file's declared precision (`ROUNDED_2DP` vs. exact). | WP02 (spec); the dashboard loader change itself is out of scope of this transition and deferred to the later dashboard switch-over (objective 3 of CLAUDE.md) |
+| (z) | `CL_INDICATOR` has one `ref_period` per indicator, but `POP_SH` covers "employed in the last 12 months" (`P12M`) as well as point-in-time shares (`INTERVIEW`). `check_contract.R` found the conflict in the triage. | `POP_SH`, `POP_HH_SH` and `POP_HE_SH` carry `ref_period = INTERVIEW`. A recall period that defines who is in a group belongs to the universe of the breakdown variable (`CL_BRK_VAR.universe` and the category's `definition_en`), not to the share indicator. | WP02 (spec), WP06 (`EMP_STATUS` universe text), WP07 |
+| (aa) | The validator must know each metadata file's columns and which are required (line 831, "every **R** column is filled"), but only the data file has a machine-readable column list (the DSD). | Add `metadata/structure/COLUMNS.csv` (`file, position, column, status, description`), the column registry of every metadata and content file, generated from `contract/csv_headers.csv`. | WP02 (spec), WP03 (the file), WP11 (validator `META.HEADER`, `META.REQUIRED`) |
 
 : Gaps found in data-standard.qmd v0.3, and their resolutions {#tbl-gaps}
 
 # Open decisions of the standard v0.3 {#sec-open-decisions-v03}
 
-Data-standard.qmd's own "Open decisions" section (sec-open-decisions) lists ten items. @tbl-open-decisions-v03 maps each to what this transition round did with it. Items still open stay open in standard v0.4; they are out of scope of the WP01–WP15 transition.
+Data-standard.qmd's own "Open decisions" section (sec-open-decisions) lists ten items. @tbl-open-decisions-v03 maps each to what this transition round did with it. Items still open stay open in standard v0.4; they are out of scope of this transition.
 
 | # | Item (standard's own wording) | Disposition | Note |
 |---|---|---|---|
-| 1 | Age cutoff for household heads | Handled by H17 (@sec-h17) | `DRAFT` codes, renamable; confirmed cutoff still pending producer input at/after G1 |
+| 1 | Age cutoff for household heads | Handled by H17 (@sec-h17) | `DRAFT` codes, renamable; confirmed cutoff still pending producer input |
 | 2 | Quintile definition (national or within-area ranking, person- or household-weighted) | Still open | Not addressed by any D or H decision in this round; the answer still belongs in `CL_BRK_VAR.definition_en` once decided |
 | 3 | Governance: who owns `metadata/` and reviews pull requests | Still open | Out of scope of the transition |
 | 4 | GNB survey metadata (round, `TIME_PERIOD`) | Closed by D6 | EHCVM 2021/22 → `TIME_PERIOD` 2021, `survey_id GNB_EHCVM_2021` |

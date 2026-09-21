@@ -24,7 +24,7 @@ L022,*,Days with an outage (last 7),MAP,,EN_OUTAGE_DAYS,,,EN_OUTAGE_DAYS,HH,MEAN
 L023,*,Durable floor materials,MAP,,HOUS_FLOOR_DURABLE,,,HOUS_FLOOR_DURABLE,HH,PROPORTION,HH,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,
 L024,*,Durable roof materials,MAP,,HOUS_ROOF_DURABLE,,,HOUS_ROOF_DURABLE,HH,PROPORTION,HH,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,
 L025,*,Durable wall materials,MAP,,HOUS_WALL_DURABLE,,,HOUS_WALL_DURABLE,HH,PROPORTION,HH,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,
-L026,*,"Employed (activ12m, 15–64)",MAP,,POP_SH,,EMP_STATUS_EMPLOYED,POP_SH.EMP_STATUS_EMPLOYED,IND,PROPORTION,IND,SHARE,,,,1,PERCENT,1,P12M,0,1,,,DRAFT,"universe: persons 15-64 (activ12m); AGE=_T since universe, not breakdown (rule 7, sec-breakdown-rules)"
+L026,*,"Employed (activ12m, 15–64)",MAP,,POP_SH,,EMP_STATUS_EMPLOYED,POP_SH.EMP_STATUS_EMPLOYED,IND,PROPORTION,IND,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,"universe: persons 15-64 employed in the last 12 months (activ12m); the 12-month recall belongs to the EMP_STATUS universe because POP_SH has one ref_period (gap z); AGE=_T since universe, not breakdown (rule 7, sec-breakdown-rules)"
 L027,*,Employed in agriculture (% of employed),MAP,,POP_SH,,EMP_SECTOR_AGR,POP_SH.EMP_SECTOR_AGR,IND,PROPORTION,IND,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,universe: employed persons 15-64
 L028,*,Employed in industry (% of employed),MAP,,POP_SH,,EMP_SECTOR_IND,POP_SH.EMP_SECTOR_IND,IND,PROPORTION,IND,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,universe: employed persons 15-64
 L029,*,Employed in services (% of employed),MAP,,POP_SH,,EMP_SECTOR_SER,POP_SH.EMP_SECTOR_SER,IND,PROPORTION,IND,SHARE,,,,1,PERCENT,1,INTERVIEW,0,1,,,DRAFT,universe: employed persons 15-64
