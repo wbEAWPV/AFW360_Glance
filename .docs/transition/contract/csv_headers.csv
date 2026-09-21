@@ -1,0 +1,334 @@
+file,position,column,status,description
+DSD_AFW360_HH.csv,1,position,R,"1-26, the data file's column order."
+DSD_AFW360_HH.csv,2,id,R,"Column name, exactly as it appears in the data file header."
+DSD_AFW360_HH.csv,3,role,R,"constant, breakdown, reference, qualifier, measure, or attribute."
+DSD_AFW360_HH.csv,4,codelist,C,"The CL_* file that constrains this column, where the column is coded."
+DSD_AFW360_HH.csv,5,required,R,"R, C or O, as in tbl-columns."
+DSD_AFW360_HH.csv,6,sentinel,C,"Which of _T/_Z is valid here, where either sentinel applies."
+DSD_AFW360_HH.csv,7,description,R,What the column holds.
+AFW360_HH_<ISO3>_<YEAR>.csv,1,DATAFLOW,R,Constant AFW360_HH.
+AFW360_HH_<ISO3>_<YEAR>.csv,2,REF_AREA,R,CL_AREA (ISO 3166-1 alpha-3).
+AFW360_HH_<ISO3>_<YEAR>.csv,3,GEO,R,"CL_GEO, or _T for the whole country."
+AFW360_HH_<ISO3>_<YEAR>.csv,4,TIME_PERIOD,R,4-digit year the estimate refers to.
+AFW360_HH_<ISO3>_<YEAR>.csv,5,INDICATOR,R,CL_INDICATOR.
+AFW360_HH_<ISO3>_<YEAR>.csv,6,SEX,R,"CL_SEX, _T, or _Z."
+AFW360_HH_<ISO3>_<YEAR>.csv,7,AGE,R,"CL_AGE, _T, or _Z."
+AFW360_HH_<ISO3>_<YEAR>.csv,8,URBANISATION,R,CL_URBANISATION or _T.
+AFW360_HH_<ISO3>_<YEAR>.csv,9,COMP_BREAKDOWN_1,R,"CL_COMP_BREAKDOWN or _T; slot 1 of 5, filled left to right in slot_order."
+AFW360_HH_<ISO3>_<YEAR>.csv,10,COMP_BREAKDOWN_2,R,CL_COMP_BREAKDOWN or _T; slot 2 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,11,COMP_BREAKDOWN_3,R,CL_COMP_BREAKDOWN or _T; slot 3 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,12,COMP_BREAKDOWN_4,R,CL_COMP_BREAKDOWN or _T; slot 4 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,13,COMP_BREAKDOWN_5,R,CL_COMP_BREAKDOWN or _T; slot 5 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,14,MEASURE_QUAL_1,R,"CL_QUALIFIER or _Z; slot 1 of 5, filled left to right in slot_order."
+AFW360_HH_<ISO3>_<YEAR>.csv,15,MEASURE_QUAL_2,R,CL_QUALIFIER or _Z; slot 2 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,16,MEASURE_QUAL_3,R,CL_QUALIFIER or _Z; slot 3 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,17,MEASURE_QUAL_4,R,CL_QUALIFIER or _Z; slot 4 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,18,MEASURE_QUAL_5,R,CL_QUALIFIER or _Z; slot 5 of 5.
+AFW360_HH_<ISO3>_<YEAR>.csv,19,OBS_VALUE,C,"Number, unrounded, base units; required unless OBS_STATUS is O or M."
+AFW360_HH_<ISO3>_<YEAR>.csv,20,OBS_STATUS,R,"CL_OBS_STATUS: A, E, O or M."
+AFW360_HH_<ISO3>_<YEAR>.csv,21,STD_ERR,C,Number >= 0; required where the statistic admits one (CL_STATISTIC.admits_se).
+AFW360_HH_<ISO3>_<YEAR>.csv,22,CI_LOWER,C,"Number, 95%; required where STD_ERR is."
+AFW360_HH_<ISO3>_<YEAR>.csv,23,CI_UPPER,C,"Number, 95%; required where STD_ERR is."
+AFW360_HH_<ISO3>_<YEAR>.csv,24,N_OBS,R,"Integer >= 0 (except legacy ROUNDED_2DP files, where it is empty)."
+AFW360_HH_<ISO3>_<YEAR>.csv,25,N_POP,R,"Number >= 0 (except legacy ROUNDED_2DP files, where it is empty)."
+AFW360_HH_<ISO3>_<YEAR>.csv,26,OBS_COMMENT,O,"Free text, English; LEGACY_EMPTY: prefix required on O rows in ROUNDED_2DP files (D9)."
+CL_SEX.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_SEX.csv,2,name_en,R,Short English name.
+CL_SEX.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_SEX.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_SEX.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_SEX.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_SEX.csv,7,notes,O,Free text.
+CL_AGE.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_AGE.csv,2,name_en,R,Short English name.
+CL_AGE.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_AGE.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_AGE.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_AGE.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_AGE.csv,7,notes,O,Free text.
+CL_URBANISATION.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_URBANISATION.csv,2,name_en,R,Short English name.
+CL_URBANISATION.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_URBANISATION.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_URBANISATION.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_URBANISATION.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_URBANISATION.csv,7,notes,O,Free text.
+CL_URBANISATION.csv,8,parent,C,U for CAP and OU (their parent category); empty for U and R.
+CL_OBS_STATUS.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_OBS_STATUS.csv,2,name_en,R,Short English name.
+CL_OBS_STATUS.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_OBS_STATUS.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_OBS_STATUS.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_OBS_STATUS.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_OBS_STATUS.csv,7,notes,O,Free text.
+CL_THEME.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_THEME.csv,2,name_en,R,Short English name.
+CL_THEME.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_THEME.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_THEME.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_THEME.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_THEME.csv,7,notes,O,Free text.
+CL_UNIT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_UNIT.csv,2,name_en,R,Short English name.
+CL_UNIT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_UNIT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_UNIT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_UNIT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_UNIT.csv,7,notes,O,Free text.
+CL_STAT_UNIT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_STAT_UNIT.csv,2,name_en,R,Short English name.
+CL_STAT_UNIT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_STAT_UNIT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_STAT_UNIT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_STAT_UNIT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_STAT_UNIT.csv,7,notes,O,Free text.
+CL_STATISTIC.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_STATISTIC.csv,2,name_en,R,Short English name.
+CL_STATISTIC.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_STATISTIC.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_STATISTIC.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_STATISTIC.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_STATISTIC.csv,7,notes,O,Free text.
+CL_STATISTIC.csv,8,admits_se,R,Y/N: whether this statistic admits a standard error (gap o).
+CL_WEIGHT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_WEIGHT.csv,2,name_en,R,Short English name.
+CL_WEIGHT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_WEIGHT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_WEIGHT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_WEIGHT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_WEIGHT.csv,7,notes,O,Free text.
+CL_AREA.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_AREA.csv,2,name_en,R,Short English name.
+CL_AREA.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_AREA.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_AREA.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_AREA.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_AREA.csv,7,notes,O,Free text.
+CL_AREA.csv,8,iso2,R,"The P-code prefix (SN, GW)."
+CL_AREA.csv,9,currency,R,ISO 4217 (XOF for both SEN and GNB; not XAF).
+CL_AREA.csv,10,wb_region,R,World Bank region (AFW).
+CL_GEO_SCHEME.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_GEO_SCHEME.csv,2,name_en,R,Short English name.
+CL_GEO_SCHEME.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_GEO_SCHEME.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_GEO_SCHEME.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_GEO_SCHEME.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_GEO_SCHEME.csv,7,notes,O,Free text.
+CL_GEO_SCHEME.csv,8,ref_area,R,Country (keyed with code).
+CL_GEO_SCHEME.csv,9,local_name_en,R,"What that level is called in the country, in English."
+CL_GEO_SCHEME.csv,10,has_geometry,R,Y only for ADM0 and ADM1.
+CL_GEO_SCHEME.csv,11,nests_in,O,"Another scheme, only where nesting is genuine; roll-up checks only, never used to derive geometry."
+CL_GEO_SCHEME.csv,12,partition,R,Y if its units cover the country exactly once.
+CL_GEO.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_GEO.csv,2,name_en,R,Short English name.
+CL_GEO.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_GEO.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_GEO.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_GEO.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_GEO.csv,7,notes,O,Free text.
+CL_GEO.csv,8,ref_area,R,Country.
+CL_GEO.csv,9,scheme,R,CL_GEO_SCHEME.code for that country.
+CL_GEO.csv,10,parent,C,"Containing unit, only when nests_in is set."
+CL_GEO.csv,11,source_id,C,GEO_SOURCES.csv key; required when has_geometry=Y.
+CL_GEO.csv,12,geom_layer,C,Layer holding the polygon (adm0/adm1); empty for schemes with no geometry.
+CL_GEO.csv,13,valid_from,R,Boundary vintage the code belongs to (not data validity).
+CL_GEO.csv,14,valid_to,C,Empty while current.
+CL_BRK_VAR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_BRK_VAR.csv,2,name_en,R,Short English name.
+CL_BRK_VAR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_BRK_VAR.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_BRK_VAR.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_BRK_VAR.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_BRK_VAR.csv,7,notes,O,Free text.
+CL_BRK_VAR.csv,8,describes,R,"Whose characteristic: IND, HHH, HH, HE."
+CL_BRK_VAR.csv,9,applies_to_units,R,"stat_unit values it may break down, e.g. HH IND HE."
+CL_BRK_VAR.csv,10,universe,R,The population its categories partition.
+CL_BRK_VAR.csv,11,classification,O,"ISIC Rev.4, ISCED 2011, ISCO-08, etc."
+CL_BRK_VAR.csv,12,partition,R,Y if categories are mutually exclusive and cover the universe.
+CL_BRK_VAR.csv,13,requires_qual,C,"Qualifier variables the categories depend on, e.g. POVLINE PPP for POOR."
+CL_BRK_VAR.csv,14,slot_order,R,"Integer, spaced by 10; ties break alphabetically by var_code."
+CL_BRK_VAR.csv,15,owner,R,Team or person responsible.
+CL_COMP_BREAKDOWN.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_COMP_BREAKDOWN.csv,2,name_en,R,Short English name.
+CL_COMP_BREAKDOWN.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_COMP_BREAKDOWN.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_COMP_BREAKDOWN.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_COMP_BREAKDOWN.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_COMP_BREAKDOWN.csv,7,notes,O,Free text.
+CL_COMP_BREAKDOWN.csv,8,var_code,R,The CL_BRK_VAR code this category belongs to; code = <var_code>_<category>.
+CL_COMP_BREAKDOWN.csv,9,parent,O,"A category of the same variable, for nested classifications."
+CL_COMP_BREAKDOWN.csv,10,order,R,Display order.
+CL_QUAL_VAR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_QUAL_VAR.csv,2,name_en,R,Short English name.
+CL_QUAL_VAR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_QUAL_VAR.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_QUAL_VAR.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_QUAL_VAR.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_QUAL_VAR.csv,7,notes,O,Free text.
+CL_QUAL_VAR.csv,8,slot_order,R,"Integer, spaced by 10; ties break alphabetically."
+CL_QUAL_VAR.csv,9,requires,C,Other qualifier variables that must appear with it (e.g. PPP for POVLINE).
+CL_QUAL_VAR.csv,10,owner,R,Team or person responsible.
+CL_QUALIFIER.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_QUALIFIER.csv,2,name_en,R,Short English name.
+CL_QUALIFIER.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_QUALIFIER.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_QUALIFIER.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_QUALIFIER.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_QUALIFIER.csv,7,notes,O,Free text.
+CL_QUALIFIER.csv,8,var_code,R,The CL_QUAL_VAR code this category belongs to.
+CL_QUALIFIER.csv,9,value,C,"The numeric parameter, e.g. 3.00 for POVLINE_PL300."
+CL_QUALIFIER.csv,10,basis,C,What that value is expressed in.
+CL_QUALIFIER.csv,11,valid_with,C,Allowed categories of other qualifier variables; overrides requires (gap n).
+CL_QUALIFIER.csv,12,order,R,Display order.
+CL_INDICATOR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_INDICATOR.csv,2,name_en,R,Short English name.
+CL_INDICATOR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_INDICATOR.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_INDICATOR.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_INDICATOR.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_INDICATOR.csv,7,notes,O,Free text.
+CL_INDICATOR.csv,8,short_name_en,R,"<=40 characters, for chart labels."
+CL_INDICATOR.csv,9,theme,R,CL_THEME.
+CL_INDICATOR.csv,10,stat_unit,R,CL_STAT_UNIT: what is counted.
+CL_INDICATOR.csv,11,universe_unit,R,The unit forming the denominator.
+CL_INDICATOR.csv,12,universe_filter,C,Restriction in words; empty means all units.
+CL_INDICATOR.csv,13,numerator,C,For shares and ratios: the units in the breakdown category.
+CL_INDICATOR.csv,14,statistic,R,CL_STATISTIC.
+CL_INDICATOR.csv,15,weight,R,CL_WEIGHT.
+CL_INDICATOR.csv,16,ref_period,R,"ISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW; always P12M, never P1Y."
+CL_INDICATOR.csv,17,qualifiers,R,"Qualifier variables this indicator takes, with allowed categories or *; _Z if none."
+CL_INDICATOR.csv,18,excluded_breakdowns,O,Breakdown variables or categories outside its universe; must not be produced.
+CL_INDICATOR.csv,19,unit_measure,R,CL_UNIT.
+CL_INDICATOR.csv,20,unit_denom,C,"What the value is per, for levels."
+CL_INDICATOR.csv,21,unit_time,C,"DAY, MONTH, YEAR, for flows."
+CL_INDICATOR.csv,22,price_basis,C,"NOMINAL or DEFLATED, for money."
+CL_INDICATOR.csv,23,price_ref_year,C,Required when price_basis=DEFLATED.
+CL_INDICATOR.csv,24,display_as,R,"PERCENT, NUMBER, THOUSANDS, MILLIONS, CURRENCY."
+CL_INDICATOR.csv,25,decimals,R,Decimals to display.
+CL_INDICATOR.csv,26,valid_min,R,Plausible minimum; empty means unbounded.
+CL_INDICATOR.csv,27,valid_max,R,Plausible maximum; empty means unbounded.
+CL_INDICATOR.csv,28,checks,R,"Space-separated checks vocabulary (RANGE_0_1, AGG_SUM, SUM_TO_1_OVER:<QUAL_VAR>, etc.)."
+CL_INDICATOR.csv,29,higher_is,R,"BETTER, WORSE or NEUTRAL: colour direction on maps."
+CL_INDICATOR.csv,30,sdg_indicator,O,"SDG indicator code, if any."
+CL_INDICATOR.csv,31,classification,O,"COICOP2018, ISIC4:A, etc."
+CL_INDICATOR.csv,32,related,O,"Codes of close indicators, space-separated."
+CL_INDICATOR.csv,33,related_note,O,How this indicator differs from the related ones.
+CL_INDICATOR.csv,34,source_questionnaire,R,Survey module or section.
+CL_INDICATOR.csv,35,source_vars,R,Harmonized microdata variables used.
+CL_INDICATOR.csv,36,program,R,Program that computes it.
+CL_INDICATOR.csv,37,owner,R,Team or person responsible.
+SURVEYS.csv,1,survey_id,R,e.g. SEN_EHCVM_2021.
+SURVEYS.csv,2,ref_area,R,ISO3.
+SURVEYS.csv,3,time_period,R,4-digit year.
+SURVEYS.csv,4,survey_name,R,Full survey name.
+SURVEYS.csv,5,survey_acronym,R,e.g. EHCVM.
+SURVEYS.csv,6,producer_agency,R,e.g. ANSD.
+SURVEYS.csv,7,fieldwork_start,R,YYYY-MM.
+SURVEYS.csv,8,fieldwork_end,R,YYYY-MM.
+SURVEYS.csv,9,sample_hh,R,Household sample size.
+SURVEYS.csv,10,sample_ind,O,Individual sample size.
+SURVEYS.csv,11,design,R,"Stratification, stages, PSU."
+SURVEYS.csv,12,representative_levels,R,"Levels the design supports; advisory metadata, does not gate publication."
+SURVEYS.csv,13,analysis_units,R,Which file each stat_unit is estimated from.
+SURVEYS.csv,14,welfare_aggregate,R,e.g. Consumption per capita.
+SURVEYS.csv,15,welfare_adjustments,R,Spatial and temporal deflation.
+SURVEYS.csv,16,npl_value,C,National poverty line value.
+SURVEYS.csv,17,npl_currency,C,ISO 4217.
+SURVEYS.csv,18,npl_unit,C,e.g. per capita per day.
+SURVEYS.csv,19,npl_ref_year,C,Price year (an inference where the source does not state one).
+SURVEYS.csv,20,ppp_rounds,R,e.g. 2017 2021.
+SURVEYS.csv,21,microdata_ref,O,Catalogue ID or URL.
+SURVEYS.csv,22,comparable_with,O,e.g. SEN_EHCVM_2018.
+SURVEYS.csv,23,contact,O,Contact person/team.
+SURVEYS.csv,24,notes,O,Free text.
+SURVEYS.csv,25,status,R,Added per gap resolution g; e.g. DRAFT for GNB_EHCVM_2021 pending producer confirmation of the survey round (D6).
+GEO_SOURCES.csv,1,source_id,R,e.g. SEN_CODAB_v02.
+GEO_SOURCES.csv,2,ref_area,R,Country.
+GEO_SOURCES.csv,3,provider,R,Boundary data provider.
+GEO_SOURCES.csv,4,version,R,Boundary release version.
+GEO_SOURCES.csv,5,valid_on,R,Date the boundary release is valid on.
+GEO_SOURCES.csv,6,url,O,Download URL.
+GEO_SOURCES.csv,7,download_date,O,Date downloaded.
+GEO_SOURCES.csv,8,licence,R,Licence of the boundary data.
+GEO_SOURCES.csv,9,attribution,R,Credit line the map must show.
+GEO_SOURCES.csv,10,crs,R,Coordinate reference system in storage (EPSG:4326).
+GEO_SOURCES.csv,11,file,R,Path under geo/boundaries/.
+GEO_SOURCES.csv,12,layers,R,"Layer names in the GeoPackage (adm0, adm1)."
+GEO_SOURCES.csv,13,sha256,R,Checksum of the file.
+GEO_SOURCES.csv,14,status,R,"DRAFT, ACTIVE or DEPRECATED."
+GEO_SOURCES.csv,15,version_added,R,metadata/VERSION value at which the row was added.
+GEO_SOURCES.csv,16,notes,O,Free text.
+FIGURES.csv,1,figure_id,R,"Stable ID; dashboard asks for this, not a file name."
+FIGURES.csv,2,ref_area,R,Country.
+FIGURES.csv,3,time_period,R,Year.
+FIGURES.csv,4,theme,R,CL_THEME.
+FIGURES.csv,5,title_en,R,Figure title.
+FIGURES.csv,6,caption_en,R,Figure caption.
+FIGURES.csv,7,alt_text_en,R,Required: what a screen reader announces.
+FIGURES.csv,8,indicators,O,"Related CL_INDICATOR codes, space-separated."
+FIGURES.csv,9,source,R,Data source.
+FIGURES.csv,10,producer,R,Who produced the figure.
+FIGURES.csv,11,program,O,"Program that generated it, if any."
+FIGURES.csv,12,licence,R,Licence of the figure.
+FIGURES.csv,13,file,R,Path under assets/figures/.
+FIGURES.csv,14,sha256,R,Checksum of the file.
+FIGURES.csv,15,status,R,"DRAFT, ACTIVE or DEPRECATED."
+FIGURES.csv,16,version_added,R,metadata/VERSION value at which the row was added.
+FIGURES.csv,17,notes,O,Free text.
+TEXT.csv,1,slot,R,"Where it appears: about, messages, energy_intro, map_note, etc."
+TEXT.csv,2,ref_area,R,"ISO3, or ALL for shared boilerplate."
+TEXT.csv,3,time_period,R,"Year, or ALL."
+TEXT.csv,4,order,R,Position within a slot that holds several items.
+TEXT.csv,5,title,O,Heading text.
+TEXT.csv,6,body,C,"The text, one paragraph, no line breaks; exactly one of body/file is filled."
+TEXT.csv,7,file,C,Path under content/text/ for anything longer; exactly one of body/file is filled.
+TEXT.csv,8,status,R,DRAFT or PUBLISHED; production shows only PUBLISHED.
+TEXT.csv,9,updated_on,R,ISO date.
+TAB_PLAN.csv,1,cut_id,R,"e.g. ADM1, QUINT."
+TAB_PLAN.csv,2,ref_area,R,"ISO3, or ALL."
+TAB_PLAN.csv,3,geo_scheme,R,"_T, or a CL_GEO_SCHEME code."
+TAB_PLAN.csv,4,urbanisation,R,"_T, or a set such as CAP OU R or U R."
+TAB_PLAN.csv,5,sex,R,"_T, or F M."
+TAB_PLAN.csv,6,age,R,"_T, or a set of CL_AGE codes."
+TAB_PLAN.csv,7,comp_breakdowns,C,"Breakdown variable codes in slot order, e.g. QUINT HHH_SEX."
+TAB_PLAN.csv,8,themes,R,"ALL, or a list of CL_THEME codes."
+TAB_PLAN.csv,9,status,R,ACTIVE or DRAFT.
+AFW360_HH_<ISO3>_<YEAR>_manifest.csv,1,key,R,"One of the 16 manifest keys (sec-manifest): dataflow, dsd_version, metadata_version, ref_area, time_period, source_type, survey_id, precision, file_name, n_rows, producer, program, software, run_timestamp, status, notes."
+AFW360_HH_<ISO3>_<YEAR>_manifest.csv,2,value,R,The value for that key.
+SERIES_PLAN.csv,1,series_id,R,Stable identifier for one indicator x qualifier-set x defining-breakdown combination.
+SERIES_PLAN.csv,2,ref_area,R,"ISO3, or ALL."
+SERIES_PLAN.csv,3,INDICATOR,R,CL_INDICATOR code.
+SERIES_PLAN.csv,4,MEASURE_QUALS,C,Space-separated CL_QUALIFIER codes for this series; empty if none.
+SERIES_PLAN.csv,5,DEFINING_BREAKDOWN,C,The CL_BRK_VAR category this series is implicitly about (e.g. HE_COUNT_0 for row 53); empty if none.
+SERIES_PLAN.csv,6,status,R,DRAFT or ACTIVE.
+SERIES_PLAN.csv,7,notes,O,"Free text, e.g. provenance of a hard-case decision (H-number)."
+LEGACY_LABELS.csv,1,legacy_label,R,Free-text indicator label exactly as it appears in the workbook's indicator column.
+LEGACY_LABELS.csv,2,sheet,R,"National, ADM 1, ZAE, Departement, or * for National+ADM 1+ZAE."
+LEGACY_LABELS.csv,3,action,R,"MAP, DUPLICATE_OF, DERIVED, or SKIP."
+LEGACY_LABELS.csv,4,series_id,C,SERIES_PLAN.series_id; required when action=MAP.
+LEGACY_LABELS.csv,5,duplicate_of,C,legacy_label this one duplicates; required when action=DUPLICATE_OF.
+LEGACY_LABELS.csv,6,scale,R,Multiplier applied to the raw cell value to reach base units (e.g. 1e6 for millions).
+LEGACY_LABELS.csv,7,assert_rule,C,"Converter-checked assertion, e.g. EQUALS:<label>, ONE_MINUS:<label> tol=0.02."
+LEGACY_LABELS.csv,8,notes,O,"Free text, e.g. the hard-case ID (H1-H19) that decided this row."
+LEGACY_COLUMNS.csv,1,ref_area,R,SEN or GNB.
+LEGACY_COLUMNS.csv,2,sheet,R,"National, ADM 1, or ZAE."
+LEGACY_COLUMNS.csv,3,column,R,"Exact workbook header, e.g. estimateFemale_HH."
+LEGACY_COLUMNS.csv,4,cut_id,R,TAB_PLAN.cut_id this column belongs to.
+LEGACY_COLUMNS.csv,5,GEO,C,"GEO code this column maps to, for ADM 1 / ZAE columns."
+LEGACY_COLUMNS.csv,6,URBANISATION,C,"URBANISATION code this column maps to, for National urban/rural columns."
+LEGACY_COLUMNS.csv,7,COMP_BREAKDOWN,C,"COMP_BREAKDOWN code this column maps to, for National group columns."
+LEGACY_COLUMNS.csv,8,action,R,How the converter uses this column (e.g. MAP).
+LEGACY_COLUMNS.csv,9,notes,O,Free text.
+LEGACY_OVERRIDES.csv,1,ref_area,R,SEN or GNB.
+LEGACY_OVERRIDES.csv,2,sheet,R,"National, ADM 1, ZAE, or *."
+LEGACY_OVERRIDES.csv,3,column,R,"Exact workbook header, or * for every column."
+LEGACY_OVERRIDES.csv,4,legacy_label,R,"Exact workbook label, or * for every label."
+LEGACY_OVERRIDES.csv,5,action,R,"WITHHOLD (row absent from the data file) or COMMENT (value kept, OBS_COMMENT added)."
+LEGACY_OVERRIDES.csv,6,obs_comment,C,Required when action=COMMENT: the text written to OBS_COMMENT.
+LEGACY_OVERRIDES.csv,7,reason,R,Why the cell is overridden.
+LEGACY_OVERRIDES.csv,8,evidence,R,The value(s) or comparison that justify the override.
+validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),1,check_id,R,"<MODULE>.<NAME>, module in STRUCT/CODES/META/COVER/VALUE/RULE/ASSET/TEXT."
+validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),2,severity,R,"ERROR, WARN, or INFO."
+validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),3,file,R,The file the finding is about.
+validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),4,row_key,C,"The 18 key-column values of the offending row, space-separated; empty for file-level findings."
+validator findings (pipeline/validate.R --out; WP15-validation-findings.csv),5,message,R,Human-readable explanation.

@@ -1,0 +1,65 @@
+check_id,scope,quantity,expected,tolerance,source
+CELLS.SEN_National,SEN National,cells (rows x data-columns),1261,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.SEN_National.NONEMPTY,SEN National,non-empty cells,1248,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.SEN_National.EMPTY,SEN National,empty cells,13,0,R: cells - nonempty
+CELLS.SEN_ADM1,SEN ADM 1,cells (rows x data-columns),1358,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.SEN_ADM1.NONEMPTY,SEN ADM 1,non-empty cells,1340,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.SEN_ADM1.EMPTY,SEN ADM 1,empty cells,18,0,R: cells - nonempty
+CELLS.SEN_ZAE,SEN ZAE,cells (rows x data-columns),582,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.SEN_ZAE.NONEMPTY,SEN ZAE,non-empty cells,575,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.SEN_ZAE.EMPTY,SEN ZAE,empty cells,7,0,R: cells - nonempty
+CELLS.SEN_Departement,SEN Departement,cells (rows x data-columns),1148,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.SEN_Departement.NONEMPTY,SEN Departement,non-empty cells,1142,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.SEN_Departement.EMPTY,SEN Departement,empty cells,6,0,R: cells - nonempty
+CELLS.GNB_National,GNB National,cells (rows x data-columns),1261,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.GNB_National.NONEMPTY,GNB National,non-empty cells,1233,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.GNB_National.EMPTY,GNB National,empty cells,28,0,R: cells - nonempty
+CELLS.GNB_ADM1,GNB ADM 1,cells (rows x data-columns),873,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.GNB_ADM1.NONEMPTY,GNB ADM 1,non-empty cells,828,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.GNB_ADM1.EMPTY,GNB ADM 1,empty cells,45,0,R: cells - nonempty
+CELLS.GNB_ZAE,GNB ZAE,cells (rows x data-columns),388,0,"R: readxl::read_excel(col_types='text'); nrow(data-cols) x ncol(data-cols), excluding the indicator column"
+CELLS.GNB_ZAE.NONEMPTY,GNB ZAE,non-empty cells,378,0,R: sum(!is.na(x) & trimws(x) != '') over the same matrix
+CELLS.GNB_ZAE.EMPTY,GNB ZAE,empty cells,10,0,R: cells - nonempty
+LABELS.SHARED,SEN+GNB National/ADM 1/ZAE,distinct indicator labels (identical set and order in both countries' National/ADM 1/ZAE sheets),97,0,R: read_excel()$indicator per sheet; identical() across National/ADM 1/ZAE and across SEN/GNB
+LABELS.DEPARTEMENT,SEN Departement,distinct indicator labels,82,0,"R: read_excel(Tables_SEN.xlsx, 'Departement')$indicator"
+LABELS.TOTAL,SEN+GNB all sheets,"distinct (label, sheet-family) rows",179,0,R: LABELS.SHARED + LABELS.DEPARTEMENT
+SERIES.COUNT,SERIES_PLAN,rows (97 labels -> 91 mapped + 2 DUPLICATE_OF + 2 DERIVED + 2 SKIP),91,0,Report: triage-report.md sec 1 (label triage table + summary line 'Series by theme ... = 91')
+INDICATOR.CODES,CL_INDICATOR,distinct codes,62,0,Report: triage-report.md sec 1 ('62 codes = 6 cross-cutting + 23 HE + 4 AGR + 17 EN + 5 HOUS + 5 SHK + 2 SP')
+DATA.SEN.ROWS,data/AFW360_HH_SEN_2021.csv,rows,3003,0,Computed: 91 mapped series x 33 groups (13 National + 14 ADM1 + 6 ZONES)
+DATA.SEN.ROWS.A,data/AFW360_HH_SEN_2021.csv,rows with OBS_STATUS=A,3003,0,"Report: 'SEN data: 91 x 33 ... = 3,003 rows, all A' -- SEN National/ADM1/ZAE mapped cells have 0 empties (verified: only fully-empty row across all 3 sheets is wood_dist, which is SKIP, not mapped)"
+SOURCE.SEN.ACCOUNTING,SEN National+ADM1+ZAE,source cells = mapped-label cells + non-series-label cells,3201 = 3003 + 198,0,Computed: 3201 = CELLS.SEN_National+CELLS.SEN_ADM1+CELLS.SEN_ZAE (1261+1358+582); 198 = 6 non-series labels x 33 groups
+GNB.MAPPED_CELLS,"GNB National+ADM1+ZAE, 91 mapped labels",cells (91 labels x 26 groups),2366,0,Computed: 91 mapped labels x 26 groups (13 National + 9 ADM1 + 4 AEZ)
+GNB.WITHHELD_CELLS,"GNB National+ADM1+ZAE, 91 mapped labels",withheld cells (D5: row absent),98,0,"Computed: 91 (entire estimateCapital column, National, all 91 mapped labels) + 7 (Cultivated area (ha): National Total/Rural/Male_HH/Older_HH/Q4, ADM1 Quinara, ZAE Zonas_Costeiras_do_Sul)"
+GNB.DATA.ROWS,data/AFW360_HH_GNB_2021.csv,rows (mapped - withheld),2268,0,Computed: GNB.MAPPED_CELLS - GNB.WITHHELD_CELLS
+GNB.DATA.ROWS.A,data/AFW360_HH_GNB_2021.csv,rows with OBS_STATUS=A,2229,0,"Computed: of the 2268 kept (non-withheld) mapped cells, count with a non-empty raw value"
+GNB.DATA.ROWS.O,data/AFW360_HH_GNB_2021.csv,rows with OBS_STATUS=O,39,0,"Computed: of the 2268 kept (non-withheld) mapped cells, count with an empty raw value (D9: OBS_STATUS=O, OBS_COMMENT LEGACY_EMPTY: prefix)"
+SOURCE.GNB.ACCOUNTING,GNB National+ADM1+ZAE,source cells = mapped-label cells + non-series-label cells,2522 = 2366 + 156,0,Computed: 2522 = CELLS.GNB_National+CELLS.GNB_ADM1+CELLS.GNB_ZAE (1261+873+388); 156 = 6 non-series labels x 26 groups
+DEPARTEMENT.SKIPPED,SEN Departement,source cells skipped (D3: sheet skipped entirely),1148,0,R: CELLS.SEN_Departement (82 rows x 14 data columns)
+POVNUM.SEN.PL300,SEN National Total,"Number poor $3.00/day (millions), estimateTotal",3.13,0.005,"R: read_excel(Tables_SEN.xlsx,'National')$estimateTotal where indicator=='Number poor $3.00/day (millions)'"
+POVNUM.SEN.PL420,SEN National Total,"Number poor $4.20/day (millions), estimateTotal",6.52,0.005,"R: same sheet, indicator=='Number poor $4.20/day (millions)'"
+POVNUM.GNB.PL300,GNB National Total,"Number poor $3.00/day (millions), estimateTotal",0.7,0.005,"R: read_excel(Tables_GNB.xlsx,'National')$estimateTotal where indicator=='Number poor $3.00/day (millions)'"
+POVNUM.GNB.PL420,GNB National Total,"Number poor $4.20/day (millions), estimateTotal",1.09,0.005,"R: same sheet, indicator=='Number poor $4.20/day (millions)'"
+META.CL_INDICATOR,CL_INDICATOR.csv,rows,62,0,Report: sec 1 summary line
+META.SERIES_PLAN,SERIES_PLAN.csv,rows,91,0,Report: sec 0 expected outputs
+META.TAB_PLAN,TAB_PLAN.csv,rows,8,0,"Standard: tbl-initial-plan (TOTAL, URB, HHH_SEX, HHH_AGE, QUINT, ADM1, ZONES, AEZ)"
+META.CL_BRK_VAR,CL_BRK_VAR.csv,rows,13,0,"Report sec 2: 8 standard + 5 new (EMP_ISIC, EMP_TYPE, EMP_FORMAL, HEO_SEX, HEO_MSTAT)"
+META.CL_COMP_BREAKDOWN,CL_COMP_BREAKDOWN.csv,rows (approx),60,5,Report sec 0: 'CL_COMP_BREAKDOWN ~60'
+META.CL_QUAL_VAR,CL_QUAL_VAR.csv,rows,6,0,Report sec 2: 5 standard + ACQ
+META.CL_QUALIFIER,CL_QUALIFIER.csv,rows (approx),40,3,Report sec 0: '7 WELFARE + 8 POVLINE + 3 PPP + 13 COICOP + 7 FI + 2 ACQ (+ 2 DRAFT optional)'
+META.CL_GEO,CL_GEO.csv,rows,35,0,"Recomputed above: geo_codes.csv, 35 rows"
+META.CL_GEO_SCHEME,CL_GEO_SCHEME.csv,rows,6,0,"Report sec 0: 'CL_GEO_SCHEME 6' (SEN ADM0/ADM1/ZONES, GNB ADM0/ADM1/AEZ)"
+META.CL_AREA,CL_AREA.csv,rows,2,0,"SEN, GNB"
+META.GEO_SOURCES,GEO_SOURCES.csv,rows,2,0,"SEN_CODAB_v02, GNB_CODAB_V01"
+META.SURVEYS,SURVEYS.csv,rows,2,0,"SEN_EHCVM_2021, GNB_EHCVM_2021 (D6)"
+META.LEGACY_LABELS,LEGACY_LABELS.csv,rows,179,0,= LABELS.TOTAL (97 shared + 82 Departement)
+META.LEGACY_COLUMNS,LEGACY_COLUMNS.csv,rows,73,0,Report sec 0: 'SEN 47 incl. Departement 14; GNB 26'
+META.LEGACY_OVERRIDES,LEGACY_OVERRIDES.csv,rows (approx),10,2,Report sec 0: 'LEGACY_OVERRIDES ~10'
+META.TEXT,TEXT.csv,rows (approx),8,1,Report sec 0: 'TEXT ~8'
+META.FIGURES,FIGURES.csv,rows,1,0,1 figure: Fiscal Equity SEN.png
+META.DSD,DSD_AFW360_HH.csv,rows,26,0,Standard tbl-columns: 26 data-file columns
+META.SMALL_CODELISTS,metadata/codelists/,small-codelist files (CL_SEX..CL_UNIT per tbl-small-codelists),9,0,"Standard tbl-small-codelists: CL_SEX, CL_AGE, CL_URBANISATION, CL_OBS_STATUS, CL_THEME, CL_STAT_UNIT, CL_STATISTIC, CL_WEIGHT, CL_UNIT"
+GEOM.SEN.ADM0,SEN_CODAB_v02.gpkg / adm0,features,1,0,R: sf::st_read(INPUT shp/sen_admin0.shp) |> nrow()
+GEOM.SEN.ADM1,SEN_CODAB_v02.gpkg / adm1,features,14,0,R: sf::st_read(INPUT shp/sen_admin1.shp) |> nrow()
+GEOM.GNB.ADM0,GNB_CODAB_V01.gpkg / adm0,features,1,0,R: sf::st_read(INPUT shp/gnb_admin0.shp) |> nrow()
+GEOM.GNB.ADM1,GNB_CODAB_V01.gpkg / adm1,features,9,0,R: sf::st_read(INPUT shp/gnb_admin1.shp) |> nrow()
+LEGACY.FILES,data_raw/** (D2),tracked legacy files to move,122,0,git ls-files 'INPUT Tables' 'INPUT shp' 'INPUT Text' 'INPUT Figures' dsf.qqqww map_test.png | wc -l

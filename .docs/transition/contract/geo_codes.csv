@@ -1,0 +1,36 @@
+code,ref_area,scheme,name_en,legacy_sheet,legacy_column,source_id,geom_layer,notes
+SN,SEN,ADM0,Sénégal,,,SEN_CODAB_v02,adm0,Geometry-only; no legacy source column (gap k). GEO=SN is distinct from GEO=_T (whole-country total).
+SN01,SEN,ADM1,Dakar,ADM 1,estimateDAKAR,SEN_CODAB_v02,adm1,
+SN02,SEN,ADM1,Diourbel,ADM 1,estimateDIOURBEL,SEN_CODAB_v02,adm1,
+SN03,SEN,ADM1,Fatick,ADM 1,estimateFATICK,SEN_CODAB_v02,adm1,
+SN04,SEN,ADM1,Kaffrine,ADM 1,estimateKAFFRINE,SEN_CODAB_v02,adm1,
+SN05,SEN,ADM1,Kaolack,ADM 1,estimateKAOLACK,SEN_CODAB_v02,adm1,
+SN06,SEN,ADM1,Kédougou,ADM 1,estimateKEDOUGOU,SEN_CODAB_v02,adm1,
+SN07,SEN,ADM1,Kolda,ADM 1,estimateKOLDA,SEN_CODAB_v02,adm1,
+SN08,SEN,ADM1,Louga,ADM 1,estimateLOUGA,SEN_CODAB_v02,adm1,
+SN09,SEN,ADM1,Matam,ADM 1,estimateMATAM,SEN_CODAB_v02,adm1,
+SN10,SEN,ADM1,Saint-Louis,ADM 1,estimateSAINT_LOUIS,SEN_CODAB_v02,adm1,
+SN11,SEN,ADM1,Sédhiou,ADM 1,estimateSEDHIOU,SEN_CODAB_v02,adm1,
+SN12,SEN,ADM1,Tambacounda,ADM 1,estimateTAMBACOUNDA,SEN_CODAB_v02,adm1,
+SN13,SEN,ADM1,Thiès,ADM 1,estimateTHIES,SEN_CODAB_v02,adm1,
+SN14,SEN,ADM1,Ziguinchor,ADM 1,estimateZIGUINCHOR,SEN_CODAB_v02,adm1,
+SN_ZONES01,SEN,ZONES,Dakar,ZAE,estimateDakar,,,
+SN_ZONES02,SEN,ZONES,Kaolack / Fatick / Kaffrine,ZAE,estimateKaolack_Fatick_Kaffrine,,,
+SN_ZONES03,SEN,ZONES,Kédougou,ZAE,estimateKedougou,,,
+SN_ZONES04,SEN,ZONES,Saint-Louis / Matam,ZAE,estimateSaint_Louis_Matam,,,
+SN_ZONES05,SEN,ZONES,Thiès / Diourbel / Louga,ZAE,estimateThies_Diourbel_Louga,,,
+SN_ZONES06,SEN,ZONES,Ziguinchor / Tambacounda / Kolda (TBD: legacy header truncated at 32 chars),ZAE,estimateZiguinchor_Tamba_Kolda_S,,,Legacy header estimateZiguinchor_Tamba_Kolda_S is truncated at 32 chars; full zone name TBD (gap v).
+GW,GNB,ADM0,Guinea-Bissau,,,GNB_CODAB_V01,adm0,Geometry-only; no legacy source column (gap k).
+GW01,GNB,ADM1,Bafata,ADM 1,estimateBafatá,GNB_CODAB_V01,adm1,
+GW02,GNB,ADM1,Biombo,ADM 1,estimateBiombo,GNB_CODAB_V01,adm1,
+GW03,GNB,ADM1,Bolama/Bijagos,ADM 1,estimateBolama_Bijagós,GNB_CODAB_V01,adm1,
+GW04,GNB,ADM1,Cacheu,ADM 1,estimateCacheu,GNB_CODAB_V01,adm1,
+GW05,GNB,ADM1,Gabu,ADM 1,estimateGabú,GNB_CODAB_V01,adm1,
+GW06,GNB,ADM1,Oio,ADM 1,estimateOio,GNB_CODAB_V01,adm1,
+GW07,GNB,ADM1,Quinara,ADM 1,estimateQuinara,GNB_CODAB_V01,adm1,
+GW08,GNB,ADM1,Bissau,ADM 1,estimateSAB,GNB_CODAB_V01,adm1,"Legacy column SAB = Sector Autónomo de Bissau, mapped to GW08 (Bissau)."
+GW09,GNB,ADM1,Tombali,ADM 1,estimateTombali,GNB_CODAB_V01,adm1,
+GW_AEZ01,GNB,AEZ,Zona Plana de Centro-Bissau (TBD: legacy header truncated at 32 chars),ZAE,estimateZona_Plana_de_Centro_Bis,,,Legacy header estimateZona_Plana_de_Centro_Bis is truncated at 32 chars; full zone name TBD (gap v).
+GW_AEZ02,GNB,AEZ,Zonas Costeiras do Sul,ZAE,estimateZonas_Costeiras_do_Sul,,,
+GW_AEZ03,GNB,AEZ,Zonas Montanhosas de Leste (TBD: legacy header truncated at 32 chars),ZAE,estimateZonas_Montanhosas_de_Les,,,Legacy header estimateZonas_Montanhosas_de_Les is truncated at 32 chars; full zone name TBD (gap v).
+GW_AEZ04,GNB,AEZ,Zonas Planas de Norte,ZAE,estimateZonas_Planas_de_Norte,,,

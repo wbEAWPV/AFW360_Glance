@@ -1,0 +1,419 @@
+---
+title: "AFW 360 transition: the contract"
+subtitle: "Frozen at gate G0 · shared codes, paths, headers, interfaces and expected counts"
+date: 2026-09-21
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    toc-title: Contents
+    number-sections: true
+    number-depth: 2
+    tbl-colwidths: auto
+    embed-resources: true
+---
+
+This document is the frozen agreement that lets nine Sonnet packages build metadata and validator modules in wave 2 at the same time, without seeing each other's output. It fixes every shared code, path, header, interface and expected count that those packages need to agree on in advance. Everything here is derived from the standard (`../data-standard.qmd`, v0.3) and from the triage report's user decisions (D1–D9) and gap resolutions (a)–(y); where a number is a count, it was recomputed here directly from the raw files with R, not copied from the report.
+
+# What the contract is {#sec-what}
+
+The contract is frozen at gate G0. It changes in exactly one way after that: an agent that finds a contract error **stops and reports it** — it does not work around the error by inventing its own convention. A change request goes through `templates/decision-change.md` and is recorded by SCRIBE, who updates the status columns of the hard-case table in [decisions](decisions.qmd) and writes `.docs/transition/reports/DECISION-*.md`. No package edits this document, `contract/*.csv`, or another package's outputs to route around a disagreement.
+
+Four documents work together with this one:
+
+- [plan.qmd](plan.qmd) — the wave-by-wave execution plan.
+- [work-packages.qmd](work-packages.qmd) — what each WP does, in detail.
+- [decisions.qmd](decisions.qmd) — the hard cases (H1–H19) and their status.
+- [the data standard](../data-standard.qmd) — the full specification this contract operationalizes.
+
+# Branches and paths {#sec-branches}
+
+**Base branch.** `transition/main` is created by WP00 from `dev/eb` and is the integration target for every wave.
+
+**Branch naming.**
+
+| Kind | Pattern | Example |
+|---|---|---|
+| Implementer | `transition/wpNN-<slug>` | `transition/wp05-geography` |
+| Verifier | `transition/wpNN-<slug>-v<k>` | `transition/wp05-geography-v1` |
+| Patch | `transition/wpNN-<slug>-p<k>` | `transition/wp05-geography-p1` |
+
+Agents finish their turn with `git switch --detach`; they never leave the working tree on a branch that another agent might mistake for its own.
+
+## Output ownership {#sec-ownership}
+
+Every output path or glob has exactly one owner, so two packages writing in the same wave never collide. The authoritative list is `contract/output_ownership.csv` (100 rows); @tbl-ownership-summary is a by-package summary. The documented exceptions to single ownership are `metadata/CHANGELOG.md` (WP03 creates it in wave 1, and INT appends to it, never rewrites existing lines, after every later wave) and `.docs/transition/STATUS.md`: WP00 sets its own row once when it creates `transition/main`, and SCRIBE updates the gate rows after each gate.
+
+| Wave | Owner | Owns |
+|---|---|---|
+| 0 | WP00 | The `transition/main` branch itself. |
+| 1 | WP01 | `data_raw/**`; path edits in `index.qmd` and `CLAUDE.md`; a path note in `.docs/input-tables-findings.md`; removes the 6 legacy `INPUT */` locations after copying them. |
+| 1 | WP02 | `.docs/data-standard.qmd` (v0.4). |
+| 1 | WP03 | `pipeline/README.md`, `pipeline/R/{io,constants,codes}.R`, `pipeline/acceptance/run_all.R`, `pipeline/tests/testthat.R` + 2 test files, `metadata/VERSION`, `metadata/CHANGELOG.md` (creates it), `metadata/structure/DSD_AFW360_HH.csv`. |
+| 2 | WP04 | The 9 small codelists + `CL_AREA.csv`. |
+| 2 | WP05 | `CL_GEO_SCHEME.csv`, `CL_GEO.csv`, `GEO_SOURCES.csv`, `pipeline/build_geo.R`, `pipeline/R/geo.R`, its test, the 2 boundary `.gpkg` files. |
+| 2 | WP06 | `CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv`, `CL_QUAL_VAR.csv`, `CL_QUALIFIER.csv`. |
+| 2 | WP07 | `CL_INDICATOR.csv`, `SERIES_PLAN.csv`, `TAB_PLAN.csv`. |
+| 2 | WP08 | `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv`, `LEGACY_OVERRIDES.csv`. |
+| 2 | WP09 | `TEXT.csv`, `content/text/**`, `assets/figures/**`, `FIGURES.csv`, `SURVEYS.csv`, `pipeline/build_content.R`, `pipeline/R/content.R`, its test. |
+| 2 | WP10 | `pipeline/validate.R`, `pipeline/R/validate_{structure,codes,metadata}.R`, its test and fixtures (STRUCT/CODES/META). |
+| 2 | WP11 | `pipeline/R/validate_{coverage,values,rules}.R`, its test and fixtures (COVER/VALUE/RULE). |
+| 2 | WP12 | `pipeline/R/validate_{assets,text}.R`, its test and fixtures (ASSET/TEXT). |
+| 3 | WP13 | `pipeline/convert_legacy.R`, `pipeline/R/{convert_tables,manifest}.R`, its test, the 2 data files + 2 manifests. |
+| 3 | WP14 | `pipeline/reconcile.R`, `pipeline/R/reconcile.R`, its test. *(Redefined after G0 setup — see the note below.)* |
+| 4 | WP15 | `WP15-reconciliation.md`, `WP15-reconciliation-cells.csv`, `WP15-validation-findings.csv`, `WP15-summary.md`. Writes no code. *(Redefined after G0 setup — see the note below.)* |
+| all | VER | `pipeline/acceptance/wpNN_*.R` (one script per WP, written by that WP's own verifier); `WPNN-verifier-v*.md`. |
+| all | Implementers | `WPNN-implementer.md` (+ `-pK` for patch attempts); owner = the WP whose number is `NN`. |
+| all | INT | `metadata/CHANGELOG.md` (append-only, after WP03 creates it); `STATUS.md`; `WAVE*-integration.md`; `WAVE2-metadata-findings.csv` (from `validate.R --metadata-only`). |
+| all | SCRIBE | `GATE-G*.md`; the status columns only of `decisions.qmd`'s hard-case table; `DECISION-*.md`. |
+
+: Output ownership, summarized by package. The authoritative, path-by-path list is `contract/output_ownership.csv` {#tbl-ownership-summary}
+
+::: {.callout-note}
+**WP14 and WP15 were redefined after the packages were first named**, and this contract reflects the redefinition:
+
+- **WP14 is now an independent reconciliation tool**, not a metadata-consistency patcher. It runs in wave 3, in parallel with WP13's converter, and never reads WP13's code — it rebuilds the wide legacy tables from `data/` + `metadata/` using only this contract, and compares them cell by cell against `data_raw/tables/*.xlsx`, so its check is independent of whatever the converter actually did. The old "WP14 metadata consistency" role — patching other packages' metadata files to fix cross-reference findings — no longer exists as a package. Instead, the wave-2 integrator runs `validate.R --metadata-only`, and any `ERROR` it finds is fixed by a patch branch of the *owning* package, exactly as any other patch is (@sec-ownership). **No package may patch another package's metadata files.**
+- **WP15 is now integration run and reports only.** It writes no code; it runs `pipeline/reconcile.R` (WP14) and `pipeline/validate.R` (WP10–WP12) over the final converted data and writes up the results.
+:::
+
+# Codes every package must create {#sec-codes}
+
+## Small codelists {#sec-codes-small}
+
+@tbl-small-codelists reproduces the standard's `tbl-small-codelists` (@sec-small-codelists in the standard). Every codelist also carries the 7 common columns (`code, name_en, definition_en, status, version_added, replaced_by, notes`); see @sec-headers.
+
+| Codelist | Codes |
+|---|---|
+| `CL_SEX` | `F`, `M` (`_T` and `_Z` also valid, never listed) |
+| `CL_AGE` | SDMX-style bands as needed: `Y_LT15`, `Y15T24`, `Y25T64`, `Y_GE65`, … |
+| `CL_URBANISATION` | `U`, `R`, `CAP` (`parent=U`), `OU` (`parent=U`) |
+| `CL_OBS_STATUS` | `A`, `E`, `O`, `M` |
+| `CL_THEME` | `POV`, `INEQ`, `FISC`, `POP`, `CONS`, `JOB`, `HE`, `AGR`, `EN`, `HOUS`, `SHK`, `SP` |
+| `CL_STAT_UNIT` | `IND`, `HH`, `HE`, `PLOT` |
+| `CL_STATISTIC` | `PROPORTION`, `MEAN`, `MEDIAN`, `TOTAL`, `RATIO_TOTALS`, `GINI`, `INDEX`; plus `admits_se` (Y/N) per row, gap (o) |
+| `CL_WEIGHT` | `POP`, `HH`, `IND`, `HE` |
+| `CL_UNIT` | `SHARE`, `INDEX`, `PERSON`, `HH`, `HE`, `LCU`, `PPP_USD`, `HA`, `TLU`, `DAY`, `YEAR`, `COUNT` |
+
+: Small codelists (WP04) {#tbl-small-codelists}
+
+## `CL_AREA` {#sec-codes-area}
+
+| `code` | `iso2` | `currency` | `wb_region` |
+|---|---|---|---|
+| `SEN` | `SN` | `XOF` | `AFW` |
+| `GNB` | `GW` | `XOF` | `AFW` |
+
+: `CL_AREA`, 2 rows. Both countries use the same currency code, `XOF` (CFA franc BCEAO) — never `XAF` {#tbl-cl-area}
+
+## Breakdown variables {#sec-codes-brk}
+
+13 breakdown variables: the standard's 8 (`tbl-brk-vars`) plus 5 new ones the triage report's label review found necessary (report §2). `applies_to_units` for the original 8 is filled in here because the standard left it unstated everywhere except the worked example.
+
+| `var_code` | Describes | `applies_to_units` | Universe | Categories | `slot_order` |
+|---|---|---|---|---|---|
+| `QUINT` | Household | `IND HH HE` | All households | `QUINT_Q1`…`QUINT_Q5` | 10 |
+| `DEC_MKT` | Household | `IND HH` | All households | `DEC_MKT_D01`…`DEC_MKT_D10` | 15 |
+| `HHH_SEX` | Household head | `IND HH HE` | All households | `HHH_SEX_F`, `HHH_SEX_M` | 20 |
+| `HHH_AGE` | Household head | `IND HH HE` | All households | `HHH_AGE_LT35`, `HHH_AGE_GE35` (DRAFT; cutoff unconfirmed, H17) | 30 |
+| `POOR` | Household | `IND HH HE` | All households | `POOR_Y`, `POOR_N` (requires `POVLINE`) | 40 |
+| `HE_COUNT` | Household | `HH IND` | All households | `HE_COUNT_0`…`HE_COUNT_4P` | 50 |
+| `EMP_STATUS` | Individual | `IND` | Persons 15–64 | `EMP_STATUS_EMPLOYED`, `EMP_STATUS_NOT_EMPLOYED` | 55 |
+| `EMP_SECTOR` | Individual | `IND` | Employed persons 15–64 | `EMP_SECTOR_AGR`, `EMP_SECTOR_IND`, `EMP_SECTOR_SER` | 60 |
+| `EMP_ISIC` | Individual | `IND` | Employed HH members (universe TBD, H5) | `EMP_ISIC_A`…`EMP_ISIC_U` (21 ISIC sections registered; only `_G`, `_H` published initially) | 62 |
+| `EMP_TYPE` | Individual | `IND` | Employed persons 15–64 (assumed) | `EMP_TYPE_WAGE`, `EMP_TYPE_NONWAGE` (ICSE) | 65 |
+| `EMP_FORMAL` | Individual | `IND` | Employed persons (universe TBD, H6) | `EMP_FORMAL_Y`, `EMP_FORMAL_N` (only `_N` published initially) | 70 |
+| `HEO_SEX` | HE (main owner) | `HE` | Non-agricultural HEs | `HEO_SEX_F`, `HEO_SEX_M` (only `_F` published initially) | 80 |
+| `HEO_MSTAT` | HE (main owner) | `HE` | Non-agricultural HEs | `HEO_MSTAT_MARRIED`, `HEO_MSTAT_NOT_MARRIED` | 85 |
+
+: The 13 breakdown variables {#tbl-brk-vars-full}
+
+## Qualifier variables and categories {#sec-codes-qual}
+
+6 qualifier variables: the standard's 5 (`tbl-qual-vars`) plus `ACQ`, needed for own-production vs. market consumption shares (H2).
+
+| `var_code` | What it says | `slot_order` | `requires` |
+|---|---|---|---|
+| `WELFARE` | Welfare aggregate the measure is built on | 10 | |
+| `POVLINE` | Which poverty line | 20 | `PPP` (overridden to `_Z` when `valid_with` allows it, e.g. `POVLINE_NPL`, gap n) |
+| `PPP` | Which PPP round | 30 | |
+| `COICOP` | Which consumption division (COICOP 2018) | 40 | |
+| `ACQ` | Acquisition mode (new, H2) | 45 | |
+| `FI` | Which fiscal instrument | 50 | |
+
+: The 6 qualifier variables {#tbl-qual-vars-full}
+
+The ~40 qualifier categories:
+
+- **`WELFARE`** (7): `WELFARE_CONS_PC`, `WELFARE_INC_MARKET`, `WELFARE_INC_MARKET_PENS`, `WELFARE_INC_NETMARKET`, `WELFARE_INC_DISP`, `WELFARE_INC_CONSUMABLE`, `WELFARE_INC_FINAL`.
+- **`POVLINE`** (8): `POVLINE_PL215`, `POVLINE_PL365`, `POVLINE_PL685` (2017 PPP); `POVLINE_PL300`, `POVLINE_PL420`, `POVLINE_PL830` (2021 PPP; `PL300` also legacy-valid with `PPP_2017`, Appendix A.2); `POVLINE_NPL`, `POVLINE_NPL_FOOD` (`valid_with _Z`).
+- **`PPP`** (3): `PPP_2011`, `PPP_2017`, `PPP_2021`.
+- **`COICOP`** (13): `COICOP_CP01`…`COICOP_CP13`.
+- **`FI`** (7): `FI_DIR_TAX`, `FI_DIR_TRANSF`, `FI_INDIR_TAX`, `FI_SUBSIDY`, `FI_INKIND_EDU`, `FI_INKIND_HEALTH`, `FI_ALL`.
+- **`ACQ`** (2, +2 DRAFT optional): `ACQ_PURCH`, `ACQ_OWNPROD` (register both; `ACQ_GIFT`, `ACQ_INKIND` are DRAFT and optional — only add them if a producer needs them).
+
+Total: 40 core categories (7+8+3+13+7+2), plus up to 2 optional DRAFT `ACQ_*` codes.
+
+## Indicator codes {#sec-codes-indicator}
+
+62 distinct `INDICATOR` codes, grouped by theme (from the triage report's label triage, §1). 6 are cross-cutting — reused across many breakdowns instead of being duplicated per category, per the standard's core distinction (@sec-one-row in the standard):
+
+| Theme | Codes |
+|---|---|
+| Cross-cutting (6) | `POV_HC`, `POV_NUM`, `CONS_SH`, `POP_SH`, `POP_HH_SH`, `POP_HE_SH` |
+| `HE` (23) | `HE_ACCOUNTS`, `HE_AGE`, `HE_BUY_FIRMS`, `HE_CAPITAL`, `HE_COSTS`, `HE_CREDIT_ANY`, `HE_CREDIT_FORMAL`, `HE_CREDIT_INFORMAL`, `HE_ELEC`, `HE_EMP_EXT_ANY`, `HE_EMP_HH_NUM`, `HE_EMP_NONHH_NUM`, `HE_EMP_NUM`, `HE_HH_OWNER`, `HE_HOME_BASED`, `HE_PHONE`, `HE_PREMISES_FORMAL`, `HE_PROFIT`, `HE_RENT`, `HE_REV_PER_WORKER`, `HE_SELL_FIRMS`, `HE_TAX_ID`, `HE_WATER` |
+| `AGR` (4) | `AGR_CULT_AREA`, `AGR_CULTIVATES`, `AGR_LIVESTOCK_ANY`, `AGR_TLU` |
+| `EN` (17) | `EN_ASSET_AC`, `EN_ASSET_COOKER`, `EN_ASSET_FAN`, `EN_ASSET_WATER_HEATER`, `EN_COOK_BIOMASS`, `EN_COOK_CLEAN`, `EN_ELEC_ACCESS`, `EN_ELEC_INFORMAL`, `EN_ELEC_SPEND`, `EN_GRID_CONN`, `EN_GRID_USE`, `EN_LIGHT_IMPROVED`, `EN_OFFGRID_USE`, `EN_OUTAGE_ANY`, `EN_OUTAGE_DAYS`, `EN_OUTAGE_DUR_CODE`, `EN_PREPAID_METER` |
+| `HOUS` (5) | `HOUS_FLOOR_DURABLE`, `HOUS_ROOF_DURABLE`, `HOUS_SANIT_IMPROVED`, `HOUS_WALL_DURABLE`, `HOUS_WATER_SAFE_DRY` |
+| `SHK` (5) | `SHK_ANY`, `SHK_COV_CONFLICT`, `SHK_COV_ECON`, `SHK_COV_NATURAL`, `SHK_IDIO_ECON` |
+| `SP` (2) | `SP_HEALTH_COV`, `SP_HEALTH_COV_HH` |
+
+: The 62 `CL_INDICATOR` codes, by theme (6+23+4+17+5+5+2 = 62) {#tbl-indicator-codes}
+
+Several of these are DRAFT pending a hard-case decision at gate G1 (H7 electricity trio, H8 outage-duration code, H10 `HE_HH_OWNER`, H12 `HE_EMP_EXT_ANY`, H13 `SP_HEALTH_COV_HH`) — see [decisions](decisions.qmd). `POV_HC`, `POV_NUM` and `CONS_SH` are qualified by `POVLINE`/`PPP`/`COICOP`/`ACQ`, not split into per-line or per-division codes (D4 rule below applies the same logic to shares).
+
+## The share-codes rule (D4) {#sec-codes-share}
+
+A population share is never a new indicator; it is one of three codes distinguished by what is counted, chosen by the breakdown's `describes`/`applies_to_units`, and weighted to match:
+
+| `INDICATOR` | `stat_unit` | `weight` | Used for |
+|---|---|---|---|
+| `POP_SH` | `IND` | `IND` | Individual-level breakdowns: `EMP_STATUS`, `EMP_SECTOR`, `EMP_ISIC`, `EMP_TYPE`, `EMP_FORMAL` |
+| `POP_HH_SH` | `HH` | `HH` | Household-level breakdowns: `HE_COUNT` |
+| `POP_HE_SH` | `HE` | `HE` | HE-owner breakdowns: `HEO_SEX`, `HEO_MSTAT` |
+
+: The three share codes (D4; supersedes the standard's single `POP_SH`, which cannot hold one `stat_unit` once household- and enterprise-level shares are added) {#tbl-share-codes}
+
+## Sentinels and the `TBD` token {#sec-codes-sentinels}
+
+`_T` (total, everyone / not split) and `_Z` (not applicable) are reserved and never appear in a codelist (standard @sec-sentinels). `GEO` and `URBANISATION` are never `_Z`.
+
+`TBD` is a third reserved token, for gap (d): it may fill a required **text** column (never a coded column) only on a row whose `status=DRAFT`. The validator warns on it there and errors if it survives onto an `ACTIVE` row. `source_vars` on several HE and jobs indicators (H5, H6, H12) are legitimately `TBD` at G0 for exactly this reason.
+
+## `CL_GEO` {#sec-codes-geo}
+
+35 rows: SEN 1 `ADM0` + 14 `ADM1` + 6 `ZONES`; GNB 1 `ADM0` + 9 `ADM1` + 4 `AEZ`. @tbl-geo-summary summarizes; the authoritative, code-by-code list — read from the shapefiles and the workbook headers with R, never retyped — is `contract/geo_codes.csv`.
+
+| `ref_area` | `scheme` | Codes | Count | Has geometry |
+|---|---|---|---|---|
+| SEN | `ADM0` | `SN` | 1 | Y (`adm0`, `SEN_CODAB_v02.gpkg`) |
+| SEN | `ADM1` | `SN01`…`SN14` | 14 | Y (`adm1`, `SEN_CODAB_v02.gpkg`) |
+| SEN | `ZONES` | `SN_ZONES01`…`SN_ZONES06` | 6 | N |
+| GNB | `ADM0` | `GW` | 1 | Y (`adm0`, `GNB_CODAB_V01.gpkg`) |
+| GNB | `ADM1` | `GW01`…`GW09` | 9 | Y (`adm1`, `GNB_CODAB_V01.gpkg`) |
+| GNB | `AEZ` | `GW_AEZ01`…`GW_AEZ04` | 4 | N |
+
+: `CL_GEO` by scheme, 35 rows total (1+14+6+1+9+4) {#tbl-geo-summary}
+
+ADM0 codes are geometry-only (gap k): there is no legacy source column for them, so `legacy_sheet`/`legacy_column` are empty in `geo_codes.csv`, and `GEO=SN`/`GEO=GW` is a distinct value from `GEO=_T` (whole-country total with no geometry join). `SN01` and `SN13` fail geometry validity as delivered (s2 and, for `SN13`, GEOS too) and are repaired with `sf::st_make_valid()` under `sf_use_s2(FALSE)` (gap u); WP05 rebuilds from the plain (non-`_em`) shapefiles.
+
+Zone names have no boundary source to be "issued by" (gap v): `SN_ZONES01`–`05` and `GW_AEZ02`, `GW_AEZ04` get a readable `name_en` reconstructed from their (untruncated) legacy column; `SN_ZONES06`, `GW_AEZ01` and `GW_AEZ03` come from workbook headers truncated at Excel's 32-character limit (e.g. `estimateZiguinchor_Tamba_Kolda_S`), so their full names are `TBD` in `geo_codes.csv` until a producer confirms them.
+
+## Series-ID rule {#sec-codes-series}
+
+This is the rule used by all 91 rows of `contract/label_triage.csv`, by the plan and by the task cards — not a convention invented for this contract: `series_id` is `<INDICATOR>`, then each qualifier code in ascending qualifier `slot_order`, then the defining breakdown category, full codes, joined by `.`.
+
+`series_id` is `<INDICATOR>` alone when the indicator needs no qualifier and has no defining breakdown (e.g. `HE_AGE`). Examples:
+
+- `POV_HC.POVLINE_PL300.PPP_2021` — `POV_HC` × `POVLINE_PL300` × `PPP_2021`.
+- `POV_HC.POVLINE_NPL` — `POV_HC` × `POVLINE_NPL`.
+- `CONS_SH.COICOP_CP01` — `CONS_SH` × `COICOP_CP01` (food share).
+- `CONS_SH.COICOP_CP01.ACQ_PURCH` — `CONS_SH` × `COICOP_CP01` × `ACQ_PURCH` (market food share, H2).
+- `POP_SH.EMP_SECTOR_AGR` — `POP_SH` with defining breakdown `EMP_SECTOR_AGR`.
+- `POP_HH_SH.HE_COUNT_0` — `POP_HH_SH` with defining breakdown `HE_COUNT_0`.
+
+`series_id` is an identifier, not a code: it is not itself a codelist entry, so the 32-character code limit (@sec-code-rules in the standard) does not apply to it. Its allowed characters are uppercase ASCII, digits, `_` and `.`. It is unique within `SERIES_PLAN.csv` and — like every code — never changes meaning once assigned.
+
+## Legacy column → dimension map {#sec-codes-legacy-map}
+
+**National sheet** (13 data columns → `URBANISATION` or `COMP_BREAKDOWN_1`):
+
+| Legacy column | Dimension |
+|---|---|
+| `estimateTotal` | All breakdown slots `_T` |
+| `estimateCapital` | `URBANISATION = CAP` |
+| `estimateOther_Urban` | `URBANISATION = OU` |
+| `estimateRural` | `URBANISATION = R` |
+| `estimateFemale_HH` | `COMP_BREAKDOWN_1 = HHH_SEX_F` |
+| `estimateMale_HH` | `COMP_BREAKDOWN_1 = HHH_SEX_M` |
+| `estimateYouth_HH` | `COMP_BREAKDOWN_1 = HHH_AGE_LT35` (DRAFT; cutoff unconfirmed, H17 — dashboard currently labels this group "29+", `index.qmd:64`) |
+| `estimateOlder_HH` | `COMP_BREAKDOWN_1 = HHH_AGE_GE35` (DRAFT; same cutoff caveat) |
+| `estimateQ1` … `estimateQ5` | `COMP_BREAKDOWN_1 = QUINT_Q1` … `QUINT_Q5` |
+
+: National sheet legacy columns → dimensions, both countries (identical column set) {#tbl-legacy-national-map}
+
+**`ADM 1` and `ZAE` sheets**: every column maps to `GEO = <code>`, scheme `ADM1` or `ZONES`/`AEZ` respectively. This is a 1:1 map, already built: see @tbl-geo-summary and the `legacy_sheet`/`legacy_column` columns of `contract/geo_codes.csv`.
+
+**`Departement` sheet**: skipped entirely (D3); no dimension map needed.
+
+# Headers {#sec-headers}
+
+The authoritative, column-by-column list for every CSV the transition creates is `contract/csv_headers.csv` (333 rows across 30 files). @tbl-headers-summary is the file-level summary.
+
+| File | Columns | Notes |
+|---|---|---|
+| `DSD_AFW360_HH.csv` | 7 | `position, id, role, codelist, required, sentinel, description` — one row per data-file column (26 rows of content). |
+| `AFW360_HH_<ISO3>_<YEAR>.csv` (data file) | 26 | The standard's `tbl-columns`, in order (@sec-data in the standard). |
+| `AFW360_HH_<ISO3>_<YEAR>_manifest.csv` | 2 | `key, value`; 16 defined keys (@sec-manifest in the standard). |
+| `CL_SEX.csv`, `CL_AGE.csv`, `CL_OBS_STATUS.csv`, `CL_THEME.csv`, `CL_UNIT.csv`, `CL_STAT_UNIT.csv`, `CL_WEIGHT.csv` | 7 each | Common columns only. |
+| `CL_URBANISATION.csv` | 8 | + `parent`. |
+| `CL_STATISTIC.csv` | 8 | + `admits_se` (gap o). |
+| `CL_AREA.csv` | 10 | + `iso2, currency, wb_region`. |
+| `CL_GEO_SCHEME.csv` | 12 | + `ref_area, local_name_en, has_geometry, nests_in, partition`. |
+| `CL_GEO.csv` | 14 | + `ref_area, scheme, parent, source_id, geom_layer, valid_from, valid_to`. |
+| `CL_BRK_VAR.csv` | 15 | + `describes, applies_to_units, universe, classification, partition, requires_qual, slot_order, owner`. |
+| `CL_COMP_BREAKDOWN.csv` | 10 | + `var_code, parent, order`. |
+| `CL_QUAL_VAR.csv` | 10 | + `slot_order, requires, owner`. |
+| `CL_QUALIFIER.csv` | 12 | + `var_code, value, basis, valid_with, order`. |
+| `CL_INDICATOR.csv` | 37 | + 30 columns (@sec-cl-indicator in the standard). |
+| `SURVEYS.csv` | 25 | The standard's `tbl-surveys` (24) + `status` (gap g). |
+| `GEO_SOURCES.csv` | 16 | Per `@sec-geo-storage` in the standard. |
+| `FIGURES.csv` | 17 | Per `@sec-figures` in the standard. |
+| `TEXT.csv` | 9 | `tbl-text` in the standard. |
+| `TAB_PLAN.csv` | 9 | `tbl-tab-plan` in the standard. |
+| `SERIES_PLAN.csv` | 7 | `series_id, ref_area, INDICATOR, MEASURE_QUALS, DEFINING_BREAKDOWN, status, notes`. |
+| `LEGACY_LABELS.csv` | 8 | `legacy_label, sheet, action, series_id, duplicate_of, scale, assert_rule, notes` (gap a). |
+| `LEGACY_COLUMNS.csv` | 9 | `ref_area, sheet, column, cut_id, GEO, URBANISATION, COMP_BREAKDOWN, action, notes` (gap a). |
+| `LEGACY_OVERRIDES.csv` | 8 | `ref_area, sheet, column, legacy_label, action, obs_comment, reason, evidence` (gap a). |
+| validator findings (any `validate.R --out`, `WP15-validation-findings.csv`) | 5 | `check_id, severity, file, row_key, message` (gap q). |
+
+: Header summary, by file. The authoritative source is `contract/csv_headers.csv` {#tbl-headers-summary}
+
+## Formatting rules (gap r) {#sec-headers-format}
+
+Every CSV the pipeline writes:
+
+- Is UTF-8 **without** a byte-order mark on write, but every reader tolerates a BOM (Excel's "CSV UTF-8" adds one).
+- Uses LF line endings, one header row, and `na = ""` (never the literal string `NA`).
+- Is read back with `col_types = cols(.default = "c")` — every metadata column is character on read; type conversion happens in application code, not at the CSV boundary.
+- Never writes scientific notation. Numbers are formatted in fixed notation, up to 10 decimals, trailing zeros trimmed (`pipeline/R/io.R::fmt_num`).
+- Rows of a **data file** are sorted by the 18 key columns, in DSD order (@sec-headers-keys).
+- Multi-valued fields (e.g. `TAB_PLAN.urbanisation = "CAP OU R"`, `CL_INDICATOR.qualifiers`) are space-separated.
+
+Two runs of the converter with the same `--timestamp` produce byte-identical output (WP13 acceptance criterion).
+
+## The 18 key columns {#sec-headers-keys}
+
+The data file's uniqueness key is every breakdown and qualifier column together with `DATAFLOW` and `TIME_PERIOD` — in DSD order, this is simply the **first 18 of the 26 columns** (positions 1–18); the remaining 8 (`OBS_VALUE` through `OBS_COMMENT`) are measure/attribute columns and never part of the key:
+
+`DATAFLOW, REF_AREA, GEO, TIME_PERIOD, INDICATOR, SEX, AGE, URBANISATION, COMP_BREAKDOWN_1…5, MEASURE_QUAL_1…5`
+
+`pipeline/R/constants.R::KEY_COLUMNS` holds exactly this vector.
+
+# Interfaces {#sec-interfaces}
+
+So that parallel packages can plug together without integration surprises, every CLI entry point, exported function and module contract is fixed here.
+
+## CLI entry points
+
+All take `--root <repo root>` (default `.`):
+
+| Command | Owner | Notes |
+|---|---|---|
+| `Rscript pipeline/build_geo.R --root .` | WP05 | Builds the two `.gpkg` files from `data_raw/shp`. |
+| `Rscript pipeline/build_content.R --root .` | WP09 | Builds `content/` and `assets/` from `data_raw/text` and `data_raw/figures`. |
+| `Rscript pipeline/convert_legacy.R --root . --country SEN\|GNB\|ALL [--timestamp <ISO8601>]` | WP13 | Converts `data_raw/tables/*.xlsx` to `data/`. |
+| `Rscript pipeline/validate.R --root . [--metadata-only] [--data <file> ...] --out <findings.csv>` | WP10–WP12 | Exit 0 = no `ERROR`; 1 = at least one `ERROR`; 2 = crash. |
+| `Rscript pipeline/acceptance/run_all.R --root .` | INT/VER | Runs every `pipeline/acceptance/wp*.R`; exit 0 only if all pass. |
+| `Rscript pipeline/reconcile.R --root . --out <md> [--csv <cells.csv>]` | **WP14** | Rebuilds the wide legacy tables from `data/` + `metadata/` and diffs them against `data_raw/tables/*.xlsx`, cell by cell. Exit 0 only if every source cell is accounted for exactly once — as converted, duplicate, derived, skipped, or withheld. Written from this contract only; never reads `pipeline/R/convert_tables.R`, so it cannot inherit a converter bug. |
+
+: CLI entry points {#tbl-cli}
+
+## `pipeline/R/io.R` (WP03)
+
+Exports `read_std_csv(path)` (tibble, all character, BOM stripped), `write_std_csv(df, path)` (deterministic per @sec-headers-format), `fmt_num(x)` (fixed notation, ≤10 decimals, trailing zeros trimmed, `NA → ""`), `sha256_file(path)`, `load_metadata(root)` (named list of tibbles keyed by file stem, e.g. `meta$CL_GEO`), `repo_path(root, ...)`.
+
+## `pipeline/R/constants.R` (WP03)
+
+`SENTINEL_TOTAL = "_T"`, `SENTINEL_NA = "_Z"`, `TBD = "TBD"`, `DSD_COLUMNS` (the 26 names, in order), `KEY_COLUMNS` (the 18 names, @sec-headers-keys).
+
+## `pipeline/R/codes.R` (WP03)
+
+`is_valid_code(x)`, `slot_sort(...)`.
+
+## Validator module interface (WP10–WP12, in parallel)
+
+Each `pipeline/R/validate_<module>.R` defines functions named `vc_<module>_<check>(ctx)`, each returning a tibble with columns `check_id, severity, file, row_key, message` (0 rows = pass). `ctx` is a list:
+
+- `root` — the repo root.
+- `meta` — `= load_metadata(root)`.
+- `data` — named list of data tibbles keyed by file name.
+- `manifests` — named list, same keys as `data`.
+- `precision` — named character, `EXACT` or `ROUNDED_2DP`, per file.
+- `opts` — CLI options passed through.
+
+`validate.R` sources `io.R`, `constants.R`, `codes.R` and every `validate_*.R`, discovers all `vc_` functions with `ls(pattern = "^vc_")`, runs them in alphabetical order, binds the results and writes the findings CSV. `check_id = <MODULE>.<NAME>`, modules `STRUCT`, `CODES`, `META` (WP10), `COVER`, `VALUE`, `RULE` (WP11), `ASSET`, `TEXT` (WP12). `severity` is `ERROR | WARN | INFO`.
+
+**Tolerance for `ROUNDED_2DP`** files (gap h3): `h = 0.005 * scale`. A single value tolerates `±h`; the sum of `k` children vs. their parent tolerates `±(k+1)h`; a closure over `k` categories tolerates `±k·h` (e.g. COICOP's 13-way closure: `±0.065`). Every tolerance comparison is `abs(dev) <= tol + 1e-9`, so floating-point noise at the limit (e.g. a computed deviation of `0.020000000000000073` against `tol=0.02`) does not reject valid data.
+
+## Converter (WP13)
+
+Reads only `data_raw/tables/*.xlsx` and `metadata/**`. It never hard-codes a legacy label or column name — every mapping comes from `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv` and `LEGACY_OVERRIDES.csv`, so a relabeled cell in the workbook cannot silently vanish (the failure mode the current dashboard has today).
+
+## Reconciliation (WP14)
+
+Reads `data/*.csv`, `metadata/**` and `data_raw/tables/*.xlsx`. Never reads `pipeline/R/convert_tables.R` or any other WP13 source file — it is built from this contract's mapping files (the same three the converter reads) applied independently, so a bug shared between "what the converter did" and "what WP14 checked" cannot hide a real mismatch. Its cell-by-cell accounting must reach 100% of source cells across five buckets: converted (1:1 to a data-file row), duplicate (`DUPLICATE_OF`), derived (`DERIVED`), skipped (`SKIP`, or the whole `Departement` sheet), withheld (`LEGACY_OVERRIDES` action `WITHHOLD`).
+
+# Expected counts {#sec-expected}
+
+Every number below was recomputed directly from the raw files in `INPUT Tables/` and `INPUT shp/` with R (not copied from the triage report), except the metadata-row counts, which cannot yet be recomputed because the metadata files do not exist — those are carried over from the report and flagged `source: Report`. The authoritative, full list (64 rows) is `contract/expected_counts.csv`; every recomputed figure matched the report exactly (no mismatches found — see the verification note at the end of this section).
+
+| `check_id` | Scope | Quantity | Expected | Tol. |
+|---|---|---|---|---|
+| `CELLS.SEN_National` / `.NONEMPTY` / `.EMPTY` | SEN National | cells / non-empty / empty | 1261 / 1248 / 13 | 0 |
+| `CELLS.SEN_ADM1` / `.NONEMPTY` / `.EMPTY` | SEN ADM 1 | cells / non-empty / empty | 1358 / 1340 / 18 | 0 |
+| `CELLS.SEN_ZAE` / `.NONEMPTY` / `.EMPTY` | SEN ZAE | cells / non-empty / empty | 582 / 575 / 7 | 0 |
+| `CELLS.SEN_Departement` / `.NONEMPTY` / `.EMPTY` | SEN Departement | cells / non-empty / empty | 1148 / 1142 / 6 | 0 |
+| `CELLS.GNB_National` / `.NONEMPTY` / `.EMPTY` | GNB National | cells / non-empty / empty | 1261 / 1233 / 28 | 0 |
+| `CELLS.GNB_ADM1` / `.NONEMPTY` / `.EMPTY` | GNB ADM 1 | cells / non-empty / empty | 873 / 828 / 45 | 0 |
+| `CELLS.GNB_ZAE` / `.NONEMPTY` / `.EMPTY` | GNB ZAE | cells / non-empty / empty | 388 / 378 / 10 | 0 |
+| `LABELS.SHARED` | SEN+GNB, National/ADM1/ZAE | distinct labels (identical set & order, both countries) | 97 | 0 |
+| `LABELS.DEPARTEMENT` | SEN Departement | distinct labels | 82 | 0 |
+| `LABELS.TOTAL` | all sheets | distinct (label, sheet-family) rows | 179 | 0 |
+| `SERIES.COUNT` | `SERIES_PLAN.csv` | rows | 91 | 0 |
+| `INDICATOR.CODES` | `CL_INDICATOR.csv` | distinct codes | 62 | 0 |
+| `DATA.SEN.ROWS` / `.A` | SEN data file | rows / rows with `A` | 3003 / 3003 | 0 |
+| `SOURCE.SEN.ACCOUNTING` | SEN | source cells = mapped + non-series | 3201 = 3003 + 198 | 0 |
+| `GNB.MAPPED_CELLS` | GNB, 91 mapped labels | cells (91×26) | 2366 | 0 |
+| `GNB.WITHHELD_CELLS` | GNB | withheld (D5) | 98 (91 Capital + 7 cultivated-area) | 0 |
+| `GNB.DATA.ROWS` | GNB data file | rows | 2268 | 0 |
+| `GNB.DATA.ROWS.A` | GNB data file | rows with `A` | **2229** | 0 |
+| `GNB.DATA.ROWS.O` | GNB data file | rows with `O` | **39** | 0 |
+| `SOURCE.GNB.ACCOUNTING` | GNB | source cells = mapped + non-series | 2522 = 2366 + 156 | 0 |
+| `DEPARTEMENT.SKIPPED` | SEN Departement | source cells skipped (D3) | 1148 | 0 |
+| `POVNUM.SEN.PL300` / `.PL420` | SEN National Total | Number poor (millions) | 3.13 / 6.52 | 0.005 |
+| `POVNUM.GNB.PL300` / `.PL420` | GNB National Total | Number poor (millions) | 0.70 / 1.09 | 0.005 |
+| `META.CL_INDICATOR` | `CL_INDICATOR.csv` | rows | 62 | 0 *(Report)* |
+| `META.SERIES_PLAN` | `SERIES_PLAN.csv` | rows | 91 | 0 *(Report)* |
+| `META.TAB_PLAN` | `TAB_PLAN.csv` | rows | 8 | 0 *(Standard)* |
+| `META.CL_BRK_VAR` | `CL_BRK_VAR.csv` | rows | 13 | 0 *(Report)* |
+| `META.CL_COMP_BREAKDOWN` | `CL_COMP_BREAKDOWN.csv` | rows | ~60 | 5 *(Report)* |
+| `META.CL_QUAL_VAR` | `CL_QUAL_VAR.csv` | rows | 6 | 0 *(Report)* |
+| `META.CL_QUALIFIER` | `CL_QUALIFIER.csv` | rows | ~40 | 3 *(Report)* |
+| `META.CL_GEO` | `CL_GEO.csv` | rows | 35 | 0 |
+| `META.CL_GEO_SCHEME` | `CL_GEO_SCHEME.csv` | rows | 6 | 0 |
+| `META.CL_AREA` | `CL_AREA.csv` | rows | 2 | 0 |
+| `META.GEO_SOURCES` | `GEO_SOURCES.csv` | rows | 2 | 0 |
+| `META.SURVEYS` | `SURVEYS.csv` | rows | 2 | 0 |
+| `META.LEGACY_LABELS` | `LEGACY_LABELS.csv` | rows | 179 | 0 |
+| `META.LEGACY_COLUMNS` | `LEGACY_COLUMNS.csv` | rows | 73 | 0 *(Report)* |
+| `META.LEGACY_OVERRIDES` | `LEGACY_OVERRIDES.csv` | rows | ~10 | 2 *(Report)* |
+| `META.TEXT` | `TEXT.csv` | rows | ~8 | 1 *(Report)* |
+| `META.FIGURES` | `FIGURES.csv` | rows | 1 | 0 |
+| `META.DSD` | `DSD_AFW360_HH.csv` | rows | 26 | 0 |
+| `META.SMALL_CODELISTS` | `metadata/codelists/` | small-codelist files | 9 | 0 |
+| `GEOM.SEN.ADM0` / `.ADM1` | `SEN_CODAB_v02.gpkg` | features | 1 / 14 | 0 |
+| `GEOM.GNB.ADM0` / `.ADM1` | `GNB_CODAB_V01.gpkg` | features | 1 / 9 | 0 |
+| `LEGACY.FILES` | `data_raw/**` (D2) | tracked legacy files to move | 122 | 0 |
+
+: Expected counts (condensed). The authoritative, machine-readable list is `contract/expected_counts.csv` {#tbl-expected-counts}
+
+**Verification note.** Every recomputable number above (everything not marked *Report*) was independently recomputed from `INPUT Tables/*.xlsx` and `INPUT shp/*.shp` with R while writing this contract, and matched the triage report exactly. In particular, `GNB.DATA.ROWS.A = 2229` and `GNB.DATA.ROWS.O = 39` were derived from scratch — not read off the report's "≈2229, ≈39" estimate — by: taking the 91 mapped labels (the 97 National-sheet labels minus the 6 non-series ones: *Food consumption share*, *Housing & utilities burden (COICOP 4 share of total cons.)*, *HH owns a non-agric enterprise*, *Non-food consumption share*, *HH has internet access*, *wood_dist [ALL MISSING]*); expanding to all 2366 (mapped label × group) cells across GNB's National/ADM 1/ZAE sheets; withholding the 98 D5 cells (the entire `estimateCapital` column for all 91 labels, plus the 7 named `Cultivated area (ha)` cells above 100 ha); and counting non-empty vs. empty among the remaining 2268. The result matches the report's exact figures precisely, resolving its "exact figures recomputed by WP8" note in advance.
+
+# Out of scope {#sec-out-of-scope}
+
+This transition does not:
+
+- Switch the dashboard (`index.qmd`) from `INPUT Tables/` (moved to `data_raw/tables/`, D2) to the new `data/*.csv` loader. That is a later project, per CLAUDE.md objective 3 and the standard's own ordering (metadata → converter → validator → dashboard).
+- Produce any **production** (non-legacy) data. Every row in `data/AFW360_HH_{SEN,GNB}_2021.csv` comes from the converter, carries `precision = ROUNDED_2DP` and `status = DRAFT`, and is a legacy conversion, not a new survey estimate.
+- Populate `N_OBS`, `N_POP` or `STD_ERR` on legacy files. The standard's legacy exemption (@sec-legacy) means these columns are empty in every row the converter writes; a producer's first real submission is the first file where they are required.

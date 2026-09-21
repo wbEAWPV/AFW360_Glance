@@ -1,0 +1,321 @@
+---
+title: "AFW 360 transition plan"
+subtitle: "From the legacy Excel, shapefile and text inputs to the AFW360 data standard"
+date: 2026-09-21
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    toc-title: Contents
+    number-sections: true
+    number-depth: 2
+    tbl-colwidths: auto
+    embed-resources: true
+---
+
+This plan converts the dashboard's current inputs (two Excel workbooks, 22 shapefile layers, a handful of text files and one image) into the files defined by the [data standard](../data-standard.qmd): codelists and plans under `metadata/`, one long CSV per country and year under `data/`, boundaries under `geo/`, and prose and images under `content/` and `assets/`. The dashboard keeps working throughout, and it switches to the new files only after the plan is complete.
+
+The plan is carried out by agents working in parallel. An **orchestrator** running on Opus launches them and takes decisions to the user, and it never edits or runs anything itself. **Implementers, verifiers, integrators and scribes** running on Sonnet do all the work. Each package is checked by a verifier that did not build it. The user decides at three gates. Nothing becomes `ACTIVE` without the user.
+
+# The document set {#sec-docset}
+
+| File | What it is | Who reads it |
+|---|---|---|
+| `plan.qmd` (this file) | Starting point, end point, how the work runs, and verification targets | Everyone |
+| [`work-packages.qmd`](work-packages.qmd) | One task card per package, WP00–WP15 | Implementers, verifiers, and the orchestrator |
+| [`contract.qmd`](contract.qmd) and `contract/*.csv` | Frozen at G0: every shared code, path, header, interface and expected count | Every agent |
+| [`decisions.qmd`](decisions.qmd) | Decisions taken, hard cases for G1, gaps in the standard, and the label triage | The user, the orchestrator, and implementers of WP02, WP06–WP09 |
+| `templates/` | Prompt and report templates for every role, plus the acceptance-script skeleton | The orchestrator and every agent |
+| `STATUS.md` | Live board of packages and gates, kept on branch `transition/main` | The orchestrator (through a scout) and the user |
+| `reports/` | Every agent's report, integration reports and gate records | Everyone |
+| `orchestrator-prompt.md` | The prompt that starts the orchestrator in a new session | The user |
+| [`../data-standard.qmd`](../data-standard.qmd) | The target format (v0.3; WP02 turns it into v0.4) | Everyone |
+| [`../input-tables-findings.md`](../input-tables-findings.md) | Cell-by-cell findings on the current workbooks | Implementers of WP07, WP08, WP13 and WP14 |
+
+: The transition documents {#tbl-docset}
+
+**Machine-readable files win.** Where a `.qmd` table and a `contract/*.csv` file disagree, the CSV is authoritative, and the disagreement is reported as a contract error.
+
+# Starting point {#sec-start}
+
+This is what the repository holds on 2026-09-21, commit `82d9cb9` on `dev/eb`.
+
+## Inventory {#sec-inventory}
+
+There are 122 tracked legacy files. WP01 moves every one of them to `data_raw/`.
+
+| Current location | Files | Content | Read by the dashboard |
+|---|---|---|---|
+| `INPUT Tables/Tables_SEN.xlsx` | 1 | Four sheets: `National` 97 × 13, `ADM 1` 97 × 14, `ZAE` 97 × 6, `Departement` 82 × 14 | Yes (`National`, `ADM 1`, `ZAE`) |
+| `INPUT Tables/Tables_GNB.xlsx` | 1 | Three sheets: `National` 97 × 13, `ADM 1` 97 × 9, `ZAE` 97 × 4 | Only for the About-page download; the GNB section reads the SEN file (known bug) |
+| `INPUT Tables/Tables_SEN_TEST.xlsx` | 1 | Scratch: 2 indicators, 4 columns, a different layout | No |
+| `INPUT shp/` | 110 | 22 layers × 5 side-car files. SEN has 12 layers (`admin0`–`admin3` and their `_em` variants, `admincapitals`, `adminlines` and `_em`, `adminpoints`). GNB has 10 (`admin0`–`admin2` and `_em`, `admincapitals`, `admincentroids`, `adminlines` and `_em`). | `sen_admin1.shp` only |
+| `INPUT Text/About.txt`, `About_SEN.txt` | 2 | SEN methodology, two paragraphs; the two files are byte-identical | Yes |
+| `INPUT Text/About_GNB.txt` | 1 | The placeholder `TEXT` | Yes |
+| `INPUT Text/Messages_SEN.txt` | 1 | Three Python `valuebox` chunks wrapping raw HTML, with `##` placeholders | No; the messages are hard-coded in `index.qmd` in a different version |
+| `INPUT Text/Messages_GNB.txt` | 1 | Three headings only (Poverty, Inequality, Policy) | No |
+| `INPUT Text/Messages_SEN.txt2` | 1 | Scratch variant of the SEN messages | No |
+| `INPUT Figures/Fiscal Equity SEN.png` | 1 | Fiscal-equity chart | Yes, in the SEN **and** GNB sections (known bug) |
+| `dsf.qqqww`, `map_test.png` (repo root) | 2 | Scratch | No |
+
+: Legacy files on 2026-09-21 {#tbl-inventory}
+
+The text files are stored with LF line endings in git, but `core.autocrlf=true` checks them out with CRLF. Byte identity is therefore always checked on **git blobs**, never on working-tree files (WP01).
+
+## How the dashboard reads them {#sec-dashboard-reads}
+
+`index.qmd` refers to the inputs by path in 12 places:
+
+- the Excel file: lines 188, 370, 694 and 1151;
+- the shapefile: line 371;
+- the image: lines 658, 665, 1115 and 1122;
+- the About texts: lines 675, 1132 and 1182.
+
+It selects indicators by their free-text labels in the maps at lines 59–128. That code is out of scope here; WP01 changes only the path strings.
+
+## The tables in brief {#sec-tables-brief}
+
+The full findings are in [input-tables-findings.md](../input-tables-findings.md). The points that shape the transition:
+
+- Each sheet is a set of one-way breakdowns of the national population: residence, sex and age of the household head, quintile, region, zone. Breakdowns are never crossed.
+- Rows are identified only by 97 free-text labels. These are byte-identical across sheets and countries, and the poverty line, PPP round, unit and classification are all written inside the label.
+- Values are rounded to 2 decimals and stored as shares (0–1) or levels, with no unit field. An empty cell is ambiguous.
+- Regions and zones are identified by spelled names. Some names are cut at 32 characters, and GNB's names carry accents.
+
+## Boundaries and text in brief {#sec-geo-text-brief}
+
+- **Boundaries.** COD-AB P-codes are already in the files: SEN `SN01`–`SN14` (v02, valid on 2024-05-20) and GNB `GW01`–`GW09` (V_01, 2021-06-09). Bissau is `GW08`; the tables call it `SAB`.
+  - The `.prj` files carry no EPSG code.
+  - The `_em` layers are variants of the plain layers.
+  - Two SEN polygons are invalid: SN01 fails under s2, and SN13 fails under both GEOS and s2.
+- **Text.** The About text is SEN-specific, although `About.txt` looks generic. The key messages exist in two versions: `Messages_SEN.txt`, and the text hard-coded in `index.qmd`, whose titles and bodies differ. Both contain `##` placeholders for numbers and projections for 2026 that are not in the data.
+
+## Defects that shape the transition {#sec-defects}
+
+| Defect | Where | Handled by |
+|---|---|---|
+| GNB `Capital` column is a copy of the zone `Zonas_Costeiras_do_Sul` | `Tables_GNB.xlsx` `National` | Withheld: the rows are absent and each is registered (D5, WP08) |
+| GNB `Cultivated area (ha)` outliers in the millions | 8 cells, one of them in `Capital` | Withheld (D5, WP08) |
+| SEN `Departement` sheet is an older version with mislabelled PPP | `Tables_SEN.xlsx` | Skipped (D3) |
+| Duplicate series (Food share = COICOP 1; Housing burden = COICOP 4) | Both workbooks | `DUPLICATE_OF`, with equality asserted (WP08) |
+| Derivable series (Non-food share; "HH owns a non-agric enterprise") | Both workbooks | `DERIVED`, with the relation asserted (H1, H10) |
+| Empty or implausible series (`wood_dist`, internet access, SEN grid connection, SEN clean cooking, HE external employees) | Both workbooks | `SKIP` or a `COMMENT` override, confirmed at G1 (H7, H9, H12, H14) |
+| Undocumented cut-off for household-head age (the dashboard says "29+") | `National` | DRAFT codes, confirmed at G1 (H17) |
+| No geographic codes; names truncated at 32 characters | `ADM 1` and `ZAE` sheets | `LEGACY_COLUMNS.csv` and the contract's GEO codes |
+| Invalid polygons SN01 and SN13 | `sen_admin1.shp` | `st_make_valid` with GEOS (WP05) |
+
+: Defects in the inputs and where the plan handles them {#tbl-defects}
+
+# End point {#sec-end}
+
+When the plan is complete, the repository holds the layout below. Everything in it is `DRAFT` until the user promotes it.
+
+```
+data_raw/                  the 122 legacy files, byte-frozen (WP01)
+  README.md  CHECKSUMS.sha256
+  tables/  shp/  text/  figures/  scratch/
+metadata/                  VERSION 0.1.0, CHANGELOG, structure/, codelists/, surveys/, plans/, registries/
+data/                      AFW360_HH_SEN_2021.csv, AFW360_HH_GNB_2021.csv, and a manifest for each
+geo/boundaries/            SEN_CODAB_v02.gpkg, GNB_CODAB_V01.gpkg (layers adm0, adm1)
+content/                   TEXT.csv, text/SEN/about.md
+assets/figures/SEN/        the fiscal-equity figure
+pipeline/                  R: build_geo.R, build_content.R, convert_legacy.R, validate.R, reconcile.R,
+                           R/ modules, tests/testthat/, acceptance/ (one script per package)
+.docs/transition/          this plan, the contract, decisions, templates, STATUS and reports
+```
+
+The standard defines what each file means. Beyond v0.3, the transition adds four things, and WP02 writes them into v0.4:
+
+- `data_raw/` and `pipeline/` in the layout;
+- `plans/SERIES_PLAN.csv`, which makes coverage checkable;
+- `plans/LEGACY_COLUMNS.csv` and `plans/LEGACY_OVERRIDES.csv`;
+- the resolutions of gaps (a)–(y) in [decisions.qmd](decisions.qmd).
+
+## Expected outcomes {#sec-outcomes}
+
+| Outcome | Expected |
+|---|---|
+| SEN data file | 3,003 observations: 91 series × 33 groups (13 national groups, 14 regions, 6 zones), all `OBS_STATUS=A` |
+| GNB data file | 2,366 mapped cells (91 × 26) less 98 withheld: about 2,268 observations (about 2,229 `A` and 39 `O`) |
+| Reference year | `TIME_PERIOD=2021` for both countries (EHCVM 2021/22) |
+| Source accounting | SEN 3,201 cells and GNB 2,522 cells, each traced exactly once. All 1,148 `Departement` cells are skipped. |
+| Poverty counts (persons) | SEN 3.13M / 6.52M and GNB 0.70M / 1.09M at \$3.00 / \$4.20 (2021 PPP) |
+| Dictionary | 62 indicator codes, 91 series, 8 cuts |
+| Breakdowns and qualifiers | 13 variables with about 60 categories; 6 variables with about 40 categories |
+| Geography | 35 spatial units in 6 schemes. 2 GeoPackages: SEN 1 + 14 polygons, GNB 1 + 9 |
+| Legacy maps | 179 labels, 73 columns, about 10 overrides |
+| Text and assets | About 8 text entries, 1 figure, 2 surveys |
+| Checks | 0 validator errors. Byte-identical re-runs. Reconciliation accounts for every source cell. |
+
+: Expected outcomes; `contract/expected_counts.csv` is authoritative {#tbl-outcomes}
+
+Legacy files carry `precision=ROUNDED_2DP`. Their `N_OBS`, `N_POP`, `STD_ERR` and confidence intervals are empty, because the workbooks do not have them.
+
+## What does not change {#sec-unchanged}
+
+- The dashboard still reads the legacy files, from `data_raw/` after WP01. Switching it to the new files is the next project (@sec-after).
+- No value is recomputed from microdata. The transition restructures and documents what the workbooks contain, and withholds what is known to be wrong.
+
+# Decisions this plan rests on {#sec-decisions}
+
+The user took these decisions on 2026-09-21. The full record is in [decisions.qmd](decisions.qmd).
+
+- **D1 Tooling.** The metadata bootstrap, converter and validator are written in R. The dashboard stays Python.
+- **D2 Raw inputs.** All legacy files move to `data_raw/`, byte-identical. This overrides the CLAUDE.md rule against restructuring the inputs.
+- **D3 `Departement`.** The sheet is skipped entirely.
+- **D4 Shares.** Three codes: `POP_SH` (people), `POP_HH_SH` (households) and `POP_HE_SH` (enterprises).
+- **D5 Defective cells.** Their rows are absent from the data file, and each one is registered in `LEGACY_OVERRIDES.csv`.
+- **D6 GNB survey.** EHCVM 2021/22, `TIME_PERIOD=2021`.
+- **D7 Hard cases.** They are built with the recommended coding as DRAFT, and the user confirms or flips each at G1.
+- **D8 Execution.** Parallel agents only. The Opus orchestrator never executes; Sonnet agents do the work.
+- **D9 Empty legacy cells.** `OBS_STATUS=O`, with a comment prefixed `LEGACY_EMPTY:`.
+
+# How the transition runs {#sec-run}
+
+## Principles {#sec-principles}
+
+1. **Parallel agents only.** Every package is done by an agent. All packages of a wave start in one message, and each verifier starts as soon as its implementer reports. Waves are ordered only where there is a hard data dependency.
+2. **The orchestrator never executes.** It reads documents and agent results, launches agents from the templates, and asks the user at gates. It does not edit files or run shell, R, git or Quarto. When it needs to look at something on a branch, it sends a scout.
+3. **Contract first.** Wave-2 packages build against [the contract](contract.qmd), not against each other's outputs. Integration then checks that the pieces fit.
+4. **Ownership.** Every output path has exactly one owner in `contract/output_ownership.csv`. An agent writes only what its package owns. If it needs anything else, it stops and reports.
+5. **Independent verification.** The verifier writes its own acceptance script from the card and the contract. It reads the raw inputs itself and never reuses the implementer's tests.
+6. **Nothing is pushed.** Work happens on local branches. `transition/main` is merged into `dev/eb` only after G2, when the user says so.
+
+## Roles {#sec-roles}
+
+| Role | Model | Runs as | Writes | Template |
+|---|---|---|---|---|
+| Orchestrator | Opus | The main session | Nothing | `orchestrator-prompt.md` |
+| Implementer | Sonnet | `Agent`, `isolation: "worktree"`, background | The package's owned outputs and `reports/WPNN-implementer.md` | `templates/implementer-prompt.md` |
+| Verifier | Sonnet | `Agent`, worktree, background; a fresh agent each attempt | `pipeline/acceptance/wpNN_<slug>.R` and `reports/WPNN-verifier-vK.md` | `templates/verifier-prompt.md` |
+| Patch agent | Sonnet | `Agent`, worktree, background | The package's owned outputs and `reports/WPNN-implementer-pK.md` | `templates/patch-prompt.md` |
+| Integrator | Sonnet | `Agent`, worktree; one per wave | Merges on `transition/main`; `CHANGELOG.md`, `STATUS.md`, `reports/WAVEN-*` | `templates/integrator-prompt.md` |
+| Scribe | Sonnet | `Agent`, worktree; after each gate | `reports/GATE-Gn.md`, `reports/DECISION-*.md`, the status column in `decisions.qmd` | `templates/scribe-prompt.md` |
+| Scout | Sonnet | `Agent`, `subagent_type: "Explore"`, read-only | Nothing | `templates/scout-prompt.md` |
+
+: Roles {#tbl-roles}
+
+## Branches {#sec-branches}
+
+```
+dev/eb ──(WP00)──► transition/main ◄──(integrator merges PASS branches, wave by wave)
+                        │
+                        ├── transition/wp05-geography          implementer
+                        │     └── transition/wp05-geography-v1   verifier: acceptance script + report
+                        │           └── …-p1                     patch after a FAIL
+                        │                 └── …-v2               fresh verifier
+                        └── …
+```
+
+- Every agent begins by creating its own branch, and ends with `git switch --detach`, so no worktree keeps a branch locked.
+- The integrator merges the latest PASS verifier branch of each package, which holds the implementer's commits plus the acceptance script.
+
+## Package life cycle {#sec-lifecycle}
+
+```{mermaid}
+flowchart LR
+  I[Implementer] --> V[Fresh verifier]
+  V -->|PASS| R[Ready for integrator]
+  V -->|FAIL| P[Patch agent]
+  P --> V2[Fresh verifier]
+  V2 -->|PASS| R
+  V2 -->|FAIL, 2 patches used| U[Escalate to the user]
+```
+
+The orchestrator pastes the verifier's "failures to fix" block into the patch prompt word for word. A package gets at most two patch attempts; after that, the orchestrator asks the user what to do.
+
+## Waves and gates {#sec-waves}
+
+| Wave | Packages (in parallel) | Then |
+|---|---|---|
+| W0 | WP00 creates `transition/main` from `dev/eb` | — |
+| W1 | WP01 move inputs to `data_raw/` ∥ WP02 standard v0.4 ∥ WP03 pipeline scaffold | Integrator, then **G0**: the user approves standard v0.4 and the contract |
+| W2 | WP04 small codelists ∥ WP05 geography ∥ WP06 breakdowns and qualifiers ∥ WP07 dictionary and plans ∥ WP08 legacy maps ∥ WP09 text, figures, surveys ∥ WP10 validator core ∥ WP11 validator coverage, values and rules ∥ WP12 validator assets and text | Integrator, plus a metadata-only validation (any error goes back to the owning package), then **G1**: the user confirms or flips the hard cases |
+| W3 | WP13 legacy converter ∥ WP14 independent reconciliation tool | Integrator |
+| W4 | WP15 integration run and reports | Integrator, then **G2**: the user accepts the results and decides the merge into `dev/eb` |
+
+: Waves and gates {#tbl-waves}
+
+```{mermaid}
+flowchart TB
+  W0[W0: WP00 setup] --> W1
+  subgraph W1[Wave 1]
+    WP01 & WP02 & WP03
+  end
+  W1 --> G0{{G0: spec + contract}}
+  G0 --> W2
+  subgraph W2[Wave 2]
+    WP04 & WP05 & WP06 & WP07 & WP08 & WP09 & WP10 & WP11 & WP12
+  end
+  W2 --> G1{{G1: hard cases}}
+  G1 --> W3
+  subgraph W3[Wave 3]
+    WP13 & WP14
+  end
+  W3 --> W4[W4: WP15 integration run]
+  W4 --> G2{{G2: accept, merge to dev/eb}}
+```
+
+**Why the waves fall where they do:**
+
+- Wave 2 needs the scaffold (WP03), the inputs in `data_raw/` (WP01), and an approved contract (G0).
+- The converter needs the merged metadata and the hard cases settled (G1). The reconciliation tool is written at the same time, from the contract alone, so that it checks the converter independently.
+- The final run needs both.
+
+**Gate G1 flips.** A flipped hard case changes only CSV rows. The orchestrator launches patch agents on the owning packages (see the "owner WP" column in [decisions.qmd](decisions.qmd)). A fresh verifier checks each patch, and the integrator merges them before wave 3 starts.
+
+## Gates {#sec-gates}
+
+| Gate | The user sees | The user decides |
+|---|---|---|
+| G0 | The diff of standard v0.4, the contract, the W1 integration report, and the `data_raw/` checksum result | Approve, or name the changes. On approval the contract is frozen. |
+| G1 | The merged metadata counts against `expected_counts.csv`, the metadata-only validation report, and the hard-case sheet | For each open hard case: confirm the recommended coding, choose the alternative, or give another answer |
+| G2 | The W4 reports: validator findings, reconciliation, and counts against expectations | Accept; when to merge `transition/main` into `dev/eb`; which DRAFT items to promote later |
+
+: What the user decides at each gate {#tbl-gates}
+
+The questions to ask at each gate are in `templates/gate-review.md`. The scribe records the answers word for word.
+
+## Regression and resuming {#sec-regression}
+
+- After every merge, the integrator reruns every acceptance script written so far (`pipeline/acceptance/run_all.R`), plus the unit tests. Wave 1 also renders the dashboard.
+- A regression blocks the wave, and it is reported against the package that owns the broken file.
+- `STATUS.md` on `transition/main` is the persistent state. A new orchestrator session resumes by sending a scout to read it, together with the latest reports.
+
+# Verification targets {#sec-targets}
+
+The verifiers check these numbers mechanically. The authoritative copy is `contract/expected_counts.csv`.
+
+| Check | Target |
+|---|---|
+| `data_raw/` | 122 files; every blob identical to its original path at `transition/main` before WP01 |
+| Source cells | SEN: `National` 1,261, `ADM 1` 1,358, `ZAE` 582, `Departement` 1,148. GNB: `National` 1,261, `ADM 1` 873, `ZAE` 388 |
+| Labels | 97 shared by all sheets, and 82 in `Departement`: 179 in `LEGACY_LABELS` |
+| Series and codes | 91 series, 62 indicator codes |
+| SEN rows | 3,003, all `A` |
+| GNB rows | 2,366 − 98 withheld; `A` and `O` as in the CSV |
+| Accounting | Every source cell is converted, duplicate, derived, skipped or withheld, exactly once |
+| Invariants | `POV_NUM` national totals as in @tbl-outcomes; sums over each partition within tolerance, except the GNB residence cut, where `Capital` is withheld |
+| Determinism | Two converter runs with a pinned timestamp give byte-identical files |
+| Validator | 0 `ERROR`. `WARN` only for DRAFT codes, `TBD` fields, and checks skipped for partial or withheld categories |
+
+: Verification targets {#tbl-targets}
+
+# Risks and pitfalls {#sec-risks}
+
+- **Silent type changes.** Read every CSV with all columns as character, write NA as an empty string (`na = ""`), and never let a number print in scientific notation.
+- **Encoding.** Workbook headers carry accents (`Bafatá`, `Bolama_Bijagós`, `Gabú`), labels carry `–` and `≥`, and one sheet is named `ADM 1`, with a space. Match them byte-exact, and never retype them.
+- **Line endings.** `core.autocrlf=true` checks text inputs out with CRLF. Readers must accept both, and checksums use git blobs.
+- **Geometry.** Build with GEOS (`sf_use_s2(FALSE)`) and `st_make_valid`. A GeoPackage's bytes change on every build, so record its sha256 after building.
+- **Parallel collisions.** A path owned twice, or a conflict outside the integrator's own files, is a defect in the contract. The integrator stops and reports it; it never resolves it by editing.
+- **Scope creep.** Agents do not fix defects in the inputs. They register them.
+- **Tooling on this machine.** `QUARTO_R` is set to a broken path, so Quarto must run as `env -u QUARTO_R quarto render …`. If a sandboxed agent cannot start `Rscript`, it reports this as BLOCKED rather than working around it.
+
+# After the transition {#sec-after}
+
+These steps are out of scope for this plan:
+
+- Point the dashboard at `data/`, `metadata/`, `geo/` and `content/` through one loader per country (objective 3 in CLAUDE.md), and fix the display bugs listed there.
+- Promote confirmed codes from `DRAFT` to `ACTIVE`, and replace the legacy files with producer files that carry `N_OBS`, `N_POP` and standard errors.
+- Resolve the open decisions that the transition leaves open (see [decisions.qmd](decisions.qmd)).

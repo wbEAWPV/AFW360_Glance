@@ -1,0 +1,155 @@
+# Appendix: label triage {#sec-appendix-triage .unnumbered}
+
+The machine-readable version of the label triage is `contract/label_triage.csv`, one row per legacy label of the current Excel tables; it is authoritative, and this appendix is its readable view. Every `MAP` row carries `status = DRAFT`: none of the 91 series it defines becomes `ACTIVE` until the user confirms or flips its hard case (@sec-hard-cases) at gate G1.
+
+## Summary {#sec-appendix-triage-summary .unnumbered}
+
+| Action | Rows |
+|---|---:|
+| `DERIVED` | 2 |
+| `DUPLICATE_OF` | 2 |
+| `MAP` | 91 |
+| `SKIP` | 84 |
+| **Total** | **179** |
+
+: Rows of `label_triage.csv` by action. 91 distinct `series_id` values and 62 distinct `INDICATOR` codes appear among the 91 `MAP` rows. {#tbl-triage-actions}
+
+| Theme | Series |
+|---|---:|
+| `POV` | 4 |
+| `CONS` | 15 |
+| `POP_SH` | 9 |
+| `POP_HH_SH` | 5 |
+| `POP_HE_SH` | 2 |
+| `HE` | 23 |
+| `AGR` | 4 |
+| `EN` | 17 |
+| `HOUS` | 5 |
+| `SHK` | 5 |
+| `SP` | 2 |
+| **Total** | **91** |
+
+: Series by theme, as classified from each `MAP` row's `INDICATOR` code (`POV_HC`/`POV_NUM` grouped as `POV`; `HE_*`, `AGR_*`, `EN_*`, `HOUS_*`, `SHK_*`, `SP_*` grouped by prefix). {#tbl-triage-series-theme}
+
+## The 97 `National` / `ADM 1` / `ZAE` labels {#sec-appendix-triage-star .unnumbered}
+
+@tbl-triage-star lists every label found identically on the `National`, `ADM 1` and `ZAE` sheets of both `Tables_SEN.xlsx` and `Tables_GNB.xlsx`. `DUPLICATE_OF` and `DERIVED` rows carry no `series_id` of their own; the `series_id / duplicate_of` column instead shows the row they resolve against, and `contract/label_triage.csv`'s `assert_rule` column has the exact check.
+
+| row_id | Label | Action | series_id / duplicate_of | stat_unit | unit / scale / display | Hard case |
+|---|---|---|---|---|---|---|
+| `L001` | Access to electricity (grid, SDG 7.1.1) | `MAP` | `EN_ELEC_ACCESS` | HH | SHARE · PERCENT(1dp) | [H7](#sec-h07) |
+| `L002` | Any power outage in last 7 days (grid-connected) | `MAP` | `EN_OUTAGE_ANY` | HH | SHARE · PERCENT(1dp) |  |
+| `L003` | Average outage duration (code) | `MAP` | `EN_OUTAGE_DUR_CODE` | HH | INDEX · NUMBER(2dp) | [H8](#sec-h08) |
+| `L004` | COICOP 10: education (share) | `MAP` | `CONS_SH.COICOP_CP10` | HH | SHARE · PERCENT(1dp) |  |
+| `L005` | COICOP 11: restaurants & hotels (share) | `MAP` | `CONS_SH.COICOP_CP11` | HH | SHARE · PERCENT(1dp) |  |
+| `L006` | COICOP 12: insurance & financial (share) | `MAP` | `CONS_SH.COICOP_CP12` | HH | SHARE · PERCENT(1dp) |  |
+| `L007` | COICOP 13: personal care & effects (share) | `MAP` | `CONS_SH.COICOP_CP13` | HH | SHARE · PERCENT(1dp) |  |
+| `L008` | COICOP 1: food & non-alc. beverages (share) | `MAP` | `CONS_SH.COICOP_CP01` | HH | SHARE · PERCENT(1dp) |  |
+| `L009` | COICOP 2: alcohol & tobacco (share) | `MAP` | `CONS_SH.COICOP_CP02` | HH | SHARE · PERCENT(1dp) |  |
+| `L010` | COICOP 3: clothing & footwear (share) | `MAP` | `CONS_SH.COICOP_CP03` | HH | SHARE · PERCENT(1dp) |  |
+| `L011` | COICOP 4: housing & utilities (share) | `MAP` | `CONS_SH.COICOP_CP04` | HH | SHARE · PERCENT(1dp) |  |
+| `L012` | COICOP 5: furnishings & equipment (share) | `MAP` | `CONS_SH.COICOP_CP05` | HH | SHARE · PERCENT(1dp) |  |
+| `L013` | COICOP 6: health (share) | `MAP` | `CONS_SH.COICOP_CP06` | HH | SHARE · PERCENT(1dp) |  |
+| `L014` | COICOP 7: transport (share) | `MAP` | `CONS_SH.COICOP_CP07` | HH | SHARE · PERCENT(1dp) |  |
+| `L015` | COICOP 8: information & communication (share) | `MAP` | `CONS_SH.COICOP_CP08` | HH | SHARE · PERCENT(1dp) |  |
+| `L016` | COICOP 9: recreation & culture (share) | `MAP` | `CONS_SH.COICOP_CP09` | HH | SHARE · PERCENT(1dp) |  |
+| `L017` | Connected to electricity grid (SDG7.1.1) | `MAP` | `EN_GRID_CONN` | HH | SHARE · PERCENT(1dp) | [H7](#sec-h07) |
+| `L018` | Covariate economic shock | `MAP` | `SHK_COV_ECON` | HH | SHARE · PERCENT(1dp) |  |
+| `L019` | Covariate natural shock (drought, flood, etc.) | `MAP` | `SHK_COV_NATURAL` | HH | SHARE · PERCENT(1dp) |  |
+| `L020` | Covariate violence/conflict shock | `MAP` | `SHK_COV_CONFLICT` | HH | SHARE · PERCENT(1dp) |  |
+| `L021` | Cultivated area (ha) | `MAP` | `AGR_CULT_AREA` | HH | HA · NUMBER(2dp) | [H19](#sec-h19) |
+| `L022` | Days with an outage (last 7) | `MAP` | `EN_OUTAGE_DAYS` | HH | DAY · NUMBER(1dp) |  |
+| `L023` | Durable floor materials | `MAP` | `HOUS_FLOOR_DURABLE` | HH | SHARE · PERCENT(1dp) |  |
+| `L024` | Durable roof materials | `MAP` | `HOUS_ROOF_DURABLE` | HH | SHARE · PERCENT(1dp) |  |
+| `L025` | Durable wall materials | `MAP` | `HOUS_WALL_DURABLE` | HH | SHARE · PERCENT(1dp) |  |
+| `L026` | Employed (activ12m, 15–64) | `MAP` | `POP_SH.EMP_STATUS_EMPLOYED` | IND | SHARE · PERCENT(1dp) |  |
+| `L027` | Employed in agriculture (% of employed) | `MAP` | `POP_SH.EMP_SECTOR_AGR` | IND | SHARE · PERCENT(1dp) |  |
+| `L028` | Employed in industry (% of employed) | `MAP` | `POP_SH.EMP_SECTOR_IND` | IND | SHARE · PERCENT(1dp) |  |
+| `L029` | Employed in services (% of employed) | `MAP` | `POP_SH.EMP_SECTOR_SER` | IND | SHARE · PERCENT(1dp) |  |
+| `L030` | Exposed to any shock (past 3 years) | `MAP` | `SHK_ANY` | HH | SHARE · PERCENT(1dp) |  |
+| `L031` | Food consumption share | `DUPLICATE_OF` | DUPLICATE_OF `L008` |  |  |  |
+| `L032` | HE age (years) | `MAP` | `HE_AGE` | HE | YEAR · NUMBER(1dp) |  |
+| `L033` | HE buys from firms/state | `MAP` | `HE_BUY_FIRMS` | HE | SHARE · PERCENT(1dp) |  |
+| `L034` | HE capital stock (FCFA) | `MAP` | `HE_CAPITAL` | HE | LCU · CURRENCY(0dp) |  |
+| `L035` | HE costs (FCFA) | `MAP` | `HE_COSTS` | HE | LCU · CURRENCY(0dp) |  |
+| `L036` | HE has any credit access | `MAP` | `HE_CREDIT_ANY` | HE | SHARE · PERCENT(1dp) |  |
+| `L037` | HE has electricity | `MAP` | `HE_ELEC` | HE | SHARE · PERCENT(1dp) |  |
+| `L038` | HE has external (non-HH) employees | `MAP` | `HE_EMP_EXT_ANY` | HE | SHARE · PERCENT(1dp) | [H12](#sec-h12) |
+| `L039` | HE has formal credit access | `MAP` | `HE_CREDIT_FORMAL` | HE | SHARE · PERCENT(1dp) |  |
+| `L040` | HE has formal premises | `MAP` | `HE_PREMISES_FORMAL` | HE | SHARE · PERCENT(1dp) |  |
+| `L041` | HE has informal credit access | `MAP` | `HE_CREDIT_INFORMAL` | HE | SHARE · PERCENT(1dp) |  |
+| `L042` | HE has phone | `MAP` | `HE_PHONE` | HE | SHARE · PERCENT(1dp) |  |
+| `L043` | HE has tax ID | `MAP` | `HE_TAX_ID` | HE | SHARE · PERCENT(1dp) |  |
+| `L044` | HE has water | `MAP` | `HE_WATER` | HE | SHARE · PERCENT(1dp) |  |
+| `L045` | HE keeps accounts | `MAP` | `HE_ACCOUNTS` | HE | SHARE · PERCENT(1dp) |  |
+| `L046` | HE operates from home | `MAP` | `HE_HOME_BASED` | HE | SHARE · PERCENT(1dp) |  |
+| `L047` | HE pays rent | `MAP` | `HE_RENT` | HE | SHARE · PERCENT(1dp) |  |
+| `L048` | HE profits (FCFA) | `MAP` | `HE_PROFIT` | HE | LCU · CURRENCY(0dp) |  |
+| `L049` | HE revenue per worker (FCFA) | `MAP` | `HE_REV_PER_WORKER` | HE | LCU/PERSON · CURRENCY(0dp) |  |
+| `L050` | HE sells to firms/state | `MAP` | `HE_SELL_FIRMS` | HE | SHARE · PERCENT(1dp) |  |
+| `L051` | HH cultivates agricultural land (superf > 0) | `MAP` | `AGR_CULTIVATES` | HH | SHARE · PERCENT(1dp) |  |
+| `L052` | HH employees in HE | `MAP` | `HE_EMP_HH_NUM` | HE | PERSON · NUMBER(2dp) |  |
+| `L053` | HH has 0 HE | `MAP` | `POP_HH_SH.HE_COUNT_0` | HH | SHARE · PERCENT(1dp) |  |
+| `L054` | HH has 1 HE | `MAP` | `POP_HH_SH.HE_COUNT_1` | HH | SHARE · PERCENT(1dp) |  |
+| `L055` | HH has 2 HE | `MAP` | `POP_HH_SH.HE_COUNT_2` | HH | SHARE · PERCENT(1dp) |  |
+| `L056` | HH has 3 HE | `MAP` | `POP_HH_SH.HE_COUNT_3` | HH | SHARE · PERCENT(1dp) |  |
+| `L057` | HH has 4+ HE | `MAP` | `POP_HH_SH.HE_COUNT_4P` | HH | SHARE · PERCENT(1dp) |  |
+| `L058` | HH has internet access | `SKIP` | SKIP |  |  | [H14](#sec-h14) |
+| `L059` | HH has non-agric enterprise owner | `MAP` | `HE_HH_OWNER` | HH | SHARE · PERCENT(1dp) | [H10](#sec-h10) |
+| `L060` | HH owns a non-agric enterprise | `DERIVED` | DERIVED `L053` |  |  | [H10](#sec-h10) |
+| `L061` | HH owns any livestock | `MAP` | `AGR_LIVESTOCK_ANY` | HH | SHARE · PERCENT(1dp) |  |
+| `L062` | Has health insurance/coverage (couvmal) | `MAP` | `SP_HEALTH_COV` | IND | SHARE · PERCENT(1dp) |  |
+| `L063` | Housing & utilities burden (COICOP 4 share of total cons.) | `DUPLICATE_OF` | DUPLICATE_OF `L011` |  |  |  |
+| `L064` | Idiosyncratic economic shock | `MAP` | `SHK_IDIO_ECON` | HH | SHARE · PERCENT(1dp) |  |
+| `L065` | Improved lighting (grid or solar) | `MAP` | `EN_LIGHT_IMPROVED` | HH | SHARE · PERCENT(1dp) |  |
+| `L066` | Informal electricity connection (neighbour/pole) | `MAP` | `EN_ELEC_INFORMAL` | HH | SHARE · PERCENT(1dp) |  |
+| `L067` | Main HE owner is female | `MAP` | `POP_HE_SH.HEO_SEX_F` | HE | SHARE · PERCENT(1dp) | [H11](#sec-h11) |
+| `L068` | Main HE owner is married | `MAP` | `POP_HE_SH.HEO_MSTAT_MARRIED` | HE | SHARE · PERCENT(1dp) | [H11](#sec-h11) |
+| `L069` | Market food share (% total cons.) | `MAP` | `CONS_SH.COICOP_CP01.ACQ_PURCH` | HH | SHARE · PERCENT(1dp) | [H2](#sec-h02) |
+| `L070` | Monthly electricity spend (FCFA) | `MAP` | `EN_ELEC_SPEND` | HH | LCU · CURRENCY(0dp) |  |
+| `L071` | Non-HH employees in HE | `MAP` | `HE_EMP_NONHH_NUM` | HE | PERSON · NUMBER(2dp) |  |
+| `L072` | Non-food consumption share | `DERIVED` | DERIVED `L008` |  |  | [H1](#sec-h01) |
+| `L073` | Non-wage employed (% of employed) | `MAP` | `POP_SH.EMP_TYPE_NONWAGE` | IND | SHARE · PERCENT(1dp) | [H3](#sec-h03) |
+| `L074` | Number of employees in HE | `MAP` | `HE_EMP_NUM` | HE | PERSON · NUMBER(2dp) | [H12](#sec-h12) |
+| `L075` | Number poor \$3.00/day (millions) | `MAP` | `POV_NUM.POVLINE_PL300.PPP_2021` | IND | PERSON · x1000000 · MILLIONS(2dp) |  |
+| `L076` | Number poor \$4.20/day (millions) | `MAP` | `POV_NUM.POVLINE_PL420.PPP_2021` | IND | PERSON · x1000000 · MILLIONS(2dp) |  |
+| `L077` | Own-production food share (% total cons.) | `MAP` | `CONS_SH.COICOP_CP01.ACQ_OWNPROD` | HH | SHARE · PERCENT(1dp) | [H2](#sec-h02) |
+| `L078` | Owns ceiling fan | `MAP` | `EN_ASSET_FAN` | HH | SHARE · PERCENT(1dp) |  |
+| `L079` | Owns wall AC/split | `MAP` | `EN_ASSET_AC` | HH | SHARE · PERCENT(1dp) |  |
+| `L080` | Owns water heater | `MAP` | `EN_ASSET_WATER_HEATER` | HH | SHARE · PERCENT(1dp) |  |
+| `L081` | Poor at \$3.00/day (2021 PPP) | `MAP` | `POV_HC.POVLINE_PL300.PPP_2021` | IND | SHARE · PERCENT(1dp) |  |
+| `L082` | Poor at \$4.20/day (2021 PPP) | `MAP` | `POV_HC.POVLINE_PL420.PPP_2021` | IND | SHARE · PERCENT(1dp) |  |
+| `L083` | Prepaid meter (among grid-connected) | `MAP` | `EN_PREPAID_METER` | HH | SHARE · PERCENT(1dp) |  |
+| `L084` | Primary cooking fuel biomass (wood/charcoal) | `MAP` | `EN_COOK_BIOMASS` | HH | SHARE · PERCENT(1dp) |  |
+| `L085` | Primary cooking fuel clean (gas/electricity) | `MAP` | `EN_COOK_CLEAN` | HH | SHARE · PERCENT(1dp) | [H9](#sec-h09) |
+| `L086` | Proxy: owns gas/electric cooker (cuisin) | `MAP` | `EN_ASSET_COOKER` | HH | SHARE · PERCENT(1dp) | [H9](#sec-h09) |
+| `L087` | Safe drinking water – dry season | `MAP` | `HOUS_WATER_SAFE_DRY` | HH | SHARE · PERCENT(1dp) |  |
+| `L088` | Sanitary toilet facility | `MAP` | `HOUS_SANIT_IMPROVED` | HH | SHARE · PERCENT(1dp) |  |
+| `L089` | Share of HH workers in trade/commerce | `MAP` | `POP_SH.EMP_ISIC_G` | IND | SHARE · PERCENT(1dp) | [H5](#sec-h05) |
+| `L090` | Share of HH workers in transport | `MAP` | `POP_SH.EMP_ISIC_H` | IND | SHARE · PERCENT(1dp) | [H5](#sec-h05) |
+| `L091` | Share of HH workers informally employed | `MAP` | `POP_SH.EMP_FORMAL_N` | IND | SHARE · PERCENT(1dp) | [H6](#sec-h06) |
+| `L092` | Tropical Livestock Units (TLU) | `MAP` | `AGR_TLU` | HH | TLU · NUMBER(2dp) |  |
+| `L093` | Uses grid electricity | `MAP` | `EN_GRID_USE` | HH | SHARE · PERCENT(1dp) | [H7](#sec-h07) |
+| `L094` | Uses solar/generator electricity | `MAP` | `EN_OFFGRID_USE` | HH | SHARE · PERCENT(1dp) |  |
+| `L095` | Wage-employed (% of employed) | `MAP` | `POP_SH.EMP_TYPE_WAGE` | IND | SHARE · PERCENT(1dp) | [H3](#sec-h03) |
+| `L096` | wood_dist [ALL MISSING] | `SKIP` | SKIP |  |  |  |
+| `L097` | ≥1 HH member has health coverage (proxy social protection) | `MAP` | `SP_HEALTH_COV_HH` | HH | SHARE · PERCENT(1dp) | [H13](#sec-h13) |
+
+: The 97 labels shared by the `National`, `ADM 1` and `ZAE` sheets (identical across both countries), in workbook (code-point sort) order. {#tbl-triage-star}
+
+## The 82 `Departement` labels {#sec-appendix-triage-departement .unnumbered}
+
+The `Departement` sheet exists only for Senegal. Per decision D3 all 82 of its labels are `SKIP`: 60 share a label with `ADM 1` but produce a different, mostly conflicting value under the same key, and 22 are unique to the sheet (raw collapse variables, a mislabelled PPP round, or poverty counts that disagree with the sheet's own rates). @tbl-triage-departement groups them; the full row-by-row detail, with each label's own reason in `notes`, is in `contract/label_triage.csv`.
+
+| Group | Count | Example label(s) | Reason |
+|---|---:|---|---|
+| Raw `(max) con_k` collapse leftovers | 15 | `(max) con_1`, `(max) con_10` | Raw variable, not a defined indicator; values do not sum to 1 (1.48-3.02 per region) |
+| Raw `(max) ext_emp` variable | 1 | `(max) ext_emp` | Raw variable, within 0.07 of `HE has external (non-HH) employees` (L038) |
+| `Access to electricity (grid or off-grid)` | 1 | `Access to electricity (grid or off-grid)` | Distinct concept from `EN_ELEC_ACCESS` (grid only); not registered as a code |
+| `Energy expenditure burden (share of total cons.)` | 1 | `Energy expenditure burden (share of total cons.)` | Dashboard shows an empty placeholder row for this label (index.qmd:127) |
+| 2017-PPP poverty lines (mislabelled) | 2 | `Poor at \$3.00/day (2017 PPP)`, `Poor at \$4.20/day (2017 PPP)` | Mislabelled lines; the PPP_2017 exception for POVLINE_PL300 is removed per D3, and POVLINE_PL420 was never valid with PPP_2017 |
+| Raw `npoor300` / `npoor420` variables | 2 | `npoor300`, `npoor420` | Disagree with the sheet's own rates (e.g. Diourbel 0.35M poor at rate 0.11 -> ~3.2M people) |
+| 60 labels shared with `National`/`ADM 1`/`ZAE` | 60 | `Covariate economic shock`, `Covariate natural shock (drought, flood, etc.)` | Same key as the `ADM 1` row for the same label, but a different (mostly conflicting) value; superseded 2017-PPP poverty rows fold into this group too |
+
+: The 82 `Departement` rows (all `SKIP`, D3), grouped by reason. {#tbl-triage-departement}
+

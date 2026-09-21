@@ -1,0 +1,101 @@
+path,owner,wave,kind,notes
+transition/main,WP00,0,branch,Base branch created from dev/eb; all wave branches fork from here.
+data_raw/**,WP01,1,glob,"Includes data_raw/README.md, data_raw/CHECKSUMS.sha256; subfolders tables/, shp/, text/, figures/, scratch/. Byte-identical copies of the 122 legacy files."
+index.qmd,WP01,1,file,Path strings only (12 refs updated to data_raw/); no change to data flow or presentation logic.
+CLAUDE.md,WP01,1,file,"Updates input-file paths after the move; this move overrides CLAUDE.md's 'don't restructure inputs' working rule, per D2."
+.docs/input-tables-findings.md,WP01,1,file,Path note only (points readers at data_raw/ instead of INPUT */).
+INPUT Tables/**,WP01,1,remove,Removed after byte-identical copy to data_raw/tables/.
+INPUT shp/**,WP01,1,remove,Removed after byte-identical copy to data_raw/shp/.
+INPUT Text/**,WP01,1,remove,Removed after byte-identical copy to data_raw/text/ (incl. Messages_SEN.txt2 -> data_raw/scratch/).
+INPUT Figures/**,WP01,1,remove,Removed after byte-identical copy to data_raw/figures/.
+dsf.qqqww,WP01,1,remove,Removed after byte-identical copy to data_raw/scratch/.
+map_test.png,WP01,1,remove,Removed after byte-identical copy to data_raw/scratch/.
+.docs/data-standard.qmd,WP02,1,file,"Standard v0.4: folds in D1-D9 decisions and gap resolutions a-y; Python -> R at lines 19, 768, 848."
+pipeline/README.md,WP03,1,file,Pipeline layout and how to run each CLI entry point.
+pipeline/R/io.R,WP03,1,code,"read_std_csv, write_std_csv, fmt_num, sha256_file, load_metadata, repo_path."
+pipeline/R/constants.R,WP03,1,code,"SENTINEL_TOTAL, SENTINEL_NA, TBD, DSD_COLUMNS, KEY_COLUMNS."
+pipeline/R/codes.R,WP03,1,code,"is_valid_code, slot_sort."
+pipeline/acceptance/run_all.R,WP03,1,code,Runs every pipeline/acceptance/wp*.R and reports pass/fail.
+pipeline/tests/testthat.R,WP03,1,test,testthat runner entry point.
+pipeline/tests/testthat/test-io.R,WP03,1,test,"Round-trip tests for io.R (0.37, 6520000, -3460.12, NA -> """")."
+pipeline/tests/testthat/test-codes.R,WP03,1,test,Tests for codes.R.
+metadata/VERSION,WP03,1,file,Initial semantic version of the metadata package.
+metadata/CHANGELOG.md,WP03,1,file,"Created by WP03 with the first entry; INT appends afterward (see the INT row for this same path, the one explicit shared-ownership exception)."
+metadata/structure/DSD_AFW360_HH.csv,WP03,1,file,"Column list of the data files: position, id, role, codelist, required, sentinel, description; 26 rows."
+metadata/codelists/CL_SEX.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_AGE.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_URBANISATION.csv,WP04,2,file,Small codelist per standard tbl-small-codelists; has parent column.
+metadata/codelists/CL_OBS_STATUS.csv,WP04,2,file,Small codelist per standard tbl-small-codelists / tbl-obs-status.
+metadata/codelists/CL_THEME.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_UNIT.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_STAT_UNIT.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_STATISTIC.csv,WP04,2,file,"Small codelist per standard tbl-small-codelists, plus admits_se column (gap o)."
+metadata/codelists/CL_WEIGHT.csv,WP04,2,file,Small codelist per standard tbl-small-codelists.
+metadata/codelists/CL_AREA.csv,WP04,2,file,"2 rows: SEN (iso2 SN, XOF, wb_region AFW), GNB (iso2 GW, XOF, wb_region AFW)."
+metadata/codelists/CL_GEO_SCHEME.csv,WP05,2,file,"6 rows: SEN ADM0/ADM1/ZONES, GNB ADM0/ADM1/AEZ."
+metadata/codelists/CL_GEO.csv,WP05,2,file,35 rows; see contract/geo_codes.csv for the authoritative list.
+metadata/registries/GEO_SOURCES.csv,WP05,2,file,"2 rows: SEN_CODAB_v02, GNB_CODAB_V01."
+pipeline/build_geo.R,WP05,2,code,CLI: builds geo/boundaries/*.gpkg from INPUT shp (via data_raw/shp after WP01).
+pipeline/R/geo.R,WP05,2,code,Geometry helpers used by build_geo.R and validate_assets.R.
+pipeline/tests/testthat/test-geo.R,WP05,2,test,Tests for geo.R.
+geo/boundaries/SEN_CODAB_v02.gpkg,WP05,2,data,"Layers adm0 (1 feature), adm1 (14 features); SN01/SN13 made valid with sf_use_s2(FALSE) + st_make_valid."
+geo/boundaries/GNB_CODAB_V01.gpkg,WP05,2,data,"Layers adm0 (1 feature), adm1 (9 features)."
+metadata/codelists/CL_BRK_VAR.csv,WP06,2,file,"13 breakdown variables (8 from standard tbl-brk-vars + 5 from triage report SS2: EMP_ISIC, EMP_TYPE, EMP_FORMAL, HEO_SEX, HEO_MSTAT)."
+metadata/codelists/CL_COMP_BREAKDOWN.csv,WP06,2,file,"~60 categories, one row per code, var_code-prefixed."
+metadata/codelists/CL_QUAL_VAR.csv,WP06,2,file,6 qualifier variables (5 from standard tbl-qual-vars + ACQ).
+metadata/codelists/CL_QUALIFIER.csv,WP06,2,file,~40 categories incl. ACQ_PURCH/ACQ_OWNPROD (+ DRAFT ACQ_GIFT/ACQ_INKIND optional).
+metadata/codelists/CL_INDICATOR.csv,WP07,2,file,"62 indicator codes, grouped by theme."
+metadata/plans/SERIES_PLAN.csv,WP07,2,file,"91 rows: series_id, ref_area, INDICATOR, MEASURE_QUALS, DEFINING_BREAKDOWN, status, notes."
+metadata/plans/TAB_PLAN.csv,WP07,2,file,"8 rows reproducing the current Excel tables (TOTAL, URB, HHH_SEX, HHH_AGE, QUINT, ADM1, ZONES, AEZ)."
+metadata/plans/LEGACY_LABELS.csv,WP08,2,file,"179 rows (97 shared + 82 Departement, all Departement rows action=SKIP per D3)."
+metadata/plans/LEGACY_COLUMNS.csv,WP08,2,file,73 rows (SEN 47 incl. Departement 14; GNB 26).
+metadata/plans/LEGACY_OVERRIDES.csv,WP08,2,file,~10 rows; WITHHOLD rows for GNB Capital column + 7 cultivated-area cells (D5).
+content/TEXT.csv,WP09,2,file,"~8 rows, one per prose slot."
+content/text/**,WP09,2,glob,"Long-form Markdown bodies, e.g. content/text/SEN/about.md."
+assets/figures/**,WP09,2,glob,"Figure files, e.g. assets/figures/SEN/<figure_id>.png."
+metadata/registries/FIGURES.csv,WP09,2,file,1 row: SEN fiscal equity figure.
+metadata/surveys/SURVEYS.csv,WP09,2,file,"2 rows: SEN_EHCVM_2021, GNB_EHCVM_2021 (D6); status column added per gap g."
+pipeline/build_content.R,WP09,2,code,CLI: builds content/ and assets/ from data_raw/text and data_raw/figures.
+pipeline/R/content.R,WP09,2,code,Text/figure helpers used by build_content.R and validate_text.R / validate_assets.R.
+pipeline/tests/testthat/test-content.R,WP09,2,test,Tests for content.R.
+pipeline/validate.R,WP10,2,code,"CLI entry point; sources io.R/constants.R/codes.R and every validate_*.R, discovers vc_ functions, runs and binds findings."
+pipeline/R/validate_structure.R,WP10,2,code,STRUCT.* checks.
+pipeline/R/validate_codes.R,WP10,2,code,CODES.* checks.
+pipeline/R/validate_metadata.R,WP10,2,code,META.* checks.
+pipeline/tests/testthat/test-validate-core.R,WP10,2,test,Mutation-fixture tests for STRUCT/CODES/META checks.
+pipeline/tests/fixtures/core/**,WP10,2,glob,Fixture files for STRUCT/CODES/META mutation tests.
+pipeline/R/validate_coverage.R,WP11,2,code,COVER.* checks.
+pipeline/R/validate_values.R,WP11,2,code,VALUE.* checks.
+pipeline/R/validate_rules.R,WP11,2,code,"RULE.* checks (AGG_SUM, AGG_NPOP_MEAN, SUM_TO_1_OVER*, EQUALS_NPOP_RATIO, MONOTONE_IN, RANGE_*)."
+pipeline/tests/testthat/test-validate-rules.R,WP11,2,test,Mutation-fixture tests for COVER/VALUE/RULE checks.
+pipeline/tests/fixtures/rules/**,WP11,2,glob,Fixture files for COVER/VALUE/RULE mutation tests.
+pipeline/R/validate_assets.R,WP12,2,code,ASSET.* checks.
+pipeline/R/validate_text.R,WP12,2,code,TEXT.* checks.
+pipeline/tests/testthat/test-validate-assets-text.R,WP12,2,test,Mutation-fixture tests for ASSET/TEXT checks.
+pipeline/tests/fixtures/assets/**,WP12,2,glob,Fixture files for ASSET/TEXT mutation tests.
+pipeline/convert_legacy.R,WP13,3,code,CLI entry point; converts data_raw/tables/*.xlsx to data/ using LEGACY_LABELS/LEGACY_COLUMNS/LEGACY_OVERRIDES only.
+pipeline/R/convert_tables.R,WP13,3,code,Conversion logic.
+pipeline/R/manifest.R,WP13,3,code,Manifest writer.
+pipeline/tests/testthat/test-convert.R,WP13,3,test,Tests for convert_tables.R / manifest.R.
+data/AFW360_HH_SEN_2021.csv,WP13,3,data,"3003 rows, all OBS_STATUS=A."
+data/AFW360_HH_SEN_2021_manifest.csv,WP13,3,data,"precision=ROUNDED_2DP, status=DRAFT."
+data/AFW360_HH_GNB_2021.csv,WP13,3,data,"~2268 rows (~2229 A, ~39 O); exact figures recomputed by WP13 from LEGACY_OVERRIDES."
+data/AFW360_HH_GNB_2021_manifest.csv,WP13,3,data,"precision=ROUNDED_2DP, status=DRAFT."
+pipeline/reconcile.R,WP14,3,code,CLI: Rscript pipeline/reconcile.R --root . --out <md> [--csv <cells.csv>]. Exit 0 only if every source cell is accounted for exactly once (converted/duplicate/derived/skipped/withheld).
+pipeline/R/reconcile.R,WP14,3,code,"Rebuilds the wide legacy tables from data/ + metadata/ and compares them cell by cell with data_raw/tables/*.xlsx. Written from the contract only; never reads WP13's converter code, so the check is independent of the converter's own logic."
+pipeline/tests/testthat/test-reconcile.R,WP14,3,test,Tests for reconcile.R.
+.docs/transition/reports/WP15-reconciliation.md,WP15,4,report,Narrative output of pipeline/reconcile.R (WP14) run over the final converted data.
+.docs/transition/reports/WP15-reconciliation-cells.csv,WP15,4,report,Cell-level output of pipeline/reconcile.R --csv.
+.docs/transition/reports/WP15-validation-findings.csv,WP15,4,report,Output of pipeline/validate.R --out over the final converted data.
+.docs/transition/reports/WP15-summary.md,WP15,4,report,Overall wave-4 / gate-G2 summary tying reconciliation and validation together. WP15 writes no code; it only runs pipeline/reconcile.R and pipeline/validate.R and reports.
+pipeline/acceptance/wpNN_*.R,VER,all,glob,"One acceptance script per WP, written by that WP's own verifier (NN = the WP's two-digit number)."
+.docs/transition/reports/WPNN-verifier-v*.md,VER,all,glob,"Verifier report per WP per attempt (v1, v2, ...); NN = the WP's two-digit number."
+.docs/transition/reports/WPNN-implementer.md,WPNN,all,report,Owner is the WP itself (NN = its two-digit number); one implementer report per package.
+.docs/transition/reports/WPNN-implementer-pK.md,WPNN,all,report,Owner is the WP itself; one report per patch attempt K.
+metadata/CHANGELOG.md,INT,all,shared: append-only by INT,Shared: append-only by INT after WP03 creates the file in wave 1 (the one explicit exception to single ownership).
+.docs/transition/STATUS.md,INT,all,file,"Status board, updated after every wave's integration. Documented exceptions, like CHANGELOG: WP00 sets its own row once when it creates transition/main; SCRIBE updates the gate rows after each gate."
+.docs/transition/reports/WAVE*-integration.md,INT,all,glob,"One integration report per wave, written by that wave's integrator."
+.docs/transition/reports/GATE-G*.md,SCRIBE,all,glob,"One gate record per gate (G0, G1, G2)."
+.docs/transition/decisions.qmd,SCRIBE,all,partial: status columns only,SCRIBE owns only the status columns of the hard-case (H1-H19) table; the rest of the document is authored through the decision-change process (templates/decision-change.md) and is not owned by a single WP in this contract.
+.docs/transition/reports/DECISION-*.md,SCRIBE,all,glob,One record per approved decision-change request.
+.docs/transition/reports/WAVE2-metadata-findings.csv,INT,2,report,Written by the wave-2 integrator from validate.R --metadata-only
