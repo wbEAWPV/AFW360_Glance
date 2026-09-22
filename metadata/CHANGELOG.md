@@ -12,3 +12,11 @@
 - SERIES_PLAN, TAB_PLAN, and the required-row generator.
 - Legacy maps: labels, columns and overrides.
 - Text (TEXT.csv, about.md), figure registry, surveys.
+- `metadata/structure/COLUMNS.csv`: `scale` marked `C` (required when relevant), matching the
+  contract correction in c321d51.
+- Validator core: structure, codes and metadata checks.
+- Validator: coverage and value checks.
+- Validator: aggregation, closure, monotonicity and range rules with ROUNDED_2DP tolerances.
+- Validator: asset and text checks.
+- Legacy converter; AFW360_HH_SEN_2021 and AFW360_HH_GNB_2021 (DRAFT).
+- Independent reconciliation tool.
