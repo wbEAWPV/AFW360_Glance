@@ -1,0 +1,180 @@
+legacy_label,sheet,action,series_id,duplicate_of,scale,assert_rule,notes
+"Access to electricity (grid, SDG 7.1.1)",*,MAP,EN_ELEC_ACCESS,,1,,H7: sdg_indicator 7.1.1; distinguish from EN_GRID_CONN/EN_GRID_USE (H7); DRAFT pending definition
+Any power outage in last 7 days (grid-connected),*,MAP,EN_OUTAGE_ANY,,1,,universe: grid-connected HH
+Average outage duration (code),*,MAP,EN_OUTAGE_DUR_CODE,,1,,"H8: ordinal code, not a share; checks RANGE_NONNEG; may be deprecated for shares by duration class (H8); weight/statistic guessed, LEGACY assumed"
+COICOP 10: education (share),*,MAP,CONS_SH.COICOP_CP10,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 11: restaurants & hotels (share),*,MAP,CONS_SH.COICOP_CP11,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 12: insurance & financial (share),*,MAP,CONS_SH.COICOP_CP12,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 13: personal care & effects (share),*,MAP,CONS_SH.COICOP_CP13,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 1: food & non-alc. beverages (share),*,MAP,CONS_SH.COICOP_CP01,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 2: alcohol & tobacco (share),*,MAP,CONS_SH.COICOP_CP02,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 3: clothing & footwear (share),*,MAP,CONS_SH.COICOP_CP03,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 4: housing & utilities (share),*,MAP,CONS_SH.COICOP_CP04,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 5: furnishings & equipment (share),*,MAP,CONS_SH.COICOP_CP05,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 6: health (share),*,MAP,CONS_SH.COICOP_CP06,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 7: transport (share),*,MAP,CONS_SH.COICOP_CP07,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 8: information & communication (share),*,MAP,CONS_SH.COICOP_CP08,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+COICOP 9: recreation & culture (share),*,MAP,CONS_SH.COICOP_CP09,,1,,"statistic MEAN, to confirm; weight LEGACY assumed"
+Connected to electricity grid (SDG7.1.1),*,MAP,EN_GRID_CONN,,1,,"H7: SDG7.1.1; DRAFT (H7); COMMENT override on SEN rows: share 0.96-1.00 in every cell incl. Q1 and Rural, implausible as full grid connection"
+Covariate economic shock,*,MAP,SHK_COV_ECON,,1,,"ref_period P3Y, LEGACY assumed"
+"Covariate natural shock (drought, flood, etc.)",*,MAP,SHK_COV_NATURAL,,1,,"ref_period P3Y, LEGACY assumed"
+Covariate violence/conflict shock,*,MAP,SHK_COV_CONFLICT,,1,,"ref_period P3Y, LEGACY assumed"
+Cultivated area (ha),*,MAP,AGR_CULT_AREA,,1,,"H19: valid_max 100; GNB cells >100ha (incl. whole Capital column) withheld via LEGACY_OVERRIDES, row absent (D5/H19)"
+Days with an outage (last 7),*,MAP,EN_OUTAGE_DAYS,,1,,"range 0-7; universe: grid-connected HH (assumed, consistent with #2/#83)"
+Durable floor materials,*,MAP,HOUS_FLOOR_DURABLE,,1,,
+Durable roof materials,*,MAP,HOUS_ROOF_DURABLE,,1,,
+Durable wall materials,*,MAP,HOUS_WALL_DURABLE,,1,,
+"Employed (activ12m, 15–64)",*,MAP,POP_SH.EMP_STATUS_EMPLOYED,,1,,"universe: persons 15-64 employed in the last 12 months (activ12m); the 12-month recall belongs to the EMP_STATUS universe because POP_SH has one ref_period (gap z); AGE=_T since universe, not breakdown (rule 7, sec-breakdown-rules)"
+Employed in agriculture (% of employed),*,MAP,POP_SH.EMP_SECTOR_AGR,,1,,universe: employed persons 15-64
+Employed in industry (% of employed),*,MAP,POP_SH.EMP_SECTOR_IND,,1,,universe: employed persons 15-64
+Employed in services (% of employed),*,MAP,POP_SH.EMP_SECTOR_SER,,1,,universe: employed persons 15-64
+Exposed to any shock (past 3 years),*,MAP,SHK_ANY,,1,,"ref_period P3Y, LEGACY assumed"
+Food consumption share,*,DUPLICATE_OF,,CONS_SH.COICOP_CP01,,EQUALS:CONS_SH.COICOP_CP01,identical to COICOP 1 (L008) in every cell (verified) max deviation 0
+HE age (years),*,MAP,HE_AGE,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE buys from firms/state,*,MAP,HE_BUY_FIRMS,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE capital stock (FCFA),*,MAP,HE_CAPITAL,,1,,"price_basis NOMINAL (stated); weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE costs (FCFA),*,MAP,HE_COSTS,,1,,"unit_time TBD (token, DRAFT only); price_basis NOMINAL, LEGACY assumed; weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has any credit access,*,MAP,HE_CREDIT_ANY,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has electricity,*,MAP,HE_ELEC,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has external (non-HH) employees,*,MAP,HE_EMP_EXT_ANY,,1,,"H12: DRAFT (H12); universe TBD; COMMENT override: share 0.96(SEN)/1.00(GNB) implausible for 'all HEs'; weight LEGACY assumed; weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has formal credit access,*,MAP,HE_CREDIT_FORMAL,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has formal premises,*,MAP,HE_PREMISES_FORMAL,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has informal credit access,*,MAP,HE_CREDIT_INFORMAL,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has phone,*,MAP,HE_PHONE,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has tax ID,*,MAP,HE_TAX_ID,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE has water,*,MAP,HE_WATER,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE keeps accounts,*,MAP,HE_ACCOUNTS,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE operates from home,*,MAP,HE_HOME_BASED,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE pays rent,*,MAP,HE_RENT,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE profits (FCFA),*,MAP,HE_PROFIT,,1,,"valid_min/valid_max unbounded: SEN Tambacounda observed -3,460 (negative profits); price_basis NOMINAL, LEGACY assumed; weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE revenue per worker (FCFA),*,MAP,HE_REV_PER_WORKER,,1,,"unit_denom PERSON; price_basis NOMINAL, LEGACY assumed; weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HE sells to firms/state,*,MAP,HE_SELL_FIRMS,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HH cultivates agricultural land (superf > 0),*,MAP,AGR_CULTIVATES,,1,,source_vars superf
+HH employees in HE,*,MAP,HE_EMP_HH_NUM,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+HH has 0 HE,*,MAP,POP_HH_SH.HE_COUNT_0,,1,,
+HH has 1 HE,*,MAP,POP_HH_SH.HE_COUNT_1,,1,,
+HH has 2 HE,*,MAP,POP_HH_SH.HE_COUNT_2,,1,,
+HH has 3 HE,*,MAP,POP_HH_SH.HE_COUNT_3,,1,,
+HH has 4+ HE,*,MAP,POP_HH_SH.HE_COUNT_4P,,1,,
+HH has internet access,*,SKIP,,,,,H14: SKIP: 0.00 or empty in every cell of both countries; implausible for SEN (H14)
+HH has non-agric enterprise owner,*,MAP,HE_HH_OWNER,,1,,"H10: DRAFT (H10); differs from HH owns a non-agric enterprise (L060) by -0.28..+0.39, likely a different source variable"
+HH owns a non-agric enterprise,*,DERIVED,,POP_HH_SH.HE_COUNT_0,,ONE_MINUS:POP_HH_SH.HE_COUNT_0,"H10: = 1 minus HH has 0 HE (L053), exact everywhere (verified); H10 max deviation 0"
+HH owns any livestock,*,MAP,AGR_LIVESTOCK_ANY,,1,,
+Has health insurance/coverage (couvmal),*,MAP,SP_HEALTH_COV,,1,,"source_vars couvmal; weight POP, LEGACY assumed (individual-level share, following POV_HC pattern)"
+Housing & utilities burden (COICOP 4 share of total cons.),*,DUPLICATE_OF,,CONS_SH.COICOP_CP04,,EQUALS:CONS_SH.COICOP_CP04,identical to COICOP 4 (L011) in every cell (verified) max deviation 0
+Idiosyncratic economic shock,*,MAP,SHK_IDIO_ECON,,1,,"ref_period P3Y, LEGACY assumed"
+Improved lighting (grid or solar),*,MAP,EN_LIGHT_IMPROVED,,1,,
+Informal electricity connection (neighbour/pole),*,MAP,EN_ELEC_INFORMAL,,1,,
+Main HE owner is female,*,MAP,POP_HE_SH.HEO_SEX_F,,1,,"H11: HE, weight HE per D4 (POP_HE_SH); H11"
+Main HE owner is married,*,MAP,POP_HE_SH.HEO_MSTAT_MARRIED,,1,,"H11: HE, weight HE per D4 (POP_HE_SH); H11"
+Market food share (% total cons.),*,MAP,CONS_SH.COICOP_CP01.ACQ_PURCH,,1,,"H2: H2; own+market < food by 0.01-0.03 (SEN), 0.03-0.08 (GNB), gap is gifts/in-kind, no closure check"
+Monthly electricity spend (FCFA),*,MAP,EN_ELEC_SPEND,,1,,unit_time MONTH; price_basis NOMINAL
+Non-HH employees in HE,*,MAP,HE_EMP_NONHH_NUM,,1,,"weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+Non-food consumption share,*,DERIVED,,CONS_SH.COICOP_CP01,,ONE_MINUS:CONS_SH.COICOP_CP01 tol=0.02,H1: = 1 minus COICOP 1 (L008) within rounding (H1); food+non-food = 0.98-1.02 max deviation 0.02
+Non-wage employed (% of employed),*,MAP,POP_SH.EMP_TYPE_NONWAGE,,1,,H3: H3; sums exactly to 1.00 with Wage-employed (L095) in every cell
+Number of employees in HE,*,MAP,HE_EMP_NUM,,1,,"H12: H12; not additive: L074 != L052+L071 (residual -0.53..+1.96 SEN, -0.76..+0.09 GNB); weight HE: legacy estimates presumably used the household weight for enterprises (gap w), to confirm"
+Number poor $3.00/day (millions),*,MAP,POV_NUM.POVLINE_PL300.PPP_2021,,1000000,,"stat_unit IND, statistic TOTAL, weight POP; stored in persons (scale 1e6); display MILLIONS"
+Number poor $4.20/day (millions),*,MAP,POV_NUM.POVLINE_PL420.PPP_2021,,1000000,,"stat_unit IND, statistic TOTAL, weight POP; stored in persons (scale 1e6); display MILLIONS"
+Own-production food share (% total cons.),*,MAP,CONS_SH.COICOP_CP01.ACQ_OWNPROD,,1,,H2: H2; own-production food share
+Owns ceiling fan,*,MAP,EN_ASSET_FAN,,1,,
+Owns wall AC/split,*,MAP,EN_ASSET_AC,,1,,
+Owns water heater,*,MAP,EN_ASSET_WATER_HEATER,,1,,
+Poor at $3.00/day (2021 PPP),*,MAP,POV_HC.POVLINE_PL300.PPP_2021,,1,,weight POP (stated)
+Poor at $4.20/day (2021 PPP),*,MAP,POV_HC.POVLINE_PL420.PPP_2021,,1,,weight POP (stated)
+Prepaid meter (among grid-connected),*,MAP,EN_PREPAID_METER,,1,,universe: grid-connected HH
+Primary cooking fuel biomass (wood/charcoal),*,MAP,EN_COOK_BIOMASS,,1,,
+Primary cooking fuel clean (gas/electricity),*,MAP,EN_COOK_CLEAN,,1,,"H9: H9; SEN clean cooking 0.73 national vs cooker ownership (L086) 0.04; higher in Rural(0.76)>Capital(0.60), Q1(0.79)>Q4(0.57); implausible, human check"
+Proxy: owns gas/electric cooker (cuisin),*,MAP,EN_ASSET_COOKER,,1,,H9: H9; 'proxy' dropped from indicator name; related=EN_COOK_CLEAN; source_vars cuisin
+Safe drinking water – dry season,*,MAP,HOUS_WATER_SAFE_DRY,,1,,season is part of the indicator's definition (dry season only)
+Sanitary toilet facility,*,MAP,HOUS_SANIT_IMPROVED,,1,,
+Share of HH workers in trade/commerce,*,MAP,POP_SH.EMP_ISIC_G,,1,,H5: H5; universe 'HH workers' TBD; trade+transport <= services in every cell (gap 0.00-0.36)
+Share of HH workers in transport,*,MAP,POP_SH.EMP_ISIC_H,,1,,H5: H5; universe 'HH workers' TBD
+Share of HH workers informally employed,*,MAP,POP_SH.EMP_FORMAL_N,,1,,"H6: H6; universe=employed (DRAFT); correlates with non-wage share r=0.86-1.00, sits 0.01-0.04 below it; contradicts dashboard's 'Informal wage employment (% of wage)' (index.qmd:93)"
+Tropical Livestock Units (TLU),*,MAP,AGR_TLU,,1,,
+Uses grid electricity,*,MAP,EN_GRID_USE,,1,,H7: DRAFT (H7)
+Uses solar/generator electricity,*,MAP,EN_OFFGRID_USE,,1,,
+Wage-employed (% of employed),*,MAP,POP_SH.EMP_TYPE_WAGE,,1,,H3: H3; sums exactly to 1.00 with Non-wage employed (L073) in every cell
+wood_dist [ALL MISSING],*,SKIP,,,,,all cells empty/missing; not registered (standard line 888)
+≥1 HH member has health coverage (proxy social protection),*,MAP,SP_HEALTH_COV_HH,,1,,"H13: H13; HH-level, always >= Has health insurance/coverage (L062) by 0.00-0.08; 'proxy social protection' in notes only"
+(max) con_1,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_10,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_11,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_12,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_13,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_14,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_15,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_2,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_3,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_4,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_5,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_6,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_7,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_8,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) con_9,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): raw collapse leftovers; sum 1.48-3.02 per region
+(max) ext_emp,Departement,SKIP,,,,,"H16: Departement sheet skipped (D3): raw var, within 0.07 of HE has external (non-HH) employees (L038)"
+Access to electricity (grid or off-grid),Departement,SKIP,,,,,"H16: Departement sheet skipped (D3): distinct from EN_ELEC_ACCESS (grid only); propose EN_ELEC_ACCESS_ANY in future, not registered"
+Covariate economic shock,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+"Covariate natural shock (drought, flood, etc.)",Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Covariate violence/conflict shock,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Cultivated area (ha),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Durable floor materials,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Durable roof materials,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Durable wall materials,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+"Employed (activ12m, 15–64)",Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Employed in agriculture (% of employed),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Employed in industry (% of employed),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Employed in services (% of employed),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Energy expenditure burden (share of total cons.),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): dashboard shows empty placeholder row (index.qmd:127); propose DRAFT code later
+Exposed to any shock (past 3 years),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Food consumption share,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE age (years),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE buys from firms/state,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE capital stock (FCFA),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE costs (FCFA),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has any credit access,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has electricity,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has formal credit access,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has formal premises,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has informal credit access,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has phone,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has tax ID,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE has water,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE keeps accounts,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE operates from home,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE pays rent,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE profits (FCFA),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE revenue per worker (FCFA),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HE sells to firms/state,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH cultivates agricultural land (superf > 0),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH employees in HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has 0 HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has 1 HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has 2 HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has 3 HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has 4+ HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has internet access,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH has non-agric enterprise owner,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH owns a non-agric enterprise,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+HH owns any livestock,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Has health insurance/coverage (couvmal),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Idiosyncratic economic shock,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Main HE owner is female,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Main HE owner is married,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Market food share (% total cons.),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Non-HH employees in HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Non-food consumption share,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Non-wage employed (% of employed),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Number of employees in HE,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Own-production food share (% total cons.),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Poor at $3.00/day (2017 PPP),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): mislabelled line; PPP_2017 exception for PL300 removed (was standard line 343 / example row 271)
+Poor at $4.20/day (2017 PPP),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): mislabelled line
+Proxy: owns gas/electric cooker (cuisin),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Safe drinking water – dry season,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Sanitary toilet facility,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Tropical Livestock Units (TLU),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Uses grid electricity,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Uses solar/generator electricity,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+Wage-employed (% of employed),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
+npoor300,Departement,SKIP,,,,,"H16: Departement sheet skipped (D3): disagrees with the sheet's own rates, e.g. Diourbel 0.35M poor at rate 0.11 -> ~3.2M people"
+npoor420,Departement,SKIP,,,,,H16: Departement sheet skipped (D3): disagrees with the sheet's own rates
+≥1 HH member has health coverage (proxy social protection),Departement,SKIP,,,,,H16: Departement sheet skipped (D3): superseded 2017-PPP version; key collision with ADM 1
