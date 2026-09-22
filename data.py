@@ -64,13 +64,66 @@ _WORKBOOK_FILES: dict[str, Path] = {
     "GNB": ROOT / "INPUT Tables" / "Tables_GNB.xlsx",
 }
 
+_STATIC_DIR = ROOT / "static_data"  # CSV mirror, built by scripts/build_static_data.py
+
+
+def _load_from_excel() -> dict[str, dict[str, pd.DataFrame]]:
+    return {
+        iso3: pd.read_excel(path, sheet_name=None, engine="openpyxl")
+        for iso3, path in _WORKBOOK_FILES.items()
+    }
+
+
+def _load_from_static_csv() -> dict[str, dict[str, pd.DataFrame]]:
+    """Read the CSV mirror instead of the workbooks.
+
+    `float_precision="round_trip"` is required, not tidiness. pandas' default CSV
+    float parser is fast rather than exact and drifts by ~1e-10, which is enough
+    to push a value across a rounding boundary: five cells rendered differently
+    without it, so this build would have disagreed with the Connect build.
+    """
+    manifest = json.loads((_STATIC_DIR / "manifest.json").read_text(encoding="utf-8"))
+    return {
+        iso3: {
+            name: pd.read_csv(
+                _STATIC_DIR / iso3 / f"{name}.csv",
+                encoding="utf-8",
+                float_precision="round_trip",
+            )
+            for name in sheets
+        }
+        for iso3, sheets in manifest.items()
+    }
+
+
+def _load_workbooks() -> dict[str, dict[str, pd.DataFrame]]:
+    """Excel where it is available, the CSV mirror where it is not.
+
+    Excel is authoritative and is what Connect runs on. **Shinylive has no
+    openpyxl** (Pyodide 0.27.7 does not ship it, and `xlrd` reads only legacy
+    `.xls`), so the static GitHub Pages build ships `static_data/` instead and
+    lands here. Same numbers either way -- the build script verifies the CSVs
+    round-trip the workbooks exactly, cell for cell.
+    """
+    try:
+        import openpyxl  # noqa: F401  (probing availability, not using it here)
+
+        if all(path.exists() for path in _WORKBOOK_FILES.values()):
+            return _load_from_excel()
+    except ImportError:
+        pass
+    if _STATIC_DIR.exists():
+        return _load_from_static_csv()
+    raise RuntimeError(
+        "No data source: neither INPUT Tables/*.xlsx (needs openpyxl) nor "
+        "static_data/ (build it with scripts/build_static_data.py) is available."
+    )
+
+
 # Both workbooks together are 112 KB, so loading them at import is free and
 # replaces the 22 separate `pd.read_excel` calls the old page made (`National`
 # alone was read 12 times) -- plan section 5.1.
-WORKBOOKS: dict[str, dict[str, pd.DataFrame]] = {
-    iso3: pd.read_excel(path, sheet_name=None, engine="openpyxl")
-    for iso3, path in _WORKBOOK_FILES.items()
-}
+WORKBOOKS: dict[str, dict[str, pd.DataFrame]] = _load_workbooks()
 
 
 @dataclass(frozen=True)
