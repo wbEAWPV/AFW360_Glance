@@ -1,6 +1,6 @@
 ---
 title: "AFW 360 data standard and producer guidelines"
-subtitle: "Draft v0.3 · Proposal: no file described here exists yet"
+subtitle: "Draft v0.4 · Proposal: files are being created by the transition"
 date: 2026-09-21
 format:
   html:
@@ -16,7 +16,7 @@ format:
 
 This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, how producers create data files, and how the database is extended to new countries, indicators and breakdowns. It follows the SDMX information model (the ISO standard statistical agencies use to exchange data) and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.
 
-Background on the current inputs is in [input-tables-findings.qmd](input-tables-findings.qmd). Nothing here changes the current `INPUT Tables/` files. A Python converter will produce the new files from them, and the dashboard will switch over later.
+Background on the current inputs is in [input-tables-findings.qmd](input-tables-findings.qmd). Nothing here changes the current `INPUT Tables/` files. An R converter will produce the new files from them, and the Python dashboard will switch over later.
 
 **How to read this document.** @sec-idea is the whole idea on one page: the model, where every file lives, and how the database grows. Read it first. Sections [-@sec-data] to [-@sec-validation] are reference material; come back to them when you need the exact rule. @sec-decisions records the design decisions already taken and those still open. @tbl-reading-guide suggests where to start.
 
@@ -54,7 +54,7 @@ Each row of a data file carries one value and the full set of codes that say wha
 
 The quickest test is the population. If the people behind the categories add up to the whole, as regions or quintiles do, the variable is a breakdown. If every category covers the same whole population again, as the \$3.00 and \$4.20 poverty lines do, it is a qualifier. `N_POP`, the population behind each row, makes the test mechanical.
 
-This matters for three reasons. The poverty rate at any line and PPP round is one indicator, `POV_HC`, not one per line. Every population share is one indicator, `POP_SH`, not thirty. And a new grouping such as sector of employment is a row in a codelist, not a change to the file format.
+This matters for three reasons. The poverty rate at any line and PPP round is one indicator, `POV_HC`, not one per line. Every population share is one of three indicators — `POP_SH` (individuals), `POP_HH_SH` (households) or `POP_HE_SH` (enterprises), chosen by what the breakdown counts (D4) — not thirty. And a new grouping such as sector of employment is a row in a codelist, not a change to the file format.
 
 This distinction is the foundation of the database. Every rule in the rest of this document follows from it, and everyone who adds data has to apply it consistently.
 
@@ -74,7 +74,7 @@ This distinction is the foundation of the database. Every rule in the rest of th
 | Food share, poorest quintile | `CONS_SH` | `COICOP_CP01` | `QUINT_Q1` | Sums to 1 over COICOP within the quintile; Q1–Q5 aggregate to the total by `N_POP` |
 | Food share among the poor at \$3.00 | `CONS_SH` | `POVLINE_PL300`, `PPP_2021`, `COICOP_CP01` | `POOR_Y` | `POOR_Y` and `POOR_N` aggregate to the total by `N_POP` |
 | Share of employed working in agriculture | `POP_SH` | — | `EMP_SECTOR_AGR` | **Categories sum to 1**; equals the `N_POP` ratio to the variable's universe |
-| Share of households with 2 enterprises | `POP_SH` | — | `HE_COUNT_2` | Same two rules |
+| Share of households with 2 enterprises | `POP_HH_SH` | — | `HE_COUNT_2` | Same two rules; `HE_COUNT` describes households, so this is `POP_HH_SH`, not `POP_SH` (D4) |
 | Gini of disposable income | `INEQ_GINI` | `WELFARE_INC_DISP` | — | In 0–1; `N_POP` equals the national population |
 | Incidence of direct transfers, poorest decile | `FISC_INCIDENCE` | `WELFARE_INC_MARKET`, `FI_DIR_TRANSF` | `DEC_MKT_D01` | **Instruments sum to total incidence**; deciles aggregate by `N_POP` |
 | Marginal contribution of indirect taxes to poverty | `FISC_MARG_CONTRIB` | `WELFARE_INC_CONSUMABLE`, `POVLINE_PL300`, `PPP_2021`, `FI_INDIR_TAX` | — | Instruments sum to the total effect |
@@ -91,14 +91,33 @@ Everything in the last column reduces to three generic rules, and each indicator
 
 ## Where everything lives {#sec-layout}
 
-Everything is plain files in one git repository, in five top-level folders (@lst-layout):
+Everything is plain files in one git repository, in seven top-level folders (@lst-layout):
 
+- **`data_raw/`** holds the current legacy inputs, byte-frozen: file names and bytes unchanged, proven by `data_raw/CHECKSUMS.sha256` (D2).
+- **`pipeline/`** holds the R code that reads `data_raw/` and the plans and writes every other folder: the metadata bootstrap, the converter and the validator (D1, D11).
 - **`metadata/`** is the dictionary. It says what every code means, which rows a data file must contain, and which surveys the numbers come from. Every other folder refers to it, and every change to it is reviewed (@sec-change-control).
 - **`data/`** holds the numbers: one CSV per country and reference year, each with a manifest recording how it was produced and against which metadata version.
 - **`geo/`** holds the boundaries used for maps.
 - **`content/`** and **`assets/`** hold the prose and images the dashboard shows beside the numbers.
 
 ```{#lst-layout lst-cap="Repository layout"}
+data_raw/                      legacy inputs, byte-frozen (D2)
+  tables/                      Tables_<ISO3>.xlsx
+  shp/                         <iso3>_admin*.shp and related files (110 files)
+  text/                        About_<ISO3>.txt, Messages_<ISO3>.txt
+  figures/                     fiscal-equity images
+  scratch/                     dsf.qqqww, map_test.png, Tables_SEN_TEST.xlsx
+  CHECKSUMS.sha256             proves the move changed no byte
+pipeline/
+  R/                           shared R functions used across the pipeline scripts
+  bootstrap/                   generates the first metadata files, from contract/*.csv (D11)
+  tests/                       testthat tests
+  acceptance/                  acceptance scripts, one per work package
+  build_geo.R
+  build_content.R
+  convert_legacy.R
+  validate.R
+  reconcile.R
 metadata/
   VERSION                      semantic version of the whole metadata package
   CHANGELOG.md
@@ -120,7 +139,10 @@ metadata/
     SURVEYS.csv                one row per country x survey round
   plans/
     TAB_PLAN.csv               which cuts are produced
+    SERIES_PLAN.csv
     LEGACY_LABELS.csv          old Excel labels -> new codes (used by the converter)
+    LEGACY_COLUMNS.csv
+    LEGACY_OVERRIDES.csv       withheld or commented legacy cells (D5)
   registries/
     GEO_SOURCES.csv            boundary files and their vintages
     FIGURES.csv                images
@@ -138,6 +160,8 @@ assets/
 ```
 
 Numbers flow one way. A producer's program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against `metadata/` (@sec-validation). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using `LEGACY_LABELS.csv` ([Annex](#sec-appendix-legacy)).
+
+**Metadata is generated once, then frozen (D11).** The first version of every file under `metadata/` is generated by an R script in `pipeline/bootstrap/`, from the contract seeds (`contract/*.csv`) and a small authored text file (`pipeline/bootstrap/text/*.csv`). Each script takes `--out-root`, so any file can be rebuilt into a fresh directory and compared. From metadata version 0.1.0 onward, the CSV files under `metadata/` are the source of truth and are edited by hand through pull requests; the bootstrap scripts are then frozen.
 
 None of this exists yet; the dashboard still reads `INPUT Tables/`, `INPUT shp/` and `INPUT Text/` directly. The natural order of work is the metadata for Senegal and Guinea-Bissau first, then the converter, then the validator, and last the switch of the dashboard to the new loader, because each step needs the one before it.
 
@@ -238,7 +262,7 @@ Data files have exactly the 26 columns in @tbl-columns, in that order. The role 
 |---|---|---|
 | `A` | Normal value | filled |
 | `E` | Model-based: projection, nowcast or microsimulation | filled |
-| `O` | In the universe, but no observations fell in this cell | empty |
+| `O` | No value available (in the universe, but no observations fell in this cell, or — for a converted legacy file — the source cell was empty; D9) | empty |
 | `M` | Cannot exist: the cell is outside the indicator's universe by definition | empty |
 
 : Observation status codes {#tbl-obs-status}
@@ -247,9 +271,11 @@ Data files have exactly the 26 columns in @tbl-columns, in that order. The role 
 
 For each indicator, the required rows are:
 
-> (the qualifier combinations declared in `CL_INDICATOR.qualifiers`) × (the cuts in `TAB_PLAN` that cover its theme and unit) × (the categories of those cuts) − (anything listed in `excluded_breakdowns`)
+> (the qualifier combinations declared in `CL_INDICATOR.qualifiers`) × (the cuts in `TAB_PLAN` that cover its theme and unit) × (the categories of those cuts) − (anything listed in `excluded_breakdowns`) − (cells withheld in `LEGACY_OVERRIDES.csv`)
 
 Nothing extra, nothing missing. A cell with no observations is a row with `OBS_STATUS=O`, not an absent row. This is what makes a file checkable: the validator can compute the set of rows that should exist and compare it with the rows that do.
+
+A cell known to be wrong is different again: it is **withheld**, not published. Its row is absent from the file, the exclusion is registered in `metadata/plans/LEGACY_OVERRIDES.csv` (action `WITHHOLD`, with a reason and evidence), and the coverage check reads the register and subtracts it from the required rows (D5). Action `COMMENT` is not a withholding: the value is kept, `OBS_COMMENT` is set, and the row still counts as required.
 
 ## Example rows {#sec-example-rows}
 
@@ -268,7 +294,6 @@ Nothing extra, nothing missing. A cell with no observations is a row with `OBS_S
 | Share of employed in agriculture | `_T` | `_T` | `POP_SH` | `_Z` | `_Z` | `_Z` | `EMP_SECTOR_AGR` |
 | Gini of disposable income | `_T` | `_T` | `INEQ_GINI` | `WELFARE_INC_DISP` | `_Z` | `_Z` | `_T` |
 | Incidence of direct transfers, poorest decile | `_T` | `_T` | `FISC_INCIDENCE` | `WELFARE_INC_MARKET` | `FI_DIR_TRANSF` | `_Z` | `DEC_MKT_D01` |
-| Poverty rate, 2017 PPP (legacy `Departement`) | `SN03` | `_T` | `POV_HC` | `POVLINE_PL300` | `PPP_2017` | `_Z` | `_T` |
 
 : Example rows of a data file, showing only the columns that vary {#tbl-example-rows}
 
@@ -307,7 +332,7 @@ Adding one changes no structure. It takes a row in `CL_BRK_VAR`, a row per categ
 
 ## Every breakdown variable carries a universe {#sec-universe}
 
-`CL_BRK_VAR.universe` names the population that the categories partition. This is what makes `POP_SH` work as a single indicator: the share is the category's `N_POP` divided by the universe's `N_POP`, so "share of employed in agriculture" and "share of households with two enterprises" are the same indicator with different breakdowns.
+`CL_BRK_VAR.universe` names the population that the categories partition. This is what makes each of `POP_SH`, `POP_HH_SH` and `POP_HE_SH` work as a single indicator for its `stat_unit`: the share is the category's `N_POP` divided by the universe's `N_POP`. "Share of employed in agriculture" (individuals, `POP_SH`) and "share of households with two enterprises" (households, `POP_HH_SH`) use the same mechanism but different codes, because they count different units (D4).
 
 ## Worked example: adding sector of employment {#sec-example-sector}
 
@@ -340,7 +365,7 @@ A **qualifier variable** changes what is measured for the same units. It is one 
 | `POVLINE_PL215` | 2.15 | PPP\$ per person per day | `PPP_2017` |
 | `POVLINE_PL365` | 3.65 | PPP\$ per person per day | `PPP_2017` |
 | `POVLINE_PL685` | 6.85 | PPP\$ per person per day | `PPP_2017` |
-| `POVLINE_PL300` | 3.00 | PPP\$ per person per day | `PPP_2021`, `PPP_2017` (legacy, see [Annex 2](#sec-legacy-departement)) |
+| `POVLINE_PL300` | 3.00 | PPP\$ per person per day | `PPP_2021` |
 | `POVLINE_PL420` | 4.20 | PPP\$ per person per day | `PPP_2021` |
 | `POVLINE_PL830` | 8.30 | PPP\$ per person per day | `PPP_2021` |
 | `POVLINE_NPL` | per survey | Local currency; the value is in `SURVEYS.csv` | `_Z` |
@@ -589,6 +614,10 @@ This is the checklist for handing in a file. For each country and reference year
 
 Files that the converter produces from the current Excel inherit values already rounded to two decimals, and they carry no sample sizes. Such a file sets `precision = ROUNDED_2DP` in its manifest. The validator then relaxes its aggregation tolerances and does not demand `STD_ERR`, `CI_*` or `N_OBS`. This exemption applies only to converted legacy files, never to new production.
 
+A cell already known to be wrong is withheld, not converted: its row is absent from the file, not present with a value or a comment. The exclusion is registered in `LEGACY_OVERRIDES.csv` (action `WITHHOLD`, with a reason and evidence) and subtracted from the required rows (@sec-required-rows, D5). Action `COMMENT` is different: the value is kept and `OBS_COMMENT` records why it is suspicious but worth keeping.
+
+`OBS_STATUS=O` means "no value available" generally, not only "in the universe but no observations fell in this cell" (D9). In a `ROUNDED_2DP` file, every `O` row requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`, explaining why the legacy sheet has no value for that cell.
+
 ## How the dashboard shows reliability {#sec-reliability}
 
 Since nothing is suppressed, the dashboard carries the burden of honesty:
@@ -621,7 +650,7 @@ Start here whenever you want to add something. Find the row in @tbl-extend, edit
 
 ## Add an indicator {#sec-add-indicator}
 
-1. Search `CL_INDICATOR` for the same concept. If it exists, reuse it. **Before creating a code, check whether the difference is a qualifier:** a different poverty line, PPP round, welfare concept or COICOP division is never a new indicator. Neither is a population share; that is `POP_SH` with a breakdown.
+1. Search `CL_INDICATOR` for the same concept. If it exists, reuse it. **Before creating a code, check whether the difference is a qualifier:** a different poverty line, PPP round, welfare concept or COICOP division is never a new indicator. Neither is a population share; that is `POP_SH`, `POP_HH_SH` or `POP_HE_SH` with a breakdown, chosen by what the breakdown counts (D4).
 2. If a near-duplicate exists, fill `related` and `related_note` on both rows.
 3. Standardize the variables it needs in the harmonized microdata, so that the indicator is a plain aggregate of them (@sec-growth). Record them in `source_questionnaire` and `source_vars`, and the program that computes the indicator in `program`.
 4. Fill every **R** column and the **C** columns that apply, including `qualifiers` and `checks`.
@@ -765,7 +794,7 @@ This section says how a change gets into the database.
 
 **Structural changes**, meaning adding, removing or reordering a column, are made by the data team only. They need a new `DSD_AFW360_HH.csv` and a major version, and the converter must backfill existing files with `_T` or `_Z`. `DSD_AFW360_HH.csv` itself has the columns `position`, `id`, `role` (`constant`, `breakdown`, `reference`, `qualifier`, `measure`, `attribute`, as in @tbl-columns), `codelist`, `required`, `sentinel` and `description`, and the data-file header must match it exactly.
 
-# Validation checks (to be implemented in Python) {#sec-validation}
+# Validation checks (to be implemented in R) {#sec-validation}
 
 This is the specification for the validator. Each check is phrased so that it can be implemented directly, and together they enforce every "must" in Sections [-@sec-data] to [-@sec-text].
 
@@ -840,12 +869,12 @@ This is the specification for the validator. Each check is phrased so that it ca
 |---|---|
 | Breakdowns | Named `GEO`, `URBANISATION`, `SEX`, `AGE`, plus five generic slots |
 | Qualifiers | Five generic slots. Poverty line, PPP round, welfare concept, COICOP division and fiscal instrument are all qualifiers. |
-| Population shares | One indicator, `POP_SH`, with the group named by the breakdown |
+| Population shares | Three indicators — `POP_SH` (individuals), `POP_HH_SH` (households), `POP_HE_SH` (enterprises) — chosen by what the breakdown counts, with the group named by the breakdown |
 | Suppression | **None.** Every estimate is published, with its sample size and confidence interval attached. |
 | Geography | Parallel spatial schemes, not a hierarchy. Maps only for country outlines and ADM1. |
 | Language | English only |
 | Who extends codelists | Producers, through pull requests reviewed by the data team |
-| Tooling | Producers deliver CSV. The converter, validator and dashboard loader are written in Python. |
+| Tooling | Producers deliver CSV. The metadata bootstrap, the converter and the validator are written in R; the dashboard stays Python/Quarto and reads the harmonized CSVs through one loader. |
 
 : Design decisions taken {#tbl-decisions}
 
@@ -854,19 +883,19 @@ This is the specification for the validator. Each check is phrased so that it ca
 1. **Age cutoff for household heads.** The current `Youth_HH` / `Older_HH` boundary is undocumented; confirm it before publishing any `HHH_AGE_*` code.
 2. **Quintile definition.** National or within-area ranking, person- or household-weighted. The answer goes in `CL_BRK_VAR.definition_en`.
 3. **Governance.** Who owns `metadata/` and reviews pull requests.
-4. **GNB survey metadata.** `About_GNB.txt` contains only a placeholder, so the survey round and its `TIME_PERIOD` are unknown.
+4. **GNB survey metadata — closed by D6.** EHCVM 2021/22 maps to `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021` (user-confirmed; `About_GNB.txt` remains a placeholder with no real survey metadata).
 5. **Where large binaries live.** Git, Git LFS, or an external store referenced from `GEO_SOURCES.csv`.
 6. **Boundary vintage policy.** Who decides when to adopt a new COD-AB release, given that P-codes can change and older data must still resolve.
 7. **Where variable-level metadata lives.** @sec-growth asks for documentation of every harmonized microdata variable behind an indicator. `CL_INDICATOR` names those variables but has nowhere to describe them. A variable dictionary per survey, kept with the producer programs or under `metadata/`, is the obvious candidate.
 8. **A country that cannot produce an indicator.** @sec-required-rows requires every indicator for every country, and there is no way yet to record that a survey does not support an indicator at all.
-9. **The `Departement` sheet.** Its 60 indicators shared with `ADM 1` would produce rows with the same key but mostly different values ([Annex 2](#sec-legacy-departement)). The converter must either take only its 2017-PPP poverty rows or skip the sheet.
+9. **The `Departement` sheet — closed by D3.** The sheet is skipped entirely: all 82 of its labels are marked `SKIP` in `LEGACY_LABELS.csv` (see [Annex 2](#sec-legacy-departement)).
 10. **Reference syntax for live numbers.** @sec-live-numbers is a sketch. It does not yet say how a reference names several qualifiers, or confirm that `PL420` is shorthand for `POVLINE_PL420`.
 
 # Annex. Mapping the current tables {#sec-appendix-legacy .unnumbered}
 
 Read this if you are writing the converter. It maps every label and column of the current Excel tables to the new codes.
 
-The full mapping goes in `plans/LEGACY_LABELS.csv`, with the columns `legacy_label`, `sheet`, `INDICATOR`, `MEASURE_QUAL_1…5` and `notes`. It must cover all four sheets, including the `Departement` sheet's raw-variable labels (`npoor300`, `npoor420`, `(max) con_1` … `con_15`, `(max) ext_emp`).
+The full mapping lives in three files under `metadata/plans/`, all seeded from `.docs/transition/contract/label_triage.csv` (D11): `LEGACY_LABELS.csv` maps each indicator label to its `INDICATOR` and qualifiers, or to action `SKIP`; `LEGACY_COLUMNS.csv` maps each column to its breakdown dimensions; `LEGACY_OVERRIDES.csv` registers withheld or commented cells (D5). They must cover all four sheets, including the `Departement` sheet's raw-variable labels (`npoor300`, `npoor420`, `(max) con_1` … `con_15`, `(max) ext_emp`), all marked `SKIP` (D3).
 
 ## Annex 1. Indicators {#sec-legacy-indicators .unnumbered}
 
@@ -880,7 +909,7 @@ The full mapping goes in `plans/LEGACY_LABELS.csv`, with the columns `legacy_lab
 | Housing & utilities burden (COICOP 4 …) | `CONS_SH` | `COICOP_CP04` | Same series as COICOP 4 |
 | Employed (activ12m, 15–64) | `POP_SH` | — | Breakdown `EMP_STATUS_EMPLOYED`; universe persons 15–64; `ref_period = P12M` |
 | Employed in agriculture (% of employed) | `POP_SH` | — | Breakdown `EMP_SECTOR_AGR`; universe employed 15–64 |
-| HH has 0 / 1 / 2 / 3 / 4+ HE | `POP_SH` | — | Breakdown `HE_COUNT_0` … `HE_COUNT_4P` |
+| HH has 0 / 1 / 2 / 3 / 4+ HE | `POP_HH_SH` | — | Breakdown `HE_COUNT_0` … `HE_COUNT_4P`; `HE_COUNT` describes households, so `POP_HH_SH` (D4) |
 | HE profits (FCFA) | `HE_PROFIT` | — | Unit `LCU` (`XOF` via `CL_AREA`); may be negative; period to confirm |
 | Monthly electricity spend (FCFA) | `EN_ELEC_SPEND` | — | Unit `LCU`, `unit_time = MONTH` |
 | Access to electricity (grid, SDG 7.1.1) | `EN_ELEC_ACCESS` | — | `sdg_indicator` 7.1.1; `related` must distinguish it from `EN_GRID_CONN` and `EN_GRID_USE` |
@@ -891,20 +920,29 @@ The full mapping goes in `plans/LEGACY_LABELS.csv`, with the columns `legacy_lab
 
 ## Annex 2. The `Departement` sheet {#sec-legacy-departement .unnumbered}
 
-The sheet exists only for Senegal. Despite its name it holds the same 14 regions as the `ADM 1` sheet ([findings](input-tables-findings.qmd), 6.1), so its rows take ADM1 P-codes. Its poverty labels are taken at face value: "Poor at \$3.00/day (2017 PPP)" maps to `POVLINE_PL300` + `PPP_2017`, which is why that pair is allowed in @tbl-povlines.
-
-Its other indicators are a problem. The 60 it shares with `ADM 1` would produce rows with the same key as the `ADM 1` rows, and most of their values differ, so the converter cannot load both sheets in full (item 9 in @sec-open-decisions).
+The sheet exists only for Senegal, and the converter skips it entirely, for all 82 of its labels (D3). Despite its name it holds the same 14 regions as the `ADM 1` sheet ([findings](input-tables-findings.qmd), 6.1), so loading it alongside `ADM 1` would produce rows with the same key. Most of those keys carry conflicting values: the sheet's poverty totals disagree with `ADM 1` (4.13M/7.88M poor at \$3.00/\$4.20 vs 3.13M/6.52M), and several of its "shared" indicators are impossible on their face (`HE has any credit access` = 1.00 in all 14 regions; `HH has 4+ HE` = 0.80–1.00 — see input-tables-findings.qmd §6.1). `LEGACY_LABELS.csv` records this with action `SKIP` on all 82 of the sheet's rows.
 
 ## Annex 3. Columns to dimensions {#sec-legacy-columns .unnumbered}
 
+The mapping from current Excel columns to new dimensions no longer lives in this document as a fixed list; it lives in `LEGACY_COLUMNS.csv` under `metadata/plans/`, seeded from `.docs/transition/contract/label_triage.csv` (D11).
+
 | Current column | New dimensions |
 |---|---|
-| `estimateTotal` | all `_T` |
-| `estimateCapital`, `estimateOther_Urban`, `estimateRural` | `URBANISATION` = `CAP`, `OU`, `R` |
-| `estimateFemale_HH`, `estimateMale_HH` | `COMP_BREAKDOWN_1` = `HHH_SEX_F`, `HHH_SEX_M` |
-| `estimateYouth_HH`, `estimateOlder_HH` | `COMP_BREAKDOWN_1` = `HHH_AGE_LT35`, `HHH_AGE_GE35` (cutoff to be confirmed) |
-| `estimateQ1` … `estimateQ5` | `COMP_BREAKDOWN_1` = `QUINT_Q1` … `QUINT_Q5` |
-| `ADM 1` sheet columns | `GEO` = P-code, scheme `ADM1` (`DAKAR` → `SN01`, `SAB` → `GW08`) |
-| `ZAE` sheet columns | `GEO` = zone code, scheme `ZONES` (SEN) or `AEZ` (GNB) |
+| *(see `LEGACY_COLUMNS.csv`)* | *(see `LEGACY_COLUMNS.csv`)* |
 
-: Current Excel columns mapped to dimensions {#tbl-legacy-columns}
+: Superseded by `LEGACY_COLUMNS.csv` {#tbl-legacy-columns}
+
+# Changes since v0.3 {#sec-changes-v04}
+
+| ID | Change | Section |
+|---|---|---|
+| D1 | Tooling changed to R for the metadata bootstrap, the converter and the validator; the dashboard stays Python/Quarto and reads the harmonized CSVs through one loader. | @sec-idea, @sec-validation, @tbl-decisions |
+| D2 | Repository layout gains `data_raw/`, the legacy inputs, byte-frozen, split into `tables/`, `shp/`, `text/`, `figures/` and `scratch/`, proven unchanged by `data_raw/CHECKSUMS.sha256`. | @sec-layout |
+| D3 | The `Departement` sheet is skipped entirely, for all 82 of its labels: removed the `PPP_2017` exception for `POVLINE_PL300`, removed the legacy example row, rewrote Annex 2 to say why, and closed open decision 9. | @sec-povlines, @sec-example-rows, [Annex 2](#sec-legacy-departement), @sec-open-decisions |
+| D4 | Population shares split into three codes, chosen by what the breakdown counts: `POP_SH` (individuals), `POP_HH_SH` (households), `POP_HE_SH` (enterprises). | @sec-one-row, @tbl-compositions, @sec-universe, @sec-add-indicator, @tbl-decisions, [Annex 1](#sec-legacy-indicators) |
+| D5 | A defective cell is withheld: its row is absent, the exclusion is registered in `LEGACY_OVERRIDES.csv` (action `WITHHOLD`) and subtracted from the required rows. Action `COMMENT` keeps the value and sets `OBS_COMMENT`. | @sec-required-rows, @sec-legacy |
+| D6 | Open decision 4 closed: the GNB survey is EHCVM 2021/22, `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021`. | @sec-open-decisions |
+| D9 | `OBS_STATUS=O` widened to "no value available" generally. Every `O` row of a `ROUNDED_2DP` legacy file requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | @tbl-obs-status, @sec-legacy |
+| D11 | Repository layout gains `pipeline/` (`R/`, `bootstrap/`, `tests/`, `acceptance/` and the entry points) and `plans/SERIES_PLAN.csv`, `plans/LEGACY_COLUMNS.csv`, `plans/LEGACY_OVERRIDES.csv`. Metadata files are generated once by `pipeline/bootstrap/`; from version 0.1.0 the CSVs are the source of truth, edited by hand through pull requests. The Annex introduction and Annex 3 now point to `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv` and `LEGACY_OVERRIDES.csv`, seeded from `label_triage.csv`. | @sec-layout, [Annex](#sec-appendix-legacy), [Annex 3](#sec-legacy-columns) |
+
+: Changes made to the standard since v0.3 {#tbl-changes-v04}
