@@ -1,0 +1,27 @@
+position,id,role,codelist,required,sentinel,description
+1,DATAFLOW,constant,,R,,Constant AFW360_HH.
+2,REF_AREA,breakdown,CL_AREA,R,,CL_AREA (ISO 3166-1 alpha-3).
+3,GEO,breakdown,CL_GEO,R,_T,"CL_GEO, or _T for the whole country."
+4,TIME_PERIOD,reference,,R,,4-digit year the estimate refers to.
+5,INDICATOR,qualifier,CL_INDICATOR,R,,CL_INDICATOR.
+6,SEX,breakdown,CL_SEX,R,_T _Z,"CL_SEX, _T, or _Z."
+7,AGE,breakdown,CL_AGE,R,_T _Z,"CL_AGE, _T, or _Z."
+8,URBANISATION,breakdown,CL_URBANISATION,R,_T,CL_URBANISATION or _T.
+9,COMP_BREAKDOWN_1,breakdown,CL_COMP_BREAKDOWN,R,_T,"CL_COMP_BREAKDOWN or _T; slot 1 of 5, filled left to right in slot_order."
+10,COMP_BREAKDOWN_2,breakdown,CL_COMP_BREAKDOWN,R,_T,CL_COMP_BREAKDOWN or _T; slot 2 of 5.
+11,COMP_BREAKDOWN_3,breakdown,CL_COMP_BREAKDOWN,R,_T,CL_COMP_BREAKDOWN or _T; slot 3 of 5.
+12,COMP_BREAKDOWN_4,breakdown,CL_COMP_BREAKDOWN,R,_T,CL_COMP_BREAKDOWN or _T; slot 4 of 5.
+13,COMP_BREAKDOWN_5,breakdown,CL_COMP_BREAKDOWN,R,_T,CL_COMP_BREAKDOWN or _T; slot 5 of 5.
+14,MEASURE_QUAL_1,qualifier,CL_QUALIFIER,R,_Z,"CL_QUALIFIER or _Z; slot 1 of 5, filled left to right in slot_order."
+15,MEASURE_QUAL_2,qualifier,CL_QUALIFIER,R,_Z,CL_QUALIFIER or _Z; slot 2 of 5.
+16,MEASURE_QUAL_3,qualifier,CL_QUALIFIER,R,_Z,CL_QUALIFIER or _Z; slot 3 of 5.
+17,MEASURE_QUAL_4,qualifier,CL_QUALIFIER,R,_Z,CL_QUALIFIER or _Z; slot 4 of 5.
+18,MEASURE_QUAL_5,qualifier,CL_QUALIFIER,R,_Z,CL_QUALIFIER or _Z; slot 5 of 5.
+19,OBS_VALUE,measure,,C,,"Number, unrounded, base units; required unless OBS_STATUS is O or M."
+20,OBS_STATUS,attribute,CL_OBS_STATUS,R,,"CL_OBS_STATUS: A, E, O or M."
+21,STD_ERR,attribute,,C,,Number >= 0; required where the statistic admits one (CL_STATISTIC.admits_se).
+22,CI_LOWER,attribute,,C,,"Number, 95%; required where STD_ERR is."
+23,CI_UPPER,attribute,,C,,"Number, 95%; required where STD_ERR is."
+24,N_OBS,attribute,,R,,"Integer >= 0 (except legacy ROUNDED_2DP files, where it is empty)."
+25,N_POP,attribute,,R,,"Number >= 0 (except legacy ROUNDED_2DP files, where it is empty)."
+26,OBS_COMMENT,attribute,,O,,"Free text, English; LEGACY_EMPTY: prefix required on O rows in ROUNDED_2DP files (D9)."
