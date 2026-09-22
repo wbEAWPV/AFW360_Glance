@@ -1,4 +1,15 @@
-# Input tables: structure, dimensions and data-quality findings
+---
+title: "Appendix A. Input tables"
+subtitle: "Structure, dimensions and data-quality findings in the current Excel workbooks"
+date: 2026-09-19
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    toc-title: Contents
+    tbl-colwidths: auto
+---
 
 Review of `INPUT Tables/Tables_SEN.xlsx` and `INPUT Tables/Tables_GNB.xlsx`, 2026-09-19.
 Every sheet, row and cell was read. No input file was modified.

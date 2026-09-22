@@ -595,6 +595,6 @@ Quarto chunk source, not HTML — use its prose, not the file.
   reconcile) rather than discarding either version.
 - `.gitignore` excludes `_site/`, `*.html`, `*_files/`, `.quarto/`. `_site/` is never
   committed on the working branch.
-- Both `.docs/data-standard.qmd` and `.docs/input-tables-findings.md` live on
+- Both `.docs/data-standard.qmd` and `.docs/input-tables-findings.qmd` live on
   `origin/dev/eb` only. On Windows, Git Bash mangles `rev:path` arguments — export
   `MSYS_NO_PATHCONV=1` and single-quote them.

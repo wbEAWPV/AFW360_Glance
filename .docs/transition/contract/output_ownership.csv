@@ -14,7 +14,7 @@ transition-base,WP00,0,branch,Branch and tag created from dev/eb.
 data_raw/**,WP01,1,glob,"The 122 legacy files, README.md and CHECKSUMS.sha256."
 index.qmd,WP01,1,file,Path strings only in index.qmd; path note only in the findings.
 CLAUDE.md,WP01,1,file,Path strings only in index.qmd; path note only in the findings.
-.docs/input-tables-findings.md,WP01,1,file,Path strings only in index.qmd; path note only in the findings.
+.docs/input-tables-findings.qmd,WP01,1,file,Path strings only in index.qmd; path note only in the findings.
 INPUT Tables/**,WP01,1,remove,Removed by git mv into data_raw/.
 INPUT shp/**,WP01,1,remove,Removed by git mv into data_raw/.
 INPUT Text/**,WP01,1,remove,Removed by git mv into data_raw/.

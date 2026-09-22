@@ -1,5 +1,5 @@
 ---
-title: "AFW 360 transition plan"
+title: "Appendix B.1. AFW 360 transition plan"
 subtitle: "From the legacy Excel, shapefile and text inputs to the AFW360 data standard · revision 2"
 date: 2026-09-21
 format:
@@ -11,7 +11,6 @@ format:
     number-sections: true
     number-depth: 2
     tbl-colwidths: auto
-    embed-resources: true
 ---
 
 This plan converts the dashboard's current inputs (two Excel workbooks, 22 shapefile layers, a handful of text files and one image) into the files defined by the [data standard](../data-standard.qmd):
@@ -70,7 +69,7 @@ There are 122 tracked legacy files. WP01 moves every one of them to `data_raw/`.
 
 ## What shapes the transition {#sec-tables-brief}
 
-The full findings are in [input-tables-findings.md](../input-tables-findings.md).
+The full findings are in [input-tables-findings.qmd](../input-tables-findings.qmd).
 
 - Each sheet is a set of one-way breakdowns of the national population. Breakdowns are never crossed.
 - Rows are identified only by 97 free-text labels, which are byte-identical across sheets and countries. The poverty line, PPP round, unit and classification are all written inside the label.

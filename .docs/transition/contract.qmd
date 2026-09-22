@@ -1,5 +1,5 @@
 ---
-title: "AFW 360 transition: the contract"
+title: "Appendix B.2. AFW 360 transition: the contract"
 subtitle: "Frozen at gate G1 · shared codes, paths, headers, interfaces and expected counts"
 date: 2026-09-21
 format:
@@ -11,7 +11,6 @@ format:
     number-sections: true
     number-depth: 2
     tbl-colwidths: auto
-    embed-resources: true
 ---
 
 The contract is what lets many agents build files and code at the same time without seeing each other's output. It fixes every code, path, header, interface and expected count that they must agree on in advance.

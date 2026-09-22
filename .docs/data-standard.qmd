@@ -11,12 +11,12 @@ format:
     number-sections: true
     number-depth: 2
     tbl-colwidths: auto
-    embed-resources: true
+    output-file: index.html
 ---
 
 This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, how producers create data files, and how the database is extended to new countries, indicators and breakdowns. It follows the SDMX information model (the ISO standard statistical agencies use to exchange data) and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.
 
-Background on the current inputs is in [input-tables-findings.md](input-tables-findings.md). Nothing here changes the current `INPUT Tables/` files. A Python converter will produce the new files from them, and the dashboard will switch over later.
+Background on the current inputs is in [input-tables-findings.qmd](input-tables-findings.qmd). Nothing here changes the current `INPUT Tables/` files. A Python converter will produce the new files from them, and the dashboard will switch over later.
 
 **How to read this document.** @sec-idea is the whole idea on one page: the model, where every file lives, and how the database grows. Read it first. Sections [-@sec-data] to [-@sec-validation] are reference material; come back to them when you need the exact rule. @sec-decisions records the design decisions already taken and those still open. @tbl-reading-guide suggests where to start.
 
@@ -24,7 +24,7 @@ Background on the current inputs is in [input-tables-findings.md](input-tables-f
 |---|---|
 | A producer delivering a country's file | Sections [-@sec-idea], [-@sec-data] and [-@sec-deliver], then [-@sec-validation] to see what will be checked |
 | Adding a country, indicator, breakdown or qualifier | Sections [-@sec-growth] and [-@sec-extend], then the part of @sec-metadata that covers the codelist you are editing |
-| Writing the converter from the current Excel | Sections [-@sec-data] and [-@sec-metadata], and [Appendix A](#sec-appendix-legacy) |
+| Writing the converter from the current Excel | Sections [-@sec-data] and [-@sec-metadata], and [Annex](#sec-appendix-legacy) |
 | Writing the validator | Sections [-@sec-data], [-@sec-metadata] and [-@sec-validation] |
 | Working on the dashboard | Sections [-@sec-layout], [-@sec-cl-indicator] (display fields), [-@sec-reliability], [-@sec-assets] and [-@sec-text] |
 
@@ -63,7 +63,7 @@ This distinction is the foundation of the database. Every rule in the rest of th
 @tbl-compositions builds some familiar numbers out of the two families. The last column shows what the coding buys in practice: once a number is coded this way, the validator can check it against related rows.
 
 | The number you want | `INDICATOR` | Qualifiers: what is measured | Breakdowns: who is counted | How it is verified |
-|---|---|---|---|---|
+|---|---|---|---|-----------------------|
 | Poverty rate at \$4.20 (2021 PPP) | `POV_HC` | `POVLINE_PL420`, `PPP_2021` | — | In 0–1; rises with the line, so `PL300 ≤ PL420 ≤ PL830` |
 | …rural | `POV_HC` | `POVLINE_PL420`, `PPP_2021` | `URBANISATION=R` | `N_POP`-weighted average of `CAP`, `OU`, `R` equals the national value |
 | …Fatick | `POV_HC` | `POVLINE_PL420`, `PPP_2021` | `GEO=SN03` | Same rule over all ADM1 units; their `N_POP` sums to the country |
@@ -137,7 +137,7 @@ assets/
   figures/<ISO3>/<figure_id>.<ext>
 ```
 
-Numbers flow one way. A producer's program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against `metadata/` (@sec-validation). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using `LEGACY_LABELS.csv` ([Appendix A](#sec-appendix-legacy)).
+Numbers flow one way. A producer's program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against `metadata/` (@sec-validation). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using `LEGACY_LABELS.csv` ([Annex](#sec-appendix-legacy)).
 
 None of this exists yet; the dashboard still reads `INPUT Tables/`, `INPUT shp/` and `INPUT Text/` directly. The natural order of work is the metadata for Senegal and Guinea-Bissau first, then the converter, then the validator, and last the switch of the dashboard to the new loader, because each step needs the one before it.
 
@@ -256,7 +256,7 @@ Nothing extra, nothing missing. A cell with no observations is a row with `OBS_S
 @tbl-example-rows shows the compositions of @tbl-compositions as they are written in a data file. Only the columns that vary are shown.
 
 | The value | `GEO` | `URBANISATION` | `INDICATOR` | `MEASURE_QUAL_1` | `MEASURE_QUAL_2` | `MEASURE_QUAL_3` | `COMP_BREAKDOWN_1` |
-|---|---|---|---|---|---|---|---|
+|---------|---|---|---|---|---|---|---|
 | Poverty at \$4.20, national | `_T` | `_T` | `POV_HC` | `POVLINE_PL420` | `PPP_2021` | `_Z` | `_T` |
 | Poverty at \$4.20, rural | `_T` | `R` | `POV_HC` | `POVLINE_PL420` | `PPP_2021` | `_Z` | `_T` |
 | Poverty at \$4.20, Fatick | `SN03` | `_T` | `POV_HC` | `POVLINE_PL420` | `PPP_2021` | `_Z` | `_T` |
@@ -340,7 +340,7 @@ A **qualifier variable** changes what is measured for the same units. It is one 
 | `POVLINE_PL215` | 2.15 | PPP\$ per person per day | `PPP_2017` |
 | `POVLINE_PL365` | 3.65 | PPP\$ per person per day | `PPP_2017` |
 | `POVLINE_PL685` | 6.85 | PPP\$ per person per day | `PPP_2017` |
-| `POVLINE_PL300` | 3.00 | PPP\$ per person per day | `PPP_2021`, `PPP_2017` (legacy, see [Appendix A.2](#sec-legacy-departement)) |
+| `POVLINE_PL300` | 3.00 | PPP\$ per person per day | `PPP_2021`, `PPP_2017` (legacy, see [Annex 2](#sec-legacy-departement)) |
 | `POVLINE_PL420` | 4.20 | PPP\$ per person per day | `PPP_2021` |
 | `POVLINE_PL830` | 8.30 | PPP\$ per person per day | `PPP_2021` |
 | `POVLINE_NPL` | per survey | Local currency; the value is in `SURVEYS.csv` | `_Z` |
@@ -380,7 +380,7 @@ Rules for every CSV under `metadata/` and `content/`:
 Beyond the common columns, the dictionary has the columns in @tbl-cl-indicator.
 
 | Column | | Content | Example (`POP_SH`) |
-|---|---|---|---|
+|---|---|---------|------|
 | `short_name_en` | R | At most 40 characters, for chart labels | Population share |
 | `theme` | R | `CL_THEME` | `POP` |
 | `stat_unit` | R | `CL_STAT_UNIT`: what is counted | `IND` |
@@ -424,7 +424,7 @@ Beyond the common columns, the dictionary has the columns in @tbl-cl-indicator.
 Beyond the common columns (`code` is the `var_code`), the file has the columns in @tbl-cl-brk-var.
 
 | Column | | Content |
-|---|---|---|
+|---|---|----------|
 | `describes` | R | Whose characteristic: `IND`, `HHH` (household head), `HH`, `HE` |
 | `applies_to_units` | R | `stat_unit` values it may break down, e.g. `HH IND HE` |
 | `universe` | R | The population its categories partition (@sec-universe) |
@@ -453,7 +453,7 @@ Extra columns: `var_code` (R), `parent` (O, a category of the same variable, for
 `CL_GEO_SCHEME` has one row per country and scheme, keyed `ref_area` + `code` (@tbl-cl-geo-scheme).
 
 | Column | | Content | Example |
-|---|---|---|---|
+|---|---|---------|---|
 | `code` | R | `ADM0`, `ADM1`, `ADM2`, `ZONES`, `AEZ` | `ADM2` |
 | `ref_area` | R | Country | `SEN` |
 | `local_name_en` | R | What that level is called in the country | Département |
@@ -466,7 +466,7 @@ Extra columns: `var_code` (R), `parent` (O, a category of the same variable, for
 `CL_GEO` has one row per spatial unit (@tbl-cl-geo).
 
 | Column | | Content | Example |
-|---|---|---|---|
+|---|---|---------|---|
 | `code` | R | P-code for admin units; `<ISO2>_<SCHEME><nn>` for other schemes | `SN03`, `GW08`, `SN_ZONES01` |
 | `ref_area` | R | | `SEN` |
 | `scheme` | R | `CL_GEO_SCHEME.code` for that country | `ADM1` |
@@ -489,7 +489,7 @@ Currency matters more than it seems. "FCFA" is two different currencies: `XOF` (
 ## Small codelists {#sec-small-codelists}
 
 | Codelist | Codes |
-|---|---|
+|---|---------------|
 | `CL_SEX` | `F`, `M` (`_T` and `_Z` are also valid; see @sec-sentinels) |
 | `CL_AGE` | SDMX-style bands as needed: `Y_LT15`, `Y15T24`, `Y25T64`, `Y_GE65`, … |
 | `CL_URBANISATION` | `U`, `R`, `CAP` (`parent = U`), `OU` (`parent = U`). This codelist has a `parent` column. |
@@ -505,7 +505,7 @@ Currency matters more than it seems. "FCFA" is two different currencies: `XOF` (
 ## `SURVEYS.csv` {#sec-surveys}
 
 | Column | | Example (SEN, from `About_SEN.txt`) |
-|---|---|---|
+|------|---|---------------|
 | `survey_id` | R | `SEN_EHCVM_2021` |
 | `ref_area`, `time_period` | R | `SEN`, `2021` |
 | `survey_name`, `survey_acronym` | R | Enquête Harmonisée sur les Conditions de Vie des Ménages, EHCVM |
@@ -859,16 +859,16 @@ This is the specification for the validator. Each check is phrased so that it ca
 6. **Boundary vintage policy.** Who decides when to adopt a new COD-AB release, given that P-codes can change and older data must still resolve.
 7. **Where variable-level metadata lives.** @sec-growth asks for documentation of every harmonized microdata variable behind an indicator. `CL_INDICATOR` names those variables but has nowhere to describe them. A variable dictionary per survey, kept with the producer programs or under `metadata/`, is the obvious candidate.
 8. **A country that cannot produce an indicator.** @sec-required-rows requires every indicator for every country, and there is no way yet to record that a survey does not support an indicator at all.
-9. **The `Departement` sheet.** Its 60 indicators shared with `ADM 1` would produce rows with the same key but mostly different values ([Appendix A.2](#sec-legacy-departement)). The converter must either take only its 2017-PPP poverty rows or skip the sheet.
+9. **The `Departement` sheet.** Its 60 indicators shared with `ADM 1` would produce rows with the same key but mostly different values ([Annex 2](#sec-legacy-departement)). The converter must either take only its 2017-PPP poverty rows or skip the sheet.
 10. **Reference syntax for live numbers.** @sec-live-numbers is a sketch. It does not yet say how a reference names several qualifiers, or confirm that `PL420` is shorthand for `POVLINE_PL420`.
 
-# Appendix A. Mapping the current tables {#sec-appendix-legacy .unnumbered}
+# Annex. Mapping the current tables {#sec-appendix-legacy .unnumbered}
 
 Read this if you are writing the converter. It maps every label and column of the current Excel tables to the new codes.
 
 The full mapping goes in `plans/LEGACY_LABELS.csv`, with the columns `legacy_label`, `sheet`, `INDICATOR`, `MEASURE_QUAL_1…5` and `notes`. It must cover all four sheets, including the `Departement` sheet's raw-variable labels (`npoor300`, `npoor420`, `(max) con_1` … `con_15`, `(max) ext_emp`).
 
-## A.1 Indicators {#sec-legacy-indicators .unnumbered}
+## Annex 1. Indicators {#sec-legacy-indicators .unnumbered}
 
 | Current label | `INDICATOR` | Qualifiers | Note |
 |---|---|---|---|
@@ -889,13 +889,13 @@ The full mapping goes in `plans/LEGACY_LABELS.csv`, with the columns `legacy_lab
 
 : Current indicator labels mapped to codes {#tbl-legacy-indicators}
 
-## A.2 The `Departement` sheet {#sec-legacy-departement .unnumbered}
+## Annex 2. The `Departement` sheet {#sec-legacy-departement .unnumbered}
 
-The sheet exists only for Senegal. Despite its name it holds the same 14 regions as the `ADM 1` sheet ([findings](input-tables-findings.md), 6.1), so its rows take ADM1 P-codes. Its poverty labels are taken at face value: "Poor at \$3.00/day (2017 PPP)" maps to `POVLINE_PL300` + `PPP_2017`, which is why that pair is allowed in @tbl-povlines.
+The sheet exists only for Senegal. Despite its name it holds the same 14 regions as the `ADM 1` sheet ([findings](input-tables-findings.qmd), 6.1), so its rows take ADM1 P-codes. Its poverty labels are taken at face value: "Poor at \$3.00/day (2017 PPP)" maps to `POVLINE_PL300` + `PPP_2017`, which is why that pair is allowed in @tbl-povlines.
 
 Its other indicators are a problem. The 60 it shares with `ADM 1` would produce rows with the same key as the `ADM 1` rows, and most of their values differ, so the converter cannot load both sheets in full (item 9 in @sec-open-decisions).
 
-## A.3 Columns to dimensions {#sec-legacy-columns .unnumbered}
+## Annex 3. Columns to dimensions {#sec-legacy-columns .unnumbered}
 
 | Current column | New dimensions |
 |---|---|

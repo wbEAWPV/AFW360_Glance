@@ -1,5 +1,5 @@
 ---
-title: "AFW 360 transition: decisions"
+title: "Appendix B.3. AFW 360 transition: decisions"
 subtitle: "Decisions taken, hard cases to confirm at gate G0, and gaps in the standard"
 date: 2026-09-21
 format:
@@ -11,7 +11,6 @@ format:
     number-sections: true
     number-depth: 2
     tbl-colwidths: auto
-    embed-resources: true
 ---
 
 # How this sheet is used
@@ -20,7 +19,7 @@ Agents build the transition pipeline with the *recommended* coding of every open
 
 At gate G0, which is asked at the start of the run and before anything is built, the user confirms or flips each open case (decision D10). The wave-1 integrator records the answers in the `Status` and `User note` lines of this sheet and in `reports/GATE-G0.md`. A flip is applied once, by package WP99, to the contract seeds (`contract/label_triage.csv`, `codes.csv`, `legacy_overrides.csv`), and `contract/check_contract.R` recomputes the expected counts. Every later package then builds the flipped coding from the start.
 
-Related documents: [plan](plan.qmd), [contract](contract.qmd), [package cards](packages/), [standard](../data-standard.qmd), [input findings](../input-tables-findings.md).
+Related documents: [plan](plan.qmd), [contract](contract.qmd), [package cards](https://github.com/wbEAWPV/AFW360_Glance/tree/dev/eb/.docs/transition/packages), [standard](../data-standard.qmd), [input findings](../input-tables-findings.qmd).
 
 # Decisions taken
 
@@ -30,9 +29,9 @@ Related documents: [plan](plan.qmd), [contract](contract.qmd), [package cards](p
 |---|---|---|---|---|---|
 | D1 | Tooling | R for the metadata bootstrap, the converter and the validator. The dashboard stays Python/Quarto and later reads the harmonized CSVs through one loader. The standard's references to "Python" (data-standard.qmd lines 19, 768, 848) are changed to R. | 2026-09-21 | Keeps the language boundary at the CSV files: the dashboard's runtime does not change, only the pipeline that produces its inputs. | WP02 (standard text), WP03 (pipeline scaffold, R modules), WP11–WP14 (validator), WP15 (converter) |
 | D2 | Raw inputs | All 122 tracked legacy files move to `data_raw/`, split into `tables/`, `shp/` (110 files), `text/`, `figures/` and `scratch/`. File names and bytes are unchanged, proven by `data_raw/CHECKSUMS.sha256`. `index.qmd` (12 path references) and `CLAUDE.md` are updated in the same package. | 2026-09-21 | Separates raw legacy inputs from the new harmonized outputs while proving byte-for-byte that nothing in the inputs themselves was altered. | WP01 (the move), WP02 (layout in the standard) |
-| D3 | `Departement` sheet | Skip it entirely — all 82 labels. Remove the `PPP_2017` exception for `POVLINE_PL300` (standard line 343) and the example row (standard line 271); close open decision 9 (@sec-open-decisions-v03). | 2026-09-21 | The sheet's poverty totals disagree with `ADM 1` (4.13M/7.88M vs 3.13M/6.52M poor), and several of its "shared" indicators are impossible (`HE has any credit access` = 1.00 in all 14 regions; `HH has 4+ HE` = 0.80–1.00 — see input-tables-findings.md §6.1). Loading it would create duplicate keys with mostly conflicting values. | WP02 (standard text), WP09 (`LEGACY_LABELS.csv`: action `SKIP` on all 82 rows) |
+| D3 | `Departement` sheet | Skip it entirely — all 82 labels. Remove the `PPP_2017` exception for `POVLINE_PL300` (standard line 343) and the example row (standard line 271); close open decision 9 (@sec-open-decisions-v03). | 2026-09-21 | The sheet's poverty totals disagree with `ADM 1` (4.13M/7.88M vs 3.13M/6.52M poor), and several of its "shared" indicators are impossible (`HE has any credit access` = 1.00 in all 14 regions; `HH has 4+ HE` = 0.80–1.00 — see input-tables-findings.qmd §6.1). Loading it would create duplicate keys with mostly conflicting values. | WP02 (standard text), WP09 (`LEGACY_LABELS.csv`: action `SKIP` on all 82 rows) |
 | D4 | Share indicators | Three codes: `POP_SH` (`stat_unit IND`, `weight IND`), `POP_HH_SH` (`HH`, `weight HH`), `POP_HE_SH` (`HE`, `weight HE`). This is report case H15's recommended coding. | 2026-09-21 | A single `POP_SH` cannot hold one `stat_unit`: `HE_COUNT` breakdowns describe households (standard line 77) while `EMP_*` shares are individual-level (standard line 386 says `IND`). Three codes let each keep its own `stat_unit` and weight. | WP02 (standard text), WP07 (`CL_INDICATOR` rows), WP09 (legacy maps use the three codes) |
-| D5 | Defective cells | "Excluded" means the row is absent from the data file, not present with a value or a comment. Each exclusion is registered in `metadata/plans/LEGACY_OVERRIDES.csv` (action `WITHHOLD`, reason, evidence), and the coverage check reads the register to account for the gap. Covers the whole GNB `estimateCapital` column on `National` (it is a copy of the `Zonas_Costeiras_do_Sul` zone, not Bissau) and the 7 other GNB `Cultivated area (ha)` cells above 100 ha (`National` Total, Rural, Male_HH, Older_HH, Q4; `ADM 1` Quinara; `ZAE` Zonas_Costeiras_do_Sul). This supersedes the report's H18/H19 text, which said "O rows" — the rows are absent, not `OBS_STATUS=O`. `COMMENT` overrides (value kept, `OBS_COMMENT` added) remain available for values that are suspicious but worth keeping. | 2026-09-21 | The GNB `Capital` values are known to be wrong (a coding error in the residence variable, not a definitional difference — input-tables-findings.md §6.3), and the 7 outlier cultivated-area cells reach up to 148.4M ha. Keeping them as rows, even flagged, would make `AGG_SUM`/`AGG_NPOP_MEAN` checks fail on values already known to be corrupt. | WP02 (standard text), WP09 (`LEGACY_OVERRIDES.csv`), WP12 (validator coverage reads the register), WP15 (converter drops withheld rows) |
+| D5 | Defective cells | "Excluded" means the row is absent from the data file, not present with a value or a comment. Each exclusion is registered in `metadata/plans/LEGACY_OVERRIDES.csv` (action `WITHHOLD`, reason, evidence), and the coverage check reads the register to account for the gap. Covers the whole GNB `estimateCapital` column on `National` (it is a copy of the `Zonas_Costeiras_do_Sul` zone, not Bissau) and the 7 other GNB `Cultivated area (ha)` cells above 100 ha (`National` Total, Rural, Male_HH, Older_HH, Q4; `ADM 1` Quinara; `ZAE` Zonas_Costeiras_do_Sul). This supersedes the report's H18/H19 text, which said "O rows" — the rows are absent, not `OBS_STATUS=O`. `COMMENT` overrides (value kept, `OBS_COMMENT` added) remain available for values that are suspicious but worth keeping. | 2026-09-21 | The GNB `Capital` values are known to be wrong (a coding error in the residence variable, not a definitional difference — input-tables-findings.qmd §6.3), and the 7 outlier cultivated-area cells reach up to 148.4M ha. Keeping them as rows, even flagged, would make `AGG_SUM`/`AGG_NPOP_MEAN` checks fail on values already known to be corrupt. | WP02 (standard text), WP09 (`LEGACY_OVERRIDES.csv`), WP12 (validator coverage reads the register), WP15 (converter drops withheld rows) |
 | D6 | GNB survey | EHCVM 2021/22 maps to `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021` (user-confirmed; `About_GNB.txt` is a placeholder with no real survey metadata). | 2026-09-21 | Closes open decision 4 of the standard (@sec-open-decisions-v03) so the GNB data file has a `TIME_PERIOD` and a `SURVEYS` row to key against. | WP02 (open decision 4 closed), WP10 (`SURVEYS.csv`) |
 | D7 | Hard cases H1–H19 | Built with the recommended coding, all `DRAFT`. The user confirms or flips each at a gate (moved to G0 by D10). | 2026-09-21 | Lets the build proceed in parallel across 19 unresolved judgment calls instead of blocking on each one individually. | WP99 applies any flip to the contract seeds before the build (see D10); WP06–WP09 then build from the seeds |
 | D8 | Execution | Parallel agents only. The Opus orchestrator never edits, runs or merges; Sonnet agents implement, verify and integrate. | 2026-09-21 | Keeps the orchestrator's role to coordination only, so review effort concentrates on the Sonnet agents' actual changes. | Process decision — governs execution in plan.qmd and orchestrator-prompt.md; not a data-file WP |
@@ -167,7 +166,7 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Case.** Whether label #3 "Average outage duration (code)" — a mean of an ordinal code, not a time unit — can be mapped at all.
 
-**Evidence.** The value is explicitly a mean of a code (Appendix A.1 of the standard), not a duration; the code scale itself is not documented anywhere in the legacy files.
+**Evidence.** The value is explicitly a mean of a code (Annex 1 of the standard), not a duration; the code scale itself is not documented anywhere in the legacy files.
 
 **Recommended (built default).** Map as `DRAFT`, `unit_measure INDEX`, checked with `RANGE_NONNEG` only; flagged for later deprecation in favour of shares by duration class once the code scale is documented.
 

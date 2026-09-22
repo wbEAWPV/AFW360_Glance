@@ -1,0 +1,59 @@
+# Quarto project for the AFW 360 data standard site.
+#
+# This is a nested project, separate from the dashboard project at the repo
+# root. The root project cannot see it: Quarto skips directories whose name
+# starts with "." or "_", so `.docs/` is invisible to the root `_quarto.yml`
+# and the two sites never render each other's files.
+#
+# `render:` lists the pages explicitly. Without it Quarto would also pick up
+# the package cards under `transition/packages/`, which are agent-facing
+# working documents, not part of this site.
+
+project:
+  type: website
+  output-dir: _site
+  render:
+    - data-standard.qmd           # -> index.html (set in its own front matter)
+    - input-tables-findings.qmd   # -> Appendix A
+    - transition/plan.qmd         # -> Appendix B.1
+    - transition/contract.qmd     # -> Appendix B.2
+    - transition/decisions.qmd    # -> Appendix B.3
+
+website:
+  title: "AFW 360 data standard"
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    left:
+      - href: data-standard.qmd
+        text: "Standard"
+      - href: input-tables-findings.qmd
+        text: "Appendix A · Input tables"
+      - text: "Appendix B · Transition"
+        menu:
+          - href: transition/plan.qmd
+            text: "B.1 · Plan"
+          - href: transition/contract.qmd
+            text: "B.2 · Contract"
+          - href: transition/decisions.qmd
+            text: "B.3 · Decisions"
+    right:
+      - icon: github
+        href: https://github.com/wbEAWPV/AFW360_Glance
+        aria-label: "Source repository on GitHub"
+  page-footer:
+    left: "© 2026 World Bank Group"
+    center: "AFW 360 data standard · draft v0.3"
+    right: "[Source](https://github.com/wbEAWPV/AFW360_Glance)"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-location: left
+    tbl-colwidths: auto
+    link-external-newwindow: true
+    # `embed-resources` is not supported in a website project. Each page's
+    # front matter carried it; it was removed when this project was added.
