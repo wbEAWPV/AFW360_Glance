@@ -118,11 +118,13 @@ pipeline/
   convert_legacy.R
   validate.R
   reconcile.R
+  README.md                    how to run each entry point
 metadata/
   VERSION                      semantic version of the whole metadata package
   CHANGELOG.md
   structure/
     DSD_AFW360_HH.csv          column list of the data files (data team only)
+    COLUMNS.csv                 column registry of every metadata/content file (file, position, column, status, description)
   codelists/
     CL_AREA.csv                countries
     CL_GEO_SCHEME.csv          spatial schemes, per country
@@ -269,9 +271,13 @@ Data files have exactly the 26 columns in @tbl-columns, in that order. The role 
 
 ## Which rows exist {#sec-required-rows}
 
-For each indicator, the required rows are:
+`plans/SERIES_PLAN.csv` is the explicit list of series to produce: one row per `series_id`, naming its `ref_area`, `INDICATOR`, the qualifier combination in `MEASURE_QUALS` and, for a share indicator, the breakdown it is defined over in `DEFINING_BREAKDOWN` (@sec-series-plan). A plain Cartesian product of qualifiers over cut categories over-generates — `CONS_SH` crossed with COICOP and poverty status gives 39 combinations where only 15 are real — so `SERIES_PLAN` states the real ones instead.
 
-> (the qualifier combinations declared in `CL_INDICATOR.qualifiers`) × (the cuts in `TAB_PLAN` that cover its theme and unit) × (the categories of those cuts) − (anything listed in `excluded_breakdowns`) − (cells withheld in `LEGACY_OVERRIDES.csv`)
+For each `SERIES_PLAN` row, the required data rows are:
+
+> (the cuts in `TAB_PLAN` compatible with the indicator's `stat_unit`, found through `CL_BRK_VAR.applies_to_units` rather than a unit column on `TAB_PLAN` itself — geography and urbanisation cuts apply to every unit) × (the categories of those cuts) − (anything listed in `excluded_breakdowns`) − (cells withheld in `LEGACY_OVERRIDES.csv`)
+
+The coverage generator writes `SEX=_Z` and `AGE=_Z`, not `_T`, wherever `TAB_PLAN` says `sex = _T` / `age = _T` but the indicator's `stat_unit` is not `IND` (@sec-sentinels). It also keeps each generated row's provenance — its `cut_id` and defining breakdown — so that a check such as "the parent of a row" (@sec-validation) is computed from that provenance rather than guessed from the row's codes in general.
 
 Nothing extra, nothing missing. A cell with no observations is a row with `OBS_STATUS=O`, not an absent row. This is what makes a file checkable: the validator can compute the set of rows that should exist and compare it with the rows that do.
 
@@ -333,6 +339,8 @@ Adding one changes no structure. It takes a row in `CL_BRK_VAR`, a row per categ
 ## Every breakdown variable carries a universe {#sec-universe}
 
 `CL_BRK_VAR.universe` names the population that the categories partition. This is what makes each of `POP_SH`, `POP_HH_SH` and `POP_HE_SH` work as a single indicator for its `stat_unit`: the share is the category's `N_POP` divided by the universe's `N_POP`. "Share of employed in agriculture" (individuals, `POP_SH`) and "share of households with two enterprises" (households, `POP_HH_SH`) use the same mechanism but different codes, because they count different units (D4).
+
+A recall period that defines who belongs to a group — "employed in the last 12 months" versus "employed right now" — is a property of that group's universe, not of the share indicator. It is recorded in `CL_BRK_VAR.universe` and the category's `definition_en`, never by giving the indicator a different `ref_period`. `POP_SH`, `POP_HH_SH` and `POP_HE_SH` all carry `ref_period = INTERVIEW`, whatever recall period their breakdown's universe uses.
 
 ## Worked example: adding sector of employment {#sec-example-sector}
 
@@ -424,7 +432,7 @@ Beyond the common columns, the dictionary has the columns in @tbl-cl-indicator.
 | `price_ref_year` | C | Required when `price_basis = DEFLATED` | |
 | `display_as` | R | `PERCENT`, `NUMBER`, `THOUSANDS`, `MILLIONS`, `CURRENCY` | `PERCENT` |
 | `decimals` | R | Decimals to display | `1` |
-| `valid_min`, `valid_max` | R | Plausible range; empty means unbounded | `0`, `1` |
+| `valid_min`, `valid_max` | C | Plausible range; empty means unbounded | `0`, `1` |
 | `checks` | R | Machine-readable verification rules (below) | `RANGE_0_1 EQUALS_NPOP_RATIO SUM_TO_1_OVER_BRK AGG_NPOP_MEAN` |
 | `higher_is` | R | `BETTER`, `WORSE`, `NEUTRAL`: color direction on maps | `NEUTRAL` |
 | `sdg_indicator` | O | | |
@@ -440,7 +448,7 @@ Beyond the common columns, the dictionary has the columns in @tbl-cl-indicator.
 
 `display_as` fixes a defect the dashboard has today, where every value is formatted as a percentage. A share stored as 0.37 displays as `37.0%`, and `POV_NUM` stored as 6520000 displays as `6.52` (millions).
 
-**`checks` vocabulary:** `RANGE_0_1`, `RANGE_NONNEG`, `AGG_SUM` (totals sum over a partition), `AGG_NPOP_MEAN` (means aggregate as `N_POP`-weighted averages), `SUM_TO_1_OVER:<QUAL_VAR>` (for example COICOP), `SUM_TO_1_OVER_BRK` (categories of the breakdown sum to 1), `EQUALS_NPOP_RATIO`, `MONOTONE_IN:POVLINE`, `NONE`.
+**`checks` vocabulary:** `RANGE_0_1`, `RANGE_NONNEG`, `AGG_SUM` (totals sum over a partition), `AGG_NPOP_MEAN` (means aggregate as `N_POP`-weighted averages), `AGG_BRACKET` (the parent falls within the range spanned by its children; used where `AGG_NPOP_MEAN` cannot be computed), `SUM_TO_1_OVER:<QUAL_VAR>` (for example COICOP), `SUM_TO_1_OVER_BRK` (categories of the breakdown sum to 1), `EQUALS_NPOP_RATIO`, `MONOTONE_IN:POVLINE`, `NONE`.
 
 **Why the population fields matter.** `HHH_SEX_F` means "people living in female-headed households" for a person-level poverty rate, and "enterprises in female-headed households" for an enterprise indicator. Without `stat_unit`, `universe_*` and `weight`, person-weighted and household-weighted numbers end up on the same chart. `statistic` matters too: a budget share can be the mean of household shares (`MEAN`) or the share of aggregate spending (`RATIO_TOTALS`), and the two differ.
 
@@ -465,11 +473,15 @@ Beyond the common columns (`code` is the `var_code`), the file has the columns i
 
 Extra columns: `var_code` (R), `parent` (O, a category of the same variable, for nested classifications), `order` (R, display order). `definition_en` is required wherever the boundary is not obvious, such as age cutoffs, ISIC groupings and quantile ranking rules.
 
+A category's variable is always looked up through this `var_code` column, never inferred by parsing the code's prefix: `HE_` is a prefix of `HE_COUNT_0`, but that does not make it a category of a variable called `HE`.
+
 ## `CL_QUAL_VAR.csv` and `CL_QUALIFIER.csv` {#sec-cl-qual}
 
 `CL_QUAL_VAR` extra columns: `slot_order` (R), `requires` (C, other qualifier variables that must appear with it, such as `PPP` for `POVLINE`), `owner` (R).
 
 `CL_QUALIFIER` extra columns: `var_code` (R), `value` (C, the numeric parameter, such as 3.00 for `POVLINE_PL300`), `basis` (C, what that value is expressed in), `valid_with` (C, allowed categories of other qualifier variables), `order` (R).
+
+When a category's `valid_with` for some qualifier variable is `_Z` — as `POVLINE_NPL`'s is for `PPP` — that overrides the variable-level `requires`: a national-line row does not also require a PPP round, even though `POVLINE` otherwise requires `PPP`.
 
 ## `CL_GEO_SCHEME.csv` and `CL_GEO.csv` {#sec-cl-geo}
 
@@ -505,6 +517,8 @@ Extra columns: `var_code` (R), `parent` (O, a category of the same variable, for
 
 The shapefiles in `INPUT shp/` already carry these P-codes: `SN01` is Dakar, `SN03` is Fatick, and `GW08` is Bissau (the current tables call it `SAB`). Maps join on codes, never on names.
 
+`name_en` "as issued by the boundary source" fits `ADM0` and `ADM1`, but not zones or agro-ecological zones, which have no such source. For those schemes `name_en` is `TBD` until confirmed with the producer, and the boundary-sourced rule does not apply to them.
+
 ## `CL_AREA.csv` {#sec-cl-area}
 
 Extra columns: `iso2` (R, the P-code prefix), `currency` (R, ISO 4217), `wb_region` (R).
@@ -527,11 +541,14 @@ Currency matters more than it seems. "FCFA" is two different currencies: `XOF` (
 
 : Small codelists and their codes {#tbl-small-codelists}
 
+`CL_STATISTIC` also carries `admits_se` (R): `Y` when a value computed with this statistic can carry a standard error and confidence interval (as `PROPORTION` and `MEAN` do), `N` when it cannot; @tbl-columns' `STD_ERR` / `CI_LOWER` / `CI_UPPER` requirement reads this column.
+
 ## `SURVEYS.csv` {#sec-surveys}
 
 | Column | | Example (SEN, from `About_SEN.txt`) |
 |------|---|---------------|
 | `survey_id` | R | `SEN_EHCVM_2021` |
+| `status` | R | `DRAFT` until a producer confirms the record, `ACTIVE` once confirmed — the same convention as a codelist's `status` (@sec-metadata) |
 | `ref_area`, `time_period` | R | `SEN`, `2021` |
 | `survey_name`, `survey_acronym` | R | Enquête Harmonisée sur les Conditions de Vie des Ménages, EHCVM |
 | `producer_agency` | R | ANSD |
@@ -555,6 +572,8 @@ Currency matters more than it seems. "FCFA" is two different currencies: `XOF` (
 `AFW360_HH_<ISO3>_<YEAR>_manifest.csv` has two columns, `key` and `value`. The keys are:
 
 `dataflow`, `dsd_version`, `metadata_version`, `ref_area`, `time_period`, `source_type` (`SURVEY`, `PROJECTION`, `ADMIN`), `survey_id` (the base survey, also for a projection), `precision` (`EXACT`, or `ROUNDED_2DP` for legacy conversions), `file_name`, `n_rows`, `producer`, `program`, `software`, `run_timestamp` (ISO 8601), `status` (`DRAFT`, `SUBMITTED`, `VALIDATED`, `PUBLISHED`), `notes`.
+
+`dsd_version` is not chosen independently: it is read from `DSD_AFW360_HH.csv` itself, via that file's own `VERSION` metadata.
 
 `TIME_PERIOD` is the year the estimate refers to, which is **not** always a survey year. A microsimulated 2026 poverty rate has `TIME_PERIOD=2026`, `source_type=PROJECTION` and `survey_id=SEN_EHCVM_2021`, and every row has `OBS_STATUS=E`.
 
@@ -593,6 +612,72 @@ The initial plan (@tbl-initial-plan) reproduces the current Excel tables. Every 
 
 : The initial plan, reproducing the current Excel tables {#tbl-initial-plan}
 
+## `SERIES_PLAN.csv` {#sec-series-plan}
+
+`plans/SERIES_PLAN.csv` is the explicit list of series to produce (@sec-required-rows), with the columns in @tbl-series-plan.
+
+| Column | | Content |
+|---|---|---------|
+| `series_id` | R | Stable ID for the series |
+| `ref_area` | R | ISO3 |
+| `INDICATOR` | R | `CL_INDICATOR.code` |
+| `MEASURE_QUALS` | C | The qualifier categories that define the series, e.g. `POVLINE_PL420 PPP_2021` |
+| `DEFINING_BREAKDOWN` | C | For a share indicator, the breakdown variable the series is defined over, e.g. `EMP_SECTOR` for a `POP_SH` employment-sector series |
+| `status` | R | `DRAFT` or `ACTIVE` |
+| `notes` | O | |
+
+: Columns of `SERIES_PLAN.csv` {#tbl-series-plan}
+
+## Legacy mapping files {#sec-legacy-maps}
+
+Three files under `plans/` drive the converter from the current Excel tables ([Annex](#sec-appendix-legacy)), all seeded from `.docs/transition/contract/label_triage.csv` (D11).
+
+`LEGACY_LABELS.csv` maps each Excel indicator label to a series, with the columns in @tbl-legacy-labels.
+
+| Column | | Content |
+|---|---|---------|
+| `legacy_label` | R | The label exactly as it appears in the workbook |
+| `sheet` | R | `National`, `ADM 1`, `ZAE`, or `*` for all three |
+| `action` | R | `MAP`, `DUPLICATE_OF`, `DERIVED` or `SKIP` |
+| `series_id` | C | The `SERIES_PLAN.csv` row it maps to |
+| `duplicate_of` | C | For `DUPLICATE_OF`, the `series_id` it duplicates |
+| `scale` | R | Factor applied to the legacy value to reach base units |
+| `assert_rule` | C | `EQUALS:<series_id>`, `ONE_MINUS:<series_id>`, or `ONE_MINUS:<series_id> tol=0.02`, checked by the converter |
+| `notes` | O | |
+
+: Columns of `LEGACY_LABELS.csv` {#tbl-legacy-labels}
+
+`LEGACY_COLUMNS.csv` maps each Excel column to breakdown dimensions, with the columns in @tbl-legacy-columns-csv.
+
+| Column | | Content |
+|---|---|---------|
+| `ref_area` | R | ISO3 |
+| `sheet` | R | `National`, `ADM 1`, `ZAE`, or `*` |
+| `column` | R | The Excel column name |
+| `cut_id` | C | `TAB_PLAN.cut_id` it belongs to |
+| `GEO` | C | `CL_GEO.code`, if the column names a geography |
+| `URBANISATION` | C | `CL_URBANISATION.code`, if the column names a residence category |
+| `COMP_BREAKDOWN` | C | `CL_COMP_BREAKDOWN.code`, if the column names a breakdown category |
+| `action` | R | How the column is used |
+| `notes` | O | |
+
+: Columns of `LEGACY_COLUMNS.csv` {#tbl-legacy-columns-csv}
+
+`LEGACY_OVERRIDES.csv` registers withheld or commented legacy cells (D5), with the columns in @tbl-legacy-overrides.
+
+| Column | | Content |
+|---|---|---------|
+| `ref_area` | R | ISO3 |
+| `sheet` | R | The sheet the cell is on |
+| `column` | R | The Excel column, or `*` |
+| `legacy_label` | R | The indicator label, or `*` |
+| `action` | R | `WITHHOLD` or `COMMENT` |
+| `obs_comment` | C | Required when `action = COMMENT`; becomes the row's `OBS_COMMENT` |
+| `reason` | R | Why the cell is withheld or flagged |
+| `evidence` | R | What shows the reason, e.g. a cross-check against another sheet |
+
+: Columns of `LEGACY_OVERRIDES.csv` {#tbl-legacy-overrides}
+
 # What a producer delivers {#sec-deliver}
 
 This is the checklist for handing in a file. For each country and reference year, deliver:
@@ -625,6 +710,7 @@ Since nothing is suppressed, the dashboard carries the burden of honesty:
 - Every value is shown with its `N_OBS`, available on hover, in a details panel or in the downloaded table.
 - Charts show the confidence interval where one exists.
 - A cell resting on few records is visually de-emphasized rather than hidden, and `OBS_STATUS=O` renders as "no observations", never as zero.
+- Displayed decimals are capped by the file's declared precision: a `ROUNDED_2DP` legacy file never shows more than its two accurate decimals, however many `CL_INDICATOR.decimals` asks for elsewhere. This is the rule the dashboard loader must follow; making the loader apply it is out of scope of this transition, deferred to the later dashboard switch-over (objective 3 of `CLAUDE.md`).
 
 # How to extend {#sec-extend}
 
@@ -706,7 +792,7 @@ Rules:
 
 - **Required layer fields:** `geo_code` (matching `CL_GEO.code`), `ref_area`, `scheme`. A `name` column may be kept for convenience, but `CL_GEO` is authoritative, and disagreement is a warning, not an error.
 - **CRS:** EPSG:4326 in storage. Reproject only for display or area computation.
-- **Hygiene:** valid geometries, one feature per code, units covering the country exactly once.
+- **Hygiene:** valid geometries, one feature per code, units covering the country exactly once. Geometry is built and checked with GEOS (`sf::sf_use_s2(FALSE)`), invalid rings repaired with `st_make_valid()`, from the plain (non-`_em`) shapefiles as the source — SN01 and SN13 fail s2/GEOS validity as issued.
 - **Vintages are explicit.** `valid_from` and `valid_to` in `CL_GEO` describe the boundary release a code belongs to, not the period the data cover. SEN's COD-AB v02 dates from 2024 while the data are for 2021, and that is not an error.
 - **Derived layers are generated**, never hand-edited. Simplified display copies live in `geo/derived/` and may be rebuilt at any time; the simplification tolerance is kept in the build script.
 - **Size:** keep files in git while they are small. Beyond a few MB, use Git LFS or an external store, with the URL and checksum in the registry.
@@ -755,6 +841,8 @@ content/text/<ISO3>/<slot>.md   long-form bodies
 
 : Columns of `TEXT.csv` {#tbl-text}
 
+**Planned:** `content/SLOTS.csv` will register every slot the dashboard actually requests — `slot`, `ref_area`, `time_period` and a short description — so the validator can check that `TEXT.csv` covers all of them. The file and that check are deferred to the dashboard switch-over (objective 3 of `CLAUDE.md`); no package of this transition builds them.
+
 A country row overrides an `ALL` row for the same slot. This keeps shared methodology in one place instead of copied per country; today `About.txt` and `About_SEN.txt` are byte-identical copies.
 
 Markdown in `body` and in the files is limited to paragraphs, emphasis, links, lists and footnotes. No raw HTML.
@@ -777,6 +865,8 @@ Rural poverty stands at {{POV_HC:PL420@URBANISATION=R}}.
 
 `TEXT.csv` replaces `About_<ISO3>.txt`, `Messages_<ISO3>.txt` and every string hardcoded in `index.qmd`. Figure captions stay with their images in `FIGURES.csv`.
 
+For Senegal, `About_SEN.txt` becomes `content/text/SEN/about.md`; `Messages_SEN.txt` is stripped of its dashboard chunk wrappers and raw HTML and stored as `DRAFT` literal prose, with no number invented that is not already in the data, and both the file's own message titles and `index.qmd`'s hardcoded ones recorded, the `index.qmd` version as the `DRAFT` candidate. `About.txt` is treated as Senegal-specific (`ref_area = SEN`), not shared boilerplate, despite being byte-identical to `About_SEN.txt` today. `Messages_SEN.txt2` and `Tables_SEN_TEST.xlsx` are scratch files and are ignored.
+
 ## Extending {#sec-extend-text}
 
 Add or edit a row in `TEXT.csv`, and add a `.md` file if the text is long. The same pull request rules apply as for codelists.
@@ -798,6 +888,8 @@ This section says how a change gets into the database.
 
 This is the specification for the validator. Each check is phrased so that it can be implemented directly, and together they enforce every "must" in Sections [-@sec-data] to [-@sec-text].
 
+The validator writes one findings file, a CSV with the columns `check_id`, `severity` (`ERROR`, `WARN` or `INFO`), `file`, `row_key` (C, empty for a file- or codelist-level finding) and `message`. The process exits with a non-zero status whenever the findings file holds at least one `ERROR`.
+
 **Structure**
 
 - The header matches the DSD exactly: same names, same order (after stripping a BOM).
@@ -806,8 +898,8 @@ This is the specification for the validator. Each check is phrased so that it ca
 
 **Codes**
 
-- Every code exists in its codelist. Newly produced rows use `ACTIVE` codes; existing rows are valid against any code that is not `DRAFT`, with `valid_from` / `valid_to` respected for geography.
-- `GEO` belongs to `REF_AREA`, and its `scheme` is registered for that country.
+- Every code exists in its codelist. Newly produced rows use `ACTIVE` codes; existing rows are valid against any code that is not `DRAFT`. `valid_from` / `valid_to` are compared against the manifest's `run_timestamp`, never against `TIME_PERIOD`.
+- `GEO` belongs to `REF_AREA`, and its `scheme` is registered for that country. An `ADM0` code is registered in `CL_GEO` for building the country outline, but is rejected wherever it appears in the `GEO` breakdown column of a data row; a national row writes `GEO=_T`.
 - Breakdown slots are filled from the left in canonical order, with no variable twice, and unused slots are `_T`.
 - Qualifier slots follow the same rules, and unused slots are `_Z`.
 - `SEX` and `AGE` are `_Z` when the indicator's `stat_unit` is not `IND`, and `_T` or a code otherwise.
@@ -832,14 +924,24 @@ This is the specification for the validator. Each check is phrased so that it ca
 **Verification rules from `checks`**
 
 - `AGG_SUM`: children sum to the parent over a partition.
-- `AGG_NPOP_MEAN`: the `N_POP`-weighted average of the children equals the parent.
+- `AGG_NPOP_MEAN`: the `N_POP`-weighted average of the children equals the parent. It needs each child's `N_POP`; where a legacy file cannot supply that, `AGG_BRACKET` is used instead — the parent's value falls within [min(children) − h, max(children) + h]. Checked against every mean/share series in both countries, `AGG_BRACKET` holds with zero violations; only `POV_NUM`-style totals fail it, as expected of a total rather than a mean.
 - `SUM_TO_1_OVER:<QUAL_VAR>` and `SUM_TO_1_OVER_BRK`: the categories sum to 1.
-- `EQUALS_NPOP_RATIO`: the value equals the child's `N_POP` over the universe's.
-- `MONOTONE_IN:POVLINE`: the value does not fall as the line rises.
+- `EQUALS_NPOP_RATIO`: the value equals the child's `N_POP` over the universe's. For a share row, `N_POP` is the universe's population, the denominator, not the category's own population.
+- `MONOTONE_IN:POVLINE`: the value does not fall as the line rises; no tolerance applies.
 - `RANGE_0_1`, `RANGE_NONNEG`.
-- **The parent of a row** is the same row with one breakdown set to `_T`. If that breakdown required a qualifier (`POOR` requires `POVLINE`), the qualifier is cleared to `_Z` in the parent, unless the indicator itself declares it.
+- **Tolerances.** Let `h = 0.005 × scale`, where `scale` is the manifest's precision scale (1 for an exact file, larger for `ROUNDED_2DP`). A single value matches within ±h. A sum of `k` children against a parent (`AGG_SUM`) matches within ±(k+1)h. A closure over `k` categories (`SUM_TO_1_OVER…`) matches within ±k·h — for the 13 COICOP divisions, ±0.065, against an observed range of 0.96–1.02. Every comparison is `abs(dev) <= tol + 1e-9`, so floating-point noise at the boundary never fails a valid value.
+- **Partial category sets.** When a partition's full set of categories is not all present in the file, a closure or sum check is skipped with an `INFO` finding rather than run against a partial set; when a present category is `O` or withheld, the same checks report `WARN` instead of `ERROR`.
+- **The parent of a row** is the same row with one breakdown set to `_T`. If that breakdown required a qualifier (`POOR` requires `POVLINE`), the qualifier is cleared to `_Z` in the parent, unless the indicator itself declares it. The parent is found through the row's provenance — the `cut_id` and defining breakdown kept from `SERIES_PLAN`/`TAB_PLAN` generation (@sec-required-rows) — not guessed from the codes in general.
 - Children's `N_POP` sums to the parent's for any `partition = Y` breakdown.
 - Tolerances are relaxed for manifests with `precision = ROUNDED_2DP`.
+
+**Deterministic output**
+
+- Every file the pipeline writes is byte-identical across runs on the same inputs: rows sorted by the 18 key columns (@tbl-columns, `DATAFLOW` through `MEASURE_QUAL_5`) in DSD order.
+- UTF-8 with no byte-order mark, LF line endings.
+- A missing value is written as an empty string, never `NA`.
+- Numbers are written in fixed notation, never scientific, rounded with `round(x * scale, 10)` and a fixed formatter, with no trailing zeros.
+- `run_timestamp` is an injectable parameter, so a test run can reproduce a fixed manifest.
 
 **Assets**
 
@@ -856,8 +958,10 @@ This is the specification for the validator. Each check is phrased so that it ca
 
 **Metadata files**
 
+- `COLUMNS.csv` (@sec-metadata) is the column registry this section checks against: every file's header and required columns are read from it, not hard-coded in the validator.
 - Codes are unique and follow @sec-code-rules.
-- Every **R** column is filled.
+- Every **R** column is filled, except that `TBD` is accepted there in place of a value, and only on a `DRAFT` row: a warning while the row is `DRAFT`, an error once it is `ACTIVE`.
+- A `DRAFT` code is valid only inside a file whose own manifest declares `status = DRAFT` (a warning otherwise); `DRAFT` codes may still be renamed, and the "a code never changes meaning" rule (@sec-code-rules) starts to apply only from the row's first `ACTIVE` version.
 - Every `var_code`, `parent`, `replaced_by`, `source_id`, `scheme` and `nests_in` reference resolves.
 - `slot_order` values should be unique within `CL_BRK_VAR` and within `CL_QUAL_VAR`. A tie is a warning, not an error, and is broken alphabetically.
 
@@ -898,6 +1002,8 @@ Read this if you are writing the converter. It maps every label and column of th
 The full mapping lives in three files under `metadata/plans/`, all seeded from `.docs/transition/contract/label_triage.csv` (D11): `LEGACY_LABELS.csv` maps each indicator label to its `INDICATOR` and qualifiers, or to action `SKIP`; `LEGACY_COLUMNS.csv` maps each column to its breakdown dimensions; `LEGACY_OVERRIDES.csv` registers withheld or commented cells (D5). They must cover all four sheets, including the `Departement` sheet's raw-variable labels (`npoor300`, `npoor420`, `(max) con_1` … `con_15`, `(max) ext_emp`), all marked `SKIP` (D3).
 
 ## Annex 1. Indicators {#sec-legacy-indicators .unnumbered}
+
+Where a legacy label's `weight`, `statistic` or `unit_time` cannot be read off the label alone — every HE flow indicator, such as `HE_PROFIT` and `EN_ELEC_SPEND` — `CL_INDICATOR` records the best guess with `notes: LEGACY assumed`, and the row stays `DRAFT` until a producer confirms it.
 
 | Current label | `INDICATOR` | Qualifiers | Note |
 |---|---|---|---|
@@ -944,5 +1050,32 @@ The mapping from current Excel columns to new dimensions no longer lives in this
 | D6 | Open decision 4 closed: the GNB survey is EHCVM 2021/22, `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021`. | @sec-open-decisions |
 | D9 | `OBS_STATUS=O` widened to "no value available" generally. Every `O` row of a `ROUNDED_2DP` legacy file requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | @tbl-obs-status, @sec-legacy |
 | D11 | Repository layout gains `pipeline/` (`R/`, `bootstrap/`, `tests/`, `acceptance/` and the entry points) and `plans/SERIES_PLAN.csv`, `plans/LEGACY_COLUMNS.csv`, `plans/LEGACY_OVERRIDES.csv`. Metadata files are generated once by `pipeline/bootstrap/`; from version 0.1.0 the CSVs are the source of truth, edited by hand through pull requests. The Annex introduction and Annex 3 now point to `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv` and `LEGACY_OVERRIDES.csv`, seeded from `label_triage.csv`. | @sec-layout, [Annex](#sec-appendix-legacy), [Annex 3](#sec-legacy-columns) |
+| (a) | `LEGACY_LABELS.csv` gets the columns a converter can act on: `legacy_label, sheet, action, series_id, duplicate_of, scale, assert_rule, notes`. | @sec-legacy-maps |
+| (b) | Added `plans/SERIES_PLAN.csv`, the explicit list of series to produce, and rewrote @sec-required-rows's formula around it. | @sec-series-plan, @sec-required-rows |
+| (c) | Confirmed already covered by D9 (`OBS_STATUS=O` widened, `LEGACY_EMPTY:` comment rule); nothing added beyond it. | @tbl-obs-status, @sec-legacy |
+| (d) | `TBD` is allowed in a required text column only on a `DRAFT` row (a warning there, an error once `ACTIVE`); a `DRAFT` code is valid only in a file whose manifest is itself `DRAFT`, and the "never changes" rule starts only from first `ACTIVE`. | @sec-validation |
+| (e) | Confirmed already covered by D1 (tooling) and D11 (`pipeline/` layout); added `pipeline/README.md` to the layout, the one thing beyond those decisions. | @sec-idea, @sec-layout, @sec-validation, @tbl-decisions |
+| (f) | Confirmed already covered by D3 (`Departement` sheet skipped entirely); nothing added beyond it. | @sec-povlines, @sec-example-rows, [Annex 2](#sec-legacy-departement), @sec-open-decisions |
+| (g) | Added a `status` column to `SURVEYS.csv`, so a placeholder survey record (metadata not yet confirmed) is told apart from a confirmed one. | @sec-surveys |
+| (h) | Defined validator tolerances (`h = 0.005 × scale`, single/sum/closure bounds), the `AGG_BRACKET` check replacing `AGG_NPOP_MEAN` where per-child `N_POP` is unavailable, `N_POP` for share rows as the universe's population, `INFO`/`WARN` handling of partial category sets, and that a row's parent is found from its generation provenance. | @sec-validation |
+| (i) | Changed `valid_min` and `valid_max` from **R** to **C** in @tbl-cl-indicator, matching "empty means unbounded". | @sec-cl-indicator |
+| (j) | Stated that `valid_from`/`valid_to` are compared against the manifest's `run_timestamp`, never `TIME_PERIOD`. | @sec-validation |
+| (k) | Stated that an `ADM0` code is registered in `CL_GEO` for the country outline but is rejected if it appears in a data row's `GEO` breakdown column; the whole country is `GEO=_T`. | @sec-validation |
+| (l) | Stated that the coverage generator writes `SEX=_Z`/`AGE=_Z`, not `_T`, wherever `TAB_PLAN` says `_T` but the indicator's `stat_unit` is not `IND`. | @sec-required-rows |
+| (m) | Replaced "cuts that cover its theme and unit" with deriving applicable cuts from `CL_BRK_VAR.applies_to_units`, since `TAB_PLAN` has no unit column. | @sec-required-rows |
+| (n) | Stated that a category's `valid_with = _Z` for a qualifier variable overrides that variable's `requires`, as `POVLINE_NPL` overrides `POVLINE`'s requirement of `PPP`. | @sec-cl-qual |
+| (o) | Added `admits_se` to `CL_STATISTIC`, saying whether a statistic can carry a standard error and confidence interval. | @sec-small-codelists |
+| (p) | Described `content/SLOTS.csv` (planned) as the registry of slots the dashboard requests; the file and its validator check are deferred to the dashboard switch-over. | @sec-text-csv |
+| (q) | Defined the validator's findings CSV: `check_id, severity, file, row_key, message`, with a non-zero exit on any `ERROR`. | @sec-validation |
+| (r) | Added a deterministic-output rule: sort by the 18 key columns, UTF-8/LF, `NA` as `""`, fixed-notation numbers, an injectable `run_timestamp`. | @sec-validation |
+| (s) | Stated that `dsd_version` is read from `DSD_AFW360_HH.csv`'s own `VERSION`, not chosen independently. | @sec-manifest |
+| (t) | Stated that a category's variable is found only through `CL_COMP_BREAKDOWN.var_code`, never by parsing the code's prefix. | @sec-cl-comp-breakdown |
+| (u) | Specified the geometry build/validity engine: GEOS with `sf_use_s2(FALSE)`, `st_make_valid()`, source from the plain (non-`_em`) shapefiles. | @sec-geo-storage |
+| (v) | Stated that zone/AEZ `name_en` is `TBD` pending producer confirmation, since the boundary-sourced-name rule does not fit them. | @sec-cl-geo |
+| (w) | Stated that an HE flow indicator's unknown `weight`/`statistic`/`unit_time` is recorded as a best guess with `notes: LEGACY assumed`, `DRAFT` until confirmed. | [Annex 1](#sec-legacy-indicators) |
+| (x) | Confirmed the mapping of `About_SEN.txt`/`Messages_SEN.txt` to `TEXT.csv`/`content/text/SEN/about.md`, `About.txt` as Senegal-specific, and `Messages_SEN.txt2`/`Tables_SEN_TEST.xlsx` as ignored scratch files. | @sec-text-replaces |
+| (y) | Stated the display rule that decimals are capped by a file's declared precision; the dashboard-side change itself is out of scope. | @sec-reliability |
+| (z) | Stated that a share's recall period belongs to its breakdown's universe, not to the indicator's `ref_period`; `POP_SH`/`POP_HH_SH`/`POP_HE_SH` all carry `ref_period = INTERVIEW`. | @sec-universe |
+| (aa) | Added `metadata/structure/COLUMNS.csv`, the column registry (`file, position, column, status, description`) the validator's header/required-column checks read from. | @sec-layout, @sec-validation |
 
 : Changes made to the standard since v0.3 {#tbl-changes-v04}
