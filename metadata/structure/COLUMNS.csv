@@ -284,7 +284,7 @@ LEGACY_LABELS.csv,2,sheet,R,"National, ADM 1, ZAE, Departement, or * for Nationa
 LEGACY_LABELS.csv,3,action,R,"MAP, DUPLICATE_OF, DERIVED, or SKIP."
 LEGACY_LABELS.csv,4,series_id,C,SERIES_PLAN.series_id; required when action=MAP.
 LEGACY_LABELS.csv,5,duplicate_of,C,series_id of the MAP row this label resolves against; required when action is DUPLICATE_OF or DERIVED.
-LEGACY_LABELS.csv,6,scale,R,"Multiplier applied to the raw cell value to reach base units, written as a plain decimal (1 or 1000000, never 1e6); empty on rows that are not MAP."
+LEGACY_LABELS.csv,6,scale,C,"Multiplier applied to the raw cell value to reach base units, written as a plain decimal (1 or 1000000, never 1e6); empty on rows that are not MAP."
 LEGACY_LABELS.csv,7,assert_rule,C,"EQUALS:<series_id> or ONE_MINUS:<series_id>, optionally followed by ' tol=<number>' (default tolerance 0); required when action is DUPLICATE_OF or DERIVED."
 LEGACY_LABELS.csv,8,notes,O,"Free text, e.g. the hard-case ID (H1-H19) that decided this row."
 LEGACY_COLUMNS.csv,1,ref_area,R,SEN or GNB.

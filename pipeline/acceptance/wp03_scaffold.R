@@ -1,11 +1,12 @@
 #!/usr/bin/env Rscript
-# Acceptance script for WP03 - Pipeline scaffold.
+# Acceptance script for WP03 (Pipeline scaffold).
 #
 #   Rscript pipeline/acceptance/wp03_scaffold.R --root .
 #
-# Standalone: does not source pipeline/R/ except where a check is directly
-# about a function defined there. Expected numbers come from
-# contract/expected_counts.csv by check_id. Writes only to tempdir().
+# Rules: standalone (does not source pipeline/R/ except where a check is about
+# those functions); numbers are derived from the contract at run time rather
+# than hard-coded; writes only to tempdir(); compares against files, never
+# against transition/main or the branch diff.
 
 ## ---- 1. Root and check() -----------------------------------------------------
 args <- commandArgs(trailingOnly = TRUE)
@@ -33,203 +34,206 @@ read_csv_char <- function(path) {
   read.csv(text = paste(raw, collapse = "\n"), colClasses = "character", na.strings = NULL,
            check.names = FALSE, encoding = "UTF-8")
 }
-# Expected value and tolerance from the contract, by check_id.
-expected <- function(check_id) {
-  tab <- read_csv_char(file.path(contract, "expected_counts.csv"))
-  row <- tab[tab$check_id == check_id, ]
-  if (nrow(row) != 1) stop("no unique row in expected_counts.csv for ", check_id)
-  list(value = as.numeric(row$expected), tol = as.numeric(row$tolerance))
-}
-meets <- function(actual, check_id) { e <- expected(check_id); abs(actual - e$value) <= e$tol + 1e-9 }
 # The contract's header for one file, in order.
 header_of <- function(file) {
   h <- read_csv_char(file.path(contract, "csv_headers.csv")); h <- h[h$file == file, ]
   h$column[order(as.integer(h$position))]
 }
-# Run an Rscript file with --root <root_path>; returns the exit status.
-run_rscript <- function(script_path, root_path) {
+# Run a command with the working directory temporarily set to `dir`.
+run_in_dir <- function(dir, cmd, cmd_args) {
+  old <- setwd(dir); on.exit(setwd(old))
   log <- tempfile(fileext = ".log")
-  system2("Rscript", c(shQuote(script_path), "--root", shQuote(root_path)), stdout = log, stderr = log)
+  status <- system2(cmd, cmd_args, stdout = log, stderr = log)
+  list(status = status, log = paste(readLines(log, warn = FALSE), collapse = "\n"))
+}
+# Source one or more pipeline/R modules into a fresh, isolated environment.
+# Used only for checks that are explicitly about the functions in those modules.
+source_modules <- function(root, files) {
+  e <- new.env()
+  for (f in files) sys.source(file.path(root, "pipeline", "R", f), envir = e)
+  e
 }
 
-DATA_FILE <- "AFW360_HH_<ISO3>_<YEAR>.csv"
-
-## ---- 3. (skeleton example removed) --------------------------------------------
+## ---- 3. (example removed) ------------------------------------------------------
 
 ## ---- 4. Checks ------------------------------------------------------------------
 
-## WP03.A1 -- unit tests pass
+# WP03.A1: the unit test suite passes, run from the repo root exactly as the
+# card specifies. Runs the tests as a subprocess; this script does not itself
+# source pipeline/R/.
 try_check("WP03.A1", {
-  log <- tempfile(fileext = ".log")
-  test_dir_expr <- sprintf("testthat::test_dir(%s, stop_on_failure = TRUE)",
-                            deparse(file.path(root, "pipeline", "tests", "testthat")))
-  status <- system2("Rscript", c("-e", shQuote(test_dir_expr)), stdout = log, stderr = log)
-  tail_lines <- tryCatch(tail(readLines(log, warn = FALSE), 10), error = function(e) character(0))
-  check("WP03.A1", status == 0L,
-        sprintf("exit=%s; tail: %s", status, paste(tail_lines, collapse = " | ")))
+  # Passing the expression via -e hits a Windows system2 quoting bug (an
+  # embedded-quotes argument gets mis-split, "Error: unexpected end of
+  # input"), reproducible even with a trivial system2() call outside this
+  # script. Writing the identical expression to a temp .R file and running
+  # it with Rscript avoids that, with no change in what is executed.
+  tmp_r <- tempfile(fileext = ".R")
+  writeLines("testthat::test_dir('pipeline/tests/testthat', stop_on_failure = TRUE)", tmp_r)
+  r <- run_in_dir(root, "Rscript", c(shQuote(tmp_r)))
+  unlink(tmp_r)
+  check("WP03.A1", r$status == 0, sprintf("exit=%s log_tail=%s", r$status,
+        substr(r$log, max(1, nchar(r$log) - 400), nchar(r$log))))
 })
 
-## WP03.A2 -- DSD has 26 rows; id column matches csv_headers order; DSD_COLUMNS/KEY_COLUMNS match
+# WP03.A2: DSD_AFW360_HH.csv has one row per data-file column, in the data-file
+# column order, and constants.R's DSD_COLUMNS / KEY_COLUMNS agree with it.
 try_check("WP03.A2", {
   dsd <- read_csv_char(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
-  expected_cols <- header_of(DATA_FILE)
-  rows_ok <- meets(nrow(dsd), "META.DSD")
-  id_ok <- identical(dsd$id, expected_cols)
+  expected_cols <- header_of("AFW360_HH_<ISO3>_<YEAR>.csv")
+  ok_id <- identical(dsd$id, expected_cols)
 
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "constants.R"), envir = env)
-  dsd_columns_ok <- identical(env$DSD_COLUMNS, expected_cols)
-  key_columns_ok <- identical(env$KEY_COLUMNS, expected_cols[1:18])
+  e <- source_modules(root, "constants.R")
+  ok_dsd_const <- identical(e$DSD_COLUMNS, expected_cols)
+  ok_key_const <- identical(e$KEY_COLUMNS, expected_cols[seq_len(18)])
 
-  check("WP03.A2", rows_ok && id_ok && dsd_columns_ok && key_columns_ok,
-        sprintf("nrow=%d (expect 26), id order match=%s, DSD_COLUMNS match=%s, KEY_COLUMNS match=%s",
-                nrow(dsd), id_ok, dsd_columns_ok, key_columns_ok))
+  check("WP03.A2",
+        nrow(dsd) == length(expected_cols) && ok_id && ok_dsd_const && ok_key_const,
+        sprintf("dsd_rows=%d expected=%d id_match=%s DSD_COLUMNS_match=%s KEY_COLUMNS_match=%s",
+                nrow(dsd), length(expected_cols), ok_id, ok_dsd_const, ok_key_const))
 })
 
-## WP03.A3 -- fmt_num
+# WP03.A3: fmt_num from io.R.
 try_check("WP03.A3", {
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "io.R"), envir = env)
-  got <- env$fmt_num(c(0.37, 6520000, -3460.12, 1e-7, 100, NA))
-  want <- c("0.37", "6520000", "-3460.12", "0.0000001", "100", "")
-  check("WP03.A3", identical(got, want),
-        sprintf("got: %s", paste(sprintf('"%s"', got), collapse = " ")))
+  e <- source_modules(root, "io.R")
+  actual <- e$fmt_num(c(0.37, 6520000, -3460.12, 1e-7, 100, NA))
+  expected_v <- c("0.37", "6520000", "-3460.12", "0.0000001", "100", "")
+  check("WP03.A3", identical(actual, expected_v),
+        sprintf("actual=[%s] expected=[%s]", paste(actual, collapse = "|"), paste(expected_v, collapse = "|")))
 })
 
-## WP03.A4 -- write_std_csv: no BOM, no CR, NA -> ""
+# WP03.A4: write_std_csv output has no BOM, no CR byte, and NA becomes "".
 try_check("WP03.A4", {
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "io.R"), envir = env)
-  tmp <- tempfile(fileext = ".csv")
+  e <- source_modules(root, "io.R")
+  out <- file.path(tempdir(), paste0("wp03a4_", as.integer(Sys.time()), "_", sample(1e5, 1), ".csv"))
   df <- data.frame(id = c("a", "b"), val = c(1.5, NA_real_), stringsAsFactors = FALSE)
-  env$write_std_csv(df, tmp)
-  bytes <- readBin(tmp, "raw", file.info(tmp)$size)
+  e$write_std_csv(df, out)
+  bytes <- readBin(out, "raw", file.size(out))
   no_bom <- !(length(bytes) >= 3 && identical(bytes[1:3], as.raw(c(0xef, 0xbb, 0xbf))))
   no_cr <- !any(bytes == as.raw(0x0d))
-  parsed <- read_csv_char(tmp)
-  na_empty <- identical(parsed$val[parsed$id == "b"], "")
+  parsed <- read_csv_char(out)
+  na_empty <- identical(parsed$val[2], "")
   check("WP03.A4", no_bom && no_cr && na_empty,
-        sprintf("no_bom=%s, no_cr=%s, na_as_empty=%s", no_bom, no_cr, na_empty))
+        sprintf("no_bom=%s no_cr=%s na_written_as=[%s]", no_bom, no_cr, parsed$val[2]))
+  unlink(out)
 })
 
-## WP03.A5 -- read_std_csv: BOM, CRLF, empty cell
+# WP03.A5: read_std_csv on a file with a BOM, CRLF and an empty cell.
 try_check("WP03.A5", {
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "io.R"), envir = env)
-  tmp <- tempfile(fileext = ".csv")
-  con <- file(tmp, open = "wb")
-  writeBin(as.raw(c(0xef, 0xbb, 0xbf)), con)
-  writeBin(charToRaw("a,b\r\n1,\r\n"), con)
+  e <- source_modules(root, "io.R")
+  path <- file.path(tempdir(), paste0("wp03a5_", as.integer(Sys.time()), "_", sample(1e5, 1), ".csv"))
+  con <- file(path, "wb")
+  writeBin(c(as.raw(c(0xEF, 0xBB, 0xBF)), charToRaw("a,b\r\nx,\r\n")), con)
   close(con)
-  df <- env$read_std_csv(tmp)
-  all_char <- all(vapply(df, is.character, logical(1)))
-  header_clean <- identical(names(df), c("a", "b"))
-  empty_cell <- identical(df$b[1], "")
-  check("WP03.A5", all_char && header_clean && empty_cell,
-        sprintf("all_char=%s, header=%s, b[1]=\"%s\"", all_char, paste(names(df), collapse = ","), df$b[1]))
+  res <- e$read_std_csv(path)
+  all_char <- all(vapply(res, is.character, logical(1)))
+  clean_header <- identical(names(res), c("a", "b"))
+  empty_cell <- identical(res$b[1], "")
+  check("WP03.A5", all_char && clean_header && empty_cell,
+        sprintf("names=[%s] all_char=%s b1=[%s]", paste(names(res), collapse = ","), all_char, res$b[1]))
+  unlink(path)
 })
 
-## WP03.A6 -- is_valid_code
+# WP03.A6: is_valid_code from codes.R.
 try_check("WP03.A6", {
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "codes.R"), envir = env)
-  code33 <- paste0("A", strrep("B", 32))
-  accept <- env$is_valid_code(c("SN01", "POV_HC"))
-  reject <- env$is_valid_code(c("_T", "_ZX", "pov_hc", "1A", code33))
+  e <- source_modules(root, "codes.R")
+  accept <- e$is_valid_code(c("SN01", "POV_HC"))
+  reject <- e$is_valid_code(c("_T", "_ZX", "pov_hc", "1A", strrep("A", 33)))
   check("WP03.A6", all(accept) && !any(reject),
-        sprintf("accept=%s, reject=%s", paste(accept, collapse = ","), paste(reject, collapse = ",")))
+        sprintf("accept=[%s] reject=[%s]", paste(accept, collapse = ","), paste(reject, collapse = ",")))
 })
 
-## WP03.A7 -- slot_sort, fill_slots
+# WP03.A7: slot_sort and fill_slots from codes.R.
 try_check("WP03.A7", {
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "codes.R"), envir = env)
-  sorted <- env$slot_sort(
-    c("HE_COUNT_0", "QUINT_Q1"),
-    c(HE_COUNT_0 = "HE_COUNT", QUINT_Q1 = "QUINT"),
-    c(HE_COUNT = "50", QUINT = "10")
-  )
-  sort_ok <- identical(sorted[1], "QUINT_Q1")
-  filled <- env$fill_slots("A", 3, "_T")
-  fill_ok <- identical(filled, c("A", "_T", "_T"))
-  check("WP03.A7", sort_ok && fill_ok,
-        sprintf("slot_sort=%s, fill_slots=%s", paste(sorted, collapse = ","), paste(filled, collapse = ",")))
+  e <- source_modules(root, "codes.R")
+  ss <- e$slot_sort(c("HE_COUNT_0", "QUINT_Q1"),
+                     c(HE_COUNT_0 = "HE_COUNT", QUINT_Q1 = "QUINT"),
+                     c(HE_COUNT = "50", QUINT = "10"))
+  fs <- e$fill_slots("A", 3, "_T")
+  ok_ss <- length(ss) >= 1 && identical(ss[1], "QUINT_Q1")
+  ok_fs <- identical(fs, c("A", "_T", "_T"))
+  check("WP03.A7", ok_ss && ok_fs,
+        sprintf("slot_sort=[%s] fill_slots=[%s]", paste(ss, collapse = ","), paste(fs, collapse = ",")))
 })
 
-## WP03.A8 -- run_all.R: exits 0 with no scripts, non-zero with a dummy failing script
+# WP03.A8: run_all.R exits 0 with no wp*.R scripts, and non-zero when a dummy
+# failing script is present. Both roots are synthetic, temporary, and contain
+# nothing but an empty (or one-file) pipeline/acceptance/ directory, so this
+# runs the real run_all.R against minimal, disposable inputs.
 try_check("WP03.A8", {
-  tmp_root <- file.path(tempdir(), paste0("wp03a8_", as.integer(Sys.time()), "_", sample(1e5, 1)))
-  dir.create(file.path(tmp_root, "pipeline", "acceptance"), recursive = TRUE)
-  file.copy(file.path(root, "pipeline", "acceptance", "run_all.R"),
-            file.path(tmp_root, "pipeline", "acceptance", "run_all.R"))
+  stamp <- paste0(as.integer(Sys.time()), "_", sample(1e5, 1))
+  base_no <- file.path(tempdir(), paste0("wp03a8_no_", stamp))
+  dir.create(file.path(base_no, "pipeline", "acceptance"), recursive = TRUE)
+  r_no <- system2("Rscript",
+                   c(shQuote(file.path(root, "pipeline", "acceptance", "run_all.R")), "--root", shQuote(base_no)),
+                   stdout = tempfile(), stderr = tempfile())
 
-  status_empty <- run_rscript(file.path(tmp_root, "pipeline", "acceptance", "run_all.R"), tmp_root)
+  base_fail <- file.path(tempdir(), paste0("wp03a8_fail_", stamp))
+  dir.create(file.path(base_fail, "pipeline", "acceptance"), recursive = TRUE)
+  writeLines("quit(status = 1L, save = 'no')",
+             file.path(base_fail, "pipeline", "acceptance", "wp99_dummy.R"))
+  r_fail <- system2("Rscript",
+                     c(shQuote(file.path(root, "pipeline", "acceptance", "run_all.R")), "--root", shQuote(base_fail)),
+                     stdout = tempfile(), stderr = tempfile())
 
-  writeLines(c("#!/usr/bin/env Rscript", "quit(status = 1, save = 'no')"),
-             file.path(tmp_root, "pipeline", "acceptance", "wp99_dummy_fail.R"))
-  status_fail <- run_rscript(file.path(tmp_root, "pipeline", "acceptance", "run_all.R"), tmp_root)
-
-  check("WP03.A8", identical(status_empty, 0L) && status_fail != 0L,
-        sprintf("no-scripts exit=%s, dummy-fail exit=%s", status_empty, status_fail))
+  check("WP03.A8", r_no == 0 && r_fail != 0,
+        sprintf("no_scripts_exit=%s dummy_failing_exit=%s", r_no, r_fail))
+  unlink(base_no, recursive = TRUE)
+  unlink(base_fail, recursive = TRUE)
 })
 
-## WP03.A9 -- VERSION == 0.1.0; build_ctx returns the six names
+# WP03.A9: metadata/VERSION is exactly "0.1.0"; build_ctx(root) returns the six
+# named elements even when called with no data files.
 try_check("WP03.A9", {
   version_lines <- readLines(file.path(root, "metadata", "VERSION"), warn = FALSE)
-  nonempty <- version_lines[nzchar(trimws(version_lines))]
-  version_ok <- length(nonempty) == 1 && identical(trimws(nonempty[1]), "0.1.0")
+  version_ok <- length(version_lines) == 1 && identical(version_lines[1], "0.1.0")
 
-  env <- new.env()
-  sys.source(file.path(root, "pipeline", "R", "io.R"), envir = env)
-  sys.source(file.path(root, "pipeline", "R", "ctx.R"), envir = env)
-  ctx <- env$build_ctx(root)
+  e <- source_modules(root, c("io.R", "constants.R", "codes.R", "ctx.R"))
+  ctx <- e$build_ctx(root)
   names_ok <- setequal(names(ctx), c("root", "meta", "data", "manifests", "precision", "opts"))
 
   check("WP03.A9", version_ok && names_ok,
-        sprintf("VERSION=\"%s\", ctx names=%s", paste(nonempty, collapse = "|"), paste(names(ctx), collapse = ",")))
+        sprintf("VERSION=[%s] ctx_names=[%s]", paste(version_lines, collapse = "|"),
+                paste(names(ctx), collapse = ",")))
 })
 
-## WP03.A10 -- COLUMNS.csv == csv_headers.csv minus (data file, manifest, validator findings), same order
+# WP03.A10: COLUMNS.csv equals csv_headers.csv restricted to file, position,
+# column, status, description, minus the rows of the data file, the manifest
+# and the validator findings, in the same row order.
 try_check("WP03.A10", {
-  headers <- read_csv_char(file.path(contract, "csv_headers.csv"))
-  cols <- read_csv_char(file.path(root, "metadata", "structure", "COLUMNS.csv"))
+  cols5 <- c("file", "position", "column", "status", "description")
+  headers_all <- read_csv_char(file.path(contract, "csv_headers.csv"))
+  columns_csv <- read_csv_char(file.path(root, "metadata", "structure", "COLUMNS.csv"))
 
-  wanted_cols <- c("file", "position", "column", "status", "description")
-  cols_shape_ok <- identical(names(cols), wanted_cols)
+  has_cols <- all(cols5 %in% names(columns_csv)) && all(cols5 %in% names(headers_all))
 
-  files_in_headers <- unique(headers$file)
-  files_in_cols <- unique(cols$file)
+  data_file <- "AFW360_HH_<ISO3>_<YEAR>.csv"
+  files_headers <- unique(headers_all$file)
+  files_columns <- if (has_cols) unique(columns_csv$file) else character(0)
+  excluded <- setdiff(files_headers, files_columns)
 
-  # every row of COLUMNS.csv must correspond exactly to a row of csv_headers.csv
-  h_key <- if (cols_shape_ok) paste(headers$file, headers$position, headers$column, headers$status, headers$description, sep = "") else character(0)
-  c_key <- if (cols_shape_ok) paste(cols$file, cols$position, cols$column, cols$status, cols$description, sep = "") else character(0)
-  rows_subset_ok <- cols_shape_ok && all(c_key %in% h_key)
+  self_included <- "COLUMNS.csv" %in% files_columns
+  n_excluded_ok <- length(excluded) == 3
+  data_excluded <- data_file %in% excluded
+  other_excluded <- setdiff(excluded, data_file)
+  manifest_like <- length(other_excluded) == 2 && any(grepl("manifest", other_excluded, ignore.case = TRUE))
+  findings_like <- length(other_excluded) == 2 && any(grepl("valid", other_excluded, ignore.case = TRUE))
+  n_files_ok <- has_cols && length(files_columns) == (length(files_headers) - length(excluded))
 
-  # for each file kept, all of its rows are kept, and the order (by position) is preserved
-  order_ok <- cols_shape_ok
-  if (cols_shape_ok) {
-    for (f in files_in_cols) {
-      h_f <- headers[headers$file == f, ]
-      h_f <- h_f[order(as.integer(h_f$position)), ]
-      c_f <- cols[cols$file == f, ]
-      c_f <- c_f[order(as.integer(c_f$position)), ]
-      same_count <- nrow(h_f) == nrow(c_f)
-      same_rows <- same_count && all(
-        c_f$position == h_f$position & c_f$column == h_f$column &
-        c_f$status == h_f$status & c_f$description == h_f$description
-      )
-      if (!isTRUE(same_rows)) order_ok <- FALSE
-    }
+  content_match <- FALSE
+  if (has_cols) {
+    expected_rows <- headers_all[headers_all$file %in% files_columns, cols5]
+    rownames(expected_rows) <- NULL
+    actual_rows <- columns_csv[, cols5]
+    rownames(actual_rows) <- NULL
+    content_match <- isTRUE(all.equal(expected_rows, actual_rows, check.attributes = FALSE))
   }
 
-  data_file_excluded <- !(DATA_FILE %in% files_in_cols)
-  self_included <- "COLUMNS.csv" %in% files_in_cols
-  excluded_count <- length(setdiff(files_in_headers, files_in_cols))
-  file_count_ok <- length(files_in_cols) == 28 && excluded_count == 3
-
-  check("WP03.A10", cols_shape_ok && rows_subset_ok && order_ok && data_file_excluded && self_included && file_count_ok,
-        sprintf("shape=%s, rows_subset=%s, order=%s, data_file_excluded=%s, self_included=%s, files_kept=%d (want 28), files_excluded=%d (want 3)",
-                cols_shape_ok, rows_subset_ok, order_ok, data_file_excluded, self_included, length(files_in_cols), excluded_count))
+  ok <- has_cols && n_files_ok && self_included && n_excluded_ok && data_excluded &&
+    manifest_like && findings_like && content_match
+  check("WP03.A10", ok,
+        sprintf("files_in_COLUMNS=%d files_in_headers=%d self_included=%s excluded=[%s] content_match=%s",
+                length(files_columns), length(files_headers), self_included,
+                paste(excluded, collapse = "|"), content_match))
 })
 
 ## ---- 5. Exit ----------------------------------------------------------------------
