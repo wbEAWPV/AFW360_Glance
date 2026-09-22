@@ -11,7 +11,7 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 | WP | Title | Wave | State | Latest branch | Verdict | Attempts | Updated |
 |---|---|---|---|---|---|---|---|
 | WP00 | Setup and environment check | W0 | MERGED | transition/main | STATUS: DONE | 1 | 2026-09-22 |
-| WP01 | Move legacy inputs to data_raw | W1 | MERGED | transition/wp01-data-raw-v1 | PASS | 1 | 2026-09-22 |
+| WP01 | Move legacy inputs to data_raw | W1 | MERGED | transition/wp01-data-raw-v2 | PASS | 2 | 2026-09-22 |
 | WP02 | Data standard v0.4 | W1 | MERGED | transition/wp02-standard-v04-v1 | PASS | 1 | 2026-09-22 |
 | WP03 | Pipeline scaffold | W1 | MERGED | transition/wp03-scaffold-v1 | PASS | 1 | 2026-09-22 |
 | WP99 | Apply G0 answers to the contract (conditional) | W1 | TODO | — | — | 0 | — |
