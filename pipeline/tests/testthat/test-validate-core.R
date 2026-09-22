@@ -42,20 +42,6 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
   write_std_csv(long, manifest_path)
 }
 
-#' The real metadata has one known, pre-existing gap unrelated to this
-#' card's data fixtures: metadata/plans/LEGACY_LABELS.csv leaves `scale`
-#' empty on 88 rows (see WP11-implementer.md, Questions). Left alone, that
-#' gap makes META.REQUIRED fire on every temp copy of the real metadata,
-#' which would swamp the "clean fixture" tests below with an unrelated
-#' ERROR. This patches only the isolated temp copy, never the real file.
-.fix_legacy_labels_scale <- function(tmp_root) {
-  path <- file.path(tmp_root, "metadata", "plans", "LEGACY_LABELS.csv")
-  edit_csv(path, function(df) {
-    df$scale[trimws(df$scale) == ""] <- "1"
-    df
-  })
-}
-
 #' Run every discovered vc_*() check against ctx and return one combined
 #' findings tibble (mirrors validate.R's discovery, without the CLI/cap
 #' machinery).
@@ -70,16 +56,16 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 #' data_path=). SERIES_PLAN is trimmed to those three series (via
 #' make_data_fixture()'s own series_ids filtering); LEGACY_LABELS is
 #' trimmed to match so META.REFERENCE does not flag the series_ids that
-#' filtering removed, and the temp copy's LEGACY_LABELS.scale gap (see
-#' WP11-implementer.md, Questions) is patched so it does not swamp these
-#' STRUCT/CODES-focused tests with an unrelated, pre-existing ERROR.
+#' filtering removed. (`metadata/structure/COLUMNS.csv` now marks
+#' LEGACY_LABELS.csv's `scale` column `status=C`, not `R` -- WP03 patch
+#' p1 -- so its 88 blank `scale` cells no longer trip META.REQUIRED and
+#' need no fixture patch.)
 .small_fixture <- function() {
   tmp <- make_temp_root(.root)
   keep_ids <- c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01")
   dp <- make_data_fixture(tmp, "GNB", series_ids = keep_ids)
   mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
   .fix_manifest_format(mp)
-  .fix_legacy_labels_scale(tmp)
   edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
     df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
   })
@@ -109,7 +95,6 @@ test_that("validate.R on the clean full fixture exits 0 with 0 ERROR (WP11.A1)",
   dp <- make_data_fixture(tmp, "GNB")
   mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
   .fix_manifest_format(mp)
-  .fix_legacy_labels_scale(tmp)
 
   out_path <- file.path(tmp, "findings.csv")
   res <- system2(
@@ -288,7 +273,6 @@ test_that("a breakdown code that does not apply to the indicator's stat_unit giv
 
 test_that("a 33-character code in CL_THEME gives META.CODE_SYNTAX", {
   tmp <- make_temp_root(.root)
-  .fix_legacy_labels_scale(tmp)
   # INEQ is not referenced by CL_INDICATOR.theme or anywhere else, so
   # renaming it cannot also break META.REFERENCE.
   edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
@@ -302,7 +286,6 @@ test_that("a 33-character code in CL_THEME gives META.CODE_SYNTAX", {
 
 test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
   tmp <- make_temp_root(.root)
-  .fix_legacy_labels_scale(tmp)
   # JOB and INEQ are both unused themes (not referenced by CL_INDICATOR.theme
   # or anywhere else), so colliding them cannot also break META.REFERENCE.
   edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
@@ -316,7 +299,6 @@ test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
 
 test_that("a renamed column header gives META.HEADER", {
   tmp <- make_temp_root(.root)
-  .fix_legacy_labels_scale(tmp)
   edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT.csv"), function(df) {
     names(df)[names(df) == "notes"] <- "note"
     df
@@ -328,7 +310,6 @@ test_that("a renamed column header gives META.HEADER", {
 
 test_that("a parent that does not exist in CL_URBANISATION gives META.REFERENCE", {
   tmp <- make_temp_root(.root)
-  .fix_legacy_labels_scale(tmp)
   edit_csv(file.path(tmp, "metadata", "codelists", "CL_URBANISATION.csv"), function(df) {
     df$parent[df$code == "CAP"] <- "ZZZ_NOPE"
     df
@@ -340,7 +321,6 @@ test_that("a parent that does not exist in CL_URBANISATION gives META.REFERENCE"
 
 test_that("a CL_THEME row set to ACTIVE with definition_en = TBD gives META.TBD (ERROR)", {
   tmp <- make_temp_root(.root)
-  .fix_legacy_labels_scale(tmp)
   edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
     df$status[1] <- "ACTIVE"
     df$definition_en[1] <- "TBD"
