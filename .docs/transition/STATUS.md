@@ -10,10 +10,10 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 
 | WP | Title | Wave | State | Latest branch | Verdict | Attempts | Updated |
 |---|---|---|---|---|---|---|---|
-| WP00 | Setup and environment check | W0 | TODO | — | n/a | 0 | — |
-| WP01 | Move legacy inputs to data_raw | W1 | TODO | — | — | 0 | — |
-| WP02 | Data standard v0.4 | W1 | TODO | — | — | 0 | — |
-| WP03 | Pipeline scaffold | W1 | TODO | — | — | 0 | — |
+| WP00 | Setup and environment check | W0 | MERGED | transition/main | STATUS: DONE | 1 | 2026-09-22 |
+| WP01 | Move legacy inputs to data_raw | W1 | MERGED | transition/wp01-data-raw-v1 | PASS | 1 | 2026-09-22 |
+| WP02 | Data standard v0.4 | W1 | MERGED | transition/wp02-standard-v04-v1 | PASS | 1 | 2026-09-22 |
+| WP03 | Pipeline scaffold | W1 | MERGED | transition/wp03-scaffold-v1 | PASS | 1 | 2026-09-22 |
 | WP99 | Apply G0 answers to the contract (conditional) | W1 | TODO | — | — | 0 | — |
 | WP04 | Small codelists and CL_AREA | W2 | TODO | — | — | 0 | — |
 | WP05 | Geography | W2 | TODO | — | — | 0 | — |
@@ -34,6 +34,6 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 
 | Gate | What the user decides | State | Date | Record |
 |---|---|---|---|---|
-| G0 | Hard cases H1–H14, H17 and key messages T1 | PENDING | — | — |
+| G0 | Hard cases H1–H14, H17 and key messages T1 | DONE | 2026-09-22 | reports/GATE-G0.md |
 | G1 | Standard v0.4 and the contract | PENDING | — | — |
 | G2 | Accept results; merge into dev/eb | PENDING | — | — |

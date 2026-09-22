@@ -62,9 +62,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP08 (`SERIES_PLAN.csv` — no series row for label #72), WP09 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>`).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H2 — Own-production vs. market food share {#sec-h02}
 
@@ -78,9 +78,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_QUAL_VAR.csv`, `CL_QUALIFIER.csv` — the `ACQ` variable and its categories), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H3 — Wage vs. non-wage employment {#sec-h03}
 
@@ -94,9 +94,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_TYPE`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H4 — "Employed" {#sec-h04}
 
@@ -110,9 +110,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP09 (`LEGACY_LABELS.csv` mapping only; no new codelist rows).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H5 — "HH workers" in trade/transport {#sec-h05}
 
@@ -126,9 +126,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_ISIC`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H6 — "HH workers" informally employed {#sec-h06}
 
@@ -142,9 +142,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `EMP_FORMAL`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H7 — Three electricity indicators {#sec-h07}
 
@@ -158,9 +158,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — the three codes and their `related` fields), WP09 (`LEGACY_OVERRIDES.csv` `COMMENT` on SEN `EN_GRID_CONN`).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H8 — Average outage duration (code) {#sec-h08}
 
@@ -174,9 +174,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — `EN_OUTAGE_DUR_CODE`, `unit_measure INDEX`), WP09 (legacy map).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H9 — Cooker "proxy" {#sec-h09}
 
@@ -190,9 +190,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — name and `related` field), WP09 (legacy map, `LEGACY_OVERRIDES.csv` `COMMENT`).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H10 — Owner vs. owns enterprise {#sec-h10}
 
@@ -206,9 +206,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — `HE_HH_OWNER`), WP09 (`LEGACY_LABELS.csv` `assert_rule: ONE_MINUS:<label#>` for #60).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H11 — HE owner female / married {#sec-h11}
 
@@ -222,9 +222,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — `HEO_SEX`, `HEO_MSTAT`), WP08 (`SERIES_PLAN.csv`), WP09 (legacy maps).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H12 — HE external employees {#sec-h12}
 
@@ -238,9 +238,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — `universe_filter`), WP09 (`LEGACY_OVERRIDES.csv` `COMMENT`).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H13 — ≥1 HH member covered {#sec-h13}
 
@@ -254,9 +254,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP07 (`CL_INDICATOR.csv` — `SP_HEALTH_COV_HH`), WP09 (legacy map).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H14 — Internet access {#sec-h14}
 
@@ -270,9 +270,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP09 (`LEGACY_LABELS.csv`, action `SKIP`).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H15 — Share indicators' unit {#sec-h15}
 
@@ -318,9 +318,9 @@ Each case below gives: the question, the evidence for the recommended coding, th
 
 **Built by.** WP06 (`CL_BRK_VAR.csv`, `CL_COMP_BREAKDOWN.csv` — the `HHH_AGE` categories).
 
-**Status.** DEFAULT.
+**Status.** CONFIRMED.
 
-**User note.** —
+**User note.** Recommended
 
 ## H18 — GNB `Capital` column {#sec-h18}
 
