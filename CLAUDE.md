@@ -28,8 +28,17 @@ quarto render
 ```
 
 Dependencies live in a **project-local `.venv`** created with `uv venv`. Never install into
-the shared `C:\WBG\Python313`. `requirements.txt` is runtime only — geopandas, pytest and
-rsconnect-python are dev-only and live in `requirements-dev.txt`.
+the shared `C:\WBG\Python313`. `requirements.txt` is runtime only — geopandas, pytest,
+rsconnect-python and shinylive are dev-only and live in `requirements-dev.txt`.
+
+**Python 3.11.9**, pinned in `.python-version`. Posit Connect has 3.8.18 / 3.9.13 / 3.11.9
+and matches on major-minor, so deploying from a newer minor fails outright. `uv venv` reads
+the pin; `uv python install 3.11.9` if it is not on the machine yet.
+
+This machine's Application Control policy blocks the pip-generated wrapper `.exe`s in
+`.venv/Scripts/` (`shiny.exe`, `rsconnect.exe`, `shinylive.exe` — "Access is denied"),
+though `python.exe` runs fine. Always go through `python -m <module>`, or for packages with
+no `__main__`, their entry point: `python -c "from rsconnect.main import cli; cli()" <args>`.
 
 ## Layout
 

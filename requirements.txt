@@ -1,4 +1,11 @@
 # Runtime dependencies for the AFW 360 At A Glance Shiny app.
+#
+# Target interpreter: Python 3.11.9, pinned in .python-version.
+# Connect offers 3.8.18 / 3.9.13 / 3.11.9 and matches on major-minor, so a
+# newer local minor fails the deploy outright:
+#   "Cannot find compatible environment: no compatible Local environment
+#    with Python version 3.13.7"
+# Build the venv with `uv venv` from this directory and it picks 3.11.9 up.
 # Deployed to Posit Connect; rsconnect builds the bundle manifest from this file.
 #
 # Deliberately NOT here:
