@@ -1,6 +1,13 @@
 project:
   type: website
   output-dir: _site
+  # List the page explicitly. Quarto skips every input under a directory whose
+  # name starts with "." or "_", and the agent worktrees of the data transition
+  # live under .claude/worktrees/, where an implicit scan finds nothing and
+  # `quarto render index.qmd` falls back to a standalone render next to the
+  # source. With the list, the render lands in _site/ from any checkout.
+  render:
+    - index.qmd
 
 website:
   title: "AFW 360 At A Glance"

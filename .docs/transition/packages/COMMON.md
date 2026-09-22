@@ -65,11 +65,12 @@ Column status is **R** (required), **C** (required when relevant) or **O** (opti
 ## 6. Environment on this machine
 
 - Use the Bash tool (Git Bash) for every command.
-- R: `Rscript` is on the PATH (R 4.5.2).
+- R: `Rscript` is on the PATH (R 4.5.3).
 - Quarto needs two fixes, because `QUARTO_R` points to a broken path and the default Python has no geopandas. Always render like this, and delete render outputs you do not own:
   ```
   env -u QUARTO_R QUARTO_PYTHON="C:/WBG/Python313/python.exe" quarto render <file>
   ```
+- Your worktree lives under `.claude/worktrees/`, a hidden directory. Quarto's project scan finds no inputs there, so the root `_quarto.yml` lists `index.qmd` under `render:`; that is what makes the command above write `_site/index.html` from a worktree. Do not remove that list.
 - `.gitattributes` pins CSV, R, Markdown and Quarto files to LF, and marks `data_raw/**` as binary. Do not change it.
 - If `Rscript`, `git` or `quarto` cannot start at all, report `BLOCKED` with the exact command and message. Do not work around it.
 

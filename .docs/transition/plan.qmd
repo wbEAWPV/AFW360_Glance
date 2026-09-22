@@ -49,6 +49,8 @@ Revision 2 follows a review of the first plan; @sec-revision lists what changed 
 
 This is what the repository holds on 2026-09-21, on branch `dev/eb`. WP00 tags the starting commit as `transition-base`.
 
+The Shiny for Python port of the dashboard lives on branch `dev/app`, cut from `dev/eb` before this plan, and is not part of the transition. It reads the same legacy paths in `data.py` and `scripts/build_*.py`, so those strings move to `data_raw/` when the two branches are merged (@sec-after).
+
 ## Inventory {#sec-inventory}
 
 There are 122 tracked legacy files. WP01 moves every one of them to `data_raw/`.
@@ -295,7 +297,7 @@ The validator's aggregation, closure, monotonicity and range rules were tested a
 
 - **Context overrun.** The first plan made every agent read about 110,000 tokens before starting. Cards are now self-contained; `COMMON.md` section 1 sets the reading and output rules; and a long session ends as `PARTIAL` instead of degrading.
 - **Line endings.** `core.autocrlf=true` would check generated CSVs out with CRLF in every new worktree. `.gitattributes` pins them to LF and marks `data_raw/**` as binary. WP01 restores the exact bytes after the move, and checks that look at bytes use git blobs.
-- **Environment.** Quarto needs `QUARTO_R` unset and `QUARTO_PYTHON="C:/WBG/Python313/python.exe"`. WP00 proves the render before anything else runs.
+- **Environment.** Quarto needs `QUARTO_R` unset and `QUARTO_PYTHON="C:/WBG/Python313/python.exe"`, and that interpreter needs geopandas. Agent worktrees live under `.claude/worktrees/`, a hidden directory, where Quarto's project scan finds no inputs and `quarto render index.qmd` falls back to a standalone render next to the source; `_quarto.yml` therefore lists `index.qmd` under `render:`, so that the render writes `_site/index.html` from a worktree too. WP00 proves the render before anything else runs.
 - **Silent type changes.** Read every CSV with all columns as character, write NA as an empty string, and never let a number print in scientific notation.
 - **Encoding.** Workbook headers carry accents, labels carry `–` and `≥`, and one sheet is named `ADM 1`. Match them byte for byte; never retype them.
 - **Geometry.** Build with GEOS (`sf_use_s2(FALSE)`) and `st_make_valid`. A GeoPackage's bytes change on every build, so it is compared by content.
@@ -308,6 +310,7 @@ The validator's aggregation, closure, monotonicity and range rules were tested a
 
 These steps are out of scope for this plan:
 
+- Merge `dev/app`, the Shiny for Python dashboard, with the transition, and move its legacy paths from `INPUT …/` to `data_raw/…/` as WP01 does for `index.qmd`: `data.py`, `scripts/build_geojson.py`, `scripts/build_static_data.py`, `scripts/build_static_site.py`, and the notes in `panels_about.py`.
 - Point the dashboard at `data/`, `metadata/`, `geo/` and `content/` through one loader per country (objective 3 in CLAUDE.md), and fix the display bugs listed there.
 - Promote confirmed codes from `DRAFT` to `ACTIVE`, and replace the legacy files with producer files that carry `N_OBS`, `N_POP` and standard errors.
 - Freeze `pipeline/bootstrap/`: from metadata 0.1.0 onward the CSV files are edited by hand through pull requests (D11).
@@ -329,6 +332,7 @@ These steps are out of scope for this plan:
 | CRLF on checkout would break the LF and byte-identity checks | `.gitattributes` (D12) |
 | WP00 and WP15 spent five agent runs on a branch and a report; the scribe spent three on copying answers | WP00 has no verifier; the wave-3 integrator and the WP17 audit replace the old WP15; the integrators record the gates |
 | WP02 and the old WP11 were too large for one session | WP02 runs in two stages; the validator is four packages; the required-row generator has its own package (WP08) |
+| Two WP00 runs on 2026-09-21 ended `BLOCKED`: the first because `C:/WBG/Python313` had no geopandas, the second because Quarto found no project inputs in a worktree under `.claude/` and wrote `index.html` next to the source instead of `_site/index.html`; the first run also had `git switch -c transition/main dev/eb` refused by the command classifier | geopandas installed (1.1.4); `_quarto.yml` lists `index.qmd` under `render:`; WP00 step 2 creates the branch in two steps; the run restarts from a fresh `transition/main` (2026-09-22) |
 | A read-only dry run by seven Sonnet readers (2026-09-21) found read lists that missed needed files (WP08, WP11, WP15, WP16, WP17), a findings `row_key` defined on one card only, an integrator `BLOCKED` that meant two things, no way to rerun WP00 or to recover a dead agent, and no loop after a failed WP17 audit | The read lists are completed; the findings format is word for word the same on WP11 to WP14; the integrator reports `INTEGRATED`, `FINDINGS` or `BLOCKED`; WP00 can be retried; a scout question and a rerun rule cover silent agents; a failed audit is patched like integration findings |
 
 : Review findings and the changes made {#tbl-revision}
