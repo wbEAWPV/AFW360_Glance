@@ -15,13 +15,13 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 | WP02 | Data standard v0.4 | W1 | MERGED | transition/wp02-standard-v04-v1 | PASS | 1 | 2026-09-22 |
 | WP03 | Pipeline scaffold | W1 | MERGED | transition/wp03-scaffold-v1 | PASS | 1 | 2026-09-22 |
 | WP99 | Apply G0 answers to the contract (conditional) | W1 | TODO | — | — | 0 | — |
-| WP04 | Small codelists and CL_AREA | W2 | TODO | — | — | 0 | — |
-| WP05 | Geography | W2 | TODO | — | — | 0 | — |
-| WP06 | Breakdowns and qualifiers | W2 | TODO | — | — | 0 | — |
-| WP07 | Indicator dictionary | W2 | TODO | — | — | 0 | — |
-| WP08 | Plans and the required-row generator | W2 | TODO | — | — | 0 | — |
-| WP09 | Legacy maps | W2 | TODO | — | — | 0 | — |
-| WP10 | Text, figures and surveys | W2 | TODO | — | — | 0 | — |
+| WP04 | Small codelists and CL_AREA | W2 | MERGED | transition/wp04-small-codelists-v1 | PASS | 1 | 2026-09-22 |
+| WP05 | Geography | W2 | MERGED | transition/wp05-geography-v1 | PASS | 1 | 2026-09-22 |
+| WP06 | Breakdowns and qualifiers | W2 | MERGED | transition/wp06-breakdowns-qualifiers-v1 | PASS | 1 | 2026-09-22 |
+| WP07 | Indicator dictionary | W2 | MERGED | transition/wp07-dictionary-v1 | PASS | 1 | 2026-09-22 |
+| WP08 | Plans and the required-row generator | W2 | MERGED | transition/wp08-plans-v1 | PASS | 1 | 2026-09-22 |
+| WP09 | Legacy maps | W2 | MERGED | transition/wp09-legacy-maps-v1 | PASS | 1 | 2026-09-22 |
+| WP10 | Text, figures and surveys | W2 | MERGED | transition/wp10-content-v1 | PASS | 1 | 2026-09-22 |
 | WP11 | Validator core | W3 | TODO | — | — | 0 | — |
 | WP12 | Validator coverage and values | W3 | TODO | — | — | 0 | — |
 | WP13 | Validator rules | W3 | TODO | — | — | 0 | — |
@@ -35,5 +35,5 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 | Gate | What the user decides | State | Date | Record |
 |---|---|---|---|---|
 | G0 | Hard cases H1–H14, H17 and key messages T1 | DONE | 2026-09-22 | reports/GATE-G0.md |
-| G1 | Standard v0.4 and the contract | PENDING | — | — |
+| G1 | Standard v0.4 and the contract | DONE | 2026-09-22 | reports/GATE-G1.md |
 | G2 | Accept results; merge into dev/eb | PENDING | — | — |
