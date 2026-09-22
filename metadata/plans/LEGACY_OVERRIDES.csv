@@ -1,0 +1,13 @@
+ref_area,sheet,column,legacy_label,action,obs_comment,reason,evidence
+GNB,National,estimateCapital,*,WITHHOLD,,"The column is a copy of the zone Zonas_Costeiras_do_Sul, not Bissau (D5).",equal to ZAE estimateZonas_Costeiras_do_Sul on 97 of 97 labels
+GNB,National,estimateTotal,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 9090613.2400000002
+GNB,National,estimateRural,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 10777977.189999999
+GNB,National,estimateMale_HH,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 10358922.32
+GNB,National,estimateOlder_HH,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 10525584.800000001
+GNB,National,estimateQ4,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 57885743.880000003
+GNB,ADM 1,estimateQuinara,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 148439533.91
+GNB,ZAE,estimateZonas_Costeiras_do_Sul,Cultivated area (ha),WITHHOLD,,Cultivated area above 100 ha: outlier records inflate the mean (D5).,raw value 53028771.380000003
+SEN,*,*,Connected to electricity grid (SDG7.1.1),COMMENT,"LEGACY_SUSPECT: Implausible: 0.96-1.00 in every cell, including Q1 and Rural.","Implausible: 0.96-1.00 in every cell, including Q1 and Rural.",National estimateTotal = 0.98; range over all cells 0.84 to 1
+SEN,*,*,HE has external (non-HH) employees,COMMENT,LEGACY_SUSPECT: Implausible: share 0.96 while mean non-HH employees is 0.54.,Implausible: share 0.96 while mean non-HH employees is 0.54.,National estimateTotal = 0.96; range over all cells 0.86 to 1
+GNB,*,*,HE has external (non-HH) employees,COMMENT,LEGACY_SUSPECT: Implausible: share 1.00 while mean non-HH employees is 0.48.,Implausible: share 1.00 while mean non-HH employees is 0.48.,National estimateTotal = 1; range over all cells 1 to 1
+SEN,*,*,Primary cooking fuel clean (gas/electricity),COMMENT,LEGACY_SUSPECT: Implausible pattern: higher in Rural and Q1 than in Capital and Q4.,Implausible pattern: higher in Rural and Q1 than in Capital and Q4.,National estimateTotal = 0.73; range over all cells 0.56 to 0.95
