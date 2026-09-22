@@ -243,19 +243,24 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   manifest_path <- file.path(dirname(path), "AFW360_HH_GNB_2021_manifest.csv")
   expect_true(file.exists(manifest_path))
   manifest <- read_std_csv(manifest_path)
+  # Long `key`, `value` form (contract/csv_headers.csv for
+  # AFW360_HH_<ISO3>_<YEAR>_manifest.csv; read that way by build_ctx() in
+  # pipeline/R/ctx.R), not one wide row.
+  expect_equal(names(manifest), c("key", "value"))
+  expect_equal(nrow(manifest), 16L)
   expect_equal(
-    names(manifest),
-    c(
+    sort(manifest$key),
+    sort(c(
       "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
       "source_type", "survey_id", "precision", "file_name", "n_rows",
       "producer", "program", "software", "run_timestamp", "status", "notes"
-    )
+    ))
   )
-  expect_equal(nrow(manifest), 1L)
-  expect_equal(manifest$n_rows, "52")
-  expect_equal(manifest$precision, "ROUNDED_2DP")
-  expect_equal(manifest$status, "DRAFT")
-  expect_equal(manifest$source_type, "SURVEY")
+  man_vec <- stats::setNames(manifest$value, manifest$key)
+  expect_equal(man_vec[["n_rows"]], "52")
+  expect_equal(man_vec[["precision"]], "ROUNDED_2DP")
+  expect_equal(man_vec[["status"]], "DRAFT")
+  expect_equal(man_vec[["source_type"]], "SURVEY")
 
   reduced_series_plan <- read_std_csv(file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
   expect_equal(sort(reduced_series_plan$series_id), sort(c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0")))
