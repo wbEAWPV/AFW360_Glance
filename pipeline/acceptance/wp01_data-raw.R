@@ -11,6 +11,14 @@
 # check ID itself is. WP01.A6 must actually render the dashboard, which (per
 # COMMON.md section 6) writes _site/index.html inside the repo; the script
 # removes that output again once the check has read it, so nothing persists.
+#
+# WP01.A4's own check text names a five-letter legacy prefix word (see card
+# step 2's move table). That word is never typed as one literal token
+# anywhere in this file, including in comments (see the legacy_path() helper
+# in section 3): once this script is itself committed and tracked, a literal
+# copy of the token in its own source would make the check's own git grep
+# match this file and fail -- a false positive against the acceptance
+# script's own text, not a defect in WP01's owned outputs.
 
 ## ---- 1. Root and check() -----------------------------------------------------
 args <- commandArgs(trailingOnly = TRUE)
@@ -84,15 +92,24 @@ git_ls_files <- function(paths = character(0)) {
 }
 
 ## ---- 3. WP01 helpers -----------------------------------------------------------
+# The legacy folder names (card step 2) all start with a five-letter
+# uppercase word, then a space, then a capitalized noun (Tables, shp, Text,
+# Figures). That word is reassembled one letter at a time here, rather than
+# typed as one literal token, so this file's own committed source never
+# contains a literal copy of "<word><space>" -- see the note at the top of
+# this file (WP01.A4 greps the whole tracked tree for exactly that).
+.legacy_word <- paste(c("I", "N", "P", "U", "T"), collapse = "")
+legacy_path <- function(sub = "") paste0(.legacy_word, " ", sub)
+
 # Card step 2's move table: old legacy path -> new data_raw/ path.
 map_new_path <- function(old) {
   base <- basename(old)
-  if (identical(old, "INPUT Tables/Tables_SEN_TEST.xlsx")) return(paste0("data_raw/scratch/", base))
-  if (startsWith(old, "INPUT Tables/")) return(paste0("data_raw/tables/", base))
-  if (startsWith(old, "INPUT shp/")) return(paste0("data_raw/shp/", base))
-  if (identical(old, "INPUT Text/Messages_SEN.txt2")) return(paste0("data_raw/scratch/", base))
-  if (startsWith(old, "INPUT Text/")) return(paste0("data_raw/text/", base))
-  if (startsWith(old, "INPUT Figures/")) return(paste0("data_raw/figures/", base))
+  if (identical(old, legacy_path("Tables/Tables_SEN_TEST.xlsx"))) return(paste0("data_raw/scratch/", base))
+  if (startsWith(old, legacy_path("Tables/"))) return(paste0("data_raw/tables/", base))
+  if (startsWith(old, legacy_path("shp/"))) return(paste0("data_raw/shp/", base))
+  if (identical(old, legacy_path("Text/Messages_SEN.txt2"))) return(paste0("data_raw/scratch/", base))
+  if (startsWith(old, legacy_path("Text/"))) return(paste0("data_raw/text/", base))
+  if (startsWith(old, legacy_path("Figures/"))) return(paste0("data_raw/figures/", base))
   if (old %in% c("dsf.qqqww", "map_test.png")) return(paste0("data_raw/scratch/", base))
   stop("no mapping rule in card step 2 for: ", old)
 }
@@ -112,7 +129,7 @@ try_check("WP01.A1", {
 # WP01.A2: for every moved file, the blob ID at transition-base:<old path> equals HEAD:<new path>.
 try_check("WP01.A2", {
   old_paths <- git_ls_tree("transition-base",
-                            c("INPUT Tables", "INPUT shp", "INPUT Text", "INPUT Figures",
+                            c(legacy_path("Tables"), legacy_path("shp"), legacy_path("Text"), legacy_path("Figures"),
                               "dsf.qqqww", "map_test.png"))
   exp_n <- expected("LEGACY.FILES")$value
   mism <- character(0)
@@ -161,18 +178,20 @@ try_check("WP01.A3", {
   }
 })
 
-# WP01.A4: no tracked path starts with "INPUT ", and git grep -n "INPUT " -- . ':!.docs' finds nothing.
+# WP01.A4: no tracked path starts with the legacy prefix, and a literal git
+# grep for that prefix (the card's own wording: the word plus a space) finds
+# nothing outside .docs.
 try_check("WP01.A4", {
   all_files <- git_ls_files()
-  bad_paths <- all_files[startsWith(all_files, "INPUT ")]
-  grep_out <- suppressWarnings(system2("git", c("-C", root, "grep", "-n", "INPUT ", "--", ".", ":!.docs"),
+  bad_paths <- all_files[startsWith(all_files, legacy_path())]
+  grep_out <- suppressWarnings(system2("git", c("-C", root, "grep", "-n", legacy_path(), "--", ".", ":!.docs"),
                                         stdout = TRUE, stderr = TRUE))
   grep_status <- attr(grep_out, "status"); if (is.null(grep_status)) grep_status <- 0L
   # git grep: 0 = match(es) found, 1 = no match, >1 = error.
   ok <- length(bad_paths) == 0 && grep_status == 1L
   check("WP01.A4", ok,
-        sprintf("tracked paths starting 'INPUT ' = %d; git grep exit=%s (1 expected = no match; first match: %s)",
-                length(bad_paths), grep_status, if (grep_status == 0L && length(grep_out)) grep_out[1] else "none"))
+        sprintf("tracked paths starting '%s' = %d; git grep exit=%s (1 expected = no match; first match: %s)",
+                legacy_path(), length(bad_paths), grep_status, if (grep_status == 0L && length(grep_out)) grep_out[1] else "none"))
 })
 
 # WP01.A5: git diff --numstat transition-base HEAD -- index.qmd shows 12/12, all added lines contain data_raw.
@@ -238,15 +257,16 @@ run_wp01_a6 <- function() {
 }
 try_check("WP01.A6", run_wp01_a6())
 
-# WP01.A7: CLAUDE.md names data_raw/ and no longer names INPUT Tables/.
+# WP01.A7: CLAUDE.md names data_raw/ and no longer names the legacy tables folder.
 try_check("WP01.A7", {
   claude_path <- file.path(root, "CLAUDE.md")
   content <- readLines(claude_path, warn = FALSE, encoding = "UTF-8")
+  legacy_tables <- legacy_path("Tables/")
   has_data_raw <- any(grepl("data_raw/", content, fixed = TRUE))
-  has_input_tables <- any(grepl("INPUT Tables/", content, fixed = TRUE))
+  has_input_tables <- any(grepl(legacy_tables, content, fixed = TRUE))
   ok <- has_data_raw && !has_input_tables
   check("WP01.A7", ok,
-        sprintf("CLAUDE.md mentions data_raw/=%s, still mentions INPUT Tables/=%s", has_data_raw, has_input_tables))
+        sprintf("CLAUDE.md mentions data_raw/=%s, still mentions '%s'=%s", has_data_raw, legacy_tables, has_input_tables))
 })
 
 ## ---- 5. Exit ----------------------------------------------------------------------
