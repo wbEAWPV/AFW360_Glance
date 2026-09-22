@@ -1,0 +1,7 @@
+ref_area,code,name_en,definition_en,local_name_en,notes
+SEN,ADM0,Country,Whole territory of Senegal (national level).,Country,
+SEN,ADM1,Region,First-level administrative division (region) of Senegal.,Region,
+SEN,ZONES,Zone,"Legacy grouping of Senegal's ADM1 regions into agro-ecological zones, as used in the ZAE sheet of the legacy tables.",Agro-ecological zone,Groups ADM1 regions; not the same scheme as GNB's AEZ.
+GNB,ADM0,Country,Whole territory of Guinea-Bissau (national level).,Country,
+GNB,ADM1,Region,First-level administrative division (region or autonomous sector) of Guinea-Bissau.,Region,GW08 is the Autonomous Sector of Bissau; grouped with the regions at this level.
+GNB,AEZ,Zone,"Agro-ecological zones of Guinea-Bissau, as used in the ZAE sheet of the legacy tables.",Agro-ecological zone,

@@ -1,0 +1,3 @@
+source_id,ref_area,provider,version,valid_on,url,download_date,licence,attribution,crs,file,layers,sha256,status,version_added,notes
+SEN_CODAB_v02,SEN,OCHA COD-AB,v02,2024-05-20,,,TBD,TBD,EPSG:4326,SEN_CODAB_v02.gpkg,adm0 adm1,035daf04e376838a87bcf99343750d378e1ded8169a8d37b42dc9e63b244f449,DRAFT,0.1.0,
+GNB_CODAB_V01,GNB,OCHA COD-AB,V_01,2021-06-09,,,TBD,TBD,EPSG:4326,GNB_CODAB_V01.gpkg,adm0 adm1,a7b32ab33891d6271d733a3f46864a4ed3df63a1dfa6f009d7b943283979af29,DRAFT,0.1.0,
