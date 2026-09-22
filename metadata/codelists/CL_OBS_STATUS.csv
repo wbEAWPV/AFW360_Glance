@@ -1,0 +1,5 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes
+A,Normal value,A normal value.,DRAFT,0.1.0,,
+E,Model-based value,"A model-based value: a projection, nowcast or microsimulation.",DRAFT,0.1.0,,
+O,No value available,No value is available; the value is empty.,DRAFT,0.1.0,,A legacy conversion marks such a row with an OBS_COMMENT that starts with LEGACY_EMPTY:.
+M,Not applicable,The cell is outside the indicator's universe by definition; the value is empty.,DRAFT,0.1.0,,
