@@ -50,26 +50,25 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
 
   write_std_csv(data, data_path)
 
-  # The 16 manifest keys (WP08.md step 4). Descriptive fields this helper
-  # cannot know from its inputs are TBD (COMMON.md section 4); the three
-  # fields the card fixes are set as specified.
+  # The 16 manifest keys (WP08.md step 4), written long form (one `key`,
+  # `value` row per key) per contract/csv_headers.csv for
+  # AFW360_HH_<ISO3>_<YEAR>_manifest.csv and read that way by build_ctx()
+  # (pipeline/R/ctx.R), which zips column 1 (key) against column 2 (value)
+  # into a named vector. Descriptive fields this helper cannot know from its
+  # inputs are TBD (COMMON.md section 4); the three fields the card fixes
+  # are set as specified.
   manifest <- data.frame(
-    dataflow = DATAFLOW_ID,
-    dsd_version = "TBD",
-    metadata_version = "TBD",
-    ref_area = ref_area,
-    time_period = time_period,
-    source_type = "SURVEY",
-    survey_id = "TBD",
-    precision = "ROUNDED_2DP",
-    file_name = basename(data_path),
-    n_rows = as.character(nrow(data)),
-    producer = "TBD",
-    program = "TBD",
-    software = "TBD",
-    run_timestamp = "TBD",
-    status = "DRAFT",
-    notes = "",
+    key = c(
+      "dataflow", "dsd_version", "metadata_version", "ref_area",
+      "time_period", "source_type", "survey_id", "precision", "file_name",
+      "n_rows", "producer", "program", "software", "run_timestamp",
+      "status", "notes"
+    ),
+    value = c(
+      DATAFLOW_ID, "TBD", "TBD", ref_area, time_period, "SURVEY", "TBD",
+      "ROUNDED_2DP", basename(data_path), as.character(nrow(data)), "TBD",
+      "TBD", "TBD", "TBD", "DRAFT", ""
+    ),
     stringsAsFactors = FALSE
   )
   write_std_csv(manifest, manifest_path)

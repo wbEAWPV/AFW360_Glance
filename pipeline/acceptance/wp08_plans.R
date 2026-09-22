@@ -293,8 +293,14 @@ try_check("WP08.A8", {
     keys16 <- c("dataflow", "dsd_version", "metadata_version", "ref_area", "time_period", "source_type",
                 "survey_id", "precision", "file_name", "n_rows", "producer", "program", "software",
                 "run_timestamp", "status", "notes")
-    manifest_ok <- setequal(names(mf), keys16)
-    n_rows_ok <- manifest_ok && nrow(mf) == 1 && as.character(mf$n_rows) == "52"
+    # contract/csv_headers.csv: AFW360_HH_<ISO3>_<YEAR>_manifest.csv is
+    # key,value long form (16 rows), the form pipeline/R/ctx.R's build_ctx()
+    # reads (zips column 1 against column 2 into a named vector) -- not one
+    # wide row with a column per key.
+    form_ok <- identical(names(mf), c("key", "value")) && nrow(mf) == length(keys16)
+    manifest_ok <- form_ok && !anyDuplicated(mf$key) && setequal(mf$key, keys16)
+    n_rows_val <- mf$value[mf$key == "n_rows"]
+    n_rows_ok <- manifest_ok && length(n_rows_val) == 1 && n_rows_val == "52"
   }
 
   check("WP08.A8", rows_ok && cols_ok && manifest_ok && n_rows_ok,
