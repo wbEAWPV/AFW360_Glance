@@ -12,16 +12,16 @@ It is a Quarto website (`index.qmd`, `_quarto.yml`) with Python chunks (pandas, 
 2. **Write guidelines for extending and enriching the dataset.** Document how to add a country, an indicator, a disaggregation, a geographic level or a year without editing the dashboard code.
 3. **Make the dashboard work well now, without changing the data flow yet.** Keep reading the current Excel, shapefile and text inputs as they are, but structure the code so the data source can be swapped later in one place.
 
-**Working rule:** until objective 3 is done, don't restructure or edit the input files or change how they are loaded. Put fixes in the code and presentation layer, and route data access through a single loader per country so the later switch to a harmonized source touches one place.
+**Working rule:** until objective 3 is done, don't restructure or edit the input files or change how they are loaded. Put fixes in the code and presentation layer, and route data access through a single loader per country so the later switch to a harmonized source touches one place. The inputs now live under byte-frozen `data_raw/` (moved from their original per-type folders by decision D2 of the data transition; see `.docs/transition/plan.qmd`) and are still not edited.
 
 ## Layout
 
 - `index.qmd`: the entire dashboard, with one `#` section per country plus an About page.
-- `INPUT Tables/Tables_<ISO3>.xlsx`: indicator tables. The sheets are `National`, `ADM 1`, `ZAE` (agro-ecological zones) and `Departement` (SEN only). Tables are wide, with an `indicator` column holding free-text labels and one `estimate<Group>` column per disaggregation. Rates are stored as shares (0–1).
-- `INPUT shp/<iso3>_admin*.shp`: administrative boundaries, lines and capitals.
-- `INPUT Text/`: `About_<ISO3>.txt` (methodology) and `Messages_<ISO3>.txt` (key messages).
-- `INPUT Figures/`: static images (fiscal equity).
-- `dsf.qqqww`, `map_test.png`, `INPUT Tables/Tables_SEN_TEST.xlsx`: scratch or test files.
+- `data_raw/tables/Tables_<ISO3>.xlsx`: indicator tables. The sheets are `National`, `ADM 1`, `ZAE` (agro-ecological zones) and `Departement` (SEN only). Tables are wide, with an `indicator` column holding free-text labels and one `estimate<Group>` column per disaggregation. Rates are stored as shares (0–1).
+- `data_raw/shp/<iso3>_admin*.shp`: administrative boundaries, lines and capitals.
+- `data_raw/text/`: `About_<ISO3>.txt` (methodology) and `Messages_<ISO3>.txt` (key messages).
+- `data_raw/figures/`: static images (fiscal equity).
+- `data_raw/scratch/`: scratch or test files (`Tables_SEN_TEST.xlsx`, `dsf.qqqww`, `map_test.png`, `Messages_SEN.txt2`). Nothing reads this folder.
 
 Render with `quarto preview` or `quarto render`. Output goes to `_site/`, which is gitignored.
 
