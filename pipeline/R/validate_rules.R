@@ -166,8 +166,16 @@
 
 #' The rounding unit h (WP13.md "Tolerance"): 0.005 x scale for a
 #' ROUNDED_2DP file, 0 for an EXACT file.
+#'
+#' `precision` is a single value (one file has one precision) while `scale`
+#' is per-row (one value per series). `ifelse()`'s result takes the shape
+#' of its `test` argument, so passing the scalar `precision == "ROUNDED_2DP"`
+#' straight in would silently collapse the result to length 1 (recycled
+#' across every row instead of multiplying each row's own scale) -- recycle
+#' the test to `scale`'s length first so every row's `h` uses its own scale.
 .vc_h_for <- function(precision, scale) {
-  ifelse(precision == "ROUNDED_2DP", 0.005 * scale, 0)
+  is_rounded <- rep_len(precision == "ROUNDED_2DP", length(scale))
+  ifelse(is_rounded, 0.005 * scale, 0)
 }
 
 #' The sum tolerance for `k` items (children of AGG_SUM, or a closure over

@@ -279,6 +279,47 @@ test_that("WP13.A3: a POV_NUM parent of 3130000 with 6 children summing to 31200
   expect_false("RULE.AGG_SUM" %in% res$check_id)
 })
 
+test_that("a data file with more than one series' scale gives each row its own h, not the first row's", {
+  # Regression for the patch-p1 finding (WP13.A3): .vc_build_rows() computes
+  # h from a per-file scalar `precision` and a per-row `scale` vector
+  # (pipeline/R/validate_rules.R ~L251-252). ifelse()'s result takes the
+  # shape of its `test` argument, so a naive `ifelse(precision == ...,
+  # 0.005 * scale, 0)` silently collapses to length 1 (0.005 * scale[1],
+  # recycled over every row) instead of multiplying each row's own scale.
+  # WP13.A3's own unit test above does not catch this: make_rules_root()
+  # restricts SERIES_PLAN to one series (POV_NUM), so scale[1] happens to
+  # be that series' own scale. The acceptance script's fixture (no
+  # restriction, WP13.md's real multi-series SERIES_PLAN) put a
+  # zero-scale series ahead of POV_NUM in required_rows(), so h collapsed
+  # to 0.005 * 1 for every row -- 1,000,000x too small. This test keeps two
+  # series with different scales (POV_NUM, scale 1000000; CONS_SH, scale 1)
+  # in the same fixture and checks POV_NUM's own tolerance is used.
+  fx <- make_rules_root(
+    series_ids = c("POV_NUM.POVLINE_PL300.PPP_2021", "CONS_SH.COICOP_CP01"),
+    cuts = "ZONES"
+  )
+  on.exit(unlink(fx$root, recursive = TRUE))
+
+  h <- 0.005 * series_scale(fx$root, "POV_NUM.POVLINE_PL300.PPP_2021")
+  expect_equal(h, 5000) # POV_NUM's own scale (1000000), not CONS_SH's (1)
+  k <- 6 # SEN's ZONES scheme has 6 codes
+  tol <- (k + 1) * h
+
+  edit_csv(fx$data_path, function(df) {
+    stopifnot(sum(df$INDICATOR == "POV_NUM" & df$GEO == "_T") == 1)
+    stopifnot(sum(df$INDICATOR == "POV_NUM" & df$GEO != "_T") == k)
+    is_povnum <- df$INDICATOR == "POV_NUM"
+    df$OBS_VALUE[is_povnum & df$GEO == "_T"] <- "3130000"
+    child_idx <- which(is_povnum & df$GEO != "_T")
+    df$OBS_VALUE[child_idx] <- fmt_num(3120000 / k) # sum 3120000, deviation 10000 <= tol 35000
+    df$OBS_VALUE[!is_povnum] <- fmt_num(1 / 13)
+    df
+  })
+
+  res <- vc_rule_agg_sum(build_ctx(fx$root, data_files = fx$data_path))
+  expect_false("RULE.AGG_SUM" %in% res$check_id)
+})
+
 # ---------------------------------------------------------------------------
 # WP13.A4
 # ---------------------------------------------------------------------------
