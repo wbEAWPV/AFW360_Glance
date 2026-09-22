@@ -1,0 +1,709 @@
+[
+  {
+    "objectID": "transition/decisions.html",
+    "href": "transition/decisions.html",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "",
+    "text": "Agents build the transition pipeline with the recommended coding of every open hard case (Section 3), marked DRAFT. Nothing built from a DRAFT coding is ACTIVE until the user says so.\nAt gate G0, which is asked at the start of the run and before anything is built, the user confirms or flips each open case (decision D10). The wave-1 integrator records the answers in the Status and User note lines of this sheet and in reports/GATE-G0.md. A flip is applied once, by package WP99, to the contract seeds (contract/label_triage.csv, codes.csv, legacy_overrides.csv), and contract/check_contract.R recomputes the expected counts. Every later package then builds the flipped coding from the start.\nRelated documents: plan, contract, package cards, standard, input findings."
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h01",
+    "href": "transition/decisions.html#sec-h01",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.1 H1 — Non-food consumption share",
+    "text": "3.1 H1 — Non-food consumption share\nCase. Whether label #72, “Non-food consumption share”, is stored as its own series or derived from COICOP 1.\nEvidence. Food share + non-food share sums to 0.98–1.02 across cells; non-food minus the sum of COICOP 2–13 sits in −0.02 to +0.03. This follows the standard’s existing precedent of not storing a separate “housing burden” indicator (data-standard.qmd line 73).\nRecommended (built default). DERIVED, not stored as its own series: value = 1 − CONS_SH/COICOP_CP01.\nAlternative. An aggregate qualifier COICOP_CP02T13 — needs an aggregate-category flag the standard does not have, and the closure check currently excludes aggregates.\nBuilt by. WP08 (SERIES_PLAN.csv — no series row for label #72), WP09 (LEGACY_LABELS.csv assert_rule: ONE_MINUS:&lt;label#&gt;).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h02",
+    "href": "transition/decisions.html#sec-h02",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.2 H2 — Own-production vs. market food share",
+    "text": "3.2 H2 — Own-production vs. market food share\nCase. Whether label #77 “Own-production food share” and label #69 “Market food share” are a new qualifier on CONS_SH + COICOP 1, or two separate indicators.\nEvidence. Own-production share + market share is less than the food share by 0.01–0.03 in SEN and 0.03–0.08 in GNB — the gap is gifts/in-kind acquisition, and there is no closure check across the three.\nRecommended (built default). A new qualifier variable ACQ (acquisition mode) on CONS_SH + COICOP_CP01, categories ACQ_PURCH, ACQ_OWNPROD (DRAFT categories ACQ_GIFT, ACQ_INKIND registered but not populated).\nAlternative. Two separate indicators, CONS_FOOD_OWN_SH and CONS_FOOD_MKT_SH.\nBuilt by. WP06 (CL_QUAL_VAR.csv, CL_QUALIFIER.csv — the ACQ variable and its categories), WP08 (SERIES_PLAN.csv), WP09 (legacy maps).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h03",
+    "href": "transition/decisions.html#sec-h03",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.3 H3 — Wage vs. non-wage employment",
+    "text": "3.3 H3 — Wage vs. non-wage employment\nCase. Whether label #95 “Wage-employed” and label #73 “Non-wage employed” need a new breakdown variable or a derived indicator.\nEvidence. Wage share + non-wage share sums to exactly 1.00 in every cell of both countries.\nRecommended (built default). POP_SH with a new breakdown variable EMP_TYPE (categories EMP_TYPE_WAGE, EMP_TYPE_NONWAGE, ICSE-based).\nAlternative. A single proportion indicator JOB_WAGE, with non-wage DERIVED as 1 − JOB_WAGE.\nBuilt by. WP06 (CL_BRK_VAR.csv, CL_COMP_BREAKDOWN.csv — EMP_TYPE), WP08 (SERIES_PLAN.csv), WP09 (legacy maps).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h04",
+    "href": "transition/decisions.html#sec-h04",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.4 H4 — “Employed”",
+    "text": "3.4 H4 — “Employed”\nCase. Whether label #26 “Employed (activ12m, 15–64)” also needs a derived “not employed” row.\nEvidence. No cross-check issue found; the existing breakdown variable EMP_STATUS already has both categories (EMP_STATUS_EMPLOYED, EMP_STATUS_NOT_EMPLOYED — see the standard’s initial breakdown variables table, sec-initial-breakdowns), but only the employed category is populated by the legacy label.\nRecommended (built default). Map to POP_SH with breakdown EMP_STATUS_EMPLOYED only; EMP_STATUS_NOT_EMPLOYED is never derived from it, since no legacy label provides an independent value to check against.\nAlternative. None proposed in the report.\nBuilt by. WP09 (LEGACY_LABELS.csv mapping only; no new codelist rows).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h05",
+    "href": "transition/decisions.html#sec-h05",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.5 H5 — “HH workers” in trade/transport",
+    "text": "3.5 H5 — “HH workers” in trade/transport\nCase. Whether labels #89 “Share of HH workers in trade/commerce” and #90 “…in transport” are children of EMP_SECTOR_SER or a new breakdown variable, and what “HH workers” means as a universe.\nEvidence. Trade + transport is always ≤ services (gap 0.00–0.36 across cells), consistent with being subsets of it. The universe “HH workers” is not otherwise defined in the legacy labels.\nRecommended (built default). POP_SH with a new breakdown variable EMP_ISIC (ISIC sections; register the full A–U set, publish sections G and H). Universe left TBD.\nAlternative. Nest trade and transport as children of EMP_SECTOR_SER, or register them as separate JOB_* proportion indicators.\nBuilt by. WP06 (CL_BRK_VAR.csv, CL_COMP_BREAKDOWN.csv — EMP_ISIC), WP08 (SERIES_PLAN.csv), WP09 (legacy maps).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h06",
+    "href": "transition/decisions.html#sec-h06",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.6 H6 — “HH workers” informally employed",
+    "text": "3.6 H6 — “HH workers” informally employed\nCase. Whether label #91 “Share of HH workers informally employed” is a new breakdown of the employed, or of wage employees only.\nEvidence. Correlates with the non-wage share at r = 0.86–1.00, and sits 0.01–0.04 below it. This contradicts how the dashboard currently labels the equivalent figure, “Informal wage employment (% of wage)” (index.qmd:93), which implies a wage-employee universe.\nRecommended (built default). POP_SH with a new breakdown variable EMP_FORMAL (categories EMP_FORMAL_Y, publish EMP_FORMAL_N), universe = employed persons, marked DRAFT.\nAlternative. Universe = wage employees only, matching how the dashboard currently reads the figure.\nBuilt by. WP06 (CL_BRK_VAR.csv, CL_COMP_BREAKDOWN.csv — EMP_FORMAL), WP08 (SERIES_PLAN.csv), WP09 (legacy maps).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h07",
+    "href": "transition/decisions.html#sec-h07",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.7 H7 — Three electricity indicators",
+    "text": "3.7 H7 — Three electricity indicators\nCase. Whether labels #1 “Access to electricity (grid, SDG 7.1.1)”, #17 “Connected to electricity grid (SDG7.1.1)” and #93 “Uses grid electricity” are three distinct indicators or duplicates of one concept.\nEvidence. The three differ by country: GNB national totals are 0.23 / 0.27 / 0.26 (a narrow spread), but SEN’s are 0.68 / 0.98 / 0.66 (a 32-point spread) — the definitions clearly differ but are undocumented. On SEN, EN_GRID_CONN (#17) is 0.96–1.00 in every cell, including Q1 and Rural, which cannot be true grid connection of essentially all households. SDG 7.1.1 is normally population-based, so the weight needs confirming.\nRecommended (built default). Three DRAFT codes (EN_ELEC_ACCESS, EN_GRID_CONN, EN_GRID_USE) cross-linked with related/related_note; a COMMENT override on the SEN EN_GRID_CONN rows noting the implausible near-universal value.\nAlternative. Skip EN_GRID_CONN in both countries until its definition is documented.\nBuilt by. WP07 (CL_INDICATOR.csv — the three codes and their related fields), WP09 (LEGACY_OVERRIDES.csv COMMENT on SEN EN_GRID_CONN).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h08",
+    "href": "transition/decisions.html#sec-h08",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.8 H8 — Average outage duration (code)",
+    "text": "3.8 H8 — Average outage duration (code)\nCase. Whether label #3 “Average outage duration (code)” — a mean of an ordinal code, not a time unit — can be mapped at all.\nEvidence. The value is explicitly a mean of a code (Annex 1 of the standard), not a duration; the code scale itself is not documented anywhere in the legacy files.\nRecommended (built default). Map as DRAFT, unit_measure INDEX, checked with RANGE_NONNEG only; flagged for later deprecation in favour of shares by duration class once the code scale is documented.\nAlternative. Skip #3 until the code scale is documented.\nBuilt by. WP07 (CL_INDICATOR.csv — EN_OUTAGE_DUR_CODE, unit_measure INDEX), WP09 (legacy map).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h09",
+    "href": "transition/decisions.html#sec-h09",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.9 H9 — Cooker “proxy”",
+    "text": "3.9 H9 — Cooker “proxy”\nCase. Whether label #86 “Proxy: owns gas/electric cooker (cuisin)” is mapped as a proxy for label #85 “Primary cooking fuel clean (gas/electricity)”, and whether the “proxy” wording belongs in the indicator name.\nEvidence. SEN clean-cooking share is 0.73 nationally against a cooker-ownership share of only 0.04, and clean cooking is higher in Rural (0.76) than Capital (0.60) and higher for Q1 (0.79) than Q4 (0.57) — the reverse of what “clean cooking” should show, and implausible on its face.\nRecommended (built default). EN_ASSET_COOKER, “proxy” dropped from the name, related = EN_COOK_CLEAN; both flagged for human review given the implausible pattern.\nAlternative. Skip label #86 entirely.\nBuilt by. WP07 (CL_INDICATOR.csv — name and related field), WP09 (legacy map, LEGACY_OVERRIDES.csv COMMENT).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h10",
+    "href": "transition/decisions.html#sec-h10",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.10 H10 — Owner vs. owns enterprise",
+    "text": "3.10 H10 — Owner vs. owns enterprise\nCase. Whether label #59 “HH has non-agric enterprise owner” and label #60 “HH owns a non-agric enterprise” are the same fact from two sources, or two different indicators.\nEvidence. Label #60 equals 1 − (label #53, “HH has 0 HE”) exactly in every cell of both countries. Label #59 differs from #60 by −0.28 to +0.39, so it comes from a different source variable, not a rounding difference.\nRecommended (built default). #60 is DERIVED (not stored); #59 is mapped as a new DRAFT indicator HE_HH_OWNER.\nAlternative. Code #60 as POP_HH_SH with a new aggregate breakdown category HE_COUNT_1P (parent of HE_COUNT_1…HE_COUNT_4P).\nBuilt by. WP07 (CL_INDICATOR.csv — HE_HH_OWNER), WP09 (LEGACY_LABELS.csv assert_rule: ONE_MINUS:&lt;label#&gt; for #60).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h11",
+    "href": "transition/decisions.html#sec-h11",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.11 H11 — HE owner female / married",
+    "text": "3.11 H11 — HE owner female / married\nCase. Whether labels #67 “Main HE owner is female” and #68 “Main HE owner is married” are breakdown categories of POP_HE_SH or their own proportion indicators.\nEvidence. No cross-check contradiction found; the choice is structural — the standard has no rule yet for “share as a breakdown vs. share as a proportion indicator” (see gap (o)/(t) discussion and Section 5 item 7 area).\nRecommended (built default). POP_HE_SH with two new breakdown variables, HEO_SEX (categories HEO_SEX_F, publish HEO_SEX_M) and HEO_MSTAT (categories HEO_MSTAT_MARRIED, HEO_MSTAT_NOT_MARRIED), so either can also break down other HE indicators.\nAlternative. Two proportion indicators, HE_OWNER_FEMALE and HE_OWNER_MARRIED.\nBuilt by. WP06 (CL_BRK_VAR.csv, CL_COMP_BREAKDOWN.csv — HEO_SEX, HEO_MSTAT), WP08 (SERIES_PLAN.csv), WP09 (legacy maps).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h12",
+    "href": "transition/decisions.html#sec-h12",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.12 H12 — HE external employees",
+    "text": "3.12 H12 — HE external employees\nCase. Whether label #38 “HE has external (non-HH) employees” can be mapped as-is.\nEvidence. The share is 0.96 (SEN) / 1.00 (GNB) — impossible for “all HEs have external employees” when mean non-HH employees (label #71) is only 0.54/0.48. Label #74 “Number of employees in HE” does not equal #52 + #71 (residual −0.53 to +1.96 in SEN, −0.76 to +0.09 in GNB), so there is no additive check to fall back on.\nRecommended (built default). Map DRAFT, universe TBD, with a COMMENT override noting the implausible near-universal value.\nAlternative. Skip label #38.\nBuilt by. WP07 (CL_INDICATOR.csv — universe_filter), WP09 (LEGACY_OVERRIDES.csv COMMENT).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h13",
+    "href": "transition/decisions.html#sec-h13",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.13 H13 — ≥1 HH member covered",
+    "text": "3.13 H13 — ≥1 HH member covered\nCase. Whether label #97 “≥1 HH member has health coverage (proxy social protection)” is a household-level indicator or a breakdown of label #62 “Has health insurance/coverage (couvmal)”.\nEvidence. Always ≥ label #62 by 0.00–0.08, consistent with “at least one member” being a looser condition than the individual-level question.\nRecommended (built default). A new household-level indicator SP_HEALTH_COV_HH; “proxy social protection” kept only in notes, not the name.\nAlternative. POP_HH_SH with a new breakdown variable.\nBuilt by. WP07 (CL_INDICATOR.csv — SP_HEALTH_COV_HH), WP09 (legacy map).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h14",
+    "href": "transition/decisions.html#sec-h14",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.14 H14 — Internet access",
+    "text": "3.14 H14 — Internet access\nCase. Whether label #58 “HH has internet access” is worth mapping at all.\nEvidence. 0.00 or empty in every cell of both countries — implausible for SEN in particular, and carries no information.\nRecommended (built default). SKIP.\nAlternative. Map it with a COMMENT override instead of skipping.\nBuilt by. WP09 (LEGACY_LABELS.csv, action SKIP).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h15",
+    "href": "transition/decisions.html#sec-h15",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.15 H15 — Share indicators’ unit",
+    "text": "3.15 H15 — Share indicators’ unit\nCase. Whether population shares need one indicator (POP_SH) or several, split by the statistical unit of the breakdown behind them.\nEvidence. A single POP_SH cannot keep one stat_unit: HE_COUNT breakdowns describe households (standard line 77) while POP_SH’s declared stat_unit is IND (standard line 386).\nDecision. DECIDED by D4 (Table 1): three codes, POP_SH (IND), POP_HH_SH (HH), POP_HE_SH (HE), each with its matching weight.\nAlternative (not taken). One POP_SH with stat_unit inferred from the breakdown’s describes field.\nBuilt by. WP07 (CL_INDICATOR.csv — the three codes).\nStatus. DECIDED — D4.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h16",
+    "href": "transition/decisions.html#sec-h16",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.16 H16 — Departement sheet",
+    "text": "3.16 H16 — Departement sheet\nCase. Whether to load any of the Departement sheet’s 82 labels.\nEvidence. Its poverty totals disagree with ADM 1 (4.13M/7.88M vs 3.13M/6.52M poor), and several values that should match a shared indicator are impossible (HE has any credit access = 1.00 in every region; HH has 4+ HE = 0.80–1.00, though 0/1/2/3 already sum to about 1).\nDecision. DECIDED by D3 (Table 1): skip all 82 labels.\nAlternative (not taken). Keep the sheet’s two poverty rows as POV_HC with PPP_2017.\nBuilt by. WP02 (standard text — removes the PPP_2017 exception and example row, closes open decision 9), WP09 (LEGACY_LABELS.csv, action SKIP).\nStatus. DECIDED — D3.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h17",
+    "href": "transition/decisions.html#sec-h17",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.17 H17 — Household-head age cutoff",
+    "text": "3.17 H17 — Household-head age cutoff\nCase. Where the boundary between Youth_HH and Older_HH falls, since the legacy files never document it.\nEvidence. The dashboard currently labels Older_HH as “29+” (index.qmd:64), which contradicts the standard’s placeholder HHH_AGE_LT35/HHH_AGE_GE35 (standard lines 296, 905) and suggests a cutoff of 29 or 30, not 35.\nRecommended (built default). DRAFT codes that stay renamable without becoming a new code (per the “never changes meaning” rule, standard line 373 — a DRAFT code can still be corrected); confirm the true cutoff with the producer before the codes go ACTIVE.\nAlternative. Keep HHH_AGE_LT35/HHH_AGE_GE35 as written in the standard.\nBuilt by. WP06 (CL_BRK_VAR.csv, CL_COMP_BREAKDOWN.csv — the HHH_AGE categories).\nStatus. DEFAULT.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h18",
+    "href": "transition/decisions.html#sec-h18",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.18 H18 — GNB Capital column",
+    "text": "3.18 H18 — GNB Capital column\nCase. Whether to keep the GNB National estimateCapital column, given it does not hold Bissau’s values.\nEvidence. estimateCapital is byte-identical to ZAE estimateZonas_Costeiras_do_Sul on all 97 indicators, and matches SAB (Bissau) on only 9 of 97 rows — all rows that are constant everywhere anyway. Keeping it with AGG_SUM would fail: residence shares would sum to 1.24M poor at $4.20 against a national 1.09M.\nDecision. DECIDED by D5 (Table 1): withheld — the whole column is absent as rows, registered in LEGACY_OVERRIDES.csv.\nAlternative (not taken). Keep it with a COMMENT override, accepting that AGG_SUM would fail on it.\nBuilt by. WP09 (LEGACY_OVERRIDES.csv, action WITHHOLD).\nStatus. DECIDED — D5.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-h19",
+    "href": "transition/decisions.html#sec-h19",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "3.19 H19 — GNB cultivated area",
+    "text": "3.19 H19 — GNB cultivated area\nCase. Whether to keep the 7 GNB Cultivated area (ha) cells above 100 ha outside the Capital column.\nEvidence. Values reach the millions of “ha” (National Total 9.1M, Rural 10.8M, Male_HH 10.4M, Older_HH 10.5M, Q4 57.9M; ADM 1 Quinara 148.4M; ZAE Zonas_Costeiras_do_Sul 53.0M), against 1–15 ha for the rest of the indicator — almost certainly outlier records from a unit error in the microdata, each inflating the mean it enters.\nDecision. DECIDED by D5 (Table 1): withhold these 7 cells (plus Capital’s own cell, already withheld under H18).\nAlternative (not taken). Withhold the whole AGR_CULT_AREA indicator for GNB (26 rows), rather than just the affected cells.\nBuilt by. WP09 (LEGACY_OVERRIDES.csv, action WITHHOLD, 7 rows).\nStatus. DECIDED — D5.\nUser note. —"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-appendix-triage-summary",
+    "href": "transition/decisions.html#sec-appendix-triage-summary",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "Summary",
+    "text": "Summary\n\n\n\nTable 4: Rows of label_triage.csv by action. 91 distinct series_id values and 62 distinct INDICATOR codes appear among the 91 MAP rows.\n\n\n\n\n\nAction\nRows\n\n\n\n\nDERIVED\n2\n\n\nDUPLICATE_OF\n2\n\n\nMAP\n91\n\n\nSKIP\n84\n\n\nTotal\n179\n\n\n\n\n\n\n\n\n\nTable 5: Series by theme, as classified from each MAP row’s INDICATOR code (POV_HC/POV_NUM grouped as POV; HE_*, AGR_*, EN_*, HOUS_*, SHK_*, SP_* grouped by prefix).\n\n\n\n\n\nTheme\nSeries\n\n\n\n\nPOV\n4\n\n\nCONS\n15\n\n\nPOP_SH\n9\n\n\nPOP_HH_SH\n5\n\n\nPOP_HE_SH\n2\n\n\nHE\n23\n\n\nAGR\n4\n\n\nEN\n17\n\n\nHOUS\n5\n\n\nSHK\n5\n\n\nSP\n2\n\n\nTotal\n91"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-appendix-triage-star",
+    "href": "transition/decisions.html#sec-appendix-triage-star",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "The 97 National / ADM 1 / ZAE labels",
+    "text": "The 97 National / ADM 1 / ZAE labels\nTable 6 lists every label found identically on the National, ADM 1 and ZAE sheets of both Tables_SEN.xlsx and Tables_GNB.xlsx. DUPLICATE_OF and DERIVED rows carry no series_id of their own; the series_id / duplicate_of column instead shows the row they resolve against, and contract/label_triage.csv’s assert_rule column has the exact check.\n\n\n\nTable 6: The 97 labels shared by the National, ADM 1 and ZAE sheets (identical across both countries), in workbook (code-point sort) order.\n\n\n\n\n\nrow_id\nLabel\nAction\nseries_id / duplicate_of\nstat_unit\nunit / scale / display\nHard case\n\n\n\n\nL001\nAccess to electricity (grid, SDG 7.1.1)\nMAP\nEN_ELEC_ACCESS\nHH\nSHARE · PERCENT(1dp)\nH7\n\n\nL002\nAny power outage in last 7 days (grid-connected)\nMAP\nEN_OUTAGE_ANY\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL003\nAverage outage duration (code)\nMAP\nEN_OUTAGE_DUR_CODE\nHH\nINDEX · NUMBER(2dp)\nH8\n\n\nL004\nCOICOP 10: education (share)\nMAP\nCONS_SH.COICOP_CP10\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL005\nCOICOP 11: restaurants & hotels (share)\nMAP\nCONS_SH.COICOP_CP11\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL006\nCOICOP 12: insurance & financial (share)\nMAP\nCONS_SH.COICOP_CP12\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL007\nCOICOP 13: personal care & effects (share)\nMAP\nCONS_SH.COICOP_CP13\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL008\nCOICOP 1: food & non-alc. beverages (share)\nMAP\nCONS_SH.COICOP_CP01\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL009\nCOICOP 2: alcohol & tobacco (share)\nMAP\nCONS_SH.COICOP_CP02\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL010\nCOICOP 3: clothing & footwear (share)\nMAP\nCONS_SH.COICOP_CP03\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL011\nCOICOP 4: housing & utilities (share)\nMAP\nCONS_SH.COICOP_CP04\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL012\nCOICOP 5: furnishings & equipment (share)\nMAP\nCONS_SH.COICOP_CP05\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL013\nCOICOP 6: health (share)\nMAP\nCONS_SH.COICOP_CP06\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL014\nCOICOP 7: transport (share)\nMAP\nCONS_SH.COICOP_CP07\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL015\nCOICOP 8: information & communication (share)\nMAP\nCONS_SH.COICOP_CP08\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL016\nCOICOP 9: recreation & culture (share)\nMAP\nCONS_SH.COICOP_CP09\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL017\nConnected to electricity grid (SDG7.1.1)\nMAP\nEN_GRID_CONN\nHH\nSHARE · PERCENT(1dp)\nH7\n\n\nL018\nCovariate economic shock\nMAP\nSHK_COV_ECON\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL019\nCovariate natural shock (drought, flood, etc.)\nMAP\nSHK_COV_NATURAL\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL020\nCovariate violence/conflict shock\nMAP\nSHK_COV_CONFLICT\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL021\nCultivated area (ha)\nMAP\nAGR_CULT_AREA\nHH\nHA · NUMBER(2dp)\nH19\n\n\nL022\nDays with an outage (last 7)\nMAP\nEN_OUTAGE_DAYS\nHH\nDAY · NUMBER(1dp)\n\n\n\nL023\nDurable floor materials\nMAP\nHOUS_FLOOR_DURABLE\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL024\nDurable roof materials\nMAP\nHOUS_ROOF_DURABLE\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL025\nDurable wall materials\nMAP\nHOUS_WALL_DURABLE\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL026\nEmployed (activ12m, 15–64)\nMAP\nPOP_SH.EMP_STATUS_EMPLOYED\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL027\nEmployed in agriculture (% of employed)\nMAP\nPOP_SH.EMP_SECTOR_AGR\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL028\nEmployed in industry (% of employed)\nMAP\nPOP_SH.EMP_SECTOR_IND\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL029\nEmployed in services (% of employed)\nMAP\nPOP_SH.EMP_SECTOR_SER\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL030\nExposed to any shock (past 3 years)\nMAP\nSHK_ANY\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL031\nFood consumption share\nDUPLICATE_OF\nDUPLICATE_OF L008\n\n\n\n\n\nL032\nHE age (years)\nMAP\nHE_AGE\nHE\nYEAR · NUMBER(1dp)\n\n\n\nL033\nHE buys from firms/state\nMAP\nHE_BUY_FIRMS\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL034\nHE capital stock (FCFA)\nMAP\nHE_CAPITAL\nHE\nLCU · CURRENCY(0dp)\n\n\n\nL035\nHE costs (FCFA)\nMAP\nHE_COSTS\nHE\nLCU · CURRENCY(0dp)\n\n\n\nL036\nHE has any credit access\nMAP\nHE_CREDIT_ANY\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL037\nHE has electricity\nMAP\nHE_ELEC\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL038\nHE has external (non-HH) employees\nMAP\nHE_EMP_EXT_ANY\nHE\nSHARE · PERCENT(1dp)\nH12\n\n\nL039\nHE has formal credit access\nMAP\nHE_CREDIT_FORMAL\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL040\nHE has formal premises\nMAP\nHE_PREMISES_FORMAL\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL041\nHE has informal credit access\nMAP\nHE_CREDIT_INFORMAL\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL042\nHE has phone\nMAP\nHE_PHONE\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL043\nHE has tax ID\nMAP\nHE_TAX_ID\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL044\nHE has water\nMAP\nHE_WATER\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL045\nHE keeps accounts\nMAP\nHE_ACCOUNTS\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL046\nHE operates from home\nMAP\nHE_HOME_BASED\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL047\nHE pays rent\nMAP\nHE_RENT\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL048\nHE profits (FCFA)\nMAP\nHE_PROFIT\nHE\nLCU · CURRENCY(0dp)\n\n\n\nL049\nHE revenue per worker (FCFA)\nMAP\nHE_REV_PER_WORKER\nHE\nLCU/PERSON · CURRENCY(0dp)\n\n\n\nL050\nHE sells to firms/state\nMAP\nHE_SELL_FIRMS\nHE\nSHARE · PERCENT(1dp)\n\n\n\nL051\nHH cultivates agricultural land (superf &gt; 0)\nMAP\nAGR_CULTIVATES\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL052\nHH employees in HE\nMAP\nHE_EMP_HH_NUM\nHE\nPERSON · NUMBER(2dp)\n\n\n\nL053\nHH has 0 HE\nMAP\nPOP_HH_SH.HE_COUNT_0\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL054\nHH has 1 HE\nMAP\nPOP_HH_SH.HE_COUNT_1\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL055\nHH has 2 HE\nMAP\nPOP_HH_SH.HE_COUNT_2\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL056\nHH has 3 HE\nMAP\nPOP_HH_SH.HE_COUNT_3\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL057\nHH has 4+ HE\nMAP\nPOP_HH_SH.HE_COUNT_4P\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL058\nHH has internet access\nSKIP\nSKIP\n\n\nH14\n\n\nL059\nHH has non-agric enterprise owner\nMAP\nHE_HH_OWNER\nHH\nSHARE · PERCENT(1dp)\nH10\n\n\nL060\nHH owns a non-agric enterprise\nDERIVED\nDERIVED L053\n\n\nH10\n\n\nL061\nHH owns any livestock\nMAP\nAGR_LIVESTOCK_ANY\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL062\nHas health insurance/coverage (couvmal)\nMAP\nSP_HEALTH_COV\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL063\nHousing & utilities burden (COICOP 4 share of total cons.)\nDUPLICATE_OF\nDUPLICATE_OF L011\n\n\n\n\n\nL064\nIdiosyncratic economic shock\nMAP\nSHK_IDIO_ECON\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL065\nImproved lighting (grid or solar)\nMAP\nEN_LIGHT_IMPROVED\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL066\nInformal electricity connection (neighbour/pole)\nMAP\nEN_ELEC_INFORMAL\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL067\nMain HE owner is female\nMAP\nPOP_HE_SH.HEO_SEX_F\nHE\nSHARE · PERCENT(1dp)\nH11\n\n\nL068\nMain HE owner is married\nMAP\nPOP_HE_SH.HEO_MSTAT_MARRIED\nHE\nSHARE · PERCENT(1dp)\nH11\n\n\nL069\nMarket food share (% total cons.)\nMAP\nCONS_SH.COICOP_CP01.ACQ_PURCH\nHH\nSHARE · PERCENT(1dp)\nH2\n\n\nL070\nMonthly electricity spend (FCFA)\nMAP\nEN_ELEC_SPEND\nHH\nLCU · CURRENCY(0dp)\n\n\n\nL071\nNon-HH employees in HE\nMAP\nHE_EMP_NONHH_NUM\nHE\nPERSON · NUMBER(2dp)\n\n\n\nL072\nNon-food consumption share\nDERIVED\nDERIVED L008\n\n\nH1\n\n\nL073\nNon-wage employed (% of employed)\nMAP\nPOP_SH.EMP_TYPE_NONWAGE\nIND\nSHARE · PERCENT(1dp)\nH3\n\n\nL074\nNumber of employees in HE\nMAP\nHE_EMP_NUM\nHE\nPERSON · NUMBER(2dp)\nH12\n\n\nL075\nNumber poor $3.00/day (millions)\nMAP\nPOV_NUM.POVLINE_PL300.PPP_2021\nIND\nPERSON · x1000000 · MILLIONS(2dp)\n\n\n\nL076\nNumber poor $4.20/day (millions)\nMAP\nPOV_NUM.POVLINE_PL420.PPP_2021\nIND\nPERSON · x1000000 · MILLIONS(2dp)\n\n\n\nL077\nOwn-production food share (% total cons.)\nMAP\nCONS_SH.COICOP_CP01.ACQ_OWNPROD\nHH\nSHARE · PERCENT(1dp)\nH2\n\n\nL078\nOwns ceiling fan\nMAP\nEN_ASSET_FAN\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL079\nOwns wall AC/split\nMAP\nEN_ASSET_AC\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL080\nOwns water heater\nMAP\nEN_ASSET_WATER_HEATER\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL081\nPoor at $3.00/day (2021 PPP)\nMAP\nPOV_HC.POVLINE_PL300.PPP_2021\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL082\nPoor at $4.20/day (2021 PPP)\nMAP\nPOV_HC.POVLINE_PL420.PPP_2021\nIND\nSHARE · PERCENT(1dp)\n\n\n\nL083\nPrepaid meter (among grid-connected)\nMAP\nEN_PREPAID_METER\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL084\nPrimary cooking fuel biomass (wood/charcoal)\nMAP\nEN_COOK_BIOMASS\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL085\nPrimary cooking fuel clean (gas/electricity)\nMAP\nEN_COOK_CLEAN\nHH\nSHARE · PERCENT(1dp)\nH9\n\n\nL086\nProxy: owns gas/electric cooker (cuisin)\nMAP\nEN_ASSET_COOKER\nHH\nSHARE · PERCENT(1dp)\nH9\n\n\nL087\nSafe drinking water – dry season\nMAP\nHOUS_WATER_SAFE_DRY\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL088\nSanitary toilet facility\nMAP\nHOUS_SANIT_IMPROVED\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL089\nShare of HH workers in trade/commerce\nMAP\nPOP_SH.EMP_ISIC_G\nIND\nSHARE · PERCENT(1dp)\nH5\n\n\nL090\nShare of HH workers in transport\nMAP\nPOP_SH.EMP_ISIC_H\nIND\nSHARE · PERCENT(1dp)\nH5\n\n\nL091\nShare of HH workers informally employed\nMAP\nPOP_SH.EMP_FORMAL_N\nIND\nSHARE · PERCENT(1dp)\nH6\n\n\nL092\nTropical Livestock Units (TLU)\nMAP\nAGR_TLU\nHH\nTLU · NUMBER(2dp)\n\n\n\nL093\nUses grid electricity\nMAP\nEN_GRID_USE\nHH\nSHARE · PERCENT(1dp)\nH7\n\n\nL094\nUses solar/generator electricity\nMAP\nEN_OFFGRID_USE\nHH\nSHARE · PERCENT(1dp)\n\n\n\nL095\nWage-employed (% of employed)\nMAP\nPOP_SH.EMP_TYPE_WAGE\nIND\nSHARE · PERCENT(1dp)\nH3\n\n\nL096\nwood_dist [ALL MISSING]\nSKIP\nSKIP\n\n\n\n\n\nL097\n≥1 HH member has health coverage (proxy social protection)\nMAP\nSP_HEALTH_COV_HH\nHH\nSHARE · PERCENT(1dp)\nH13"
+  },
+  {
+    "objectID": "transition/decisions.html#sec-appendix-triage-departement",
+    "href": "transition/decisions.html#sec-appendix-triage-departement",
+    "title": "Appendix B.3. AFW 360 transition: decisions",
+    "section": "The 82 Departement labels",
+    "text": "The 82 Departement labels\nThe Departement sheet exists only for Senegal. Per decision D3 all 82 of its labels are SKIP: 60 share a label with ADM 1 but produce a different, mostly conflicting value under the same key, and 22 are unique to the sheet (raw collapse variables, a mislabelled PPP round, or poverty counts that disagree with the sheet’s own rates). Table 7 groups them; the full row-by-row detail, with each label’s own reason in notes, is in contract/label_triage.csv.\n\n\n\nTable 7: The 82 Departement rows (all SKIP, D3), grouped by reason.\n\n\n\n\n\n\n\n\n\n\n\nGroup\nCount\nExample label(s)\nReason\n\n\n\n\nRaw (max) con_k collapse leftovers\n15\n(max) con_1, (max) con_10\nRaw variable, not a defined indicator; values do not sum to 1 (1.48-3.02 per region)\n\n\nRaw (max) ext_emp variable\n1\n(max) ext_emp\nRaw variable, within 0.07 of HE has external (non-HH) employees (L038)\n\n\nAccess to electricity (grid or off-grid)\n1\nAccess to electricity (grid or off-grid)\nDistinct concept from EN_ELEC_ACCESS (grid only); not registered as a code\n\n\nEnergy expenditure burden (share of total cons.)\n1\nEnergy expenditure burden (share of total cons.)\nDashboard shows an empty placeholder row for this label (index.qmd:127)\n\n\n2017-PPP poverty lines (mislabelled)\n2\nPoor at \\$3.00/day (2017 PPP), Poor at \\$4.20/day (2017 PPP)\nMislabelled lines; the PPP_2017 exception for POVLINE_PL300 is removed per D3, and POVLINE_PL420 was never valid with PPP_2017\n\n\nRaw npoor300 / npoor420 variables\n2\nnpoor300, npoor420\nDisagree with the sheet’s own rates (e.g. Diourbel 0.35M poor at rate 0.11 -&gt; ~3.2M people)\n\n\n60 labels shared with National/ADM 1/ZAE\n60\nCovariate economic shock, Covariate natural shock (drought, flood, etc.)\nSame key as the ADM 1 row for the same label, but a different (mostly conflicting) value; superseded 2017-PPP poverty rows fold into this group too"
+  },
+  {
+    "objectID": "transition/plan.html",
+    "href": "transition/plan.html",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "",
+    "text": "This plan converts the dashboard’s current inputs (two Excel workbooks, 22 shapefile layers, a handful of text files and one image) into the files defined by the data standard:\nEvery file is produced by R code under pipeline/, so the conversion can be read, rerun and checked. The dashboard keeps working throughout, and it switches to the new files only after this plan is complete.\nThe plan is carried out by agents working in parallel. An orchestrator running on Opus launches them and takes decisions to the user, and it never edits or runs anything itself. Implementers, verifiers, patch agents and integrators running on Sonnet do all the work. Each package is checked by a verifier that did not build it. The user decides at three gates, and nothing becomes ACTIVE without the user.\nRevision 2 follows a review of the first plan; Section 9 lists what changed and why."
+  },
+  {
+    "objectID": "transition/plan.html#sec-inventory",
+    "href": "transition/plan.html#sec-inventory",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "2.1 Inventory",
+    "text": "2.1 Inventory\nThere are 122 tracked legacy files. WP01 moves every one of them to data_raw/.\n\n\n\nTable 2: Legacy files on 2026-09-21\n\n\n\n\n\n\n\n\n\n\n\nCurrent location\nFiles\nContent\nRead by the dashboard\n\n\n\n\nINPUT Tables/Tables_SEN.xlsx\n1\nFour sheets: National 97 × 13, ADM 1 97 × 14, ZAE 97 × 6, Departement 82 × 14\nYes (National, ADM 1, ZAE)\n\n\nINPUT Tables/Tables_GNB.xlsx\n1\nThree sheets: National 97 × 13, ADM 1 97 × 9, ZAE 97 × 4\nOnly for the About-page download; the GNB section reads the SEN file (known bug)\n\n\nINPUT Tables/Tables_SEN_TEST.xlsx\n1\nScratch\nNo\n\n\nINPUT shp/\n110\n22 layers × 5 side-car files\nsen_admin1.shp only\n\n\nINPUT Text/\n6\nThe About texts (About.txt and About_SEN.txt are byte-identical; About_GNB.txt is the placeholder TEXT), the key messages, and one scratch file\nThe About texts only; the key messages are hard-coded in index.qmd in a different version\n\n\nINPUT Figures/Fiscal Equity SEN.png\n1\nFiscal-equity chart\nYes, in the SEN and GNB sections (known bug)\n\n\ndsf.qqqww, map_test.png\n2\nScratch\nNo\n\n\n\n\n\n\nindex.qmd refers to these inputs by path in 12 places: lines 188, 370, 371, 658, 665, 675, 694, 1115, 1122, 1132, 1151 and 1182. WP01 changes only those strings."
+  },
+  {
+    "objectID": "transition/plan.html#sec-tables-brief",
+    "href": "transition/plan.html#sec-tables-brief",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "2.2 What shapes the transition",
+    "text": "2.2 What shapes the transition\nThe full findings are in input-tables-findings.qmd.\n\nEach sheet is a set of one-way breakdowns of the national population. Breakdowns are never crossed.\nRows are identified only by 97 free-text labels, which are byte-identical across sheets and countries. The poverty line, PPP round, unit and classification are all written inside the label.\nValues are rounded to 2 decimals and stored as shares (0–1) or levels, with no unit field. An empty cell is ambiguous.\nRegions and zones are identified by spelled names. Some names are cut at 32 characters, and GNB’s names carry accents. The COD-AB P-codes are already in the shapefiles (SN01–SN14, GW01–GW09); Bissau is GW08, which the tables call SAB.\nTwo SEN polygons, SN01 and SN13, are invalid as delivered.\n\n\n\n\nTable 3: Defects in the inputs and where the plan handles them\n\n\n\n\n\n\n\n\n\nDefect\nHandled by\n\n\n\n\nGNB Capital column is a copy of a zone; 7 other GNB cultivated-area cells run into the millions of hectares\nWithheld: their rows are absent, and each is registered (D5; contract/legacy_overrides.csv)\n\n\nSEN Departement sheet is an older version with mislabelled PPP\nSkipped (D3)\n\n\nDuplicate series (Food share = COICOP 1; Housing burden = COICOP 4) and derivable series\nDUPLICATE_OF and DERIVED labels, with the relation asserted by the converter\n\n\nEmpty or implausible series\nSKIP, or a COMMENT override; the user confirms at gate G0 (H7, H9, H12, H14)\n\n\nUndocumented cut-off for household-head age\nDRAFT codes (H17)\n\n\nNo geographic codes; names truncated at 32 characters\ncontract/geo_codes.csv"
+  },
+  {
+    "objectID": "transition/plan.html#sec-principles",
+    "href": "transition/plan.html#sec-principles",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.1 Principles",
+    "text": "5.1 Principles\n\nSmall context.\n\nAn agent reads COMMON.md, its card, and a few filtered rows: about 10,000 to 25,000 tokens.\nIts whole session stays under 100,000 tokens, and 150,000 is the hard limit.\nAn agent that runs long stops, and reports PARTIAL. A fresh agent then continues.\n\nContract first. The packages of a wave build against the contract seeds, not against each other’s output. contract/check_contract.R proves that the seeds agree with each other and with the workbooks.\nCode, not typing.\n\nMetadata files are generated by scripts from the seeds.\nAgents write text (names, definitions) only where there is no source for it.\nEvery generator can rebuild into a temporary directory, so any file can be checked by regenerating it.\n\nReal inputs for the validator. The validator is written in wave 3 against the real, merged metadata, never against invented fixtures.\nOwnership. Every output path has exactly one owner in contract/output_ownership.csv. An agent that needs another path stops and reports.\nIndependent verification. The verifier writes its own acceptance script from the card. The scripts are kept, and they are rerun after every merge.\nState in git. Branch names and commit subjects (WP05: verify v1 - VERDICT: PASS) record the state of the run. A new orchestrator session resumes from them.\nNothing is pushed, and nothing reaches dev/eb before the user says so at G2."
+  },
+  {
+    "objectID": "transition/plan.html#sec-roles",
+    "href": "transition/plan.html#sec-roles",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.2 Roles",
+    "text": "5.2 Roles\n\n\n\nTable 5: Roles; the prompts are in templates/\n\n\n\n\n\n\n\n\n\n\n\nRole\nModel\nRuns as\nWrites\n\n\n\n\nOrchestrator\nOpus\nThe main session\nNothing\n\n\nImplementer\nSonnet\nAgent, worktree\nThe package’s owned outputs and its report\n\n\nVerifier\nSonnet\nAgent, worktree; fresh for each attempt\npipeline/acceptance/wpNN_&lt;slug&gt;.R and its report\n\n\nPatch agent\nSonnet\nAgent, worktree\nThe package’s owned outputs and its report\n\n\nIntegrator\nSonnet\nAgent, worktree; one per wave\nMerges on transition/main; CHANGELOG.md, STATUS.md, gate records, wave and final reports\n\n\nScout\nSonnet\nAgent, Explore, read-only\nNothing"
+  },
+  {
+    "objectID": "transition/plan.html#sec-packages",
+    "href": "transition/plan.html#sec-packages",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.3 Packages",
+    "text": "5.3 Packages\n\n\n\nTable 6: Packages. The card is packages/WPNN.md\n\n\n\n\n\n\n\n\n\n\n\n\nWP\nTitle\nWave\nSlug\nDepends on\n\n\n\n\nWP00\nSetup and environment check (no verifier)\n0\nsetup\n—\n\n\nWP01\nMove legacy inputs to data_raw/\n1\ndata-raw\nWP00\n\n\nWP02\nData standard v0.4 (stage A, then stage B)\n1\nstandard-v04\nWP00\n\n\nWP03\nPipeline scaffold\n1\nscaffold\nWP00\n\n\nWP99\nApply G0 answers to the contract (only if a case is flipped)\n1\ncontract-flips\nG0\n\n\nWP04\nSmall codelists and CL_AREA\n2\nsmall-codelists\nW1, G1\n\n\nWP05\nGeography\n2\ngeography\nW1, G1\n\n\nWP06\nBreakdowns and qualifiers\n2\nbreakdowns-qualifiers\nW1, G1\n\n\nWP07\nIndicator dictionary\n2\ndictionary\nW1, G1\n\n\nWP08\nPlans and the required-row generator\n2\nplans\nW1, G1\n\n\nWP09\nLegacy maps\n2\nlegacy-maps\nW1, G1\n\n\nWP10\nText, figures and surveys\n2\ncontent\nW1, G1\n\n\nWP11\nValidator core: structure, codes, metadata\n3\nvalidator-core\nW2\n\n\nWP12\nValidator: coverage and values\n3\nvalidator-coverage\nW2\n\n\nWP13\nValidator: verification rules\n3\nvalidator-rules\nW2\n\n\nWP14\nValidator: assets and text\n3\nvalidator-assets-text\nW2\n\n\nWP15\nLegacy converter\n3\nconverter\nW2\n\n\nWP16\nIndependent reconciliation tool\n3\nreconcile\nW2\n\n\nWP17\nFinal audit (verifier only)\nafter W3\nfinal-audit\nW3\n\n\n\n\n\n\nNames derive from the table. The implementer branch is transition/wpNN-&lt;slug&gt;, verifier branches add -v&lt;K&gt;, and patch branches add -p&lt;K&gt;. The acceptance script is pipeline/acceptance/wpNN_&lt;slug&gt;.R. Reports are reports/WPNN-implementer.md, WPNN-implementer-p&lt;K&gt;.md and WPNN-verifier-v&lt;K&gt;.md."
+  },
+  {
+    "objectID": "transition/plan.html#sec-waves",
+    "href": "transition/plan.html#sec-waves",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.4 Waves and gates",
+    "text": "5.4 Waves and gates\n\n\n\n\n\nflowchart TB\n  W0[W0: WP00 setup and environment check] --&gt; W1\n  subgraph W1[Wave 1]\n    WP01 & WP02A[WP02 stage A] & WP03 & WP99[WP99 if flips]\n    WP02A --&gt; WP02B[WP02 stage B]\n  end\n  G0{{G0: hard cases, asked while wave 1 runs}} -.-&gt; WP99\n  W1 --&gt; G1{{G1: standard v0.4 and contract}}\n  G1 --&gt; W2\n  subgraph W2[Wave 2: metadata and assets]\n    WP04 & WP05 & WP06 & WP07 & WP08 & WP09 & WP10\n  end\n  W2 --&gt; W3\n  subgraph W3[Wave 3: validator, converter, reconciliation]\n    WP11 & WP12 & WP13 & WP14 & WP15 & WP16\n  end\n  W3 --&gt; A[WP17 final audit] --&gt; G2{{G2: accept, merge to dev/eb}}\n\n\n\n\n\n\n\n\n\nTable 7: Waves\n\n\n\n\n\n\n\n\n\n\nWave\nPackages (in parallel)\nThen\n\n\n\n\nW0\nWP00 creates transition/main and the tag transition-base, and proves that R, the packages, the contract check and the dashboard render all work\nStops the run if the environment is broken\n\n\nW1\nWP01 ∥ WP02 (A then B) ∥ WP03, and WP99 if a case is flipped. G0 is asked while they run.\nIntegrator: contract check, checksums, dashboard render, G0 record. Then G1.\n\n\nW2\nWP04 ∥ WP05 ∥ WP06 ∥ WP07 ∥ WP08 ∥ WP09 ∥ WP10\nIntegrator: every file present with its header; the required rows from the real metadata equal the expected counts; G1 record\n\n\nW3\nWP11 ∥ WP12 ∥ WP13 ∥ WP14 ∥ WP15 ∥ WP16\nIntegrator: the converter reproduces data/; full validation; reconciliation. Findings go to the owning package as patches, until the run is clean.\n\n\nAfter W3\nWP17 final audit\nG2\n\n\n\n\n\n\nWhy the waves fall where they do.\n\nWave 2 needs the scaffold’s writer functions (WP03), the inputs in data_raw/ (WP01) and a frozen contract (G1).\nWave 3 needs the real metadata. The validator is tested on it; the converter reads it; and the reconciliation tool is written at the same time as the converter, without seeing its code, so that it checks the converter independently.\nThe hard cases are asked first because every answer can be given from the evidence already in decisions.qmd. Asked first, a flip costs one edit of the seeds. Asked after the build, it would cost patches in up to three packages, and it would change counts that the acceptance scripts had already fixed.\n\n\n\n\nTable 8: Gates; the questions are in templates/gate-review.md\n\n\n\n\n\n\n\n\n\n\nGate\nWhen\nThe user decides\n\n\n\n\nG0\nAt the start, while wave 1 runs\nFor each open hard case (H1–H14, H17): recommended, alternative, or another answer. Also which version of the key messages is authoritative (T1).\n\n\nG1\nAfter the wave-1 integration\nApprove standard v0.4 and the contract, approve with notes, or hold. On approval the contract is frozen.\n\n\nG2\nAfter WP17 passes\nAccept the results; merge transition/main into dev/eb now or later"
+  },
+  {
+    "objectID": "transition/plan.html#sec-lifecycle",
+    "href": "transition/plan.html#sec-lifecycle",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.5 Package life cycle",
+    "text": "5.5 Package life cycle\n\n\n\n\n\nflowchart LR\n  I[Implementer] --&gt;|DONE| V[Fresh verifier]\n  I --&gt;|PARTIAL| C[Patch agent: CONTINUE] --&gt; V\n  V --&gt;|PASS| R[Ready for the integrator]\n  V --&gt;|FAIL| P[Patch agent: FAILURES] --&gt; V2[Fresh verifier]\n  V2 --&gt;|PASS| R\n  V2 --&gt;|FAIL, 2 patches used| U[Ask the user]\n\n\n\n\n\n\nAfter every merge, the integrator reruns every acceptance script written so far, plus the unit tests. A failure is reported against the package that owns the broken file, and that package gets a patch agent. The integrator never fixes anything. It ends with one of three statuses: INTEGRATED; FINDINGS, when every failure has an owning package, so patch agents are sent without asking the user; or BLOCKED, when a branch cannot be merged or a failure has no owner, which goes to the user. A failed WP17 audit is handled like integrator findings: patches, a follow-up wave-3 integration, then the audit again as v2. Validator findings on the real data at wave 3 go first to the package that owns the check (FINDINGS mode): that agent decides, from its card’s rules, whether the check or the data is wrong."
+  },
+  {
+    "objectID": "transition/plan.html#sec-branches",
+    "href": "transition/plan.html#sec-branches",
+    "title": "Appendix B.1. AFW 360 transition plan",
+    "section": "5.6 Branches",
+    "text": "5.6 Branches\ndev/eb ──(WP00)──► transition/main ◄── integrator merges PASS branches, wave by wave\n   │ tag: transition-base  │\n                           ├── transition/wp05-geography          implementer\n                           │     └── …-v1                           verifier: acceptance script and report\n                           │           └── …-p1 ── …-v2             patch after a FAIL, then a fresh verifier\n                           └── …\nEvery agent ends with git switch --detach, so that no worktree keeps a branch locked. If an agent dies before that step, a scout finds the stale worktree, and the rerun frees the branch with git -C &lt;stale worktree&gt; switch --detach, which deletes nothing. WP00 can be run again after a failed environment check: its card treats the second run as a retry. The final merge into dev/eb takes WP17’s PASS branch, which is transition/main plus the audit."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "",
+    "text": "This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, how producers create data files, and how the database is extended to new countries, indicators and breakdowns. It follows the SDMX information model (the ISO standard statistical agencies use to exchange data) and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.\nBackground on the current inputs is in input-tables-findings.qmd. Nothing here changes the current INPUT Tables/ files. A Python converter will produce the new files from them, and the dashboard will switch over later.\nHow to read this document. Section 1 is the whole idea on one page: the model, where every file lives, and how the database grows. Read it first. Sections 2 to 11 are reference material; come back to them when you need the exact rule. Section 12 records the design decisions already taken and those still open. Table 1 suggests where to start."
+  },
+  {
+    "objectID": "index.html#sec-one-row",
+    "href": "index.html#sec-one-row",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "1.1 One row is one number",
+    "text": "1.1 One row is one number\nEach row of a data file carries one value and the full set of codes that say what that value is: which country, which year, which population, which measure. Those codes fall into two families (Table 2), and telling them apart is the whole model.\n\n\n\nTable 2: The two families of codes\n\n\n\n\n\n\n\n\n\n\n\nBreakdown\nQualifier\n\n\n\n\nAnswers\nWho is counted\nWhat is measured\n\n\nExample\nRural households, Fatick, poorest quintile\nAt the $4.20 line, in 2021 PPP, on disposable income, food category\n\n\nPopulation behind each category\nDifferent subsets of the same population\nThe same population every time\n\n\nTest with N_POP\nCategories sum to the parent\nEach category equals the parent\n\n\nEmpty value means\n_T: everyone, not split\n_Z: does not apply\n\n\nDeclared in\nTAB_PLAN.csv, per cut\nCL_INDICATOR.csv, per indicator\n\n\nColumns\nGEO, URBANISATION, SEX, AGE, COMP_BREAKDOWN_1…5\nINDICATOR, MEASURE_QUAL_1…5\n\n\n\n\n\n\nThe quickest test is the population. If the people behind the categories add up to the whole, as regions or quintiles do, the variable is a breakdown. If every category covers the same whole population again, as the $3.00 and $4.20 poverty lines do, it is a qualifier. N_POP, the population behind each row, makes the test mechanical.\nThis matters for three reasons. The poverty rate at any line and PPP round is one indicator, POV_HC, not one per line. Every population share is one indicator, POP_SH, not thirty. And a new grouping such as sector of employment is a row in a codelist, not a change to the file format.\nThis distinction is the foundation of the database. Every rule in the rest of this document follows from it, and everyone who adds data has to apply it consistently."
+  },
+  {
+    "objectID": "index.html#sec-compositions",
+    "href": "index.html#sec-compositions",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "1.2 Common compositions, and how each number is checked",
+    "text": "1.2 Common compositions, and how each number is checked\nTable 3 builds some familiar numbers out of the two families. The last column shows what the coding buys in practice: once a number is coded this way, the validator can check it against related rows.\n\n\n\nTable 3: Common numbers composed from the two families, and how each is verified\n\n\n\n\n\n\n\n\n\n\n\n\nThe number you want\nINDICATOR\nQualifiers: what is measured\nBreakdowns: who is counted\nHow it is verified\n\n\n\n\nPoverty rate at $4.20 (2021 PPP)\nPOV_HC\nPOVLINE_PL420, PPP_2021\n—\nIn 0–1; rises with the line, so PL300 ≤ PL420 ≤ PL830\n\n\n…rural\nPOV_HC\nPOVLINE_PL420, PPP_2021\nURBANISATION=R\nN_POP-weighted average of CAP, OU, R equals the national value\n\n\n…Fatick\nPOV_HC\nPOVLINE_PL420, PPP_2021\nGEO=SN03\nSame rule over all ADM1 units; their N_POP sums to the country\n\n\n…at the national line\nPOV_HC\nPOVLINE_NPL\n—\nIn 0–1; PPP not applicable\n\n\nNumber of poor people\nPOV_NUM\nPOVLINE_PL420, PPP_2021\n—\nAdditive: sums across any breakdown; equals POV_HC × N_POP\n\n\nFood share of consumption\nCONS_SH\nCOICOP_CP01\n—\nThe 13 COICOP divisions sum to 1\n\n\nHousing share of consumption\nCONS_SH\nCOICOP_CP04\n—\nSame closure; no separate “housing burden” indicator exists\n\n\nFood share, poorest quintile\nCONS_SH\nCOICOP_CP01\nQUINT_Q1\nSums to 1 over COICOP within the quintile; Q1–Q5 aggregate to the total by N_POP\n\n\nFood share among the poor at $3.00\nCONS_SH\nPOVLINE_PL300, PPP_2021, COICOP_CP01\nPOOR_Y\nPOOR_Y and POOR_N aggregate to the total by N_POP\n\n\nShare of employed working in agriculture\nPOP_SH\n—\nEMP_SECTOR_AGR\nCategories sum to 1; equals the N_POP ratio to the variable’s universe\n\n\nShare of households with 2 enterprises\nPOP_SH\n—\nHE_COUNT_2\nSame two rules\n\n\nGini of disposable income\nINEQ_GINI\nWELFARE_INC_DISP\n—\nIn 0–1; N_POP equals the national population\n\n\nIncidence of direct transfers, poorest decile\nFISC_INCIDENCE\nWELFARE_INC_MARKET, FI_DIR_TRANSF\nDEC_MKT_D01\nInstruments sum to total incidence; deciles aggregate by N_POP\n\n\nMarginal contribution of indirect taxes to poverty\nFISC_MARG_CONTRIB\nWELFARE_INC_CONSUMABLE, POVLINE_PL300, PPP_2021, FI_INDIR_TAX\n—\nInstruments sum to the total effect\n\n\n\n\n\n\nEverything in the last column reduces to three generic rules, and each indicator declares which of them apply in its checks field (Section 5.2):\n\nAggregation. Over a partition, totals sum, and means and shares aggregate as N_POP-weighted averages.\nClosure. Some qualifiers partition the measured quantity: COICOP divisions sum to 1, and fiscal instruments sum to the total.\nRange and order. Shares lie in 0–1, counts are non-negative, and the headcount rises with the poverty line.\n\nSection 2.7 shows these numbers as they are written in a data file."
+  },
+  {
+    "objectID": "index.html#sec-layout",
+    "href": "index.html#sec-layout",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "1.3 Where everything lives",
+    "text": "1.3 Where everything lives\nEverything is plain files in one git repository, in five top-level folders (Listing 1):\n\nmetadata/ is the dictionary. It says what every code means, which rows a data file must contain, and which surveys the numbers come from. Every other folder refers to it, and every change to it is reviewed (Section 10).\ndata/ holds the numbers: one CSV per country and reference year, each with a manifest recording how it was produced and against which metadata version.\ngeo/ holds the boundaries used for maps.\ncontent/ and assets/ hold the prose and images the dashboard shows beside the numbers.\n\n\n\n\nListing 1: Repository layout\n\n\nmetadata/\n  VERSION                      semantic version of the whole metadata package\n  CHANGELOG.md\n  structure/\n    DSD_AFW360_HH.csv          column list of the data files (data team only)\n  codelists/\n    CL_AREA.csv                countries\n    CL_GEO_SCHEME.csv          spatial schemes, per country\n    CL_GEO.csv                 spatial units\n    CL_INDICATOR.csv           the indicator dictionary\n    CL_BRK_VAR.csv             breakdown variables\n    CL_COMP_BREAKDOWN.csv      breakdown categories\n    CL_QUAL_VAR.csv            qualifier variables\n    CL_QUALIFIER.csv           qualifier categories\n    CL_SEX.csv  CL_AGE.csv  CL_URBANISATION.csv\n    CL_OBS_STATUS.csv\n    CL_THEME.csv  CL_UNIT.csv  CL_STAT_UNIT.csv  CL_STATISTIC.csv  CL_WEIGHT.csv\n  surveys/\n    SURVEYS.csv                one row per country x survey round\n  plans/\n    TAB_PLAN.csv               which cuts are produced\n    LEGACY_LABELS.csv          old Excel labels -&gt; new codes (used by the converter)\n  registries/\n    GEO_SOURCES.csv            boundary files and their vintages\n    FIGURES.csv                images\ndata/\n  AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;.csv\n  AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;_manifest.csv\ngeo/\n  boundaries/&lt;ISO3&gt;_&lt;SOURCE_ID&gt;.gpkg\n  derived/                     generated display layers; never hand-edited\ncontent/\n  TEXT.csv                     dashboard prose, one row per slot\n  text/&lt;ISO3&gt;/&lt;slot&gt;.md        long-form bodies\nassets/\n  figures/&lt;ISO3&gt;/&lt;figure_id&gt;.&lt;ext&gt;\n\n\n\nNumbers flow one way. A producer’s program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against metadata/ (Section 11). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using LEGACY_LABELS.csv (Annex).\nNone of this exists yet; the dashboard still reads INPUT Tables/, INPUT shp/ and INPUT Text/ directly. The natural order of work is the metadata for Senegal and Guinea-Bissau first, then the converter, then the validator, and last the switch of the dashboard to the new loader, because each step needs the one before it."
+  },
+  {
+    "objectID": "index.html#sec-growth",
+    "href": "index.html#sec-growth",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "1.4 How the database grows",
+    "text": "1.4 How the database grows\nThe rule for every extension is metadata first, data last. A number can enter the database only once its codes exist, so every change starts in the codelists and ends with a data file that the validator accepts. If a new number cannot be described with the existing codes, the codes are extended first, in the same pull request as the data.\nA new country is added in this order:\n\nRegister the country in CL_AREA.\nRegister its spatial schemes in CL_GEO_SCHEME and their units in CL_GEO.\nCheck its indicators against the dictionary, CL_INDICATOR. Every country should produce the same set of indicators, matching the dictionary’s codes, definitions and meaning. When a country’s survey cannot match a definition, update the dictionary with a new code linked to the old one through related, rather than stretching an existing code to fit.\nDo the same for breakdowns and qualifiers: the country’s categories map to the shared codes in CL_COMP_BREAKDOWN and CL_QUALIFIER.\nDescribe the survey in SURVEYS.csv, and add the boundary files the maps need.\nProduce the data file for each reference year, following TAB_PLAN, together with its manifest.\n\nSection 7.4 gives each step in full.\nA new indicator starts in the microdata, not in the aggregation. First standardize the variables it needs in the survey microdata itself, so that each one has the same definition, universe, unit and recall period in every country. Once they are standardized, the indicator is a simple aggregate of them: a mean, a share or a total over each cut. If an indicator needs complicated logic at the aggregation step, its variables are not yet standardized enough.\nEvery constructed variable also needs its own metadata, recording what the microdata looked like when the indicator was computed from it: the questionnaire module and questions, the recall period, the universe, the units and any recoding. CL_INDICATOR points to these variables through source_questionnaire, source_vars and program. Where the variable-level documentation itself is kept is still an open decision (Section 12.2).\nEverything else, such as a breakdown, a qualifier, a poverty line, a spatial scheme, a survey round, a piece of text or a figure, is listed in Table 18 with the files to edit and the version bump it needs. The only structural change is to the columns of the data file, and only the data team makes it (Section 10)."
+  },
+  {
+    "objectID": "index.html#sec-columns",
+    "href": "index.html#sec-columns",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.1 Columns",
+    "text": "2.1 Columns\nData files have exactly the 26 columns in Table 4, in that order. The role says which family a column belongs to (Section 1.1): breakdowns say who is counted, qualifiers say what is measured, and attributes describe the value’s reliability and origin.\n\n\n\nTable 4: Columns of an AFW360_HH data file\n\n\n\n\n\n\n\n\n\n\n\n\n#\nColumn\nRole\nValues\nRequired\n\n\n\n\n1\nDATAFLOW\nconstant\nAFW360_HH\nR\n\n\n2\nREF_AREA\nbreakdown\nCL_AREA (ISO 3166-1 alpha-3)\nR\n\n\n3\nGEO\nbreakdown\nCL_GEO, or _T for the whole country\nR\n\n\n4\nTIME_PERIOD\nreference\n4-digit year the estimate refers to\nR\n\n\n5\nINDICATOR\nqualifier\nCL_INDICATOR\nR\n\n\n6\nSEX\nbreakdown\nCL_SEX, _T, or _Z\nR\n\n\n7\nAGE\nbreakdown\nCL_AGE, _T, or _Z\nR\n\n\n8\nURBANISATION\nbreakdown\nCL_URBANISATION or _T\nR\n\n\n9–13\nCOMP_BREAKDOWN_1…5\nbreakdown\nCL_COMP_BREAKDOWN or _T\nR\n\n\n14–18\nMEASURE_QUAL_1…5\nqualifier\nCL_QUALIFIER or _Z\nR\n\n\n19\nOBS_VALUE\nmeasure\nnumber\nR unless OBS_STATUS is O or M\n\n\n20\nOBS_STATUS\nattribute\nCL_OBS_STATUS\nR\n\n\n21\nSTD_ERR\nattribute\nnumber ≥ 0\nR where the statistic admits one\n\n\n22\nCI_LOWER\nattribute\nnumber, 95%\nR where STD_ERR is\n\n\n23\nCI_UPPER\nattribute\nnumber, 95%\nR where STD_ERR is\n\n\n24\nN_OBS\nattribute\ninteger ≥ 0\nR\n\n\n25\nN_POP\nattribute\nnumber ≥ 0\nR\n\n\n26\nOBS_COMMENT\nattribute\nfree text, English\nO"
+  },
+  {
+    "objectID": "index.html#sec-sentinels",
+    "href": "index.html#sec-sentinels",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.2 The two sentinels",
+    "text": "2.2 The two sentinels\n_T and _Z are reserved codes with fixed meanings. They are never listed in a codelist, and no other code may start with them.\n\n_T, total. The value covers every unit and is not split on this dimension. Valid in GEO, SEX, AGE, URBANISATION and the breakdown slots.\n_Z, not applicable. Valid in every unused qualifier slot, and in SEX or AGE when the indicator is not about individuals. A household-level indicator writes SEX=_Z, not SEX=_T, because “total over both sexes” would be a claim about a dimension that does not apply to households.\nGEO and URBANISATION are never _Z: every unit lives somewhere."
+  },
+  {
+    "objectID": "index.html#sec-breakdown-rules",
+    "href": "index.html#sec-breakdown-rules",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.3 Rules for the breakdown columns",
+    "text": "2.3 Rules for the breakdown columns\n\nFill the slots from the left, with no gaps. Unused slots are _T.\nUse the canonical order. When a row has several breakdowns, they go in ascending slot_order from CL_BRK_VAR, with ties broken alphabetically by var_code. Each combination then has exactly one spelling.\nOne category per variable per row.\nRespect unit compatibility. A breakdown variable may be used only with indicators whose stat_unit appears in its applies_to_units.\nNever duplicate a named dimension. Residence, individual sex, individual age and geography always go in their own columns.\nSEX and AGE describe the individual being counted, not the household head. The head’s characteristics are breakdown variables (HHH_SEX, HHH_AGE) and go in the slots.\nAn age band that defines an indicator’s universe is not a breakdown. “Employed, 15–64” has that band in its universe and writes AGE=_T."
+  },
+  {
+    "objectID": "index.html#sec-qualifier-rules",
+    "href": "index.html#sec-qualifier-rules",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.4 Rules for the qualifier columns",
+    "text": "2.4 Rules for the qualifier columns\n\nFill from the left, with no gaps. Unused slots are _Z.\nUse the canonical order: ascending slot_order from CL_QUAL_VAR, with ties broken alphabetically.\nOne category per qualifier variable per row.\nA row may use only the qualifiers its indicator declares in CL_INDICATOR.qualifiers, plus any qualifier required by a breakdown it uses. POOR_Y requires a poverty line, so a food-share row broken down by poverty status carries POVLINE_* and PPP_* even though CONS_SH does not otherwise use them.\nPairings must be allowed: CL_QUALIFIER.valid_with says which PPP rounds go with which line."
+  },
+  {
+    "objectID": "index.html#sec-values",
+    "href": "index.html#sec-values",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.5 Values and attributes",
+    "text": "2.5 Values and attributes\n\nStore OBS_VALUE unrounded, with . as the decimal separator and no thousands separator or % sign. Rounding is a display decision (display_as, decimals).\nUse base units. Shares are 0–1, never 0–100. People are counted in persons, not millions. Money is in whole currency units.\nDo not suppress. Every estimate is published whatever its sample size. Reliability travels with the value instead: N_OBS and N_POP are required on every row, STD_ERR and the confidence interval on every row whose statistic admits them, and the dashboard shows them (Section 6.3).\nN_OBS is the unweighted number of records of the estimation file used: records in the group, in the indicator’s universe, with a non-missing value. When a person-weighted poverty rate is computed on a household file, N_OBS counts households. SURVEYS.analysis_units records which file each stat_unit is estimated from, so a reader always knows what N_OBS counts.\nN_POP is the sum of weights over those same records: the population, households or enterprises the value refers to.\nStandard errors and confidence intervals must reflect the survey design (weights, strata and PSUs, with linearized variance). Intervals are at 95%.\n\nOBS_STATUS takes one of the four codes in Table 5, which come from the SDMX cross-domain CL_OBS_STATUS. A cell that can never exist is normally declared in the indicator’s excluded_breakdowns (Section 5.2) and left out of the file. M covers such a cell when it has not been declared there: the row stays, with an empty value, so the gap is visible.\n\n\n\nTable 5: Observation status codes\n\n\n\n\n\n\n\n\n\n\nCode\nMeaning\nOBS_VALUE\n\n\n\n\nA\nNormal value\nfilled\n\n\nE\nModel-based: projection, nowcast or microsimulation\nfilled\n\n\nO\nIn the universe, but no observations fell in this cell\nempty\n\n\nM\nCannot exist: the cell is outside the indicator’s universe by definition\nempty"
+  },
+  {
+    "objectID": "index.html#sec-required-rows",
+    "href": "index.html#sec-required-rows",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.6 Which rows exist",
+    "text": "2.6 Which rows exist\nFor each indicator, the required rows are:\n\n(the qualifier combinations declared in CL_INDICATOR.qualifiers) × (the cuts in TAB_PLAN that cover its theme and unit) × (the categories of those cuts) − (anything listed in excluded_breakdowns)\n\nNothing extra, nothing missing. A cell with no observations is a row with OBS_STATUS=O, not an absent row. This is what makes a file checkable: the validator can compute the set of rows that should exist and compare it with the rows that do."
+  },
+  {
+    "objectID": "index.html#sec-example-rows",
+    "href": "index.html#sec-example-rows",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "2.7 Example rows",
+    "text": "2.7 Example rows\nTable 6 shows the compositions of Table 3 as they are written in a data file. Only the columns that vary are shown.\n\n\n\nTable 6: Example rows of a data file, showing only the columns that vary\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThe value\nGEO\nURBANISATION\nINDICATOR\nMEASURE_QUAL_1\nMEASURE_QUAL_2\nMEASURE_QUAL_3\nCOMP_BREAKDOWN_1\n\n\n\n\nPoverty at $4.20, national\n_T\n_T\nPOV_HC\nPOVLINE_PL420\nPPP_2021\n_Z\n_T\n\n\nPoverty at $4.20, rural\n_T\nR\nPOV_HC\nPOVLINE_PL420\nPPP_2021\n_Z\n_T\n\n\nPoverty at $4.20, Fatick\nSN03\n_T\nPOV_HC\nPOVLINE_PL420\nPPP_2021\n_Z\n_T\n\n\nPoverty at the national line\n_T\n_T\nPOV_HC\nPOVLINE_NPL\n_Z\n_Z\n_T\n\n\nPoverty at $3.00 on consumable income\n_T\n_T\nPOV_HC\nWELFARE_INC_CONSUMABLE\nPOVLINE_PL300\nPPP_2021\n_T\n\n\nNumber of poor at $4.20\n_T\n_T\nPOV_NUM\nPOVLINE_PL420\nPPP_2021\n_Z\n_T\n\n\nFood share, poorest quintile\n_T\n_T\nCONS_SH\nCOICOP_CP01\n_Z\n_Z\nQUINT_Q1\n\n\nFood share among the poor at $3.00\n_T\n_T\nCONS_SH\nPOVLINE_PL300\nPPP_2021\nCOICOP_CP01\nPOOR_Y\n\n\nShare of employed in agriculture\n_T\n_T\nPOP_SH\n_Z\n_Z\n_Z\nEMP_SECTOR_AGR\n\n\nGini of disposable income\n_T\n_T\nINEQ_GINI\nWELFARE_INC_DISP\n_Z\n_Z\n_T\n\n\nIncidence of direct transfers, poorest decile\n_T\n_T\nFISC_INCIDENCE\nWELFARE_INC_MARKET\nFI_DIR_TRANSF\n_Z\nDEC_MKT_D01\n\n\nPoverty rate, 2017 PPP (legacy Departement)\nSN03\n_T\nPOV_HC\nPOVLINE_PL300\nPPP_2017\n_Z\n_T\n\n\n\n\n\n\nIn every row DATAFLOW=AFW360_HH, REF_AREA=SEN and TIME_PERIOD=2021. SEX and AGE are _T (total), or _Z for an indicator whose stat_unit is not IND (Section 2.2). COMP_BREAKDOWN_2…5 are _T, and MEASURE_QUAL_4…5 are _Z (not applicable).\nQualifiers fill the slots in ascending slot_order (Section 2.4): welfare concept 10, poverty line 20, PPP 30, COICOP 40, fiscal instrument 50. That is why the COICOP code lands in slot 3 on the “food share among the poor” row but in slot 1 on the “food share, poorest quintile” row."
+  },
+  {
+    "objectID": "index.html#sec-initial-breakdowns",
+    "href": "index.html#sec-initial-breakdowns",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "3.1 Initial breakdown variables",
+    "text": "3.1 Initial breakdown variables\nTable 7 lists the breakdown variables needed to reproduce the current tables and the first fiscal-incidence work.\n\n\n\nTable 7: Initial breakdown variables\n\n\n\n\n\n\n\n\n\n\n\n\nvar_code\nDescribes\nUniverse\nCategories\nslot_order\n\n\n\n\nQUINT\nHousehold\nAll households\nQUINT_Q1 … QUINT_Q5\n10\n\n\nDEC_MKT\nHousehold\nAll households\nDEC_MKT_D01 … DEC_MKT_D10\n15\n\n\nHHH_SEX\nHousehold head\nAll households\nHHH_SEX_F, HHH_SEX_M\n20\n\n\nHHH_AGE\nHousehold head\nAll households\nHHH_AGE_LT35, HHH_AGE_GE35 (cutoff to be confirmed)\n30\n\n\nPOOR\nHousehold\nAll households\nPOOR_Y, POOR_N (requires a poverty line)\n40\n\n\nHE_COUNT\nHousehold\nAll households\nHE_COUNT_0 … HE_COUNT_4P\n50\n\n\nEMP_STATUS\nIndividual\nPersons aged 15–64\nEMP_STATUS_EMPLOYED, EMP_STATUS_NOT_EMPLOYED\n55\n\n\nEMP_SECTOR\nIndividual\nEmployed persons 15–64\nEMP_SECTOR_AGR, _IND, _SER\n60\n\n\n\n\n\n\nslot_order values are spaced by 10 so that new variables can go in between, as DEC_MKT (15) and EMP_STATUS (55) already do.\nDEC_MKT is registered for fiscal-incidence work, where households are ranked by market income; QUINT ranks them by consumption per capita. Two different rankings are two different variables, and each states its basis in definition_en."
+  },
+  {
+    "objectID": "index.html#sec-universe",
+    "href": "index.html#sec-universe",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "3.2 Every breakdown variable carries a universe",
+    "text": "3.2 Every breakdown variable carries a universe\nCL_BRK_VAR.universe names the population that the categories partition. This is what makes POP_SH work as a single indicator: the share is the category’s N_POP divided by the universe’s N_POP, so “share of employed in agriculture” and “share of households with two enterprises” are the same indicator with different breakdowns."
+  },
+  {
+    "objectID": "index.html#sec-example-sector",
+    "href": "index.html#sec-example-sector",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "3.3 Worked example: adding sector of employment",
+    "text": "3.3 Worked example: adding sector of employment\n\nDecide whose characteristic it is. “Sector of an individual’s main job” (EMP_SECTOR, describes IND) and “sector of the household head’s main job” (HHH_SECTOR, describes HHH) are two different variables. The first can break down only individual-level indicators; the second can break down household indicators such as the poverty rate.\nRegister it in CL_BRK_VAR: describes = IND, applies_to_units = IND, universe = employed persons aged 15–64, classification = ISIC Rev.4, partition = Y, slot_order = 60.\nRegister the categories in CL_COMP_BREAKDOWN: EMP_SECTOR_AGR for ISIC section A, EMP_SECTOR_IND for B–F and EMP_SECTOR_SER for G–U.\nAdd a cut to TAB_PLAN.\nProduce the rows. When the cut is crossed with individual sex, the rows for women also carry SEX=F. When it is crossed with quintile, QUINT has the lower slot_order, so it takes slot 1 and EMP_SECTOR takes slot 2."
+  },
+  {
+    "objectID": "index.html#sec-povlines",
+    "href": "index.html#sec-povlines",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "4.1 Poverty lines",
+    "text": "4.1 Poverty lines\n\n\n\nTable 9: Poverty lines\n\n\n\n\n\ncode\nvalue\nbasis\nvalid_with\n\n\n\n\nPOVLINE_PL215\n2.15\nPPP$ per person per day\nPPP_2017\n\n\nPOVLINE_PL365\n3.65\nPPP$ per person per day\nPPP_2017\n\n\nPOVLINE_PL685\n6.85\nPPP$ per person per day\nPPP_2017\n\n\nPOVLINE_PL300\n3.00\nPPP$ per person per day\nPPP_2021, PPP_2017 (legacy, see Annex 2)\n\n\nPOVLINE_PL420\n4.20\nPPP$ per person per day\nPPP_2021\n\n\nPOVLINE_PL830\n8.30\nPPP$ per person per day\nPPP_2021\n\n\nPOVLINE_NPL\nper survey\nLocal currency; the value is in SURVEYS.csv\n_Z\n\n\nPOVLINE_NPL_FOOD\nper survey\nLocal currency; the value is in SURVEYS.csv\n_Z\n\n\n\n\n\n\n$2.15, $3.65 and $6.85 are the international, lower-middle-income and upper-middle-income lines at 2017 PPP; $3.00, $4.20 and $8.30 are their 2021 PPP replacements. POVLINE_NPL means “the national line of this survey”, whose value differs by country and round."
+  },
+  {
+    "objectID": "index.html#sec-ppp",
+    "href": "index.html#sec-ppp",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "4.2 PPP beyond poverty",
+    "text": "4.2 PPP beyond poverty\nThe PPP qualifier also marks values expressed in PPP dollars, such as mean consumption per capita per day in 2021 PPP dollars. Values in local currency carry no PPP code (_Z); their currency comes from CL_AREA."
+  },
+  {
+    "objectID": "index.html#sec-code-rules",
+    "href": "index.html#sec-code-rules",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.1 Code rules",
+    "text": "5.1 Code rules\n\nUppercase ASCII letters, digits and _; start with a letter; at most 32 characters, the Stata variable-name limit. P-codes are used as issued and already comply.\n_T and _Z are reserved sentinels and never appear as codes.\nA code never changes meaning, and is never reused or deleted. A changed definition means a new code, with the old one DEPRECATED and replaced_by filled. Rewording a label is free.\nBreakdown and qualifier categories are &lt;var_code&gt;_&lt;category&gt;. The whole code must still fit in 32 characters, so keep var_code short.\nIndicator codes are &lt;THEME&gt;_&lt;SUBJECT&gt;[_&lt;DETAIL&gt;] and contain no poverty line, PPP round, welfare concept, COICOP division, unit or breakdown, because all of those are dimensions. Use POV_HC, never POV_HC_PL420.\nIn Stata, name the variable holding an indicator after its code in lower case, so no lookup table is needed."
+  },
+  {
+    "objectID": "index.html#sec-cl-indicator",
+    "href": "index.html#sec-cl-indicator",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.2 CL_INDICATOR.csv: the indicator dictionary",
+    "text": "5.2 CL_INDICATOR.csv: the indicator dictionary\nBeyond the common columns, the dictionary has the columns in Table 10.\n\n\n\nTable 10: Columns of CL_INDICATOR.csv, beyond the common ones\n\n\n\n\n\n\n\n\n\n\n\nColumn\n\nContent\nExample (POP_SH)\n\n\n\n\nshort_name_en\nR\nAt most 40 characters, for chart labels\nPopulation share\n\n\ntheme\nR\nCL_THEME\nPOP\n\n\nstat_unit\nR\nCL_STAT_UNIT: what is counted\nIND\n\n\nuniverse_unit\nR\nThe unit forming the denominator\nIND\n\n\nuniverse_filter\nC\nRestriction in words; empty means all units\n(from the breakdown)\n\n\nnumerator\nC\nFor shares and ratios\nThe units in the breakdown category\n\n\nstatistic\nR\nCL_STATISTIC\nPROPORTION\n\n\nweight\nR\nCL_WEIGHT\nPOP\n\n\nref_period\nR\nISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW. Always P12M, never P1Y.\nINTERVIEW\n\n\nqualifiers\nR\nQualifier variables this indicator takes, with allowed categories or *; _Z if none\n_Z\n\n\nexcluded_breakdowns\nO\nBreakdown variables or categories that lie outside its universe and must not be produced\n\n\n\nunit_measure\nR\nCL_UNIT\nSHARE\n\n\nunit_denom\nC\nWhat the value is per, for levels\n\n\n\nunit_time\nC\nDAY, MONTH, YEAR, for flows\n\n\n\nprice_basis\nC\nNOMINAL or DEFLATED, for money\n\n\n\nprice_ref_year\nC\nRequired when price_basis = DEFLATED\n\n\n\ndisplay_as\nR\nPERCENT, NUMBER, THOUSANDS, MILLIONS, CURRENCY\nPERCENT\n\n\ndecimals\nR\nDecimals to display\n1\n\n\nvalid_min, valid_max\nR\nPlausible range; empty means unbounded\n0, 1\n\n\nchecks\nR\nMachine-readable verification rules (below)\nRANGE_0_1 EQUALS_NPOP_RATIO SUM_TO_1_OVER_BRK AGG_NPOP_MEAN\n\n\nhigher_is\nR\nBETTER, WORSE, NEUTRAL: color direction on maps\nNEUTRAL\n\n\nsdg_indicator\nO\n\n\n\n\nclassification\nO\nCOICOP2018, ISIC4:A, …\n\n\n\nrelated\nO\nCodes of close indicators (space-separated)\n\n\n\nrelated_note\nO\nHow this one differs from them\n\n\n\nsource_questionnaire\nR\nSurvey module or section\n\n\n\nsource_vars\nR\nHarmonized microdata variables used\n\n\n\nprogram\nR\nProgram that computes it\n\n\n\nowner\nR\nTeam or person responsible\n\n\n\n\n\n\n\ndisplay_as fixes a defect the dashboard has today, where every value is formatted as a percentage. A share stored as 0.37 displays as 37.0%, and POV_NUM stored as 6520000 displays as 6.52 (millions).\nchecks vocabulary: RANGE_0_1, RANGE_NONNEG, AGG_SUM (totals sum over a partition), AGG_NPOP_MEAN (means aggregate as N_POP-weighted averages), SUM_TO_1_OVER:&lt;QUAL_VAR&gt; (for example COICOP), SUM_TO_1_OVER_BRK (categories of the breakdown sum to 1), EQUALS_NPOP_RATIO, MONOTONE_IN:POVLINE, NONE.\nWhy the population fields matter. HHH_SEX_F means “people living in female-headed households” for a person-level poverty rate, and “enterprises in female-headed households” for an enterprise indicator. Without stat_unit, universe_* and weight, person-weighted and household-weighted numbers end up on the same chart. statistic matters too: a budget share can be the mean of household shares (MEAN) or the share of aggregate spending (RATIO_TOTALS), and the two differ."
+  },
+  {
+    "objectID": "index.html#sec-cl-brk-var",
+    "href": "index.html#sec-cl-brk-var",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.3 CL_BRK_VAR.csv",
+    "text": "5.3 CL_BRK_VAR.csv\nBeyond the common columns (code is the var_code), the file has the columns in Table 11.\n\n\n\nTable 11: Columns of CL_BRK_VAR.csv, beyond the common ones\n\n\n\n\n\n\n\n\n\n\nColumn\n\nContent\n\n\n\n\ndescribes\nR\nWhose characteristic: IND, HHH (household head), HH, HE\n\n\napplies_to_units\nR\nstat_unit values it may break down, e.g. HH IND HE\n\n\nuniverse\nR\nThe population its categories partition (Section 3.2)\n\n\nclassification\nO\nISIC Rev.4, ISCED 2011, ISCO-08, …\n\n\npartition\nR\nY if the categories are mutually exclusive and cover the universe\n\n\nrequires_qual\nC\nQualifier variables the categories depend on, e.g. POVLINE PPP for POOR\n\n\nslot_order\nR\nInteger, spaced by 10. Ties break alphabetically, so collisions are harmless.\n\n\nowner\nR"
+  },
+  {
+    "objectID": "index.html#sec-cl-comp-breakdown",
+    "href": "index.html#sec-cl-comp-breakdown",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.4 CL_COMP_BREAKDOWN.csv",
+    "text": "5.4 CL_COMP_BREAKDOWN.csv\nExtra columns: var_code (R), parent (O, a category of the same variable, for nested classifications), order (R, display order). definition_en is required wherever the boundary is not obvious, such as age cutoffs, ISIC groupings and quantile ranking rules."
+  },
+  {
+    "objectID": "index.html#sec-cl-qual",
+    "href": "index.html#sec-cl-qual",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.5 CL_QUAL_VAR.csv and CL_QUALIFIER.csv",
+    "text": "5.5 CL_QUAL_VAR.csv and CL_QUALIFIER.csv\nCL_QUAL_VAR extra columns: slot_order (R), requires (C, other qualifier variables that must appear with it, such as PPP for POVLINE), owner (R).\nCL_QUALIFIER extra columns: var_code (R), value (C, the numeric parameter, such as 3.00 for POVLINE_PL300), basis (C, what that value is expressed in), valid_with (C, allowed categories of other qualifier variables), order (R)."
+  },
+  {
+    "objectID": "index.html#sec-cl-geo",
+    "href": "index.html#sec-cl-geo",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.6 CL_GEO_SCHEME.csv and CL_GEO.csv",
+    "text": "5.6 CL_GEO_SCHEME.csv and CL_GEO.csv\nSchemes are parallel, not nested. ADM1 regions, ADM2 départements, Senegal’s zones and Guinea-Bissau’s agro-ecological zones are four different ways of cutting a country, and each is stored as its own set of units. Even where one scheme happens to group the units of another, as Senegal’s zones group its regions, nothing is derived from that nesting, and no scheme is required to decompose into another.\nCL_GEO_SCHEME has one row per country and scheme, keyed ref_area + code (Table 12).\n\n\n\nTable 12: Columns of CL_GEO_SCHEME.csv\n\n\n\n\n\n\n\n\n\n\n\nColumn\n\nContent\nExample\n\n\n\n\ncode\nR\nADM0, ADM1, ADM2, ZONES, AEZ\nADM2\n\n\nref_area\nR\nCountry\nSEN\n\n\nlocal_name_en\nR\nWhat that level is called in the country\nDépartement\n\n\nhas_geometry\nR\nY only for ADM0 and ADM1 (Section 8.1)\nN\n\n\nnests_in\nO\nAnother scheme, only where nesting is genuine; used for optional roll-up checks, never to derive geometry\nADM1\n\n\npartition\nR\nY if its units cover the country exactly once\nY\n\n\n\n\n\n\nCL_GEO has one row per spatial unit (Table 13).\n\n\n\nTable 13: Columns of CL_GEO.csv, beyond the common ones\n\n\n\n\n\n\n\n\n\n\n\nColumn\n\nContent\nExample\n\n\n\n\ncode\nR\nP-code for admin units; &lt;ISO2&gt;_&lt;SCHEME&gt;&lt;nn&gt; for other schemes\nSN03, GW08, SN_ZONES01\n\n\nref_area\nR\n\nSEN\n\n\nscheme\nR\nCL_GEO_SCHEME.code for that country\nADM1\n\n\nname_en\nR\nName as issued by the boundary source\nFatick\n\n\nparent\nC\nContaining unit, only when nests_in is set\n\n\n\nsource_id\nC\nGEO_SOURCES.csv; required when has_geometry = Y\nSEN_CODAB_v02\n\n\ngeom_layer\nC\nLayer holding the polygon\nadm1\n\n\nvalid_from, valid_to\nR/C\nThe boundary vintage the code belongs to, not the validity of the data. valid_to is empty while current.\n2024-05-20\n\n\n\n\n\n\nThe shapefiles in INPUT shp/ already carry these P-codes: SN01 is Dakar, SN03 is Fatick, and GW08 is Bissau (the current tables call it SAB). Maps join on codes, never on names."
+  },
+  {
+    "objectID": "index.html#sec-cl-area",
+    "href": "index.html#sec-cl-area",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.7 CL_AREA.csv",
+    "text": "5.7 CL_AREA.csv\nExtra columns: iso2 (R, the P-code prefix), currency (R, ISO 4217), wb_region (R).\nCurrency matters more than it seems. “FCFA” is two different currencies: XOF (CFA franc BCEAO, used in WAEMU, including SEN and GNB) and XAF (CFA franc BEAC). Eight AFW economies use neither. Monetary values in LCU are therefore not comparable across countries; comparison needs a PPP-denominated indicator."
+  },
+  {
+    "objectID": "index.html#sec-small-codelists",
+    "href": "index.html#sec-small-codelists",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.8 Small codelists",
+    "text": "5.8 Small codelists\n\n\n\nTable 14: Small codelists and their codes\n\n\n\n\n\n\n\n\n\nCodelist\nCodes\n\n\n\n\nCL_SEX\nF, M (_T and _Z are also valid; see Section 2.2)\n\n\nCL_AGE\nSDMX-style bands as needed: Y_LT15, Y15T24, Y25T64, Y_GE65, …\n\n\nCL_URBANISATION\nU, R, CAP (parent = U), OU (parent = U). This codelist has a parent column.\n\n\nCL_OBS_STATUS\nA, E, O, M (Table 5)\n\n\nCL_THEME\nPOV, INEQ, FISC, POP, CONS, JOB, HE, AGR, EN, HOUS, SHK, SP\n\n\nCL_STAT_UNIT\nIND, HH, HE, PLOT\n\n\nCL_STATISTIC\nPROPORTION, MEAN, MEDIAN, TOTAL, RATIO_TOTALS, GINI, INDEX\n\n\nCL_WEIGHT\nPOP (household weight × household size), HH, IND, HE\n\n\nCL_UNIT\nSHARE (0–1), INDEX (for Gini and similar), PERSON, HH, HE, LCU, PPP_USD, HA, TLU, DAY, YEAR, COUNT"
+  },
+  {
+    "objectID": "index.html#sec-surveys",
+    "href": "index.html#sec-surveys",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.9 SURVEYS.csv",
+    "text": "5.9 SURVEYS.csv\n\n\n\nTable 15: Columns of SURVEYS.csv, with Senegal’s values as the example\n\n\n\n\n\n\n\n\n\n\nColumn\n\nExample (SEN, from About_SEN.txt)\n\n\n\n\nsurvey_id\nR\nSEN_EHCVM_2021\n\n\nref_area, time_period\nR\nSEN, 2021\n\n\nsurvey_name, survey_acronym\nR\nEnquête Harmonisée sur les Conditions de Vie des Ménages, EHCVM\n\n\nproducer_agency\nR\nANSD\n\n\nfieldwork_start, fieldwork_end\nR\n2021-11, 2022-09\n\n\nsample_hh, sample_ind\nR/O\n7100\n\n\ndesign\nR\nStratification, stages, PSU\n\n\nrepresentative_levels\nR\nLevels the design supports. This is advisory metadata that the dashboard may display; it does not gate publication.\n\n\nanalysis_units\nR\nWhich file each stat_unit is estimated from, so N_OBS is interpretable\n\n\nwelfare_aggregate\nR\nConsumption per capita\n\n\nwelfare_adjustments\nR\nSpatial and temporal deflation\n\n\nnpl_value, npl_currency, npl_unit, npl_ref_year\nC\n519.8, XOF, per capita per day, 2018. The source says “estimated using the EHCVM 2018 … in current prices”; the price year is an inference and should be recorded as one.\n\n\nppp_rounds\nR\n2017 2021\n\n\nmicrodata_ref\nO\nCatalogue ID or URL\n\n\ncomparable_with\nO\nSEN_EHCVM_2018\n\n\ncontact, notes\nO"
+  },
+  {
+    "objectID": "index.html#sec-manifest",
+    "href": "index.html#sec-manifest",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.10 Manifest",
+    "text": "5.10 Manifest\nAFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;_manifest.csv has two columns, key and value. The keys are:\ndataflow, dsd_version, metadata_version, ref_area, time_period, source_type (SURVEY, PROJECTION, ADMIN), survey_id (the base survey, also for a projection), precision (EXACT, or ROUNDED_2DP for legacy conversions), file_name, n_rows, producer, program, software, run_timestamp (ISO 8601), status (DRAFT, SUBMITTED, VALIDATED, PUBLISHED), notes.\nTIME_PERIOD is the year the estimate refers to, which is not always a survey year. A microsimulated 2026 poverty rate has TIME_PERIOD=2026, source_type=PROJECTION and survey_id=SEN_EHCVM_2021, and every row has OBS_STATUS=E."
+  },
+  {
+    "objectID": "index.html#sec-tab-plan",
+    "href": "index.html#sec-tab-plan",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "5.11 TAB_PLAN.csv: which cuts are produced",
+    "text": "5.11 TAB_PLAN.csv: which cuts are produced\nA cut is one way of splitting the population, such as by residence, by region or by quintile. A row that lists two breakdowns is a crossed cut, such as quintile by sex of household head. TAB_PLAN is what turns the dictionary into a list of required rows (Section 2.6).\nThere is one row per cut, with the columns in Table 16. They give the codes used, not yes/no flags.\n\n\n\nTable 16: Columns of TAB_PLAN.csv\n\n\n\n\n\n\n\n\n\nColumn\nContent\n\n\n\n\ncut_id\nADM1, QUINT, …\n\n\nref_area\nISO3, or ALL\n\n\ngeo_scheme\n_T, or a scheme code\n\n\nurbanisation\n_T, or a set such as CAP OU R or U R\n\n\nsex\n_T, or F M\n\n\nage\n_T, or a set of CL_AGE codes\n\n\ncomp_breakdowns\nBreakdown variable codes in slot order, e.g. QUINT HHH_SEX\n\n\nthemes\nALL, or a list of CL_THEME codes\n\n\nstatus\nACTIVE or DRAFT\n\n\n\n\n\n\nThe initial plan (Table 17) reproduces the current Excel tables. Every row has sex = _T, age = _T, themes = ALL and status = ACTIVE. The zone cut needs one row per country, because the two countries’ zone schemes differ.\n\n\n\nTable 17: The initial plan, reproducing the current Excel tables\n\n\n\n\n\n\n\n\n\n\n\n\n\ncut_id\nref_area\ngeo_scheme\nurbanisation\ncomp_breakdowns\nCurrent source\n\n\n\n\nTOTAL\nALL\n_T\n_T\n\nestimateTotal\n\n\nURB\nALL\n_T\nCAP OU R\n\nestimateCapital, …Other_Urban, …Rural\n\n\nHHH_SEX\nALL\n_T\n_T\nHHH_SEX\nestimateFemale_HH, …Male_HH\n\n\nHHH_AGE\nALL\n_T\n_T\nHHH_AGE\nestimateYouth_HH, …Older_HH\n\n\nQUINT\nALL\n_T\n_T\nQUINT\nestimateQ1 … Q5\n\n\nADM1\nALL\nADM1\n_T\n\nADM 1 sheet\n\n\nZONES\nSEN\nZONES\n_T\n\nZAE sheet\n\n\nAEZ\nGNB\nAEZ\n_T\n\nZAE sheet"
+  },
+  {
+    "objectID": "index.html#sec-estimation",
+    "href": "index.html#sec-estimation",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "6.1 Estimation rules",
+    "text": "6.1 Estimation rules\n\nCode the indicator variable as missing for units outside its universe, so they leave both the numerator and the denominator.\nEstimate with the survey design declared (weights, strata, PSUs), and use subpopulation estimation for groups rather than dropping observations, so that standard errors stay correct.\nUse the weight named in the dictionary (POP = household weight × household size, for person-level statistics computed on household data).\nPublish every estimate. Do not blank, round away or drop a small cell; report its N_OBS.\nWrite values unrounded, in base units."
+  },
+  {
+    "objectID": "index.html#sec-legacy",
+    "href": "index.html#sec-legacy",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "6.2 A note on legacy conversions",
+    "text": "6.2 A note on legacy conversions\nFiles that the converter produces from the current Excel inherit values already rounded to two decimals, and they carry no sample sizes. Such a file sets precision = ROUNDED_2DP in its manifest. The validator then relaxes its aggregation tolerances and does not demand STD_ERR, CI_* or N_OBS. This exemption applies only to converted legacy files, never to new production."
+  },
+  {
+    "objectID": "index.html#sec-reliability",
+    "href": "index.html#sec-reliability",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "6.3 How the dashboard shows reliability",
+    "text": "6.3 How the dashboard shows reliability\nSince nothing is suppressed, the dashboard carries the burden of honesty:\n\nEvery value is shown with its N_OBS, available on hover, in a details panel or in the downloaded table.\nCharts show the confidence interval where one exists.\nA cell resting on few records is visually de-emphasized rather than hidden, and OBS_STATUS=O renders as “no observations”, never as zero."
+  },
+  {
+    "objectID": "index.html#sec-add-indicator",
+    "href": "index.html#sec-add-indicator",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "7.1 Add an indicator",
+    "text": "7.1 Add an indicator\n\nSearch CL_INDICATOR for the same concept. If it exists, reuse it. Before creating a code, check whether the difference is a qualifier: a different poverty line, PPP round, welfare concept or COICOP division is never a new indicator. Neither is a population share; that is POP_SH with a breakdown.\nIf a near-duplicate exists, fill related and related_note on both rows.\nStandardize the variables it needs in the harmonized microdata, so that the indicator is a plain aggregate of them (Section 1.4). Record them in source_questionnaire and source_vars, and the program that computes the indicator in program.\nFill every R column and the C columns that apply, including qualifiers and checks.\nProduce it for every applicable cut.\nOpen a pull request (Section 10)."
+  },
+  {
+    "objectID": "index.html#sec-add-breakdown",
+    "href": "index.html#sec-add-breakdown",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "7.2 Add a breakdown variable",
+    "text": "7.2 Add a breakdown variable\nFollow Section 3.3: decide describes and applies_to_units, write the universe, reuse an international classification if one exists, set slot_order, register the categories, and add the cuts. Expect small N_OBS in fine groups, and publish them anyway with their sample sizes."
+  },
+  {
+    "objectID": "index.html#sec-add-qualifier",
+    "href": "index.html#sec-add-qualifier",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "7.3 Add a qualifier variable",
+    "text": "7.3 Add a qualifier variable\n\nConfirm it is a qualifier: the population behind each category is the same one (Section 1.1).\nRegister it with a slot_order and, if it depends on another qualifier, requires.\nRegister its categories, with value, basis and valid_with where they apply.\nList it in the qualifiers field of every indicator that takes it, naming the allowed categories."
+  },
+  {
+    "objectID": "index.html#sec-add-country",
+    "href": "index.html#sec-add-country",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "7.4 Add a country",
+    "text": "7.4 Add a country\nFollow the order in Section 1.4: metadata first, data last.\n\nCL_AREA: add the country, with its ISO2 code (the P-code prefix) and its currency.\nCL_GEO_SCHEME: register every spatial scheme the country will publish, with the local name of each level.\nCL_GEO: register the units of each scheme, using the P-codes of the boundary file you will map with.\nIndicators: check each indicator in CL_INDICATOR against the country’s survey, and reuse the code wherever the definition holds. Where it does not, register a new code linked to the old one through related and related_note (Section 7.1). Never stretch an existing definition to fit.\nBreakdowns and qualifiers: map the survey’s own variable values to the shared codes, in the producer’s program. A country-specific category becomes a child of a shared code (a secondary-city stratum is parent = U), never an unrelated new code.\nSURVEYS: add each survey round, with its design, welfare aggregate and national poverty line.\nBoundaries: add the ADM0 and ADM1 boundary file and its GEO_SOURCES row (Section 8.4).\nTAB_PLAN: add rows only where the country’s cuts differ from the shared ALL rows, for example for its own zone scheme.\nData: produce the data file and manifest for each reference year (Section 6), run the validator, and open one pull request with the metadata and the data together (Section 10).\n\nEvery other code comes from the shared codelists."
+  },
+  {
+    "objectID": "index.html#sec-maps-scope",
+    "href": "index.html#sec-maps-scope",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "8.1 Maps exist for countries and ADM1 only",
+    "text": "8.1 Maps exist for countries and ADM1 only\nhas_geometry = Y is set for ADM0 and ADM1. Every other scheme, including ADM2, zones and agro-ecological zones, is published as tables with no map, no geometry file and no missing-geometry error. Neither Senegal’s zones nor Guinea-Bissau’s agro-ecological zones therefore need polygons."
+  },
+  {
+    "objectID": "index.html#sec-geo-storage",
+    "href": "index.html#sec-geo-storage",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "8.2 Storage",
+    "text": "8.2 Storage\nBoundaries are stored as GeoPackage (.gpkg) files, one per country per boundary vintage, with one layer per level:\ngeo/boundaries/SEN_CODAB_v02.gpkg     layers: adm0, adm1\nWhy not shapefiles: a shapefile is 5–6 files that must travel together. Its DBF field names are cut at 10 characters (the current files show cod_versio and adm1_ref_n), its text fields stop at 254 characters, its encoding is declared in a side-car .cpg, and its .prj carries no authority code (the current files say GCS_WGS_1984 with no EPSG number). A GeoPackage is one SQLite file with UTF-8 text, long field names, several layers and an SRS with its authority code, and geopandas, QGIS, ArcGIS and R all read it.\nRules:\n\nRequired layer fields: geo_code (matching CL_GEO.code), ref_area, scheme. A name column may be kept for convenience, but CL_GEO is authoritative, and disagreement is a warning, not an error.\nCRS: EPSG:4326 in storage. Reproject only for display or area computation.\nHygiene: valid geometries, one feature per code, units covering the country exactly once.\nVintages are explicit. valid_from and valid_to in CL_GEO describe the boundary release a code belongs to, not the period the data cover. SEN’s COD-AB v02 dates from 2024 while the data are for 2021, and that is not an error.\nDerived layers are generated, never hand-edited. Simplified display copies live in geo/derived/ and may be rebuilt at any time; the simplification tolerance is kept in the build script.\nSize: keep files in git while they are small. Beyond a few MB, use Git LFS or an external store, with the URL and checksum in the registry.\n\nGEO_SOURCES.csv columns: source_id, ref_area, provider, version, valid_on, url, download_date, licence, attribution (the credit line the map must show), crs, file, layers, sha256, status, version_added, notes."
+  },
+  {
+    "objectID": "index.html#sec-figures",
+    "href": "index.html#sec-figures",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "8.3 Figures",
+    "text": "8.3 Figures\nFigures live at assets/figures/&lt;ISO3&gt;/&lt;figure_id&gt;.&lt;ext&gt; and are registered in FIGURES.csv, with columns figure_id, ref_area, time_period, theme, title_en, caption_en, alt_text_en (required: what a screen reader announces), indicators, source, producer, program, licence, file, sha256, status, version_added, notes.\nPrefer generating figures from the data; an image is a last resort. Use SVG or PDF for charts, and PNG at twice display size for anything raster. The dashboard asks for a figure_id, not a file name."
+  },
+  {
+    "objectID": "index.html#sec-extend-assets",
+    "href": "index.html#sec-extend-assets",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "8.4 Extending",
+    "text": "8.4 Extending\n\n\n\nTable 19: What to edit for boundaries and figures\n\n\n\n\n\n\n\n\n\nI want to…\nFiles to edit\n\n\n\n\nAdd ADM0/ADM1 boundaries for a country\nGEO_SOURCES.csv, the .gpkg, CL_GEO\n\n\nRefresh a boundary vintage\nNew GEO_SOURCES row and file; close superseded CL_GEO rows with valid_to, and add the new ones\n\n\nAdd a spatial scheme with no map\nCL_GEO_SCHEME (has_geometry = N), CL_GEO\n\n\nAdd a figure\nFIGURES.csv and the file"
+  },
+  {
+    "objectID": "index.html#sec-text-csv",
+    "href": "index.html#sec-text-csv",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "9.1 TEXT.csv",
+    "text": "9.1 TEXT.csv\n\n\n\nTable 20: Columns of TEXT.csv\n\n\n\n\n\n\n\n\n\n\nColumn\n\nContent\n\n\n\n\nslot\nR\nWhere it appears: about, messages, energy_intro, map_note, … The dashboard asks for a slot by name.\n\n\nref_area\nR\nISO3, or ALL for shared boilerplate\n\n\ntime_period\nR\nYear, or ALL\n\n\norder\nR\nPosition within a slot that holds several items, such as key messages\n\n\ntitle\nO\n\n\n\nbody\nC\nThe text, one paragraph, no line breaks\n\n\nfile\nC\nPath under content/text/ for anything longer. Exactly one of body and file is filled.\n\n\nstatus\nR\nDRAFT or PUBLISHED; in production the dashboard shows only PUBLISHED\n\n\nupdated_on\nR\nISO date\n\n\n\n\n\n\nA country row overrides an ALL row for the same slot. This keeps shared methodology in one place instead of copied per country; today About.txt and About_SEN.txt are byte-identical copies.\nMarkdown in body and in the files is limited to paragraphs, emphasis, links, lists and footnotes. No raw HTML."
+  },
+  {
+    "objectID": "index.html#sec-live-numbers",
+    "href": "index.html#sec-live-numbers",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "9.2 Live numbers in prose",
+    "text": "9.2 Live numbers in prose\nNumbers typed into prose go stale, and nothing checks them; the current key messages are typed into index.qmd by hand. Instead, reference the data inline, as in Listing 2.\n\n\n\nListing 2: Live numbers in dashboard prose\n\n\nPoverty at $4.20 a day stands at {{POV_HC:PL420}}, and {{POV_NUM:PL420}} million people are poor.\nRural poverty stands at {{POV_HC:PL420@URBANISATION=R}}.\n\n\n\n\nThe country and year come from the TEXT.csv row, and every breakdown defaults to the national total, so a plain {INDICATOR:QUALIFIER} is usually enough.\nAnything else is added after @ as DIMENSION=CODE, separated by commas.\nThe dashboard formats each number with its indicator’s display_as and decimals (37.0% for a share, 6.52 for a count shown in millions), so prose and tables cannot disagree. Write only the words around the number.\nThe validator resolves every reference to exactly one observation, and fails if it finds none or several."
+  },
+  {
+    "objectID": "index.html#sec-text-replaces",
+    "href": "index.html#sec-text-replaces",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "9.3 What this replaces",
+    "text": "9.3 What this replaces\nTEXT.csv replaces About_&lt;ISO3&gt;.txt, Messages_&lt;ISO3&gt;.txt and every string hardcoded in index.qmd. Figure captions stay with their images in FIGURES.csv."
+  },
+  {
+    "objectID": "index.html#sec-extend-text",
+    "href": "index.html#sec-extend-text",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "9.4 Extending",
+    "text": "9.4 Extending\nAdd or edit a row in TEXT.csv, and add a .md file if the text is long. The same pull request rules apply as for codelists."
+  },
+  {
+    "objectID": "index.html#sec-decisions-taken",
+    "href": "index.html#sec-decisions-taken",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "12.1 Decisions taken",
+    "text": "12.1 Decisions taken\n\n\n\nTable 21: Design decisions taken\n\n\n\n\n\n\n\n\n\nDecision\nChoice\n\n\n\n\nBreakdowns\nNamed GEO, URBANISATION, SEX, AGE, plus five generic slots\n\n\nQualifiers\nFive generic slots. Poverty line, PPP round, welfare concept, COICOP division and fiscal instrument are all qualifiers.\n\n\nPopulation shares\nOne indicator, POP_SH, with the group named by the breakdown\n\n\nSuppression\nNone. Every estimate is published, with its sample size and confidence interval attached.\n\n\nGeography\nParallel spatial schemes, not a hierarchy. Maps only for country outlines and ADM1.\n\n\nLanguage\nEnglish only\n\n\nWho extends codelists\nProducers, through pull requests reviewed by the data team\n\n\nTooling\nProducers deliver CSV. The converter, validator and dashboard loader are written in Python."
+  },
+  {
+    "objectID": "index.html#sec-open-decisions",
+    "href": "index.html#sec-open-decisions",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "12.2 Open decisions",
+    "text": "12.2 Open decisions\n\nAge cutoff for household heads. The current Youth_HH / Older_HH boundary is undocumented; confirm it before publishing any HHH_AGE_* code.\nQuintile definition. National or within-area ranking, person- or household-weighted. The answer goes in CL_BRK_VAR.definition_en.\nGovernance. Who owns metadata/ and reviews pull requests.\nGNB survey metadata. About_GNB.txt contains only a placeholder, so the survey round and its TIME_PERIOD are unknown.\nWhere large binaries live. Git, Git LFS, or an external store referenced from GEO_SOURCES.csv.\nBoundary vintage policy. Who decides when to adopt a new COD-AB release, given that P-codes can change and older data must still resolve.\nWhere variable-level metadata lives. Section 1.4 asks for documentation of every harmonized microdata variable behind an indicator. CL_INDICATOR names those variables but has nowhere to describe them. A variable dictionary per survey, kept with the producer programs or under metadata/, is the obvious candidate.\nA country that cannot produce an indicator. Section 2.6 requires every indicator for every country, and there is no way yet to record that a survey does not support an indicator at all.\nThe Departement sheet. Its 60 indicators shared with ADM 1 would produce rows with the same key but mostly different values (Annex 2). The converter must either take only its 2017-PPP poverty rows or skip the sheet.\nReference syntax for live numbers. Section 9.2 is a sketch. It does not yet say how a reference names several qualifiers, or confirm that PL420 is shorthand for POVLINE_PL420."
+  },
+  {
+    "objectID": "index.html#sec-legacy-indicators",
+    "href": "index.html#sec-legacy-indicators",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "Annex 1. Indicators",
+    "text": "Annex 1. Indicators\n\n\n\nTable 22: Current indicator labels mapped to codes\n\n\n\n\n\n\n\n\n\n\n\nCurrent label\nINDICATOR\nQualifiers\nNote\n\n\n\n\nPoor at $3.00/day (2021 PPP)\nPOV_HC\nPOVLINE_PL300, PPP_2021\n\n\n\nPoor at $4.20/day (2021 PPP)\nPOV_HC\nPOVLINE_PL420, PPP_2021\n\n\n\nNumber poor $4.20/day (millions)\nPOV_NUM\nPOVLINE_PL420, PPP_2021\nStore 6520000; display_as = MILLIONS\n\n\nCOICOP 1: food & non-alc. beverages (share)\nCONS_SH\nCOICOP_CP01\n\n\n\nFood consumption share\nCONS_SH\nCOICOP_CP01\nSame series; not a second code\n\n\nHousing & utilities burden (COICOP 4 …)\nCONS_SH\nCOICOP_CP04\nSame series as COICOP 4\n\n\nEmployed (activ12m, 15–64)\nPOP_SH\n—\nBreakdown EMP_STATUS_EMPLOYED; universe persons 15–64; ref_period = P12M\n\n\nEmployed in agriculture (% of employed)\nPOP_SH\n—\nBreakdown EMP_SECTOR_AGR; universe employed 15–64\n\n\nHH has 0 / 1 / 2 / 3 / 4+ HE\nPOP_SH\n—\nBreakdown HE_COUNT_0 … HE_COUNT_4P\n\n\nHE profits (FCFA)\nHE_PROFIT\n—\nUnit LCU (XOF via CL_AREA); may be negative; period to confirm\n\n\nMonthly electricity spend (FCFA)\nEN_ELEC_SPEND\n—\nUnit LCU, unit_time = MONTH\n\n\nAccess to electricity (grid, SDG 7.1.1)\nEN_ELEC_ACCESS\n—\nsdg_indicator 7.1.1; related must distinguish it from EN_GRID_CONN and EN_GRID_USE\n\n\nAverage outage duration (code)\nEN_OUTAGE_DUR_CODE\n—\nMean of an ordinal code; consider replacing it with shares by duration class\n\n\nwood_dist [ALL MISSING]\nnot registered\n\nRegister as DRAFT once it is computed"
+  },
+  {
+    "objectID": "index.html#sec-legacy-departement",
+    "href": "index.html#sec-legacy-departement",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "Annex 2. The Departement sheet",
+    "text": "Annex 2. The Departement sheet\nThe sheet exists only for Senegal. Despite its name it holds the same 14 regions as the ADM 1 sheet (findings, 6.1), so its rows take ADM1 P-codes. Its poverty labels are taken at face value: “Poor at $3.00/day (2017 PPP)” maps to POVLINE_PL300 + PPP_2017, which is why that pair is allowed in Table 9.\nIts other indicators are a problem. The 60 it shares with ADM 1 would produce rows with the same key as the ADM 1 rows, and most of their values differ, so the converter cannot load both sheets in full (item 9 in Section 12.2)."
+  },
+  {
+    "objectID": "index.html#sec-legacy-columns",
+    "href": "index.html#sec-legacy-columns",
+    "title": "AFW 360 data standard and producer guidelines",
+    "section": "Annex 3. Columns to dimensions",
+    "text": "Annex 3. Columns to dimensions\n\n\n\nTable 23: Current Excel columns mapped to dimensions\n\n\n\n\n\n\n\n\n\nCurrent column\nNew dimensions\n\n\n\n\nestimateTotal\nall _T\n\n\nestimateCapital, estimateOther_Urban, estimateRural\nURBANISATION = CAP, OU, R\n\n\nestimateFemale_HH, estimateMale_HH\nCOMP_BREAKDOWN_1 = HHH_SEX_F, HHH_SEX_M\n\n\nestimateYouth_HH, estimateOlder_HH\nCOMP_BREAKDOWN_1 = HHH_AGE_LT35, HHH_AGE_GE35 (cutoff to be confirmed)\n\n\nestimateQ1 … estimateQ5\nCOMP_BREAKDOWN_1 = QUINT_Q1 … QUINT_Q5\n\n\nADM 1 sheet columns\nGEO = P-code, scheme ADM1 (DAKAR → SN01, SAB → GW08)\n\n\nZAE sheet columns\nGEO = zone code, scheme ZONES (SEN) or AEZ (GNB)"
+  },
+  {
+    "objectID": "input-tables-findings.html",
+    "href": "input-tables-findings.html",
+    "title": "Appendix A. Input tables",
+    "section": "",
+    "text": "Review of INPUT Tables/Tables_SEN.xlsx and INPUT Tables/Tables_GNB.xlsx, 2026-09-19. Every sheet, row and cell was read. No input file was modified."
+  },
+  {
+    "objectID": "input-tables-findings.html#file-layout",
+    "href": "input-tables-findings.html#file-layout",
+    "title": "Appendix A. Input tables",
+    "section": "1. File layout",
+    "text": "1. File layout\nBoth workbooks share one skeleton:\n\nHeader in row 1. No rows above it, no blank or section-header rows, no merged cells, no hidden rows, columns or sheets, no formulas, no comments.\nColumn A, indicator, holds one free-text label per row. It is the only row identifier; there are no indicator codes.\nEvery other column is named estimate&lt;Group&gt; and holds one value per indicator for that group.\nValues are literal numbers already rounded to 2 decimals, with Excel number format 0.00.\nMissing values are empty cells. No text, sentinel strings or error values appear in the numeric columns.\nThe rows are sorted by label in code-point order (so COICOP 10 comes before COICOP 1, and ≥1 HH member… is always last). The order carries no thematic meaning.\nBoth files were written by a script (creator = openpyxl in the file metadata). The 32-character cut-off in some column names matches Stata’s variable-name limit, so the tables most likely come from a Stata pipeline exported to Excel, but the file itself only proves the last step.\n\n\n\n\nSheet\nSEN (rows × groups)\nGNB (rows × groups)\nColumns hold\n\n\n\n\nNational\n97 × 13\n97 × 13\nPopulation groups\n\n\nADM 1\n97 × 14\n97 × 9\nRegions\n\n\nZAE\n97 × 6\n97 × 4\nAgro-ecological zones\n\n\nDepartement\n82 × 14\n—\nRegions (mislabelled; see 6.1)\n\n\n\nThe dashboard reads only National, ADM 1 and ZAE. Departement is never read.\nTables_SEN_TEST.xlsx is a scratch file: one sheet (Sheet1), 2 indicators (Poverty rate, Number poor (millions)) and columns Total, Capital, Other urban, Rural with no estimate prefix. It does not follow the schema above."
+  },
+  {
+    "objectID": "input-tables-findings.html#dimensions",
+    "href": "input-tables-findings.html#dimensions",
+    "title": "Appendix A. Input tables",
+    "section": "2. Dimensions",
+    "text": "2. Dimensions\nThe sheets are not really levels of geography. Each sheet is a set of one-way breakdowns of the national population: each cell is one indicator computed over one subgroup. Breakdowns are never crossed (there is no “rural × female head” and no “region × quintile”).\n\n\n\nBreakdown\nSheet\nGroups (column suffix after estimate)\n\n\n\n\nTotal\nNational\nTotal\n\n\nResidence\nNational\nCapital, Other_Urban, Rural\n\n\nSex of household head\nNational\nFemale_HH, Male_HH\n\n\nAge of household head\nNational\nYouth_HH, Older_HH\n\n\nConsumption quintile\nNational\nQ1, Q2, Q3, Q4, Q5\n\n\nRegion\nADM 1\ncountry-specific (see 5)\n\n\nAgro-ecological zone\nZAE\ncountry-specific (see 5)\n\n\n\nNotes:\n\nResidence has three categories. There is no Urban column, so “urban” would have to be derived from Capital + Other_Urban.\nThe age cutoff between Youth_HH and Older_HH is not documented anywhere.\nCounts add up within a breakdown, with one exception. Number poor $4.20/day (millions) summed over regions equals the national total (SEN 6.52, GNB 1.09), and summed over zones gives SEN 6.52 and GNB 1.08 (rounding). The same holds for sex, age and quintile in both countries. The exception is GNB’s residence split, which overshoots by about 14% (1.24 vs 1.09 at $4.20, and 0.80 vs 0.70 at $3.00); see 6.3.\n\n\nImplicit dimensions\nThese never appear as their own column:\n\n\n\n\n\n\n\nDimension\nWhere it is encoded today\n\n\n\n\nCountry\nFile name only\n\n\nBreakdown family\nSheet name, and column-name patterns within National\n\n\nGroup / geographic unit\nColumn-name suffix, by name only (no admin codes)\n\n\nIndicator\nFree-text label\n\n\nPoverty line\nInside the label ($3.00/day, $4.20/day)\n\n\nPPP year\nInside the label (2021 PPP; 2017 PPP in Departement)\n\n\nUnit\nInside the label for some indicators ((FCFA), (ha), (millions), (share), (years), (code)); inferred from magnitude for the rest\n\n\nClassification codes\nInside the label (COICOP 4:, SDG 7.1.1)\n\n\nReference period / age band\nInside the label (activ12m, 15–64, last 7 days, past 3 years)\n\n\n\nNot present at all: survey name and year, data source, standard errors or confidence intervals, sample sizes, and admin codes for regions and zones."
+  },
+  {
+    "objectID": "input-tables-findings.html#indicator-catalogue",
+    "href": "input-tables-findings.html#indicator-catalogue",
+    "title": "Appendix A. Input tables",
+    "section": "3. Indicator catalogue",
+    "text": "3. Indicator catalogue\nThe 97 labels are byte-identical, and in the same order, in National, ADM 1 and ZAE for both countries. Unit is “share” (0–1) unless stated.\nMonetary poverty (4) - Poor at $3.00/day (2021 PPP) - Poor at $4.20/day (2021 PPP) - Number poor $3.00/day (millions): millions of people - Number poor $4.20/day (millions): millions of people\nConsumption (18) - COICOP 1: food & non-alc. beverages (share) - COICOP 2: alcohol & tobacco (share) - COICOP 3: clothing & footwear (share) - COICOP 4: housing & utilities (share) - COICOP 5: furnishings & equipment (share) - COICOP 6: health (share) - COICOP 7: transport (share) - COICOP 8: information & communication (share) - COICOP 9: recreation & culture (share) - COICOP 10: education (share) - COICOP 11: restaurants & hotels (share) - COICOP 12: insurance & financial (share) - COICOP 13: personal care & effects (share) - Food consumption share (same values as COICOP 1) - Non-food consumption share - Own-production food share (% total cons.) (stored as a share despite “%”) - Market food share (% total cons.) (stored as a share despite “%”) - Housing & utilities burden (COICOP 4 share of total cons.) (same values as COICOP 4)\nJobs (9) - Employed (activ12m, 15–64) - Employed in agriculture (% of employed) - Employed in industry (% of employed) - Employed in services (% of employed) - Wage-employed (% of employed) - Non-wage employed (% of employed) - Share of HH workers in trade/commerce - Share of HH workers in transport - Share of HH workers informally employed\nAll “(% of employed)” values are stored as shares.\nHousehold enterprises (31) - Shares (23): HE buys from firms/state, HE sells to firms/state, HE has any credit access, HE has formal credit access, HE has informal credit access, HE has electricity, HE has water, HE has phone, HE has tax ID, HE has formal premises, HE keeps accounts, HE operates from home, HE pays rent, HE has external (non-HH) employees, Main HE owner is female, Main HE owner is married, HH has 0 HE, HH has 1 HE, HH has 2 HE, HH has 3 HE, HH has 4+ HE, HH has non-agric enterprise owner, HH owns a non-agric enterprise - Levels (8): - HE age (years): years; most likely enterprise age, not owner age - HE capital stock (FCFA): FCFA - HE costs (FCFA): FCFA - HE profits (FCFA): FCFA; can be negative - HE revenue per worker (FCFA): FCFA - Number of employees in HE: mean count - Non-HH employees in HE: mean count - HH employees in HE: mean count\nAgriculture (4) - HH cultivates agricultural land (superf &gt; 0) - HH owns any livestock - Tropical Livestock Units (TLU): TLU - Cultivated area (ha): hectares\nEnergy (17) - Access to electricity (grid, SDG 7.1.1) - Connected to electricity grid (SDG7.1.1) - Uses grid electricity - Uses solar/generator electricity - Improved lighting (grid or solar) - Informal electricity connection (neighbour/pole) - Prepaid meter (among grid-connected) - Any power outage in last 7 days (grid-connected) - Days with an outage (last 7): mean days, 0–7 - Average outage duration (code): mean of an ordinal code, not a time unit - Monthly electricity spend (FCFA): FCFA - Primary cooking fuel biomass (wood/charcoal) - Primary cooking fuel clean (gas/electricity) - Proxy: owns gas/electric cooker (cuisin) - Owns ceiling fan - Owns wall AC/split - Owns water heater\nHousing and services (6) - Durable floor materials - Durable roof materials - Durable wall materials - Safe drinking water – dry season - Sanitary toilet facility - HH has internet access\nShocks (5) - Covariate economic shock - Covariate natural shock (drought, flood, etc.) - Covariate violence/conflict shock - Idiosyncratic economic shock - Exposed to any shock (past 3 years)\nSocial protection (2) - Has health insurance/coverage (couvmal) - ≥1 HH member has health coverage (proxy social protection)\nPlaceholder (1) - wood_dist [ALL MISSING]: every cell empty in every sheet of both countries\nIn total, 82 indicators are shares and 15 are levels (millions, FCFA, years, counts, TLU, hectares, days, code). Nothing in the file marks which is which."
+  },
+  {
+    "objectID": "input-tables-findings.html#value-conventions",
+    "href": "input-tables-findings.html#value-conventions",
+    "title": "Appendix A. Input tables",
+    "section": "4. Value conventions",
+    "text": "4. Value conventions\n\nShares are stored as 0–1 decimals, never 0–100, including labels that say “%”.\nLevels are stored in the same columns as shares, with no unit or type field. A single number format cannot fit every row.\nValues are rounded to 2 decimals at source. Anything below 0.005 is stored as 0.00 and cannot be told apart from a true zero.\nAn empty cell can mean either “not computed” (wood_dist) or “too few observations in this group” (scattered blanks in small regions). The file does not distinguish the two. Empty must not be read as zero.\nLabels contain non-ASCII characters: en-dash – (15–64, Safe drinking water – dry season) and ≥. SDG is written both as SDG 7.1.1 and SDG7.1.1. Matching by typed text is fragile."
+  },
+  {
+    "objectID": "input-tables-findings.html#common-vs-country-specific",
+    "href": "input-tables-findings.html#common-vs-country-specific",
+    "title": "Appendix A. Input tables",
+    "section": "5. Common vs country-specific",
+    "text": "5. Common vs country-specific\n\nCommon to SEN and GNB\n\nThe same 97 indicator labels, in the same order, on National, ADM 1 and ZAE.\nThe same 13 National groups.\nThe same storage conventions (sections 1 and 4).\nThe same currency (FCFA). This is because both countries are in the West African monetary union (WAEMU); it will not hold for every AFW country.\nThe same defects (section 6.2).\n\n\n\nCountry-specific\n\n\n\n\n\n\n\n\n\nSEN\nGNB\n\n\n\n\nRegions (ADM 1)\n14, uppercase ASCII\n9, mixed case with accents\n\n\nRegion names\nDAKAR, DIOURBEL, FATICK, KAFFRINE, KAOLACK, KEDOUGOU, KOLDA, LOUGA, MATAM, SAINT_LOUIS, SEDHIOU, TAMBACOUNDA, THIES, ZIGUINCHOR\nBafatá, Biombo, Bolama_Bijagós (underscore stands for “/”), Cacheu, Gabú, Oio, Quinara, SAB (Bissau Autonomous Sector), Tombali\n\n\nZones (ZAE)\n6, named by joining region names, so they are groupings of regions\n4, Portuguese agro-ecological names\n\n\nZone names\nDakar, Kaolack_Fatick_Kaffrine, Kedougou, Saint_Louis_Matam, Thies_Diourbel_Louga, Ziguinchor_Tamba_Kolda_S (truncated)\nZona_Plana_de_Centro_Bis (truncated), Zonas_Costeiras_do_Sul, Zonas_Montanhosas_de_Les (truncated), Zonas_Planas_de_Norte\n\n\nExtra sheet\nDepartement (see 6.1)\nnone\n\n\nEmpty cells: National / ADM 1 / ZAE\n13 / 18 / 7\n28 / 45 / 10\n\n\nSparsest columns\nFATICK, KAFFRINE, KEDOUGOU, KOLDA (2 each on ADM 1), Kedougou (2 on ZAE)\nTombali (11), Bafatá (7), Q1 (7)\n\n\nCapital column\nEquals DAKAR on all 97 indicators\nEquals the Zonas_Costeiras_do_Sul zone, not SAB (see 6.3)\n\n\n\nGNB’s extra missingness is concentrated, not spread evenly:\n\nHE revenue per worker (FCFA) is blank in 7 of 9 regions (all but Cacheu and SAB), 2 of 4 zones and 5 of 13 national groups, so it is unusable below the national level. It is fully populated in SEN.\nHE has electricity, HE has water and HE pays rent are blank together for the same four regions (Bafatá, Biombo, Bolama_Bijagós, Tombali) and for Q1 on National, which looks like suppression of small subsamples.\n\nThe file records no sample sizes, so a smaller GNB survey is a plausible but unverifiable explanation."
+  },
+  {
+    "objectID": "input-tables-findings.html#discrepancies-and-data-quality-issues",
+    "href": "input-tables-findings.html#discrepancies-and-data-quality-issues",
+    "title": "Appendix A. Input tables",
+    "section": "6. Discrepancies and data-quality issues",
+    "text": "6. Discrepancies and data-quality issues\n\n6.1 SEN Departement sheet\n\nIt contains the same 14 regions as ADM 1, spelled identically. There is no département-level data in the file.\nIt is an older or different version of the regional table:\n\nPoverty is at 2017 PPP (Poor at $3.00/day (2017 PPP), Poor at $4.20/day (2017 PPP)) instead of 2021 PPP.\nHow far its values drift from ADM 1 varies by indicator. Six of the 60 shared indicators are identical (Employed (activ12m, 15–64), Employed in agriculture, Wage-employed, Non-wage employed, HH has internet access, Has health insurance/coverage (couvmal)). Most others differ modestly. The household-enterprise money variables differ heavily: up to 94% for HE revenue per worker, 68% for HE capital stock, 74% for HE costs, and 14.7x for HE profits.\n\nIts indicator set does not match: 82 rows, 60 shared with the other sheets, 22 unique and 37 missing.\n\nUnique rows include raw variable names: (max) con_1 … (max) con_15, (max) ext_emp, npoor300, npoor420.\nAlso unique: Access to electricity (grid or off-grid), Energy expenditure burden (share of total cons.).\nIts 15 con_* consumption categories do not line up with the 13 COICOP rows elsewhere.\n\nSome values are impossible:\n\nHE has any credit access is 1.00 in all 14 regions (0.14–0.59 in ADM 1).\nHE has formal credit access is 0.72–0.95 in every region (0.00–0.23 in ADM 1). HE has informal credit access looks unaffected (0.09–0.37, against 0.09–0.40 in ADM 1).\nHH has 4+ HE is 0.80–1.00 in every region, although HH has 0/1/2/3 HE already sum to about 1 (at most 0.03 in ADM 1).\n\n\n\n\n6.2 Issues in both countries\n\n\n\n\n\n\n\nIssue\nEvidence\n\n\n\n\nEmpty placeholder indicator\nwood_dist [ALL MISSING] has no values anywhere\n\n\nIndicator with no information\nHH has internet access is 0.00 or empty in every cell of both countries\n\n\nDuplicate indicators\nFood consumption share = COICOP 1…; Housing & utilities burden… = COICOP 4… (identical values in every column)\n\n\nThree overlapping electricity indicators\nAccess to electricity (grid, SDG 7.1.1), Connected to electricity grid (SDG7.1.1) and Uses grid electricity differ by country: GNB national totals are 0.23 / 0.27 / 0.26, but SEN’s are 0.68 / 0.98 / 0.66, a 32-point spread. The definitions need documenting before any of the three is presented as “electricity access”\n\n\nRows with no variation at 2 decimals\nCOICOP 12 is 0.00 in every column of both countries. COICOP 9 is 0.00 in every column in SEN and on GNB National. COICOP 2 is 0.00 on SEN National and ZAE, and 0.01 in every column in GNB\n\n\nTruncated column names\nNames cut at exactly 32 characters (SEN Ziguinchor_Tamba_Kolda_S; GNB Zona_Plana_de_Centro_Bis, Zonas_Montanhosas_de_Les)\n\n\nNo geographic codes\nRegions and zones are identified only by spelled names, and spelling conventions differ between countries\n\n\nAmbiguous unit\nAverage outage duration (code) is a mean of an ordinal code, not a duration\n\n\n\n\n\n6.3 GNB-specific issues\nThe Capital column does not hold Bissau. It holds a copy of a zone.\nNational estimateCapital is identical to ZAE estimateZonas_Costeiras_do_Sul on all 97 indicators. Against SAB, it matches on only 9 of 97, and all nine are rows that are constant everywhere anyway (wood_dist, COICOP 12, HE has external (non-HH) employees and similar). The gap is not confined to poverty:\n\n\n\nIndicator\nGNB Capital\nGNB SAB\n\n\n\n\nPoor at $4.20/day (2021 PPP)\n0.79\n0.21\n\n\nAccess to electricity (grid, SDG 7.1.1)\n0.01\n0.70\n\n\nDurable floor materials\n0.33\n0.97\n\n\nCultivated area (ha)\n53,028,771\n1.30\n\n\n\nFor comparison, SEN Capital is identical to DAKAR on all 97 indicators, and SEN’s single-region zones Dakar and Kedougou are identical to regions DAKAR and KEDOUGOU on all 97. So the pattern is specific to GNB and looks like a coding error in the residence variable, not a definitional difference.\nTwo other findings in this section follow from it: the Capital cultivated-area outlier is the zone’s value, and the residence breakdown fails to add up (see below).\n\n\n\n\n\n\n\nIssue\nEvidence\n\n\n\n\nResidence breakdown does not add up\nCapital + Other_Urban + Rural gives 1.24M poor at $4.20 against a national 1.09M, and 0.80M against 0.70M at $3.00, about 14% too high. Every other GNB breakdown adds up.\n\n\nCultivated area (ha) is corrupted\nValues in the millions of “ha”: National Total 9.1M, Capital 53.0M, Rural 10.8M, Male_HH 10.4M, Older_HH 10.5M, Q4 57.9M; ZAE Zonas_Costeiras_do_Sul 53.0M; ADM 1 Quinara 148.4M. Other cells are 1–15 ha. Outlier records, probably a unit error in the microdata, inflate every mean they enter. The Quinara and Q4 values are separate from the Capital mix-up above.\n\n\nConstant indicators\nHE has external (non-HH) employees = 1.00 and HH employees in HE = 0.00 in every cell; HE pays rent = 1.00 in every populated cell (blank for Q1 and four regions); HH has 4+ HE = 0.00 on National and ZAE\n\n\nPossible definition mismatch\nNumber of employees in HE ranges 0–0.46 in GNB versus 0.33–3.09 in SEN, which suggests a different definition or computation\n\n\n\n\n\n6.4 SEN-specific notes\n\nHE profits (FCFA) for TAMBACOUNDA is the only negative value in either country: −3,460 on ADM 1 and −50,754 on Departement, a factor of 14.7 apart. A loss-making average may be genuine, but it breaks any assumption that levels are non-negative, and the two tables disagree on its size."
+  },
+  {
+    "objectID": "input-tables-findings.html#consistency-checks-that-hold",
+    "href": "input-tables-findings.html#consistency-checks-that-hold",
+    "title": "Appendix A. Input tables",
+    "section": "7. Consistency checks that hold",
+    "text": "7. Consistency checks that hold\nChecked across every cell of both countries, and correct:\n\nPoor at $3.00/day never exceeds Poor at $4.20/day.\nPoverty falls monotonically from Q1 to Q5.\nRegional values bracket the national value.\nCOICOP 1–13 sum to 0.96–1.02, which is what rounding 13 two-decimal shares produces.\nAgriculture + industry + services, and food + non-food, sum to about 1; wage + non-wage sums to exactly 1.00.\nHH has 0/1/2/3/4+ HE sums to about 1, except on SEN Departement.\nHE has any credit access is at least as large as its formal and informal components, except on SEN Departement.\n\nTwo notes for anyone re-running these checks:\n\nScanning for identical columns or rows produces false positives. Some indicator pairs match only because both are near zero everywhere (for example GNB Owns wall AC/split and ≥1 HH member has health coverage). Require the values to vary before calling a pair a duplicate.\nThe duplicates in 6.2 pass that test: they track each other across the full range."
+  },
+  {
+    "objectID": "input-tables-findings.html#what-harmonization-will-need",
+    "href": "input-tables-findings.html#what-harmonization-will-need",
+    "title": "Appendix A. Input tables",
+    "section": "8. What harmonization will need",
+    "text": "8. What harmonization will need\n\nA long table with one row per country × breakdown × group × indicator, holding the value.\nAn indicator dictionary: stable code, label, theme, unit / value type, display format, poverty line, PPP year, source variable.\nA geography lookup: admin code, level and display name for every region and zone, replacing name-based matching.\nA way to mark missing values that separates “not computed” from “suppressed (small sample)”.\nFixes in the upstream pipeline, not the dashboard, for 6.1, the GNB Cultivated area (ha) outliers, the GNB Capital coding, and the constant or duplicate indicators."
+  },
+  {
+    "objectID": "transition/contract.html",
+    "href": "transition/contract.html",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "",
+    "text": "The contract is what lets many agents build files and code at the same time without seeing each other’s output. It fixes every code, path, header, interface and expected count that they must agree on in advance.\nThis document is the readable reference. The contract itself is the set of machine-readable files in contract/. Each package card repeats the rules its package needs, so agents do not read this document unless a card says so."
+  },
+  {
+    "objectID": "transition/contract.html#sec-codes-rules",
+    "href": "transition/contract.html#sec-codes-rules",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "2.1 Rules for codes",
+    "text": "2.1 Rules for codes\n\nA code matches ^[A-Z][A-Z0-9_]{0,31}$.\n_T (total) and _Z (not applicable) are reserved sentinels. They never appear in a codelist, and no code starts with them. GEO and URBANISATION are never _Z.\nA category code is &lt;var_code&gt;_&lt;category&gt;. Its variable is looked up through the var_code column, never by parsing the prefix (gap t).\nTBD is a reserved token for a required value that cannot be known from the inputs. It is allowed only in a column that has no codelist, and only on a DRAFT row. The validator warns on it there, and gives an error once the row is no longer DRAFT (gap d).\nEverything the transition creates is status = DRAFT, with version_added = 0.1.0."
+  },
+  {
+    "objectID": "transition/contract.html#sec-codes-share",
+    "href": "transition/contract.html#sec-codes-share",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "2.2 The three share codes (D4)",
+    "text": "2.2 The three share codes (D4)\nA population share is never a new indicator. It is one of three codes, chosen by what the breakdown counts:\n\n\n\nTable 2: The three share codes\n\n\n\n\n\n\n\n\n\n\n\nINDICATOR\nstat_unit\nweight\nDefining breakdowns in the legacy data\n\n\n\n\nPOP_SH\nIND\nIND\nEMP_STATUS, EMP_SECTOR, EMP_ISIC, EMP_TYPE, EMP_FORMAL\n\n\nPOP_HH_SH\nHH\nHH\nHE_COUNT\n\n\nPOP_HE_SH\nHE\nHE\nHEO_SEX, HEO_MSTAT\n\n\n\n\n\n\nPOP_SH has one ref_period, which is INTERVIEW. A recall period such as “employed in the last 12 months” belongs to the universe of the breakdown variable, not to the indicator (gap z)."
+  },
+  {
+    "objectID": "transition/contract.html#sec-codes-series",
+    "href": "transition/contract.html#sec-codes-series",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "2.3 Series IDs",
+    "text": "2.3 Series IDs\nseries_id is the indicator, then each qualifier code in ascending qualifier slot_order, then the defining breakdown category, all joined by .. Examples are POV_HC.POVLINE_PL300.PPP_2021, CONS_SH.COICOP_CP01.ACQ_PURCH, POP_HH_SH.HE_COUNT_0 and HE_AGE. It is an identifier, not a code, so the 32-character limit does not apply to it. Its characters are A–Z, 0–9, _ and .."
+  },
+  {
+    "objectID": "transition/contract.html#sec-codes-geo",
+    "href": "transition/contract.html#sec-codes-geo",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "2.4 Geography",
+    "text": "2.4 Geography\n\nADM0 codes (SN, GW) are geometry-only. They are registered in CL_GEO but never used in the GEO column of a data row, where the whole country is _T (gap k).\nSN01 and SN13 are invalid as delivered. They are repaired with sf::st_make_valid() under sf_use_s2(FALSE), from the plain (non-_em) shapefiles (gap u).\nThree zone names come from headers truncated at 32 characters. Their full names are TBD inside name_en until a producer confirms them (gap v).\nZones and agro-ecological zones have no geometry."
+  },
+  {
+    "objectID": "transition/contract.html#sec-headers-format",
+    "href": "transition/contract.html#sec-headers-format",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "3.1 CSV files (gap r)",
+    "text": "3.1 CSV files (gap r)\nEvery CSV that the pipeline writes:\n\nis UTF-8 without a byte-order mark, with LF line endings and one header row;\nhas exactly the columns of csv_headers.csv, in that order;\nwrites a missing value as an empty string, never NA;\nwrites numbers in fixed notation, with at most 10 decimals and trailing zeros trimmed, never in scientific notation;\nseparates multi-valued fields with one space, and has no line break inside a cell.\n\nReaders read every column as character, strip a BOM and accept CRLF. .gitattributes keeps these files LF on checkout.\nData-file rows are sorted by the 18 key columns, as strings in C-locale order. Two runs of the converter with the same --timestamp are byte-identical."
+  },
+  {
+    "objectID": "transition/contract.html#sec-headers-keys",
+    "href": "transition/contract.html#sec-headers-keys",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "3.2 The 18 key columns",
+    "text": "3.2 The 18 key columns\nDATAFLOW, REF_AREA, GEO, TIME_PERIOD, INDICATOR, SEX, AGE, URBANISATION, COMP_BREAKDOWN_1…5, MEASURE_QUAL_1…5 are the first 18 of the 26 columns. The remaining 8 (OBS_VALUE to OBS_COMMENT) are never part of the key."
+  },
+  {
+    "objectID": "transition/contract.html#sec-grammar",
+    "href": "transition/contract.html#sec-grammar",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "3.3 Field grammars",
+    "text": "3.3 Field grammars\n\nCL_INDICATOR.qualifiers is _Z when the indicator takes no qualifier. Otherwise it holds VAR:CODE,CODE entries, separated by one space, in qualifier slot_order. VAR:* allows every category.\nCL_INDICATOR.checks holds tokens separated by one space, from the vocabulary in Section 4.4.\nLEGACY_LABELS.assert_rule is EQUALS:&lt;series_id&gt; or ONE_MINUS:&lt;series_id&gt;, optionally followed by tol=&lt;number&gt;. The default tolerance is 0. duplicate_of holds the same target series_id. In the triage seed these point at row IDs such as L008; WP09 translates them.\nLEGACY_LABELS.sheet is a sheet name, or * for National, ADM 1 and ZAE.\nIn LEGACY_OVERRIDES, sheet, column and legacy_label accept * for “every”. WITHHOLD wins over COMMENT.\nRegistry paths are relative: GEO_SOURCES.file to geo/boundaries/, FIGURES.file to assets/figures/, and TEXT.file to content/text/."
+  },
+  {
+    "objectID": "transition/contract.html#sec-cli",
+    "href": "transition/contract.html#sec-cli",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "4.1 Command lines",
+    "text": "4.1 Command lines\nEvery script takes --root &lt;repo root&gt; (default .) and is run from the repo root. Every generator also takes --out-root &lt;dir&gt; (default: the root). It reads inputs under the root and writes outputs under the out-root at the same relative paths, so any output can be rebuilt into a temporary directory and compared.\n\n\n\nTable 3: Command lines\n\n\n\n\n\n\n\n\n\nCommand\nOwner\n\n\n\n\npipeline/bootstrap/build_small_codelists.R\nWP04\n\n\npipeline/bootstrap/build_geo_codelists.R, pipeline/build_geo.R\nWP05\n\n\npipeline/bootstrap/build_breakdowns_qualifiers.R\nWP06\n\n\npipeline/bootstrap/build_indicators.R\nWP07\n\n\npipeline/bootstrap/build_plans.R\nWP08\n\n\npipeline/bootstrap/build_legacy_maps.R\nWP09\n\n\npipeline/build_content.R, pipeline/bootstrap/build_surveys.R\nWP10\n\n\npipeline/validate.R --root . [--metadata-only] [--data &lt;file&gt; ...] --out &lt;findings.csv&gt; (exit 0 = no ERROR, 1 = at least one ERROR, 2 = a check crashed)\nWP11\n\n\npipeline/convert_legacy.R --root . --country SEN\\|GNB\\|ALL [--timestamp &lt;ISO 8601&gt;] [--out-root &lt;dir&gt;]\nWP15\n\n\npipeline/reconcile.R --root . --out &lt;report.md&gt; [--csv &lt;cells.csv&gt;] (exit 0 only if every source cell is accounted for exactly once and every value matches)\nWP16\n\n\npipeline/acceptance/run_all.R --root .\nWP03"
+  },
+  {
+    "objectID": "transition/contract.html#sec-modules",
+    "href": "transition/contract.html#sec-modules",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "4.2 Shared R modules",
+    "text": "4.2 Shared R modules\n\n\n\nTable 4: Shared modules; the exact signatures are on the cards of WP03 and WP08\n\n\n\n\n\n\n\n\n\n\nModule\nOwner\nExports\n\n\n\n\npipeline/R/io.R\nWP03\nread_std_csv, write_std_csv, fmt_num, sha256_file, load_metadata, repo_path, cli_arg, cli_args, cli_flag\n\n\npipeline/R/constants.R\nWP03\nDATAFLOW_ID, SENTINEL_TOTAL, SENTINEL_NA, TBD, DSD_COLUMNS, KEY_COLUMNS\n\n\npipeline/R/codes.R\nWP03\nis_valid_code, slot_sort, fill_slots\n\n\npipeline/R/ctx.R\nWP03\nbuild_ctx(root, data_files, opts)\n\n\npipeline/tests/testthat/helper-temp-root.R\nWP03\nmake_temp_root, edit_csv, find_root\n\n\npipeline/R/plan.R\nWP08\nrequired_rows(meta, ref_area, time_period)\n\n\npipeline/tests/testthat/helper-data-fixture.R\nWP08\nmake_data_fixture(tmp_root, ref_area, time_period, series_ids, value)"
+  },
+  {
+    "objectID": "transition/contract.html#sec-validator",
+    "href": "transition/contract.html#sec-validator",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "4.3 Validator modules",
+    "text": "4.3 Validator modules\nEach pipeline/R/validate_&lt;module&gt;.R defines functions named vc_&lt;module&gt;_&lt;check&gt;(ctx). Each returns a tibble with the columns check_id, severity, file, row_key, message, where zero rows means pass. validate.R discovers them with ls(pattern = \"^vc_\"). check_id is &lt;MODULE&gt;.&lt;NAME&gt;, and severity is ERROR, WARN or INFO. The module prefix names the owner of a finding:\n\n\n\nTable 5: Who owns which check\n\n\n\n\n\nModules\nOwner\n\n\n\n\nSTRUCT, CODES, META\nWP11\n\n\nCOVER, VALUE\nWP12\n\n\nRULE\nWP13\n\n\nASSET, TEXT\nWP14"
+  },
+  {
+    "objectID": "transition/contract.html#sec-checks",
+    "href": "transition/contract.html#sec-checks",
+    "title": "Appendix B.2. AFW 360 transition: the contract",
+    "section": "4.4 Checks vocabulary and tolerances (gap h)",
+    "text": "4.4 Checks vocabulary and tolerances (gap h)\nThe tokens are RANGE_0_1, RANGE_NONNEG, AGG_SUM, AGG_BRACKET, AGG_NPOP_MEAN, SUM_TO_1_OVER:&lt;QUAL_VAR&gt;, SUM_TO_1_OVER_BRK, EQUALS_NPOP_RATIO, MONOTONE_IN:POVLINE and NONE.\n\nThe parent of a row is the row of the same series in the cut TOTAL. Provenance (series_id, cut_id) comes from required_rows().\nFor ROUNDED_2DP files, h = 0.005 × scale:\n\na sum of k children against its parent tolerates (k + 1) × h;\na closure over k categories tolerates k × h (for COICOP, ±0.065);\na bracket tolerates h on each side;\nmonotonicity gets no tolerance.\n\nEvery comparison is abs(deviation) &lt;= tolerance + 1e-9.\nAGG_BRACKET (the parent lies within [min child − h, max child + h]) stands in for AGG_NPOP_MEAN while N_POP is absent. The two N_POP rules are skipped with an INFO finding on legacy files.\nA group with a withheld or empty child is skipped with a WARN. A closure over a partial category set is skipped with an INFO.\n\nThese rules were run against the raw workbooks with these tolerances, and the legacy data break none of them."
+  }
+]

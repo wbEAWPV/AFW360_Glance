@@ -1,0 +1,66 @@
+/* AFW 360 data standard — site styles.
+   These documents are dense reference tables, so the defaults are tuned for
+   long tables and many inline code spans rather than for prose pages. */
+
+/* Tables carry most of the content: make them scan-able and let wide ones
+   scroll inside their own box instead of pushing the page sideways. */
+.quarto-body-content table,
+main table {
+  font-size: 0.9rem;
+}
+
+main table thead th {
+  border-bottom: 2px solid var(--bs-border-color, #dee2e6);
+  vertical-align: bottom;
+}
+
+main table tbody tr:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Wide codelist tables must not widen the page. */
+main > div.cell > div.cell-output-display > table,
+main table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Codes (POVLINE_PL300, CL_INDICATOR.csv) appear constantly in running text;
+   keep them distinct from prose without shouting. */
+code:not(.sourceCode) {
+  background-color: rgba(0, 0, 0, 0.045);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: #6a2c70;
+}
+
+/* The left-hand TOC is long in all three documents. */
+#TOC, nav[role="doc-toc"] {
+  font-size: 0.85rem;
+}
+
+/* Section headings: a little more air above than Bootstrap's default, so the
+   numbered sections read as real breaks in a 900-line document. */
+main h1 {
+  margin-top: 2.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+main h2 {
+  margin-top: 1.75rem;
+}
+
+/* Callouts and blockquotes used for the "draft" and "proposal" notes. */
+blockquote {
+  border-left: 3px solid #adb5bd;
+  padding-left: 1rem;
+  color: #495057;
+}
+
+@media (prefers-color-scheme: dark) {
+  main table tbody tr:nth-child(odd) { background-color: rgba(255, 255, 255, 0.03); }
+  code:not(.sourceCode) { background-color: rgba(255, 255, 255, 0.08); color: #d9a7e0; }
+}

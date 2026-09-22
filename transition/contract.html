@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-09-21">
+
+<title>Appendix B.2. AFW 360 transition: the contract – AFW 360 data standard</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">AFW 360 data standard</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Standard</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../input-tables-findings.html"> 
+<span class="menu-text">Appendix A · Input tables</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-appendix-b-·-transition" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Appendix B · Transition</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-appendix-b-·-transition">    
+        <li>
+    <a class="dropdown-item" href="../transition/plan.html">
+ <span class="dropdown-text">B.1 · Plan</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../transition/contract.html">
+ <span class="dropdown-text">B.2 · Contract</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../transition/decisions.html">
+ <span class="dropdown-text">B.3 · Decisions</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/wbEAWPV/AFW360_Glance"> <i class="bi bi-github" role="img" aria-label="Source repository on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#sec-what" id="toc-sec-what" class="nav-link active" data-scroll-target="#sec-what"><span class="header-section-number">1</span> What the contract is</a></li>
+  <li><a href="#sec-codes" id="toc-sec-codes" class="nav-link" data-scroll-target="#sec-codes"><span class="header-section-number">2</span> Codes</a>
+  <ul class="collapse">
+  <li><a href="#sec-codes-rules" id="toc-sec-codes-rules" class="nav-link" data-scroll-target="#sec-codes-rules"><span class="header-section-number">2.1</span> Rules for codes</a></li>
+  <li><a href="#sec-codes-share" id="toc-sec-codes-share" class="nav-link" data-scroll-target="#sec-codes-share"><span class="header-section-number">2.2</span> The three share codes (D4)</a></li>
+  <li><a href="#sec-codes-series" id="toc-sec-codes-series" class="nav-link" data-scroll-target="#sec-codes-series"><span class="header-section-number">2.3</span> Series IDs</a></li>
+  <li><a href="#sec-codes-geo" id="toc-sec-codes-geo" class="nav-link" data-scroll-target="#sec-codes-geo"><span class="header-section-number">2.4</span> Geography</a></li>
+  </ul></li>
+  <li><a href="#sec-headers" id="toc-sec-headers" class="nav-link" data-scroll-target="#sec-headers"><span class="header-section-number">3</span> Formats</a>
+  <ul class="collapse">
+  <li><a href="#sec-headers-format" id="toc-sec-headers-format" class="nav-link" data-scroll-target="#sec-headers-format"><span class="header-section-number">3.1</span> CSV files (gap r)</a></li>
+  <li><a href="#sec-headers-keys" id="toc-sec-headers-keys" class="nav-link" data-scroll-target="#sec-headers-keys"><span class="header-section-number">3.2</span> The 18 key columns</a></li>
+  <li><a href="#sec-grammar" id="toc-sec-grammar" class="nav-link" data-scroll-target="#sec-grammar"><span class="header-section-number">3.3</span> Field grammars</a></li>
+  </ul></li>
+  <li><a href="#sec-interfaces" id="toc-sec-interfaces" class="nav-link" data-scroll-target="#sec-interfaces"><span class="header-section-number">4</span> Interfaces</a>
+  <ul class="collapse">
+  <li><a href="#sec-cli" id="toc-sec-cli" class="nav-link" data-scroll-target="#sec-cli"><span class="header-section-number">4.1</span> Command lines</a></li>
+  <li><a href="#sec-modules" id="toc-sec-modules" class="nav-link" data-scroll-target="#sec-modules"><span class="header-section-number">4.2</span> Shared R modules</a></li>
+  <li><a href="#sec-validator" id="toc-sec-validator" class="nav-link" data-scroll-target="#sec-validator"><span class="header-section-number">4.3</span> Validator modules</a></li>
+  <li><a href="#sec-checks" id="toc-sec-checks" class="nav-link" data-scroll-target="#sec-checks"><span class="header-section-number">4.4</span> Checks vocabulary and tolerances (gap h)</a></li>
+  </ul></li>
+  <li><a href="#sec-expected" id="toc-sec-expected" class="nav-link" data-scroll-target="#sec-expected"><span class="header-section-number">5</span> Expected counts</a></li>
+  <li><a href="#sec-out-of-scope" id="toc-sec-out-of-scope" class="nav-link" data-scroll-target="#sec-out-of-scope"><span class="header-section-number">6</span> Out of scope</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Appendix B.2. AFW 360 transition: the contract</h1>
+<p class="subtitle lead">Frozen at gate G1 · shared codes, paths, headers, interfaces and expected counts</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 21, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The contract is what lets many agents build files and code at the same time without seeing each other’s output. It fixes every code, path, header, interface and expected count that they must agree on in advance.</p>
+<p>This document is the readable reference. The contract itself is the set of machine-readable files in <code>contract/</code>. Each package card repeats the rules its package needs, so agents do not read this document unless a card says so.</p>
+<section id="sec-what" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> What the contract is</h1>
+<div id="tbl-contract-files" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-contract-files-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: The machine-readable contract
+</figcaption>
+<div aria-describedby="tbl-contract-files-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Rows</th>
+<th>What it fixes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>codes.csv</code></td>
+<td>176</td>
+<td>Every code of the 10 small codelists, the 13 breakdown variables and their 60 categories, and the 6 qualifier variables and their 42 categories, with their structure: <code>var_code</code>, <code>parent</code>, <code>order</code>, <code>slot_order</code>, <code>describes</code>, <code>applies_to_units</code>, <code>partition</code>, <code>requires</code>, <code>valid_with</code>, <code>value</code></td>
+</tr>
+<tr class="even">
+<td><code>label_triage.csv</code></td>
+<td>179</td>
+<td>Every legacy label with its action (<code>MAP</code>, <code>DUPLICATE_OF</code>, <code>DERIVED</code>, <code>SKIP</code>). For the 91 <code>MAP</code> labels it also gives the indicator, qualifiers, defining breakdown, <code>series_id</code>, the mechanical indicator attributes, <code>scale</code>, and the hard case behind it.</td>
+</tr>
+<tr class="odd">
+<td><code>geo_codes.csv</code></td>
+<td>35</td>
+<td>Every spatial unit, with its scheme, name, legacy sheet and column, boundary source and layer</td>
+</tr>
+<tr class="even">
+<td><code>tab_plan.csv</code></td>
+<td>8</td>
+<td>The cuts that reproduce the legacy tables</td>
+</tr>
+<tr class="odd">
+<td><code>legacy_national_columns.csv</code></td>
+<td>13</td>
+<td>Each <code>National</code> column’s cut, residence code or breakdown category</td>
+</tr>
+<tr class="even">
+<td><code>legacy_overrides.csv</code></td>
+<td>12</td>
+<td>The 8 <code>WITHHOLD</code> and 4 <code>COMMENT</code> overrides, with their hard case and reason</td>
+</tr>
+<tr class="odd">
+<td><code>csv_headers.csv</code></td>
+<td>338</td>
+<td>The columns of every CSV that the transition creates (31 files), with their order, their status (R, C, O) and a description</td>
+</tr>
+<tr class="even">
+<td><code>output_ownership.csv</code></td>
+<td>131</td>
+<td>The one owner of every output path</td>
+</tr>
+<tr class="odd">
+<td><code>expected_counts.csv</code></td>
+<td>64</td>
+<td>Every number that the checks compare against</td>
+</tr>
+<tr class="even">
+<td><code>check_contract.R</code></td>
+<td>—</td>
+<td>Checks all of the above against each other and against the raw workbooks, and recomputes every count that can be recomputed</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Changing it.</strong> <code>label_triage.csv</code>, <code>codes.csv</code>, <code>legacy_overrides.csv</code>, <code>legacy_national_columns.csv</code>, <code>tab_plan.csv</code> and <code>expected_counts.csv</code> are edited by WP99 only, and only to apply the user’s answers at gate G0. The contract is frozen at gate G1. After that, an agent that finds a contract error <strong>stops and reports it</strong>; it does not work around the error by inventing its own convention. A change then needs the user, a new plan commit and a rerun of <code>check_contract.R</code>.</p>
+<pre><code>Rscript .docs/transition/contract/check_contract.R --root .</code></pre>
+</section>
+<section id="sec-codes" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Codes</h1>
+<section id="sec-codes-rules" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="sec-codes-rules"><span class="header-section-number">2.1</span> Rules for codes</h2>
+<ul>
+<li>A code matches <code>^[A-Z][A-Z0-9_]{0,31}$</code>.</li>
+<li><code>_T</code> (total) and <code>_Z</code> (not applicable) are reserved sentinels. They never appear in a codelist, and no code starts with them. <code>GEO</code> and <code>URBANISATION</code> are never <code>_Z</code>.</li>
+<li>A category code is <code>&lt;var_code&gt;_&lt;category&gt;</code>. Its variable is looked up through the <code>var_code</code> column, never by parsing the prefix (gap t).</li>
+<li><code>TBD</code> is a reserved token for a required value that cannot be known from the inputs. It is allowed only in a column that has no codelist, and only on a <code>DRAFT</code> row. The validator warns on it there, and gives an error once the row is no longer <code>DRAFT</code> (gap d).</li>
+<li>Everything the transition creates is <code>status = DRAFT</code>, with <code>version_added = 0.1.0</code>.</li>
+</ul>
+</section>
+<section id="sec-codes-share" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="sec-codes-share"><span class="header-section-number">2.2</span> The three share codes (D4)</h2>
+<p>A population share is never a new indicator. It is one of three codes, chosen by what the breakdown counts:</p>
+<div id="tbl-share-codes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-share-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: The three share codes
+</figcaption>
+<div aria-describedby="tbl-share-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>INDICATOR</code></th>
+<th><code>stat_unit</code></th>
+<th><code>weight</code></th>
+<th>Defining breakdowns in the legacy data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>POP_SH</code></td>
+<td><code>IND</code></td>
+<td><code>IND</code></td>
+<td><code>EMP_STATUS</code>, <code>EMP_SECTOR</code>, <code>EMP_ISIC</code>, <code>EMP_TYPE</code>, <code>EMP_FORMAL</code></td>
+</tr>
+<tr class="even">
+<td><code>POP_HH_SH</code></td>
+<td><code>HH</code></td>
+<td><code>HH</code></td>
+<td><code>HE_COUNT</code></td>
+</tr>
+<tr class="odd">
+<td><code>POP_HE_SH</code></td>
+<td><code>HE</code></td>
+<td><code>HE</code></td>
+<td><code>HEO_SEX</code>, <code>HEO_MSTAT</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><code>POP_SH</code> has one <code>ref_period</code>, which is <code>INTERVIEW</code>. A recall period such as “employed in the last 12 months” belongs to the universe of the breakdown variable, not to the indicator (gap z).</p>
+</section>
+<section id="sec-codes-series" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="sec-codes-series"><span class="header-section-number">2.3</span> Series IDs</h2>
+<p><code>series_id</code> is the indicator, then each qualifier code in ascending qualifier <code>slot_order</code>, then the defining breakdown category, all joined by <code>.</code>. Examples are <code>POV_HC.POVLINE_PL300.PPP_2021</code>, <code>CONS_SH.COICOP_CP01.ACQ_PURCH</code>, <code>POP_HH_SH.HE_COUNT_0</code> and <code>HE_AGE</code>. It is an identifier, not a code, so the 32-character limit does not apply to it. Its characters are <code>A–Z</code>, <code>0–9</code>, <code>_</code> and <code>.</code>.</p>
+</section>
+<section id="sec-codes-geo" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="sec-codes-geo"><span class="header-section-number">2.4</span> Geography</h2>
+<ul>
+<li>ADM0 codes (<code>SN</code>, <code>GW</code>) are geometry-only. They are registered in <code>CL_GEO</code> but never used in the <code>GEO</code> column of a data row, where the whole country is <code>_T</code> (gap k).</li>
+<li><code>SN01</code> and <code>SN13</code> are invalid as delivered. They are repaired with <code>sf::st_make_valid()</code> under <code>sf_use_s2(FALSE)</code>, from the plain (non-<code>_em</code>) shapefiles (gap u).</li>
+<li>Three zone names come from headers truncated at 32 characters. Their full names are <code>TBD</code> inside <code>name_en</code> until a producer confirms them (gap v).</li>
+<li>Zones and agro-ecological zones have no geometry.</li>
+</ul>
+</section>
+</section>
+<section id="sec-headers" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Formats</h1>
+<section id="sec-headers-format" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="sec-headers-format"><span class="header-section-number">3.1</span> CSV files (gap r)</h2>
+<p>Every CSV that the pipeline writes:</p>
+<ul>
+<li>is UTF-8 without a byte-order mark, with LF line endings and one header row;</li>
+<li>has exactly the columns of <code>csv_headers.csv</code>, in that order;</li>
+<li>writes a missing value as an empty string, never <code>NA</code>;</li>
+<li>writes numbers in fixed notation, with at most 10 decimals and trailing zeros trimmed, never in scientific notation;</li>
+<li>separates multi-valued fields with one space, and has no line break inside a cell.</li>
+</ul>
+<p>Readers read every column as character, strip a BOM and accept CRLF. <code>.gitattributes</code> keeps these files LF on checkout.</p>
+<p>Data-file rows are sorted by the 18 key columns, as strings in C-locale order. Two runs of the converter with the same <code>--timestamp</code> are byte-identical.</p>
+</section>
+<section id="sec-headers-keys" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-headers-keys"><span class="header-section-number">3.2</span> The 18 key columns</h2>
+<p><code>DATAFLOW, REF_AREA, GEO, TIME_PERIOD, INDICATOR, SEX, AGE, URBANISATION, COMP_BREAKDOWN_1…5, MEASURE_QUAL_1…5</code> are the first 18 of the 26 columns. The remaining 8 (<code>OBS_VALUE</code> to <code>OBS_COMMENT</code>) are never part of the key.</p>
+</section>
+<section id="sec-grammar" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-grammar"><span class="header-section-number">3.3</span> Field grammars</h2>
+<ul>
+<li><code>CL_INDICATOR.qualifiers</code> is <code>_Z</code> when the indicator takes no qualifier. Otherwise it holds <code>VAR:CODE,CODE</code> entries, separated by one space, in qualifier <code>slot_order</code>. <code>VAR:*</code> allows every category.</li>
+<li><code>CL_INDICATOR.checks</code> holds tokens separated by one space, from the vocabulary in <a href="#sec-checks" class="quarto-xref">Section&nbsp;4.4</a>.</li>
+<li><code>LEGACY_LABELS.assert_rule</code> is <code>EQUALS:&lt;series_id&gt;</code> or <code>ONE_MINUS:&lt;series_id&gt;</code>, optionally followed by <code>tol=&lt;number&gt;</code>. The default tolerance is 0. <code>duplicate_of</code> holds the same target <code>series_id</code>. In the triage seed these point at row IDs such as <code>L008</code>; WP09 translates them.</li>
+<li><code>LEGACY_LABELS.sheet</code> is a sheet name, or <code>*</code> for <code>National</code>, <code>ADM 1</code> and <code>ZAE</code>.</li>
+<li>In <code>LEGACY_OVERRIDES</code>, <code>sheet</code>, <code>column</code> and <code>legacy_label</code> accept <code>*</code> for “every”. <code>WITHHOLD</code> wins over <code>COMMENT</code>.</li>
+<li>Registry paths are relative: <code>GEO_SOURCES.file</code> to <code>geo/boundaries/</code>, <code>FIGURES.file</code> to <code>assets/figures/</code>, and <code>TEXT.file</code> to <code>content/text/</code>.</li>
+</ul>
+</section>
+</section>
+<section id="sec-interfaces" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Interfaces</h1>
+<section id="sec-cli" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="sec-cli"><span class="header-section-number">4.1</span> Command lines</h2>
+<p>Every script takes <code>--root &lt;repo root&gt;</code> (default <code>.</code>) and is run from the repo root. Every generator also takes <code>--out-root &lt;dir&gt;</code> (default: the root). It reads inputs under the root and writes outputs under the out-root at the same relative paths, so any output can be rebuilt into a temporary directory and compared.</p>
+<div id="tbl-cli" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Command lines
+</figcaption>
+<div aria-describedby="tbl-cli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pipeline/bootstrap/build_small_codelists.R</code></td>
+<td>WP04</td>
+</tr>
+<tr class="even">
+<td><code>pipeline/bootstrap/build_geo_codelists.R</code>, <code>pipeline/build_geo.R</code></td>
+<td>WP05</td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/bootstrap/build_breakdowns_qualifiers.R</code></td>
+<td>WP06</td>
+</tr>
+<tr class="even">
+<td><code>pipeline/bootstrap/build_indicators.R</code></td>
+<td>WP07</td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/bootstrap/build_plans.R</code></td>
+<td>WP08</td>
+</tr>
+<tr class="even">
+<td><code>pipeline/bootstrap/build_legacy_maps.R</code></td>
+<td>WP09</td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/build_content.R</code>, <code>pipeline/bootstrap/build_surveys.R</code></td>
+<td>WP10</td>
+</tr>
+<tr class="even">
+<td><code>pipeline/validate.R --root . [--metadata-only] [--data &lt;file&gt; ...] --out &lt;findings.csv&gt;</code> (exit 0 = no <code>ERROR</code>, 1 = at least one <code>ERROR</code>, 2 = a check crashed)</td>
+<td>WP11</td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/convert_legacy.R --root . --country SEN\|GNB\|ALL [--timestamp &lt;ISO 8601&gt;] [--out-root &lt;dir&gt;]</code></td>
+<td>WP15</td>
+</tr>
+<tr class="even">
+<td><code>pipeline/reconcile.R --root . --out &lt;report.md&gt; [--csv &lt;cells.csv&gt;]</code> (exit 0 only if every source cell is accounted for exactly once and every value matches)</td>
+<td>WP16</td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/acceptance/run_all.R --root .</code></td>
+<td>WP03</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-modules" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="sec-modules"><span class="header-section-number">4.2</span> Shared R modules</h2>
+<div id="tbl-modules" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-modules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Shared modules; the exact signatures are on the cards of WP03 and WP08
+</figcaption>
+<div aria-describedby="tbl-modules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Owner</th>
+<th>Exports</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pipeline/R/io.R</code></td>
+<td>WP03</td>
+<td><code>read_std_csv</code>, <code>write_std_csv</code>, <code>fmt_num</code>, <code>sha256_file</code>, <code>load_metadata</code>, <code>repo_path</code>, <code>cli_arg</code>, <code>cli_args</code>, <code>cli_flag</code></td>
+</tr>
+<tr class="even">
+<td><code>pipeline/R/constants.R</code></td>
+<td>WP03</td>
+<td><code>DATAFLOW_ID</code>, <code>SENTINEL_TOTAL</code>, <code>SENTINEL_NA</code>, <code>TBD</code>, <code>DSD_COLUMNS</code>, <code>KEY_COLUMNS</code></td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/R/codes.R</code></td>
+<td>WP03</td>
+<td><code>is_valid_code</code>, <code>slot_sort</code>, <code>fill_slots</code></td>
+</tr>
+<tr class="even">
+<td><code>pipeline/R/ctx.R</code></td>
+<td>WP03</td>
+<td><code>build_ctx(root, data_files, opts)</code></td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/tests/testthat/helper-temp-root.R</code></td>
+<td>WP03</td>
+<td><code>make_temp_root</code>, <code>edit_csv</code>, <code>find_root</code></td>
+</tr>
+<tr class="even">
+<td><code>pipeline/R/plan.R</code></td>
+<td>WP08</td>
+<td><code>required_rows(meta, ref_area, time_period)</code></td>
+</tr>
+<tr class="odd">
+<td><code>pipeline/tests/testthat/helper-data-fixture.R</code></td>
+<td>WP08</td>
+<td><code>make_data_fixture(tmp_root, ref_area, time_period, series_ids, value)</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-validator" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="sec-validator"><span class="header-section-number">4.3</span> Validator modules</h2>
+<p>Each <code>pipeline/R/validate_&lt;module&gt;.R</code> defines functions named <code>vc_&lt;module&gt;_&lt;check&gt;(ctx)</code>. Each returns a tibble with the columns <code>check_id, severity, file, row_key, message</code>, where zero rows means pass. <code>validate.R</code> discovers them with <code>ls(pattern = "^vc_")</code>. <code>check_id</code> is <code>&lt;MODULE&gt;.&lt;NAME&gt;</code>, and <code>severity</code> is <code>ERROR</code>, <code>WARN</code> or <code>INFO</code>. The module prefix names the owner of a finding:</p>
+<div id="tbl-check-owners" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-check-owners-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Who owns which check
+</figcaption>
+<div aria-describedby="tbl-check-owners-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Modules</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>STRUCT</code>, <code>CODES</code>, <code>META</code></td>
+<td>WP11</td>
+</tr>
+<tr class="even">
+<td><code>COVER</code>, <code>VALUE</code></td>
+<td>WP12</td>
+</tr>
+<tr class="odd">
+<td><code>RULE</code></td>
+<td>WP13</td>
+</tr>
+<tr class="even">
+<td><code>ASSET</code>, <code>TEXT</code></td>
+<td>WP14</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-checks" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="sec-checks"><span class="header-section-number">4.4</span> Checks vocabulary and tolerances (gap h)</h2>
+<p>The tokens are <code>RANGE_0_1</code>, <code>RANGE_NONNEG</code>, <code>AGG_SUM</code>, <code>AGG_BRACKET</code>, <code>AGG_NPOP_MEAN</code>, <code>SUM_TO_1_OVER:&lt;QUAL_VAR&gt;</code>, <code>SUM_TO_1_OVER_BRK</code>, <code>EQUALS_NPOP_RATIO</code>, <code>MONOTONE_IN:POVLINE</code> and <code>NONE</code>.</p>
+<ul>
+<li>The <strong>parent</strong> of a row is the row of the same series in the cut <code>TOTAL</code>. Provenance (<code>series_id</code>, <code>cut_id</code>) comes from <code>required_rows()</code>.</li>
+<li>For <code>ROUNDED_2DP</code> files, <code>h = 0.005 × scale</code>:
+<ul>
+<li>a sum of <code>k</code> children against its parent tolerates <code>(k + 1) × h</code>;</li>
+<li>a closure over <code>k</code> categories tolerates <code>k × h</code> (for COICOP, ±0.065);</li>
+<li>a bracket tolerates <code>h</code> on each side;</li>
+<li>monotonicity gets no tolerance.</li>
+</ul></li>
+<li>Every comparison is <code>abs(deviation) &lt;= tolerance + 1e-9</code>.</li>
+<li><code>AGG_BRACKET</code> (the parent lies within [min child − h, max child + h]) stands in for <code>AGG_NPOP_MEAN</code> while <code>N_POP</code> is absent. The two <code>N_POP</code> rules are skipped with an <code>INFO</code> finding on legacy files.</li>
+<li>A group with a withheld or empty child is skipped with a <code>WARN</code>. A closure over a partial category set is skipped with an <code>INFO</code>.</li>
+</ul>
+<p>These rules were run against the raw workbooks with these tolerances, and the legacy data break none of them.</p>
+</section>
+</section>
+<section id="sec-expected" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Expected counts</h1>
+<p><code>contract/expected_counts.csv</code> holds every target: source cells per sheet, labels, series, indicator codes, data rows by status, withheld cells, poverty counts, rows of every metadata file, features per boundary layer, and the 122 legacy files. Acceptance scripts read their targets from it by <code>check_id</code>, and none is hard-coded. <code>check_contract.R</code> recomputes 51 of them from the seeds and the workbooks. WP17 checks all of them on the finished repository.</p>
+</section>
+<section id="sec-out-of-scope" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Out of scope</h1>
+<p>This transition does not:</p>
+<ul>
+<li>switch the dashboard to the new files (objective 3 of CLAUDE.md);</li>
+<li>produce any non-legacy data: every row is a legacy conversion, with <code>precision = ROUNDED_2DP</code> and <code>status = DRAFT</code>;</li>
+<li>populate <code>N_OBS</code>, <code>N_POP</code>, <code>STD_ERR</code> or the confidence intervals;</li>
+<li>build <code>content/SLOTS.csv</code> or resolve <code>{…}</code> references in prose (gap p and open decision 10).</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/wbEAWPV\.github\.io\/AFW360_Glance\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 World Bank Group</p>
+</div>   
+    <div class="nav-footer-center">
+<p>AFW 360 data standard · draft v0.3</p>
+</div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/wbEAWPV/AFW360_Glance">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

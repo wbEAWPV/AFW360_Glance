@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-09-19">
+
+<title>Appendix A. Input tables – AFW 360 data standard</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">AFW 360 data standard</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Standard</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./input-tables-findings.html" aria-current="page"> 
+<span class="menu-text">Appendix A · Input tables</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-appendix-b-·-transition" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Appendix B · Transition</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-appendix-b-·-transition">    
+        <li>
+    <a class="dropdown-item" href="./transition/plan.html">
+ <span class="dropdown-text">B.1 · Plan</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./transition/contract.html">
+ <span class="dropdown-text">B.2 · Contract</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./transition/decisions.html">
+ <span class="dropdown-text">B.3 · Decisions</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/wbEAWPV/AFW360_Glance"> <i class="bi bi-github" role="img" aria-label="Source repository on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#file-layout" id="toc-file-layout" class="nav-link active" data-scroll-target="#file-layout">1. File layout</a></li>
+  <li><a href="#dimensions" id="toc-dimensions" class="nav-link" data-scroll-target="#dimensions">2. Dimensions</a></li>
+  <li><a href="#indicator-catalogue" id="toc-indicator-catalogue" class="nav-link" data-scroll-target="#indicator-catalogue">3. Indicator catalogue</a></li>
+  <li><a href="#value-conventions" id="toc-value-conventions" class="nav-link" data-scroll-target="#value-conventions">4. Value conventions</a></li>
+  <li><a href="#common-vs-country-specific" id="toc-common-vs-country-specific" class="nav-link" data-scroll-target="#common-vs-country-specific">5. Common vs country-specific</a></li>
+  <li><a href="#discrepancies-and-data-quality-issues" id="toc-discrepancies-and-data-quality-issues" class="nav-link" data-scroll-target="#discrepancies-and-data-quality-issues">6. Discrepancies and data-quality issues</a></li>
+  <li><a href="#consistency-checks-that-hold" id="toc-consistency-checks-that-hold" class="nav-link" data-scroll-target="#consistency-checks-that-hold">7. Consistency checks that hold</a></li>
+  <li><a href="#what-harmonization-will-need" id="toc-what-harmonization-will-need" class="nav-link" data-scroll-target="#what-harmonization-will-need">8. What harmonization will need</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Appendix A. Input tables</h1>
+<p class="subtitle lead">Structure, dimensions and data-quality findings in the current Excel workbooks</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 19, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Review of <code>INPUT Tables/Tables_SEN.xlsx</code> and <code>INPUT Tables/Tables_GNB.xlsx</code>, 2026-09-19. Every sheet, row and cell was read. No input file was modified.</p>
+<section id="file-layout" class="level2">
+<h2 class="anchored" data-anchor-id="file-layout">1. File layout</h2>
+<p>Both workbooks share one skeleton:</p>
+<ul>
+<li>Header in row 1. No rows above it, no blank or section-header rows, no merged cells, no hidden rows, columns or sheets, no formulas, no comments.</li>
+<li>Column A, <code>indicator</code>, holds one free-text label per row. It is the only row identifier; there are no indicator codes.</li>
+<li>Every other column is named <code>estimate&lt;Group&gt;</code> and holds one value per indicator for that group.</li>
+<li>Values are literal numbers already rounded to 2 decimals, with Excel number format <code>0.00</code>.</li>
+<li>Missing values are empty cells. No text, sentinel strings or error values appear in the numeric columns.</li>
+<li>The rows are sorted by label in code-point order (so <code>COICOP 10</code> comes before <code>COICOP 1</code>, and <code>≥1 HH member…</code> is always last). The order carries no thematic meaning.</li>
+<li>Both files were written by a script (<code>creator = openpyxl</code> in the file metadata). The 32-character cut-off in some column names matches Stata’s variable-name limit, so the tables most likely come from a Stata pipeline exported to Excel, but the file itself only proves the last step.</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Sheet</th>
+<th>SEN (rows × groups)</th>
+<th>GNB (rows × groups)</th>
+<th>Columns hold</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>National</code></td>
+<td>97 × 13</td>
+<td>97 × 13</td>
+<td>Population groups</td>
+</tr>
+<tr class="even">
+<td><code>ADM 1</code></td>
+<td>97 × 14</td>
+<td>97 × 9</td>
+<td>Regions</td>
+</tr>
+<tr class="odd">
+<td><code>ZAE</code></td>
+<td>97 × 6</td>
+<td>97 × 4</td>
+<td>Agro-ecological zones</td>
+</tr>
+<tr class="even">
+<td><code>Departement</code></td>
+<td>82 × 14</td>
+<td>—</td>
+<td>Regions (mislabelled; see 6.1)</td>
+</tr>
+</tbody>
+</table>
+<p>The dashboard reads only <code>National</code>, <code>ADM 1</code> and <code>ZAE</code>. <code>Departement</code> is never read.</p>
+<p><code>Tables_SEN_TEST.xlsx</code> is a scratch file: one sheet (<code>Sheet1</code>), 2 indicators (<code>Poverty rate</code>, <code>Number poor (millions)</code>) and columns <code>Total, Capital, Other urban, Rural</code> with no <code>estimate</code> prefix. It does not follow the schema above.</p>
+</section>
+<section id="dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="dimensions">2. Dimensions</h2>
+<p>The sheets are not really levels of geography. Each sheet is a set of <strong>one-way breakdowns of the national population</strong>: each cell is one indicator computed over one subgroup. Breakdowns are never crossed (there is no “rural × female head” and no “region × quintile”).</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Breakdown</th>
+<th>Sheet</th>
+<th>Groups (column suffix after <code>estimate</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Total</td>
+<td><code>National</code></td>
+<td><code>Total</code></td>
+</tr>
+<tr class="even">
+<td>Residence</td>
+<td><code>National</code></td>
+<td><code>Capital</code>, <code>Other_Urban</code>, <code>Rural</code></td>
+</tr>
+<tr class="odd">
+<td>Sex of household head</td>
+<td><code>National</code></td>
+<td><code>Female_HH</code>, <code>Male_HH</code></td>
+</tr>
+<tr class="even">
+<td>Age of household head</td>
+<td><code>National</code></td>
+<td><code>Youth_HH</code>, <code>Older_HH</code></td>
+</tr>
+<tr class="odd">
+<td>Consumption quintile</td>
+<td><code>National</code></td>
+<td><code>Q1</code>, <code>Q2</code>, <code>Q3</code>, <code>Q4</code>, <code>Q5</code></td>
+</tr>
+<tr class="even">
+<td>Region</td>
+<td><code>ADM 1</code></td>
+<td>country-specific (see 5)</td>
+</tr>
+<tr class="odd">
+<td>Agro-ecological zone</td>
+<td><code>ZAE</code></td>
+<td>country-specific (see 5)</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ul>
+<li>Residence has three categories. There is no <code>Urban</code> column, so “urban” would have to be derived from <code>Capital</code> + <code>Other_Urban</code>.</li>
+<li>The age cutoff between <code>Youth_HH</code> and <code>Older_HH</code> is not documented anywhere.</li>
+<li>Counts add up within a breakdown, with one exception. <code>Number poor $4.20/day (millions)</code> summed over regions equals the national total (SEN 6.52, GNB 1.09), and summed over zones gives SEN 6.52 and GNB 1.08 (rounding). The same holds for sex, age and quintile in both countries. The exception is GNB’s residence split, which overshoots by about 14% (1.24 vs 1.09 at $4.20, and 0.80 vs 0.70 at $3.00); see 6.3.</li>
+</ul>
+<section id="implicit-dimensions" class="level3">
+<h3 class="anchored" data-anchor-id="implicit-dimensions">Implicit dimensions</h3>
+<p>These never appear as their own column:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Where it is encoded today</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Country</td>
+<td>File name only</td>
+</tr>
+<tr class="even">
+<td>Breakdown family</td>
+<td>Sheet name, and column-name patterns within <code>National</code></td>
+</tr>
+<tr class="odd">
+<td>Group / geographic unit</td>
+<td>Column-name suffix, by name only (no admin codes)</td>
+</tr>
+<tr class="even">
+<td>Indicator</td>
+<td>Free-text label</td>
+</tr>
+<tr class="odd">
+<td>Poverty line</td>
+<td>Inside the label (<code>$3.00/day</code>, <code>$4.20/day</code>)</td>
+</tr>
+<tr class="even">
+<td>PPP year</td>
+<td>Inside the label (<code>2021 PPP</code>; <code>2017 PPP</code> in <code>Departement</code>)</td>
+</tr>
+<tr class="odd">
+<td>Unit</td>
+<td>Inside the label for some indicators (<code>(FCFA)</code>, <code>(ha)</code>, <code>(millions)</code>, <code>(share)</code>, <code>(years)</code>, <code>(code)</code>); inferred from magnitude for the rest</td>
+</tr>
+<tr class="even">
+<td>Classification codes</td>
+<td>Inside the label (<code>COICOP 4:</code>, <code>SDG 7.1.1</code>)</td>
+</tr>
+<tr class="odd">
+<td>Reference period / age band</td>
+<td>Inside the label (<code>activ12m</code>, <code>15–64</code>, <code>last 7 days</code>, <code>past 3 years</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Not present at all: survey name and year, data source, standard errors or confidence intervals, sample sizes, and admin codes for regions and zones.</p>
+</section>
+</section>
+<section id="indicator-catalogue" class="level2">
+<h2 class="anchored" data-anchor-id="indicator-catalogue">3. Indicator catalogue</h2>
+<p>The 97 labels are byte-identical, and in the same order, in <code>National</code>, <code>ADM 1</code> and <code>ZAE</code> for both countries. Unit is “share” (0–1) unless stated.</p>
+<p><strong>Monetary poverty (4)</strong> - <code>Poor at $3.00/day (2021 PPP)</code> - <code>Poor at $4.20/day (2021 PPP)</code> - <code>Number poor $3.00/day (millions)</code>: millions of people - <code>Number poor $4.20/day (millions)</code>: millions of people</p>
+<p><strong>Consumption (18)</strong> - <code>COICOP 1: food &amp; non-alc. beverages (share)</code> - <code>COICOP 2: alcohol &amp; tobacco (share)</code> - <code>COICOP 3: clothing &amp; footwear (share)</code> - <code>COICOP 4: housing &amp; utilities (share)</code> - <code>COICOP 5: furnishings &amp; equipment (share)</code> - <code>COICOP 6: health (share)</code> - <code>COICOP 7: transport (share)</code> - <code>COICOP 8: information &amp; communication (share)</code> - <code>COICOP 9: recreation &amp; culture (share)</code> - <code>COICOP 10: education (share)</code> - <code>COICOP 11: restaurants &amp; hotels (share)</code> - <code>COICOP 12: insurance &amp; financial (share)</code> - <code>COICOP 13: personal care &amp; effects (share)</code> - <code>Food consumption share</code> (same values as COICOP 1) - <code>Non-food consumption share</code> - <code>Own-production food share (% total cons.)</code> (stored as a share despite “%”) - <code>Market food share (% total cons.)</code> (stored as a share despite “%”) - <code>Housing &amp; utilities burden (COICOP 4 share of total cons.)</code> (same values as COICOP 4)</p>
+<p><strong>Jobs (9)</strong> - <code>Employed (activ12m, 15–64)</code> - <code>Employed in agriculture (% of employed)</code> - <code>Employed in industry (% of employed)</code> - <code>Employed in services (% of employed)</code> - <code>Wage-employed (% of employed)</code> - <code>Non-wage employed (% of employed)</code> - <code>Share of HH workers in trade/commerce</code> - <code>Share of HH workers in transport</code> - <code>Share of HH workers informally employed</code></p>
+<p>All “(% of employed)” values are stored as shares.</p>
+<p><strong>Household enterprises (31)</strong> - Shares (23): <code>HE buys from firms/state</code>, <code>HE sells to firms/state</code>, <code>HE has any credit access</code>, <code>HE has formal credit access</code>, <code>HE has informal credit access</code>, <code>HE has electricity</code>, <code>HE has water</code>, <code>HE has phone</code>, <code>HE has tax ID</code>, <code>HE has formal premises</code>, <code>HE keeps accounts</code>, <code>HE operates from home</code>, <code>HE pays rent</code>, <code>HE has external (non-HH) employees</code>, <code>Main HE owner is female</code>, <code>Main HE owner is married</code>, <code>HH has 0 HE</code>, <code>HH has 1 HE</code>, <code>HH has 2 HE</code>, <code>HH has 3 HE</code>, <code>HH has 4+ HE</code>, <code>HH has non-agric enterprise owner</code>, <code>HH owns a non-agric enterprise</code> - Levels (8): - <code>HE age (years)</code>: years; most likely enterprise age, not owner age - <code>HE capital stock (FCFA)</code>: FCFA - <code>HE costs (FCFA)</code>: FCFA - <code>HE profits (FCFA)</code>: FCFA; can be negative - <code>HE revenue per worker (FCFA)</code>: FCFA - <code>Number of employees in HE</code>: mean count - <code>Non-HH employees in HE</code>: mean count - <code>HH employees in HE</code>: mean count</p>
+<p><strong>Agriculture (4)</strong> - <code>HH cultivates agricultural land (superf &gt; 0)</code> - <code>HH owns any livestock</code> - <code>Tropical Livestock Units (TLU)</code>: TLU - <code>Cultivated area (ha)</code>: hectares</p>
+<p><strong>Energy (17)</strong> - <code>Access to electricity (grid, SDG 7.1.1)</code> - <code>Connected to electricity grid (SDG7.1.1)</code> - <code>Uses grid electricity</code> - <code>Uses solar/generator electricity</code> - <code>Improved lighting (grid or solar)</code> - <code>Informal electricity connection (neighbour/pole)</code> - <code>Prepaid meter (among grid-connected)</code> - <code>Any power outage in last 7 days (grid-connected)</code> - <code>Days with an outage (last 7)</code>: mean days, 0–7 - <code>Average outage duration (code)</code>: mean of an ordinal code, not a time unit - <code>Monthly electricity spend (FCFA)</code>: FCFA - <code>Primary cooking fuel biomass (wood/charcoal)</code> - <code>Primary cooking fuel clean (gas/electricity)</code> - <code>Proxy: owns gas/electric cooker (cuisin)</code> - <code>Owns ceiling fan</code> - <code>Owns wall AC/split</code> - <code>Owns water heater</code></p>
+<p><strong>Housing and services (6)</strong> - <code>Durable floor materials</code> - <code>Durable roof materials</code> - <code>Durable wall materials</code> - <code>Safe drinking water – dry season</code> - <code>Sanitary toilet facility</code> - <code>HH has internet access</code></p>
+<p><strong>Shocks (5)</strong> - <code>Covariate economic shock</code> - <code>Covariate natural shock (drought, flood, etc.)</code> - <code>Covariate violence/conflict shock</code> - <code>Idiosyncratic economic shock</code> - <code>Exposed to any shock (past 3 years)</code></p>
+<p><strong>Social protection (2)</strong> - <code>Has health insurance/coverage (couvmal)</code> - <code>≥1 HH member has health coverage (proxy social protection)</code></p>
+<p><strong>Placeholder (1)</strong> - <code>wood_dist [ALL MISSING]</code>: every cell empty in every sheet of both countries</p>
+<p>In total, 82 indicators are shares and 15 are levels (millions, FCFA, years, counts, TLU, hectares, days, code). Nothing in the file marks which is which.</p>
+</section>
+<section id="value-conventions" class="level2">
+<h2 class="anchored" data-anchor-id="value-conventions">4. Value conventions</h2>
+<ul>
+<li>Shares are stored as 0–1 decimals, never 0–100, including labels that say “%”.</li>
+<li>Levels are stored in the same columns as shares, with no unit or type field. A single number format cannot fit every row.</li>
+<li>Values are rounded to 2 decimals at source. Anything below 0.005 is stored as 0.00 and cannot be told apart from a true zero.</li>
+<li>An empty cell can mean either “not computed” (<code>wood_dist</code>) or “too few observations in this group” (scattered blanks in small regions). The file does not distinguish the two. Empty must not be read as zero.</li>
+<li>Labels contain non-ASCII characters: en-dash <code>–</code> (<code>15–64</code>, <code>Safe drinking water – dry season</code>) and <code>≥</code>. SDG is written both as <code>SDG 7.1.1</code> and <code>SDG7.1.1</code>. Matching by typed text is fragile.</li>
+</ul>
+</section>
+<section id="common-vs-country-specific" class="level2">
+<h2 class="anchored" data-anchor-id="common-vs-country-specific">5. Common vs country-specific</h2>
+<section id="common-to-sen-and-gnb" class="level3">
+<h3 class="anchored" data-anchor-id="common-to-sen-and-gnb">Common to SEN and GNB</h3>
+<ul>
+<li>The same 97 indicator labels, in the same order, on <code>National</code>, <code>ADM 1</code> and <code>ZAE</code>.</li>
+<li>The same 13 <code>National</code> groups.</li>
+<li>The same storage conventions (sections 1 and 4).</li>
+<li>The same currency (FCFA). This is because both countries are in the West African monetary union (WAEMU); it will not hold for every AFW country.</li>
+<li>The same defects (section 6.2).</li>
+</ul>
+</section>
+<section id="country-specific" class="level3">
+<h3 class="anchored" data-anchor-id="country-specific">Country-specific</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>SEN</th>
+<th>GNB</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Regions (<code>ADM 1</code>)</td>
+<td>14, uppercase ASCII</td>
+<td>9, mixed case with accents</td>
+</tr>
+<tr class="even">
+<td>Region names</td>
+<td><code>DAKAR</code>, <code>DIOURBEL</code>, <code>FATICK</code>, <code>KAFFRINE</code>, <code>KAOLACK</code>, <code>KEDOUGOU</code>, <code>KOLDA</code>, <code>LOUGA</code>, <code>MATAM</code>, <code>SAINT_LOUIS</code>, <code>SEDHIOU</code>, <code>TAMBACOUNDA</code>, <code>THIES</code>, <code>ZIGUINCHOR</code></td>
+<td><code>Bafatá</code>, <code>Biombo</code>, <code>Bolama_Bijagós</code> (underscore stands for “/”), <code>Cacheu</code>, <code>Gabú</code>, <code>Oio</code>, <code>Quinara</code>, <code>SAB</code> (Bissau Autonomous Sector), <code>Tombali</code></td>
+</tr>
+<tr class="odd">
+<td>Zones (<code>ZAE</code>)</td>
+<td>6, named by joining region names, so they are groupings of regions</td>
+<td>4, Portuguese agro-ecological names</td>
+</tr>
+<tr class="even">
+<td>Zone names</td>
+<td><code>Dakar</code>, <code>Kaolack_Fatick_Kaffrine</code>, <code>Kedougou</code>, <code>Saint_Louis_Matam</code>, <code>Thies_Diourbel_Louga</code>, <code>Ziguinchor_Tamba_Kolda_S</code> (truncated)</td>
+<td><code>Zona_Plana_de_Centro_Bis</code> (truncated), <code>Zonas_Costeiras_do_Sul</code>, <code>Zonas_Montanhosas_de_Les</code> (truncated), <code>Zonas_Planas_de_Norte</code></td>
+</tr>
+<tr class="odd">
+<td>Extra sheet</td>
+<td><code>Departement</code> (see 6.1)</td>
+<td>none</td>
+</tr>
+<tr class="even">
+<td>Empty cells: <code>National</code> / <code>ADM 1</code> / <code>ZAE</code></td>
+<td>13 / 18 / 7</td>
+<td>28 / 45 / 10</td>
+</tr>
+<tr class="odd">
+<td>Sparsest columns</td>
+<td><code>FATICK</code>, <code>KAFFRINE</code>, <code>KEDOUGOU</code>, <code>KOLDA</code> (2 each on <code>ADM 1</code>), <code>Kedougou</code> (2 on <code>ZAE</code>)</td>
+<td><code>Tombali</code> (11), <code>Bafatá</code> (7), <code>Q1</code> (7)</td>
+</tr>
+<tr class="even">
+<td><code>Capital</code> column</td>
+<td>Equals <code>DAKAR</code> on all 97 indicators</td>
+<td>Equals the <code>Zonas_Costeiras_do_Sul</code> zone, not <code>SAB</code> (see 6.3)</td>
+</tr>
+</tbody>
+</table>
+<p>GNB’s extra missingness is concentrated, not spread evenly:</p>
+<ul>
+<li><code>HE revenue per worker (FCFA)</code> is blank in 7 of 9 regions (all but <code>Cacheu</code> and <code>SAB</code>), 2 of 4 zones and 5 of 13 national groups, so it is unusable below the national level. It is fully populated in SEN.</li>
+<li><code>HE has electricity</code>, <code>HE has water</code> and <code>HE pays rent</code> are blank together for the same four regions (<code>Bafatá</code>, <code>Biombo</code>, <code>Bolama_Bijagós</code>, <code>Tombali</code>) and for <code>Q1</code> on <code>National</code>, which looks like suppression of small subsamples.</li>
+</ul>
+<p>The file records no sample sizes, so a smaller GNB survey is a plausible but unverifiable explanation.</p>
+</section>
+</section>
+<section id="discrepancies-and-data-quality-issues" class="level2">
+<h2 class="anchored" data-anchor-id="discrepancies-and-data-quality-issues">6. Discrepancies and data-quality issues</h2>
+<section id="sen-departement-sheet" class="level3">
+<h3 class="anchored" data-anchor-id="sen-departement-sheet">6.1 SEN <code>Departement</code> sheet</h3>
+<ul>
+<li>It contains the same 14 regions as <code>ADM 1</code>, spelled identically. There is no département-level data in the file.</li>
+<li>It is an older or different version of the regional table:
+<ul>
+<li>Poverty is at 2017 PPP (<code>Poor at $3.00/day (2017 PPP)</code>, <code>Poor at $4.20/day (2017 PPP)</code>) instead of 2021 PPP.</li>
+<li>How far its values drift from <code>ADM 1</code> varies by indicator. Six of the 60 shared indicators are identical (<code>Employed (activ12m, 15–64)</code>, <code>Employed in agriculture</code>, <code>Wage-employed</code>, <code>Non-wage employed</code>, <code>HH has internet access</code>, <code>Has health insurance/coverage (couvmal)</code>). Most others differ modestly. The household-enterprise money variables differ heavily: up to 94% for <code>HE revenue per worker</code>, 68% for <code>HE capital stock</code>, 74% for <code>HE costs</code>, and 14.7x for <code>HE profits</code>.</li>
+</ul></li>
+<li>Its indicator set does not match: 82 rows, 60 shared with the other sheets, 22 unique and 37 missing.
+<ul>
+<li>Unique rows include raw variable names: <code>(max) con_1</code> … <code>(max) con_15</code>, <code>(max) ext_emp</code>, <code>npoor300</code>, <code>npoor420</code>.</li>
+<li>Also unique: <code>Access to electricity (grid or off-grid)</code>, <code>Energy expenditure burden (share of total cons.)</code>.</li>
+<li>Its 15 <code>con_*</code> consumption categories do not line up with the 13 COICOP rows elsewhere.</li>
+</ul></li>
+<li>Some values are impossible:
+<ul>
+<li><code>HE has any credit access</code> is 1.00 in all 14 regions (0.14–0.59 in <code>ADM 1</code>).</li>
+<li><code>HE has formal credit access</code> is 0.72–0.95 in every region (0.00–0.23 in <code>ADM 1</code>). <code>HE has informal credit access</code> looks unaffected (0.09–0.37, against 0.09–0.40 in <code>ADM 1</code>).</li>
+<li><code>HH has 4+ HE</code> is 0.80–1.00 in every region, although <code>HH has 0/1/2/3 HE</code> already sum to about 1 (at most 0.03 in <code>ADM 1</code>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="issues-in-both-countries" class="level3">
+<h3 class="anchored" data-anchor-id="issues-in-both-countries">6.2 Issues in both countries</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Issue</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Empty placeholder indicator</td>
+<td><code>wood_dist [ALL MISSING]</code> has no values anywhere</td>
+</tr>
+<tr class="even">
+<td>Indicator with no information</td>
+<td><code>HH has internet access</code> is 0.00 or empty in every cell of both countries</td>
+</tr>
+<tr class="odd">
+<td>Duplicate indicators</td>
+<td><code>Food consumption share</code> = <code>COICOP 1…</code>; <code>Housing &amp; utilities burden…</code> = <code>COICOP 4…</code> (identical values in every column)</td>
+</tr>
+<tr class="even">
+<td>Three overlapping electricity indicators</td>
+<td><code>Access to electricity (grid, SDG 7.1.1)</code>, <code>Connected to electricity grid (SDG7.1.1)</code> and <code>Uses grid electricity</code> differ by country: GNB national totals are 0.23 / 0.27 / 0.26, but SEN’s are 0.68 / 0.98 / 0.66, a 32-point spread. The definitions need documenting before any of the three is presented as “electricity access”</td>
+</tr>
+<tr class="odd">
+<td>Rows with no variation at 2 decimals</td>
+<td><code>COICOP 12</code> is 0.00 in every column of both countries. <code>COICOP 9</code> is 0.00 in every column in SEN and on GNB <code>National</code>. <code>COICOP 2</code> is 0.00 on SEN <code>National</code> and <code>ZAE</code>, and 0.01 in every column in GNB</td>
+</tr>
+<tr class="even">
+<td>Truncated column names</td>
+<td>Names cut at exactly 32 characters (SEN <code>Ziguinchor_Tamba_Kolda_S</code>; GNB <code>Zona_Plana_de_Centro_Bis</code>, <code>Zonas_Montanhosas_de_Les</code>)</td>
+</tr>
+<tr class="odd">
+<td>No geographic codes</td>
+<td>Regions and zones are identified only by spelled names, and spelling conventions differ between countries</td>
+</tr>
+<tr class="even">
+<td>Ambiguous unit</td>
+<td><code>Average outage duration (code)</code> is a mean of an ordinal code, not a duration</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gnb-specific-issues" class="level3">
+<h3 class="anchored" data-anchor-id="gnb-specific-issues">6.3 GNB-specific issues</h3>
+<p><strong>The <code>Capital</code> column does not hold Bissau. It holds a copy of a zone.</strong></p>
+<p><code>National</code> <code>estimateCapital</code> is identical to <code>ZAE</code> <code>estimateZonas_Costeiras_do_Sul</code> on all 97 indicators. Against <code>SAB</code>, it matches on only 9 of 97, and all nine are rows that are constant everywhere anyway (<code>wood_dist</code>, <code>COICOP 12</code>, <code>HE has external (non-HH) employees</code> and similar). The gap is not confined to poverty:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Indicator</th>
+<th>GNB <code>Capital</code></th>
+<th>GNB <code>SAB</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Poor at $4.20/day (2021 PPP)</code></td>
+<td>0.79</td>
+<td>0.21</td>
+</tr>
+<tr class="even">
+<td><code>Access to electricity (grid, SDG 7.1.1)</code></td>
+<td>0.01</td>
+<td>0.70</td>
+</tr>
+<tr class="odd">
+<td><code>Durable floor materials</code></td>
+<td>0.33</td>
+<td>0.97</td>
+</tr>
+<tr class="even">
+<td><code>Cultivated area (ha)</code></td>
+<td>53,028,771</td>
+<td>1.30</td>
+</tr>
+</tbody>
+</table>
+<p>For comparison, SEN <code>Capital</code> is identical to <code>DAKAR</code> on all 97 indicators, and SEN’s single-region zones <code>Dakar</code> and <code>Kedougou</code> are identical to regions <code>DAKAR</code> and <code>KEDOUGOU</code> on all 97. So the pattern is specific to GNB and looks like a coding error in the residence variable, not a definitional difference.</p>
+<p>Two other findings in this section follow from it: the <code>Capital</code> cultivated-area outlier is the zone’s value, and the residence breakdown fails to add up (see below).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Issue</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Residence breakdown does not add up</td>
+<td><code>Capital</code> + <code>Other_Urban</code> + <code>Rural</code> gives 1.24M poor at $4.20 against a national 1.09M, and 0.80M against 0.70M at $3.00, about 14% too high. Every other GNB breakdown adds up.</td>
+</tr>
+<tr class="even">
+<td><code>Cultivated area (ha)</code> is corrupted</td>
+<td>Values in the millions of “ha”: <code>National</code> Total 9.1M, <code>Capital</code> 53.0M, <code>Rural</code> 10.8M, <code>Male_HH</code> 10.4M, <code>Older_HH</code> 10.5M, <code>Q4</code> 57.9M; <code>ZAE</code> <code>Zonas_Costeiras_do_Sul</code> 53.0M; <code>ADM 1</code> <code>Quinara</code> 148.4M. Other cells are 1–15 ha. Outlier records, probably a unit error in the microdata, inflate every mean they enter. The <code>Quinara</code> and <code>Q4</code> values are separate from the <code>Capital</code> mix-up above.</td>
+</tr>
+<tr class="odd">
+<td>Constant indicators</td>
+<td><code>HE has external (non-HH) employees</code> = 1.00 and <code>HH employees in HE</code> = 0.00 in every cell; <code>HE pays rent</code> = 1.00 in every populated cell (blank for <code>Q1</code> and four regions); <code>HH has 4+ HE</code> = 0.00 on <code>National</code> and <code>ZAE</code></td>
+</tr>
+<tr class="even">
+<td>Possible definition mismatch</td>
+<td><code>Number of employees in HE</code> ranges 0–0.46 in GNB versus 0.33–3.09 in SEN, which suggests a different definition or computation</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sen-specific-notes" class="level3">
+<h3 class="anchored" data-anchor-id="sen-specific-notes">6.4 SEN-specific notes</h3>
+<ul>
+<li><code>HE profits (FCFA)</code> for <code>TAMBACOUNDA</code> is the only negative value in either country: −3,460 on <code>ADM 1</code> and −50,754 on <code>Departement</code>, a factor of 14.7 apart. A loss-making average may be genuine, but it breaks any assumption that levels are non-negative, and the two tables disagree on its size.</li>
+</ul>
+</section>
+</section>
+<section id="consistency-checks-that-hold" class="level2">
+<h2 class="anchored" data-anchor-id="consistency-checks-that-hold">7. Consistency checks that hold</h2>
+<p>Checked across every cell of both countries, and correct:</p>
+<ul>
+<li><code>Poor at $3.00/day</code> never exceeds <code>Poor at $4.20/day</code>.</li>
+<li>Poverty falls monotonically from Q1 to Q5.</li>
+<li>Regional values bracket the national value.</li>
+<li>COICOP 1–13 sum to 0.96–1.02, which is what rounding 13 two-decimal shares produces.</li>
+<li>Agriculture + industry + services, and food + non-food, sum to about 1; wage + non-wage sums to exactly 1.00.</li>
+<li><code>HH has 0/1/2/3/4+ HE</code> sums to about 1, except on SEN <code>Departement</code>.</li>
+<li><code>HE has any credit access</code> is at least as large as its formal and informal components, except on SEN <code>Departement</code>.</li>
+</ul>
+<p>Two notes for anyone re-running these checks:</p>
+<ul>
+<li>Scanning for identical columns or rows produces false positives. Some indicator pairs match only because both are near zero everywhere (for example GNB <code>Owns wall AC/split</code> and <code>≥1 HH member has health coverage</code>). Require the values to vary before calling a pair a duplicate.</li>
+<li>The duplicates in 6.2 pass that test: they track each other across the full range.</li>
+</ul>
+</section>
+<section id="what-harmonization-will-need" class="level2">
+<h2 class="anchored" data-anchor-id="what-harmonization-will-need">8. What harmonization will need</h2>
+<ul>
+<li>A long table with one row per country × breakdown × group × indicator, holding the value.</li>
+<li>An indicator dictionary: stable code, label, theme, unit / value type, display format, poverty line, PPP year, source variable.</li>
+<li>A geography lookup: admin code, level and display name for every region and zone, replacing name-based matching.</li>
+<li>A way to mark missing values that separates “not computed” from “suppressed (small sample)”.</li>
+<li>Fixes in the upstream pipeline, not the dashboard, for 6.1, the GNB <code>Cultivated area (ha)</code> outliers, the GNB <code>Capital</code> coding, and the constant or duplicate indicators.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/wbEAWPV\.github\.io\/AFW360_Glance\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 World Bank Group</p>
+</div>   
+    <div class="nav-footer-center">
+<p>AFW 360 data standard · draft v0.3</p>
+</div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/wbEAWPV/AFW360_Glance">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

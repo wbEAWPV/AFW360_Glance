@@ -1,0 +1,3182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-09-21">
+
+<title>AFW 360 data standard and producer guidelines – AFW 360 data standard</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">AFW 360 data standard</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Standard</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./input-tables-findings.html"> 
+<span class="menu-text">Appendix A · Input tables</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-appendix-b-·-transition" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Appendix B · Transition</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-appendix-b-·-transition">    
+        <li>
+    <a class="dropdown-item" href="./transition/plan.html">
+ <span class="dropdown-text">B.1 · Plan</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./transition/contract.html">
+ <span class="dropdown-text">B.2 · Contract</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./transition/decisions.html">
+ <span class="dropdown-text">B.3 · Decisions</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/wbEAWPV/AFW360_Glance"> <i class="bi bi-github" role="img" aria-label="Source repository on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#sec-idea" id="toc-sec-idea" class="nav-link active" data-scroll-target="#sec-idea"><span class="header-section-number">1</span> The idea in one page</a>
+  <ul class="collapse">
+  <li><a href="#sec-one-row" id="toc-sec-one-row" class="nav-link" data-scroll-target="#sec-one-row"><span class="header-section-number">1.1</span> One row is one number</a></li>
+  <li><a href="#sec-compositions" id="toc-sec-compositions" class="nav-link" data-scroll-target="#sec-compositions"><span class="header-section-number">1.2</span> Common compositions, and how each number is checked</a></li>
+  <li><a href="#sec-layout" id="toc-sec-layout" class="nav-link" data-scroll-target="#sec-layout"><span class="header-section-number">1.3</span> Where everything lives</a></li>
+  <li><a href="#sec-growth" id="toc-sec-growth" class="nav-link" data-scroll-target="#sec-growth"><span class="header-section-number">1.4</span> How the database grows</a></li>
+  </ul></li>
+  <li><a href="#sec-data" id="toc-sec-data" class="nav-link" data-scroll-target="#sec-data"><span class="header-section-number">2</span> Data structure: dataflow <code>AFW360_HH</code></a>
+  <ul class="collapse">
+  <li><a href="#sec-columns" id="toc-sec-columns" class="nav-link" data-scroll-target="#sec-columns"><span class="header-section-number">2.1</span> Columns</a></li>
+  <li><a href="#sec-sentinels" id="toc-sec-sentinels" class="nav-link" data-scroll-target="#sec-sentinels"><span class="header-section-number">2.2</span> The two sentinels</a></li>
+  <li><a href="#sec-breakdown-rules" id="toc-sec-breakdown-rules" class="nav-link" data-scroll-target="#sec-breakdown-rules"><span class="header-section-number">2.3</span> Rules for the breakdown columns</a></li>
+  <li><a href="#sec-qualifier-rules" id="toc-sec-qualifier-rules" class="nav-link" data-scroll-target="#sec-qualifier-rules"><span class="header-section-number">2.4</span> Rules for the qualifier columns</a></li>
+  <li><a href="#sec-values" id="toc-sec-values" class="nav-link" data-scroll-target="#sec-values"><span class="header-section-number">2.5</span> Values and attributes</a></li>
+  <li><a href="#sec-required-rows" id="toc-sec-required-rows" class="nav-link" data-scroll-target="#sec-required-rows"><span class="header-section-number">2.6</span> Which rows exist</a></li>
+  <li><a href="#sec-example-rows" id="toc-sec-example-rows" class="nav-link" data-scroll-target="#sec-example-rows"><span class="header-section-number">2.7</span> Example rows</a></li>
+  </ul></li>
+  <li><a href="#sec-breakdowns" id="toc-sec-breakdowns" class="nav-link" data-scroll-target="#sec-breakdowns"><span class="header-section-number">3</span> Breakdowns</a>
+  <ul class="collapse">
+  <li><a href="#sec-initial-breakdowns" id="toc-sec-initial-breakdowns" class="nav-link" data-scroll-target="#sec-initial-breakdowns"><span class="header-section-number">3.1</span> Initial breakdown variables</a></li>
+  <li><a href="#sec-universe" id="toc-sec-universe" class="nav-link" data-scroll-target="#sec-universe"><span class="header-section-number">3.2</span> Every breakdown variable carries a universe</a></li>
+  <li><a href="#sec-example-sector" id="toc-sec-example-sector" class="nav-link" data-scroll-target="#sec-example-sector"><span class="header-section-number">3.3</span> Worked example: adding sector of employment</a></li>
+  </ul></li>
+  <li><a href="#sec-qualifiers" id="toc-sec-qualifiers" class="nav-link" data-scroll-target="#sec-qualifiers"><span class="header-section-number">4</span> Qualifiers</a>
+  <ul class="collapse">
+  <li><a href="#sec-povlines" id="toc-sec-povlines" class="nav-link" data-scroll-target="#sec-povlines"><span class="header-section-number">4.1</span> Poverty lines</a></li>
+  <li><a href="#sec-ppp" id="toc-sec-ppp" class="nav-link" data-scroll-target="#sec-ppp"><span class="header-section-number">4.2</span> PPP beyond poverty</a></li>
+  </ul></li>
+  <li><a href="#sec-metadata" id="toc-sec-metadata" class="nav-link" data-scroll-target="#sec-metadata"><span class="header-section-number">5</span> Metadata files</a>
+  <ul class="collapse">
+  <li><a href="#sec-code-rules" id="toc-sec-code-rules" class="nav-link" data-scroll-target="#sec-code-rules"><span class="header-section-number">5.1</span> Code rules</a></li>
+  <li><a href="#sec-cl-indicator" id="toc-sec-cl-indicator" class="nav-link" data-scroll-target="#sec-cl-indicator"><span class="header-section-number">5.2</span> <code>CL_INDICATOR.csv</code>: the indicator dictionary</a></li>
+  <li><a href="#sec-cl-brk-var" id="toc-sec-cl-brk-var" class="nav-link" data-scroll-target="#sec-cl-brk-var"><span class="header-section-number">5.3</span> <code>CL_BRK_VAR.csv</code></a></li>
+  <li><a href="#sec-cl-comp-breakdown" id="toc-sec-cl-comp-breakdown" class="nav-link" data-scroll-target="#sec-cl-comp-breakdown"><span class="header-section-number">5.4</span> <code>CL_COMP_BREAKDOWN.csv</code></a></li>
+  <li><a href="#sec-cl-qual" id="toc-sec-cl-qual" class="nav-link" data-scroll-target="#sec-cl-qual"><span class="header-section-number">5.5</span> <code>CL_QUAL_VAR.csv</code> and <code>CL_QUALIFIER.csv</code></a></li>
+  <li><a href="#sec-cl-geo" id="toc-sec-cl-geo" class="nav-link" data-scroll-target="#sec-cl-geo"><span class="header-section-number">5.6</span> <code>CL_GEO_SCHEME.csv</code> and <code>CL_GEO.csv</code></a></li>
+  <li><a href="#sec-cl-area" id="toc-sec-cl-area" class="nav-link" data-scroll-target="#sec-cl-area"><span class="header-section-number">5.7</span> <code>CL_AREA.csv</code></a></li>
+  <li><a href="#sec-small-codelists" id="toc-sec-small-codelists" class="nav-link" data-scroll-target="#sec-small-codelists"><span class="header-section-number">5.8</span> Small codelists</a></li>
+  <li><a href="#sec-surveys" id="toc-sec-surveys" class="nav-link" data-scroll-target="#sec-surveys"><span class="header-section-number">5.9</span> <code>SURVEYS.csv</code></a></li>
+  <li><a href="#sec-manifest" id="toc-sec-manifest" class="nav-link" data-scroll-target="#sec-manifest"><span class="header-section-number">5.10</span> Manifest</a></li>
+  <li><a href="#sec-tab-plan" id="toc-sec-tab-plan" class="nav-link" data-scroll-target="#sec-tab-plan"><span class="header-section-number">5.11</span> <code>TAB_PLAN.csv</code>: which cuts are produced</a></li>
+  </ul></li>
+  <li><a href="#sec-deliver" id="toc-sec-deliver" class="nav-link" data-scroll-target="#sec-deliver"><span class="header-section-number">6</span> What a producer delivers</a>
+  <ul class="collapse">
+  <li><a href="#sec-estimation" id="toc-sec-estimation" class="nav-link" data-scroll-target="#sec-estimation"><span class="header-section-number">6.1</span> Estimation rules</a></li>
+  <li><a href="#sec-legacy" id="toc-sec-legacy" class="nav-link" data-scroll-target="#sec-legacy"><span class="header-section-number">6.2</span> A note on legacy conversions</a></li>
+  <li><a href="#sec-reliability" id="toc-sec-reliability" class="nav-link" data-scroll-target="#sec-reliability"><span class="header-section-number">6.3</span> How the dashboard shows reliability</a></li>
+  </ul></li>
+  <li><a href="#sec-extend" id="toc-sec-extend" class="nav-link" data-scroll-target="#sec-extend"><span class="header-section-number">7</span> How to extend</a>
+  <ul class="collapse">
+  <li><a href="#sec-add-indicator" id="toc-sec-add-indicator" class="nav-link" data-scroll-target="#sec-add-indicator"><span class="header-section-number">7.1</span> Add an indicator</a></li>
+  <li><a href="#sec-add-breakdown" id="toc-sec-add-breakdown" class="nav-link" data-scroll-target="#sec-add-breakdown"><span class="header-section-number">7.2</span> Add a breakdown variable</a></li>
+  <li><a href="#sec-add-qualifier" id="toc-sec-add-qualifier" class="nav-link" data-scroll-target="#sec-add-qualifier"><span class="header-section-number">7.3</span> Add a qualifier variable</a></li>
+  <li><a href="#sec-add-country" id="toc-sec-add-country" class="nav-link" data-scroll-target="#sec-add-country"><span class="header-section-number">7.4</span> Add a country</a></li>
+  </ul></li>
+  <li><a href="#sec-assets" id="toc-sec-assets" class="nav-link" data-scroll-target="#sec-assets"><span class="header-section-number">8</span> Boundaries and figures</a>
+  <ul class="collapse">
+  <li><a href="#sec-maps-scope" id="toc-sec-maps-scope" class="nav-link" data-scroll-target="#sec-maps-scope"><span class="header-section-number">8.1</span> Maps exist for countries and ADM1 only</a></li>
+  <li><a href="#sec-geo-storage" id="toc-sec-geo-storage" class="nav-link" data-scroll-target="#sec-geo-storage"><span class="header-section-number">8.2</span> Storage</a></li>
+  <li><a href="#sec-figures" id="toc-sec-figures" class="nav-link" data-scroll-target="#sec-figures"><span class="header-section-number">8.3</span> Figures</a></li>
+  <li><a href="#sec-extend-assets" id="toc-sec-extend-assets" class="nav-link" data-scroll-target="#sec-extend-assets"><span class="header-section-number">8.4</span> Extending</a></li>
+  </ul></li>
+  <li><a href="#sec-text" id="toc-sec-text" class="nav-link" data-scroll-target="#sec-text"><span class="header-section-number">9</span> Dashboard text</a>
+  <ul class="collapse">
+  <li><a href="#sec-text-csv" id="toc-sec-text-csv" class="nav-link" data-scroll-target="#sec-text-csv"><span class="header-section-number">9.1</span> <code>TEXT.csv</code></a></li>
+  <li><a href="#sec-live-numbers" id="toc-sec-live-numbers" class="nav-link" data-scroll-target="#sec-live-numbers"><span class="header-section-number">9.2</span> Live numbers in prose</a></li>
+  <li><a href="#sec-text-replaces" id="toc-sec-text-replaces" class="nav-link" data-scroll-target="#sec-text-replaces"><span class="header-section-number">9.3</span> What this replaces</a></li>
+  <li><a href="#sec-extend-text" id="toc-sec-extend-text" class="nav-link" data-scroll-target="#sec-extend-text"><span class="header-section-number">9.4</span> Extending</a></li>
+  </ul></li>
+  <li><a href="#sec-change-control" id="toc-sec-change-control" class="nav-link" data-scroll-target="#sec-change-control"><span class="header-section-number">10</span> Change control</a></li>
+  <li><a href="#sec-validation" id="toc-sec-validation" class="nav-link" data-scroll-target="#sec-validation"><span class="header-section-number">11</span> Validation checks (to be implemented in Python)</a></li>
+  <li><a href="#sec-decisions" id="toc-sec-decisions" class="nav-link" data-scroll-target="#sec-decisions"><span class="header-section-number">12</span> Decisions</a>
+  <ul class="collapse">
+  <li><a href="#sec-decisions-taken" id="toc-sec-decisions-taken" class="nav-link" data-scroll-target="#sec-decisions-taken"><span class="header-section-number">12.1</span> Decisions taken</a></li>
+  <li><a href="#sec-open-decisions" id="toc-sec-open-decisions" class="nav-link" data-scroll-target="#sec-open-decisions"><span class="header-section-number">12.2</span> Open decisions</a></li>
+  </ul></li>
+  <li><a href="#sec-appendix-legacy" id="toc-sec-appendix-legacy" class="nav-link" data-scroll-target="#sec-appendix-legacy">Annex. Mapping the current tables</a>
+  <ul class="collapse">
+  <li><a href="#sec-legacy-indicators" id="toc-sec-legacy-indicators" class="nav-link" data-scroll-target="#sec-legacy-indicators">Annex 1. Indicators</a></li>
+  <li><a href="#sec-legacy-departement" id="toc-sec-legacy-departement" class="nav-link" data-scroll-target="#sec-legacy-departement">Annex 2. The <code>Departement</code> sheet</a></li>
+  <li><a href="#sec-legacy-columns" id="toc-sec-legacy-columns" class="nav-link" data-scroll-target="#sec-legacy-columns">Annex 3. Columns to dimensions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">AFW 360 data standard and producer guidelines</h1>
+<p class="subtitle lead">Draft v0.3 · Proposal: no file described here exists yet</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 21, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, how producers create data files, and how the database is extended to new countries, indicators and breakdowns. It follows the SDMX information model (the ISO standard statistical agencies use to exchange data) and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.</p>
+<p>Background on the current inputs is in <a href="./input-tables-findings.html">input-tables-findings.qmd</a>. Nothing here changes the current <code>INPUT Tables/</code> files. A Python converter will produce the new files from them, and the dashboard will switch over later.</p>
+<p><strong>How to read this document.</strong> <a href="#sec-idea" class="quarto-xref">Section&nbsp;1</a> is the whole idea on one page: the model, where every file lives, and how the database grows. Read it first. Sections <a href="#sec-data" class="quarto-xref">2</a> to <a href="#sec-validation" class="quarto-xref">11</a> are reference material; come back to them when you need the exact rule. <a href="#sec-decisions" class="quarto-xref">Section&nbsp;12</a> records the design decisions already taken and those still open. <a href="#tbl-reading-guide" class="quarto-xref">Table&nbsp;1</a> suggests where to start.</p>
+<div id="tbl-reading-guide" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-reading-guide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Where to start, by role
+</figcaption>
+<div aria-describedby="tbl-reading-guide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>You are…</th>
+<th>Read</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A producer delivering a country’s file</td>
+<td>Sections <a href="#sec-idea" class="quarto-xref">1</a>, <a href="#sec-data" class="quarto-xref">2</a> and <a href="#sec-deliver" class="quarto-xref">6</a>, then <a href="#sec-validation" class="quarto-xref">11</a> to see what will be checked</td>
+</tr>
+<tr class="even">
+<td>Adding a country, indicator, breakdown or qualifier</td>
+<td>Sections <a href="#sec-growth" class="quarto-xref">1.4</a> and <a href="#sec-extend" class="quarto-xref">7</a>, then the part of <a href="#sec-metadata" class="quarto-xref">Section&nbsp;5</a> that covers the codelist you are editing</td>
+</tr>
+<tr class="odd">
+<td>Writing the converter from the current Excel</td>
+<td>Sections <a href="#sec-data" class="quarto-xref">2</a> and <a href="#sec-metadata" class="quarto-xref">5</a>, and <a href="#sec-appendix-legacy">Annex</a></td>
+</tr>
+<tr class="even">
+<td>Writing the validator</td>
+<td>Sections <a href="#sec-data" class="quarto-xref">2</a>, <a href="#sec-metadata" class="quarto-xref">5</a> and <a href="#sec-validation" class="quarto-xref">11</a></td>
+</tr>
+<tr class="odd">
+<td>Working on the dashboard</td>
+<td>Sections <a href="#sec-layout" class="quarto-xref">1.3</a>, <a href="#sec-cl-indicator" class="quarto-xref">5.2</a> (display fields), <a href="#sec-reliability" class="quarto-xref">6.3</a>, <a href="#sec-assets" class="quarto-xref">8</a> and <a href="#sec-text" class="quarto-xref">9</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<section id="sec-idea" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> The idea in one page</h1>
+<p>This standard exists so that every country’s numbers arrive in the same shape. It is written for the country economists and data scientists who prepare indicators from household microdata, and it is what they work from when they add a country, an indicator or a new way of cutting the data. It is also the specification for the developers who build the converter, the validator and the dashboard on top of it.</p>
+<p>The database it describes is meant to be a one-stop shop for country-level insight. Every indicator in it comes from national household microdata, and every number is stored the same way for every country.</p>
+<section id="sec-one-row" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="sec-one-row"><span class="header-section-number">1.1</span> One row is one number</h2>
+<p>Each row of a data file carries one value and the full set of codes that say what that value is: which country, which year, which population, which measure. Those codes fall into two families (<a href="#tbl-families" class="quarto-xref">Table&nbsp;2</a>), and telling them apart is the whole model.</p>
+<div id="tbl-families" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: The two families of codes
+</figcaption>
+<div aria-describedby="tbl-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Breakdown</strong></th>
+<th><strong>Qualifier</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Answers</td>
+<td><em>Who</em> is counted</td>
+<td><em>What</em> is measured</td>
+</tr>
+<tr class="even">
+<td>Example</td>
+<td>Rural households, Fatick, poorest quintile</td>
+<td>At the $4.20 line, in 2021 PPP, on disposable income, food category</td>
+</tr>
+<tr class="odd">
+<td>Population behind each category</td>
+<td>Different subsets of the same population</td>
+<td>The same population every time</td>
+</tr>
+<tr class="even">
+<td>Test with <code>N_POP</code></td>
+<td>Categories <strong>sum</strong> to the parent</td>
+<td>Each category <strong>equals</strong> the parent</td>
+</tr>
+<tr class="odd">
+<td>Empty value means</td>
+<td><code>_T</code>: everyone, not split</td>
+<td><code>_Z</code>: does not apply</td>
+</tr>
+<tr class="even">
+<td>Declared in</td>
+<td><code>TAB_PLAN.csv</code>, per cut</td>
+<td><code>CL_INDICATOR.csv</code>, per indicator</td>
+</tr>
+<tr class="odd">
+<td>Columns</td>
+<td><code>GEO</code>, <code>URBANISATION</code>, <code>SEX</code>, <code>AGE</code>, <code>COMP_BREAKDOWN_1…5</code></td>
+<td><code>INDICATOR</code>, <code>MEASURE_QUAL_1…5</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The quickest test is the population. If the people behind the categories add up to the whole, as regions or quintiles do, the variable is a breakdown. If every category covers the same whole population again, as the $3.00 and $4.20 poverty lines do, it is a qualifier. <code>N_POP</code>, the population behind each row, makes the test mechanical.</p>
+<p>This matters for three reasons. The poverty rate at any line and PPP round is one indicator, <code>POV_HC</code>, not one per line. Every population share is one indicator, <code>POP_SH</code>, not thirty. And a new grouping such as sector of employment is a row in a codelist, not a change to the file format.</p>
+<p>This distinction is the foundation of the database. Every rule in the rest of this document follows from it, and everyone who adds data has to apply it consistently.</p>
+</section>
+<section id="sec-compositions" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="sec-compositions"><span class="header-section-number">1.2</span> Common compositions, and how each number is checked</h2>
+<p><a href="#tbl-compositions" class="quarto-xref">Table&nbsp;3</a> builds some familiar numbers out of the two families. The last column shows what the coding buys in practice: once a number is coded this way, the validator can check it against related rows.</p>
+<div id="tbl-compositions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-compositions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Common numbers composed from the two families, and how each is verified
+</figcaption>
+<div aria-describedby="tbl-compositions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The number you want</th>
+<th><code>INDICATOR</code></th>
+<th>Qualifiers: what is measured</th>
+<th>Breakdowns: who is counted</th>
+<th>How it is verified</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poverty rate at $4.20 (2021 PPP)</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td>—</td>
+<td>In 0–1; rises with the line, so <code>PL300 ≤ PL420 ≤ PL830</code></td>
+</tr>
+<tr class="even">
+<td>…rural</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td><code>URBANISATION=R</code></td>
+<td><code>N_POP</code>-weighted average of <code>CAP</code>, <code>OU</code>, <code>R</code> equals the national value</td>
+</tr>
+<tr class="odd">
+<td>…Fatick</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td><code>GEO=SN03</code></td>
+<td>Same rule over all ADM1 units; their <code>N_POP</code> sums to the country</td>
+</tr>
+<tr class="even">
+<td>…at the national line</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_NPL</code></td>
+<td>—</td>
+<td>In 0–1; <code>PPP</code> not applicable</td>
+</tr>
+<tr class="odd">
+<td>Number of poor people</td>
+<td><code>POV_NUM</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td>—</td>
+<td>Additive: sums across any breakdown; equals <code>POV_HC × N_POP</code></td>
+</tr>
+<tr class="even">
+<td>Food share of consumption</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP01</code></td>
+<td>—</td>
+<td><strong>The 13 COICOP divisions sum to 1</strong></td>
+</tr>
+<tr class="odd">
+<td>Housing share of consumption</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP04</code></td>
+<td>—</td>
+<td>Same closure; no separate “housing burden” indicator exists</td>
+</tr>
+<tr class="even">
+<td>Food share, poorest quintile</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP01</code></td>
+<td><code>QUINT_Q1</code></td>
+<td>Sums to 1 over COICOP within the quintile; Q1–Q5 aggregate to the total by <code>N_POP</code></td>
+</tr>
+<tr class="odd">
+<td>Food share among the poor at $3.00</td>
+<td><code>CONS_SH</code></td>
+<td><code>POVLINE_PL300</code>, <code>PPP_2021</code>, <code>COICOP_CP01</code></td>
+<td><code>POOR_Y</code></td>
+<td><code>POOR_Y</code> and <code>POOR_N</code> aggregate to the total by <code>N_POP</code></td>
+</tr>
+<tr class="even">
+<td>Share of employed working in agriculture</td>
+<td><code>POP_SH</code></td>
+<td>—</td>
+<td><code>EMP_SECTOR_AGR</code></td>
+<td><strong>Categories sum to 1</strong>; equals the <code>N_POP</code> ratio to the variable’s universe</td>
+</tr>
+<tr class="odd">
+<td>Share of households with 2 enterprises</td>
+<td><code>POP_SH</code></td>
+<td>—</td>
+<td><code>HE_COUNT_2</code></td>
+<td>Same two rules</td>
+</tr>
+<tr class="even">
+<td>Gini of disposable income</td>
+<td><code>INEQ_GINI</code></td>
+<td><code>WELFARE_INC_DISP</code></td>
+<td>—</td>
+<td>In 0–1; <code>N_POP</code> equals the national population</td>
+</tr>
+<tr class="odd">
+<td>Incidence of direct transfers, poorest decile</td>
+<td><code>FISC_INCIDENCE</code></td>
+<td><code>WELFARE_INC_MARKET</code>, <code>FI_DIR_TRANSF</code></td>
+<td><code>DEC_MKT_D01</code></td>
+<td><strong>Instruments sum to total incidence</strong>; deciles aggregate by <code>N_POP</code></td>
+</tr>
+<tr class="even">
+<td>Marginal contribution of indirect taxes to poverty</td>
+<td><code>FISC_MARG_CONTRIB</code></td>
+<td><code>WELFARE_INC_CONSUMABLE</code>, <code>POVLINE_PL300</code>, <code>PPP_2021</code>, <code>FI_INDIR_TAX</code></td>
+<td>—</td>
+<td>Instruments sum to the total effect</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Everything in the last column reduces to three generic rules, and each indicator declares which of them apply in its <code>checks</code> field (<a href="#sec-cl-indicator" class="quarto-xref">Section&nbsp;5.2</a>):</p>
+<ol type="1">
+<li><strong>Aggregation.</strong> Over a partition, totals sum, and means and shares aggregate as <code>N_POP</code>-weighted averages.</li>
+<li><strong>Closure.</strong> Some qualifiers partition the <em>measured quantity</em>: COICOP divisions sum to 1, and fiscal instruments sum to the total.</li>
+<li><strong>Range and order.</strong> Shares lie in 0–1, counts are non-negative, and the headcount rises with the poverty line.</li>
+</ol>
+<p><a href="#sec-example-rows" class="quarto-xref">Section&nbsp;2.7</a> shows these numbers as they are written in a data file.</p>
+</section>
+<section id="sec-layout" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="sec-layout"><span class="header-section-number">1.3</span> Where everything lives</h2>
+<p>Everything is plain files in one git repository, in five top-level folders (<a href="#lst-layout" class="quarto-xref">Listing&nbsp;1</a>):</p>
+<ul>
+<li><strong><code>metadata/</code></strong> is the dictionary. It says what every code means, which rows a data file must contain, and which surveys the numbers come from. Every other folder refers to it, and every change to it is reviewed (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>).</li>
+<li><strong><code>data/</code></strong> holds the numbers: one CSV per country and reference year, each with a manifest recording how it was produced and against which metadata version.</li>
+<li><strong><code>geo/</code></strong> holds the boundaries used for maps.</li>
+<li><strong><code>content/</code></strong> and <strong><code>assets/</code></strong> hold the prose and images the dashboard shows beside the numbers.</li>
+</ul>
+<div id="lst-layout" class="listing quarto-float quarto-figure quarto-figure-left anchored">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-layout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;1: Repository layout
+</figcaption>
+<div aria-describedby="lst-layout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<pre><code>metadata/
+  VERSION                      semantic version of the whole metadata package
+  CHANGELOG.md
+  structure/
+    DSD_AFW360_HH.csv          column list of the data files (data team only)
+  codelists/
+    CL_AREA.csv                countries
+    CL_GEO_SCHEME.csv          spatial schemes, per country
+    CL_GEO.csv                 spatial units
+    CL_INDICATOR.csv           the indicator dictionary
+    CL_BRK_VAR.csv             breakdown variables
+    CL_COMP_BREAKDOWN.csv      breakdown categories
+    CL_QUAL_VAR.csv            qualifier variables
+    CL_QUALIFIER.csv           qualifier categories
+    CL_SEX.csv  CL_AGE.csv  CL_URBANISATION.csv
+    CL_OBS_STATUS.csv
+    CL_THEME.csv  CL_UNIT.csv  CL_STAT_UNIT.csv  CL_STATISTIC.csv  CL_WEIGHT.csv
+  surveys/
+    SURVEYS.csv                one row per country x survey round
+  plans/
+    TAB_PLAN.csv               which cuts are produced
+    LEGACY_LABELS.csv          old Excel labels -&gt; new codes (used by the converter)
+  registries/
+    GEO_SOURCES.csv            boundary files and their vintages
+    FIGURES.csv                images
+data/
+  AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;.csv
+  AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;_manifest.csv
+geo/
+  boundaries/&lt;ISO3&gt;_&lt;SOURCE_ID&gt;.gpkg
+  derived/                     generated display layers; never hand-edited
+content/
+  TEXT.csv                     dashboard prose, one row per slot
+  text/&lt;ISO3&gt;/&lt;slot&gt;.md        long-form bodies
+assets/
+  figures/&lt;ISO3&gt;/&lt;figure_id&gt;.&lt;ext&gt;</code></pre>
+</div>
+</figure>
+</div>
+<p>Numbers flow one way. A producer’s program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against <code>metadata/</code> (<a href="#sec-validation" class="quarto-xref">Section&nbsp;11</a>). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using <code>LEGACY_LABELS.csv</code> (<a href="#sec-appendix-legacy">Annex</a>).</p>
+<p>None of this exists yet; the dashboard still reads <code>INPUT Tables/</code>, <code>INPUT shp/</code> and <code>INPUT Text/</code> directly. The natural order of work is the metadata for Senegal and Guinea-Bissau first, then the converter, then the validator, and last the switch of the dashboard to the new loader, because each step needs the one before it.</p>
+</section>
+<section id="sec-growth" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="sec-growth"><span class="header-section-number">1.4</span> How the database grows</h2>
+<p>The rule for every extension is <strong>metadata first, data last</strong>. A number can enter the database only once its codes exist, so every change starts in the codelists and ends with a data file that the validator accepts. If a new number cannot be described with the existing codes, the codes are extended first, in the same pull request as the data.</p>
+<p><strong>A new country</strong> is added in this order:</p>
+<ol type="1">
+<li>Register the country in <code>CL_AREA</code>.</li>
+<li>Register its spatial schemes in <code>CL_GEO_SCHEME</code> and their units in <code>CL_GEO</code>.</li>
+<li>Check its indicators against the dictionary, <code>CL_INDICATOR</code>. Every country should produce the same set of indicators, matching the dictionary’s codes, definitions and meaning. When a country’s survey cannot match a definition, update the dictionary with a new code linked to the old one through <code>related</code>, rather than stretching an existing code to fit.</li>
+<li>Do the same for breakdowns and qualifiers: the country’s categories map to the shared codes in <code>CL_COMP_BREAKDOWN</code> and <code>CL_QUALIFIER</code>.</li>
+<li>Describe the survey in <code>SURVEYS.csv</code>, and add the boundary files the maps need.</li>
+<li>Produce the data file for each reference year, following <code>TAB_PLAN</code>, together with its manifest.</li>
+</ol>
+<p><a href="#sec-add-country" class="quarto-xref">Section&nbsp;7.4</a> gives each step in full.</p>
+<p><strong>A new indicator</strong> starts in the microdata, not in the aggregation. First standardize the variables it needs in the survey microdata itself, so that each one has the same definition, universe, unit and recall period in every country. Once they are standardized, the indicator is a simple aggregate of them: a mean, a share or a total over each cut. If an indicator needs complicated logic at the aggregation step, its variables are not yet standardized enough.</p>
+<p>Every constructed variable also needs its own metadata, recording what the microdata looked like when the indicator was computed from it: the questionnaire module and questions, the recall period, the universe, the units and any recoding. <code>CL_INDICATOR</code> points to these variables through <code>source_questionnaire</code>, <code>source_vars</code> and <code>program</code>. Where the variable-level documentation itself is kept is still an open decision (<a href="#sec-open-decisions" class="quarto-xref">Section&nbsp;12.2</a>).</p>
+<p><strong>Everything else</strong>, such as a breakdown, a qualifier, a poverty line, a spatial scheme, a survey round, a piece of text or a figure, is listed in <a href="#tbl-extend" class="quarto-xref">Table&nbsp;18</a> with the files to edit and the version bump it needs. The only structural change is to the columns of the data file, and only the data team makes it (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>).</p>
+</section>
+</section>
+<section id="sec-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data structure: dataflow <code>AFW360_HH</code></h1>
+<p>This section is the contract for the data file: its columns, what may go in each, and which rows it must contain. Read it before writing a producer program, the converter or the dashboard loader.</p>
+<p>A <em>dataflow</em> is SDMX’s name for a family of files that share one set of columns and codelists. <code>AFW360_HH</code> covers everything estimated from household-survey microdata: poverty, consumption, jobs, enterprises, agriculture, energy, housing, shocks, social protection, inequality and fiscal incidence. Fiscal incidence is <em>not</em> a separate dataflow. It comes from the same households and the same cuts, and differs only in its qualifiers.</p>
+<p>A separate dataflow is needed only when the statistical unit is not the household population at all, for example tax parameters by bracket or macroeconomic series. The rule is: <strong>new dimensions or different units mean a new dataflow; a new source or a new round means only a new file.</strong></p>
+<section id="sec-columns" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="sec-columns"><span class="header-section-number">2.1</span> Columns</h2>
+<p>Data files have exactly the 26 columns in <a href="#tbl-columns" class="quarto-xref">Table&nbsp;4</a>, in that order. The role says which family a column belongs to (<a href="#sec-one-row" class="quarto-xref">Section&nbsp;1.1</a>): breakdowns say who is counted, qualifiers say what is measured, and attributes describe the value’s reliability and origin.</p>
+<div id="tbl-columns" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Columns of an <code>AFW360_HH</code> data file
+</figcaption>
+<div aria-describedby="tbl-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Column</th>
+<th>Role</th>
+<th>Values</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>DATAFLOW</code></td>
+<td>constant</td>
+<td><code>AFW360_HH</code></td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>REF_AREA</code></td>
+<td>breakdown</td>
+<td><code>CL_AREA</code> (ISO 3166-1 alpha-3)</td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>GEO</code></td>
+<td>breakdown</td>
+<td><code>CL_GEO</code>, or <code>_T</code> for the whole country</td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>TIME_PERIOD</code></td>
+<td>reference</td>
+<td>4-digit year the estimate refers to</td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>INDICATOR</code></td>
+<td>qualifier</td>
+<td><code>CL_INDICATOR</code></td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><code>SEX</code></td>
+<td>breakdown</td>
+<td><code>CL_SEX</code>, <code>_T</code>, or <code>_Z</code></td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>AGE</code></td>
+<td>breakdown</td>
+<td><code>CL_AGE</code>, <code>_T</code>, or <code>_Z</code></td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>URBANISATION</code></td>
+<td>breakdown</td>
+<td><code>CL_URBANISATION</code> or <code>_T</code></td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>9–13</td>
+<td><code>COMP_BREAKDOWN_1…5</code></td>
+<td>breakdown</td>
+<td><code>CL_COMP_BREAKDOWN</code> or <code>_T</code></td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>14–18</td>
+<td><code>MEASURE_QUAL_1…5</code></td>
+<td>qualifier</td>
+<td><code>CL_QUALIFIER</code> or <code>_Z</code></td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><code>OBS_VALUE</code></td>
+<td>measure</td>
+<td>number</td>
+<td>R unless <code>OBS_STATUS</code> is <code>O</code> or <code>M</code></td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><code>OBS_STATUS</code></td>
+<td>attribute</td>
+<td><code>CL_OBS_STATUS</code></td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td><code>STD_ERR</code></td>
+<td>attribute</td>
+<td>number ≥ 0</td>
+<td>R where the statistic admits one</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td><code>CI_LOWER</code></td>
+<td>attribute</td>
+<td>number, 95%</td>
+<td>R where <code>STD_ERR</code> is</td>
+</tr>
+<tr class="odd">
+<td>23</td>
+<td><code>CI_UPPER</code></td>
+<td>attribute</td>
+<td>number, 95%</td>
+<td>R where <code>STD_ERR</code> is</td>
+</tr>
+<tr class="even">
+<td>24</td>
+<td><code>N_OBS</code></td>
+<td>attribute</td>
+<td>integer ≥ 0</td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td><code>N_POP</code></td>
+<td>attribute</td>
+<td>number ≥ 0</td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>26</td>
+<td><code>OBS_COMMENT</code></td>
+<td>attribute</td>
+<td>free text, English</td>
+<td>O</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-sentinels" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="sec-sentinels"><span class="header-section-number">2.2</span> The two sentinels</h2>
+<p><code>_T</code> and <code>_Z</code> are reserved codes with fixed meanings. They are never listed in a codelist, and no other code may start with them.</p>
+<ul>
+<li><strong><code>_T</code>, total.</strong> The value covers every unit and is not split on this dimension. Valid in <code>GEO</code>, <code>SEX</code>, <code>AGE</code>, <code>URBANISATION</code> and the breakdown slots.</li>
+<li><strong><code>_Z</code>, not applicable.</strong> Valid in every unused qualifier slot, and in <code>SEX</code> or <code>AGE</code> when the indicator is not about individuals. A household-level indicator writes <code>SEX=_Z</code>, not <code>SEX=_T</code>, because “total over both sexes” would be a claim about a dimension that does not apply to households.</li>
+<li><code>GEO</code> and <code>URBANISATION</code> are never <code>_Z</code>: every unit lives somewhere.</li>
+</ul>
+</section>
+<section id="sec-breakdown-rules" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="sec-breakdown-rules"><span class="header-section-number">2.3</span> Rules for the breakdown columns</h2>
+<ol type="1">
+<li><strong>Fill the slots from the left, with no gaps.</strong> Unused slots are <code>_T</code>.</li>
+<li><strong>Use the canonical order.</strong> When a row has several breakdowns, they go in ascending <code>slot_order</code> from <code>CL_BRK_VAR</code>, with ties broken alphabetically by <code>var_code</code>. Each combination then has exactly one spelling.</li>
+<li><strong>One category per variable per row.</strong></li>
+<li><strong>Respect unit compatibility.</strong> A breakdown variable may be used only with indicators whose <code>stat_unit</code> appears in its <code>applies_to_units</code>.</li>
+<li><strong>Never duplicate a named dimension.</strong> Residence, individual sex, individual age and geography always go in their own columns.</li>
+<li><strong><code>SEX</code> and <code>AGE</code> describe the individual being counted</strong>, not the household head. The head’s characteristics are breakdown variables (<code>HHH_SEX</code>, <code>HHH_AGE</code>) and go in the slots.</li>
+<li><strong>An age band that defines an indicator’s universe is not a breakdown.</strong> “Employed, 15–64” has that band in its <code>universe</code> and writes <code>AGE=_T</code>.</li>
+</ol>
+</section>
+<section id="sec-qualifier-rules" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="sec-qualifier-rules"><span class="header-section-number">2.4</span> Rules for the qualifier columns</h2>
+<ol type="1">
+<li>Fill from the left, with no gaps. Unused slots are <code>_Z</code>.</li>
+<li>Use the canonical order: ascending <code>slot_order</code> from <code>CL_QUAL_VAR</code>, with ties broken alphabetically.</li>
+<li>One category per qualifier variable per row.</li>
+<li><strong>A row may use only the qualifiers its indicator declares</strong> in <code>CL_INDICATOR.qualifiers</code>, plus any qualifier required by a breakdown it uses. <code>POOR_Y</code> requires a poverty line, so a food-share row broken down by poverty status carries <code>POVLINE_*</code> and <code>PPP_*</code> even though <code>CONS_SH</code> does not otherwise use them.</li>
+<li>Pairings must be allowed: <code>CL_QUALIFIER.valid_with</code> says which PPP rounds go with which line.</li>
+</ol>
+</section>
+<section id="sec-values" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="sec-values"><span class="header-section-number">2.5</span> Values and attributes</h2>
+<ul>
+<li><strong>Store <code>OBS_VALUE</code> unrounded</strong>, with <code>.</code> as the decimal separator and no thousands separator or <code>%</code> sign. Rounding is a display decision (<code>display_as</code>, <code>decimals</code>).</li>
+<li><strong>Use base units.</strong> Shares are 0–1, never 0–100. People are counted in persons, not millions. Money is in whole currency units.</li>
+<li><strong>Do not suppress.</strong> Every estimate is published whatever its sample size. Reliability travels with the value instead: <code>N_OBS</code> and <code>N_POP</code> are required on every row, <code>STD_ERR</code> and the confidence interval on every row whose statistic admits them, and the dashboard shows them (<a href="#sec-reliability" class="quarto-xref">Section&nbsp;6.3</a>).</li>
+<li><strong><code>N_OBS</code></strong> is the unweighted number of <strong>records of the estimation file</strong> used: records in the group, in the indicator’s universe, with a non-missing value. When a person-weighted poverty rate is computed on a household file, <code>N_OBS</code> counts households. <code>SURVEYS.analysis_units</code> records which file each <code>stat_unit</code> is estimated from, so a reader always knows what <code>N_OBS</code> counts.</li>
+<li><strong><code>N_POP</code></strong> is the sum of weights over those same records: the population, households or enterprises the value refers to.</li>
+<li><strong>Standard errors and confidence intervals</strong> must reflect the survey design (weights, strata and PSUs, with linearized variance). Intervals are at 95%.</li>
+</ul>
+<p><strong><code>OBS_STATUS</code></strong> takes one of the four codes in <a href="#tbl-obs-status" class="quarto-xref">Table&nbsp;5</a>, which come from the SDMX cross-domain <code>CL_OBS_STATUS</code>. A cell that can never exist is normally declared in the indicator’s <code>excluded_breakdowns</code> (<a href="#sec-cl-indicator" class="quarto-xref">Section&nbsp;5.2</a>) and left out of the file. <code>M</code> covers such a cell when it has not been declared there: the row stays, with an empty value, so the gap is visible.</p>
+<div id="tbl-obs-status" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-obs-status-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Observation status codes
+</figcaption>
+<div aria-describedby="tbl-obs-status-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Code</th>
+<th>Meaning</th>
+<th><code>OBS_VALUE</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>A</code></td>
+<td>Normal value</td>
+<td>filled</td>
+</tr>
+<tr class="even">
+<td><code>E</code></td>
+<td>Model-based: projection, nowcast or microsimulation</td>
+<td>filled</td>
+</tr>
+<tr class="odd">
+<td><code>O</code></td>
+<td>In the universe, but no observations fell in this cell</td>
+<td>empty</td>
+</tr>
+<tr class="even">
+<td><code>M</code></td>
+<td>Cannot exist: the cell is outside the indicator’s universe by definition</td>
+<td>empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-required-rows" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="sec-required-rows"><span class="header-section-number">2.6</span> Which rows exist</h2>
+<p>For each indicator, the required rows are:</p>
+<blockquote class="blockquote">
+<p>(the qualifier combinations declared in <code>CL_INDICATOR.qualifiers</code>) × (the cuts in <code>TAB_PLAN</code> that cover its theme and unit) × (the categories of those cuts) − (anything listed in <code>excluded_breakdowns</code>)</p>
+</blockquote>
+<p>Nothing extra, nothing missing. A cell with no observations is a row with <code>OBS_STATUS=O</code>, not an absent row. This is what makes a file checkable: the validator can compute the set of rows that should exist and compare it with the rows that do.</p>
+</section>
+<section id="sec-example-rows" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="sec-example-rows"><span class="header-section-number">2.7</span> Example rows</h2>
+<p><a href="#tbl-example-rows" class="quarto-xref">Table&nbsp;6</a> shows the compositions of <a href="#tbl-compositions" class="quarto-xref">Table&nbsp;3</a> as they are written in a data file. Only the columns that vary are shown.</p>
+<div id="tbl-example-rows" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-example-rows-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Example rows of a data file, showing only the columns that vary
+</figcaption>
+<div aria-describedby="tbl-example-rows-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The value</th>
+<th><code>GEO</code></th>
+<th><code>URBANISATION</code></th>
+<th><code>INDICATOR</code></th>
+<th><code>MEASURE_QUAL_1</code></th>
+<th><code>MEASURE_QUAL_2</code></th>
+<th><code>MEASURE_QUAL_3</code></th>
+<th><code>COMP_BREAKDOWN_1</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poverty at $4.20, national</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="even">
+<td>Poverty at $4.20, rural</td>
+<td><code>_T</code></td>
+<td><code>R</code></td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="odd">
+<td>Poverty at $4.20, Fatick</td>
+<td><code>SN03</code></td>
+<td><code>_T</code></td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="even">
+<td>Poverty at the national line</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_NPL</code></td>
+<td><code>_Z</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="odd">
+<td>Poverty at $3.00 on consumable income</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>POV_HC</code></td>
+<td><code>WELFARE_INC_CONSUMABLE</code></td>
+<td><code>POVLINE_PL300</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="even">
+<td>Number of poor at $4.20</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>POV_NUM</code></td>
+<td><code>POVLINE_PL420</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="odd">
+<td>Food share, poorest quintile</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP01</code></td>
+<td><code>_Z</code></td>
+<td><code>_Z</code></td>
+<td><code>QUINT_Q1</code></td>
+</tr>
+<tr class="even">
+<td>Food share among the poor at $3.00</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>CONS_SH</code></td>
+<td><code>POVLINE_PL300</code></td>
+<td><code>PPP_2021</code></td>
+<td><code>COICOP_CP01</code></td>
+<td><code>POOR_Y</code></td>
+</tr>
+<tr class="odd">
+<td>Share of employed in agriculture</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>POP_SH</code></td>
+<td><code>_Z</code></td>
+<td><code>_Z</code></td>
+<td><code>_Z</code></td>
+<td><code>EMP_SECTOR_AGR</code></td>
+</tr>
+<tr class="even">
+<td>Gini of disposable income</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>INEQ_GINI</code></td>
+<td><code>WELFARE_INC_DISP</code></td>
+<td><code>_Z</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+<tr class="odd">
+<td>Incidence of direct transfers, poorest decile</td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>FISC_INCIDENCE</code></td>
+<td><code>WELFARE_INC_MARKET</code></td>
+<td><code>FI_DIR_TRANSF</code></td>
+<td><code>_Z</code></td>
+<td><code>DEC_MKT_D01</code></td>
+</tr>
+<tr class="even">
+<td>Poverty rate, 2017 PPP (legacy <code>Departement</code>)</td>
+<td><code>SN03</code></td>
+<td><code>_T</code></td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL300</code></td>
+<td><code>PPP_2017</code></td>
+<td><code>_Z</code></td>
+<td><code>_T</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>In every row <code>DATAFLOW=AFW360_HH</code>, <code>REF_AREA=SEN</code> and <code>TIME_PERIOD=2021</code>. <code>SEX</code> and <code>AGE</code> are <code>_T</code> (total), or <code>_Z</code> for an indicator whose <code>stat_unit</code> is not <code>IND</code> (<a href="#sec-sentinels" class="quarto-xref">Section&nbsp;2.2</a>). <code>COMP_BREAKDOWN_2…5</code> are <code>_T</code>, and <code>MEASURE_QUAL_4…5</code> are <code>_Z</code> (not applicable).</p>
+<p>Qualifiers fill the slots in ascending <code>slot_order</code> (<a href="#sec-qualifier-rules" class="quarto-xref">Section&nbsp;2.4</a>): welfare concept 10, poverty line 20, PPP 30, COICOP 40, fiscal instrument 50. That is why the COICOP code lands in slot 3 on the “food share among the poor” row but in slot 1 on the “food share, poorest quintile” row.</p>
+</section>
+</section>
+<section id="sec-breakdowns" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Breakdowns</h1>
+<p>Read this before adding a new way of splitting the population.</p>
+<p>A <strong>breakdown variable</strong> classifies units: sex of household head, consumption quintile, sector of employment, poverty status. It is one row in <code>CL_BRK_VAR</code>. Its categories are rows in <code>CL_COMP_BREAKDOWN</code>, and each category code begins with its variable code.</p>
+<p>Adding one changes no structure. It takes a row in <code>CL_BRK_VAR</code>, a row per category in <code>CL_COMP_BREAKDOWN</code>, and a line in <code>TAB_PLAN</code>.</p>
+<section id="sec-initial-breakdowns" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="sec-initial-breakdowns"><span class="header-section-number">3.1</span> Initial breakdown variables</h2>
+<p><a href="#tbl-brk-vars" class="quarto-xref">Table&nbsp;7</a> lists the breakdown variables needed to reproduce the current tables and the first fiscal-incidence work.</p>
+<div id="tbl-brk-vars" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-brk-vars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Initial breakdown variables
+</figcaption>
+<div aria-describedby="tbl-brk-vars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>var_code</code></th>
+<th>Describes</th>
+<th>Universe</th>
+<th>Categories</th>
+<th><code>slot_order</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>QUINT</code></td>
+<td>Household</td>
+<td>All households</td>
+<td><code>QUINT_Q1</code> … <code>QUINT_Q5</code></td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td><code>DEC_MKT</code></td>
+<td>Household</td>
+<td>All households</td>
+<td><code>DEC_MKT_D01</code> … <code>DEC_MKT_D10</code></td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td><code>HHH_SEX</code></td>
+<td>Household head</td>
+<td>All households</td>
+<td><code>HHH_SEX_F</code>, <code>HHH_SEX_M</code></td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td><code>HHH_AGE</code></td>
+<td>Household head</td>
+<td>All households</td>
+<td><code>HHH_AGE_LT35</code>, <code>HHH_AGE_GE35</code> (cutoff to be confirmed)</td>
+<td>30</td>
+</tr>
+<tr class="odd">
+<td><code>POOR</code></td>
+<td>Household</td>
+<td>All households</td>
+<td><code>POOR_Y</code>, <code>POOR_N</code> (requires a poverty line)</td>
+<td>40</td>
+</tr>
+<tr class="even">
+<td><code>HE_COUNT</code></td>
+<td>Household</td>
+<td>All households</td>
+<td><code>HE_COUNT_0</code> … <code>HE_COUNT_4P</code></td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td><code>EMP_STATUS</code></td>
+<td>Individual</td>
+<td>Persons aged 15–64</td>
+<td><code>EMP_STATUS_EMPLOYED</code>, <code>EMP_STATUS_NOT_EMPLOYED</code></td>
+<td>55</td>
+</tr>
+<tr class="even">
+<td><code>EMP_SECTOR</code></td>
+<td>Individual</td>
+<td>Employed persons 15–64</td>
+<td><code>EMP_SECTOR_AGR</code>, <code>_IND</code>, <code>_SER</code></td>
+<td>60</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><code>slot_order</code> values are spaced by 10 so that new variables can go in between, as <code>DEC_MKT</code> (15) and <code>EMP_STATUS</code> (55) already do.</p>
+<p><code>DEC_MKT</code> is registered for fiscal-incidence work, where households are ranked by market income; <code>QUINT</code> ranks them by consumption per capita. Two different rankings are two different variables, and each states its basis in <code>definition_en</code>.</p>
+</section>
+<section id="sec-universe" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-universe"><span class="header-section-number">3.2</span> Every breakdown variable carries a universe</h2>
+<p><code>CL_BRK_VAR.universe</code> names the population that the categories partition. This is what makes <code>POP_SH</code> work as a single indicator: the share is the category’s <code>N_POP</code> divided by the universe’s <code>N_POP</code>, so “share of employed in agriculture” and “share of households with two enterprises” are the same indicator with different breakdowns.</p>
+</section>
+<section id="sec-example-sector" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-example-sector"><span class="header-section-number">3.3</span> Worked example: adding sector of employment</h2>
+<ol type="1">
+<li>Decide whose characteristic it is. “Sector of an individual’s main job” (<code>EMP_SECTOR</code>, describes <code>IND</code>) and “sector of the household head’s main job” (<code>HHH_SECTOR</code>, describes <code>HHH</code>) are two different variables. The first can break down only individual-level indicators; the second can break down household indicators such as the poverty rate.</li>
+<li>Register it in <code>CL_BRK_VAR</code>: <code>describes = IND</code>, <code>applies_to_units = IND</code>, <code>universe = employed persons aged 15–64</code>, <code>classification = ISIC Rev.4</code>, <code>partition = Y</code>, <code>slot_order = 60</code>.</li>
+<li>Register the categories in <code>CL_COMP_BREAKDOWN</code>: <code>EMP_SECTOR_AGR</code> for ISIC section A, <code>EMP_SECTOR_IND</code> for B–F and <code>EMP_SECTOR_SER</code> for G–U.</li>
+<li>Add a cut to <code>TAB_PLAN</code>.</li>
+<li>Produce the rows. When the cut is crossed with individual sex, the rows for women also carry <code>SEX=F</code>. When it is crossed with quintile, <code>QUINT</code> has the lower <code>slot_order</code>, so it takes slot 1 and <code>EMP_SECTOR</code> takes slot 2.</li>
+</ol>
+</section>
+</section>
+<section id="sec-qualifiers" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Qualifiers</h1>
+<p>Read this before adding a poverty line, a PPP round, a welfare concept or any other variant of an existing measure.</p>
+<p>A <strong>qualifier variable</strong> changes what is measured for the same units. It is one row in <code>CL_QUAL_VAR</code>, and its categories are rows in <code>CL_QUALIFIER</code>. Adding one is a codelist change, not a structural one (<a href="#sec-add-qualifier" class="quarto-xref">Section&nbsp;7.3</a>). <a href="#tbl-qual-vars" class="quarto-xref">Table&nbsp;8</a> lists the initial set.</p>
+<div id="tbl-qual-vars" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-qual-vars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Initial qualifier variables
+</figcaption>
+<div aria-describedby="tbl-qual-vars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>var_code</code></th>
+<th>What it says</th>
+<th>Categories</th>
+<th><code>slot_order</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>WELFARE</code></td>
+<td>Which welfare aggregate the measure is built on</td>
+<td><code>WELFARE_CONS_PC</code>, <code>WELFARE_INC_MARKET</code>, <code>WELFARE_INC_MARKET_PENS</code>, <code>WELFARE_INC_NETMARKET</code>, <code>WELFARE_INC_DISP</code>, <code>WELFARE_INC_CONSUMABLE</code>, <code>WELFARE_INC_FINAL</code></td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td><code>POVLINE</code></td>
+<td>Which poverty line</td>
+<td>See <a href="#tbl-povlines" class="quarto-xref">Table&nbsp;9</a></td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<td><code>PPP</code></td>
+<td>Which PPP round the line or value uses</td>
+<td><code>PPP_2011</code>, <code>PPP_2017</code>, <code>PPP_2021</code></td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td><code>COICOP</code></td>
+<td>Which consumption division (COICOP 2018)</td>
+<td><code>COICOP_CP01</code> … <code>COICOP_CP13</code></td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<td><code>FI</code></td>
+<td>Which fiscal instrument</td>
+<td><code>FI_DIR_TAX</code>, <code>FI_DIR_TRANSF</code>, <code>FI_INDIR_TAX</code>, <code>FI_SUBSIDY</code>, <code>FI_INKIND_EDU</code>, <code>FI_INKIND_HEALTH</code>, <code>FI_ALL</code></td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<section id="sec-povlines" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="sec-povlines"><span class="header-section-number">4.1</span> Poverty lines</h2>
+<div id="tbl-povlines" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-povlines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Poverty lines
+</figcaption>
+<div aria-describedby="tbl-povlines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>code</code></th>
+<th><code>value</code></th>
+<th><code>basis</code></th>
+<th><code>valid_with</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>POVLINE_PL215</code></td>
+<td>2.15</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2017</code></td>
+</tr>
+<tr class="even">
+<td><code>POVLINE_PL365</code></td>
+<td>3.65</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2017</code></td>
+</tr>
+<tr class="odd">
+<td><code>POVLINE_PL685</code></td>
+<td>6.85</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2017</code></td>
+</tr>
+<tr class="even">
+<td><code>POVLINE_PL300</code></td>
+<td>3.00</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2021</code>, <code>PPP_2017</code> (legacy, see <a href="#sec-legacy-departement">Annex 2</a>)</td>
+</tr>
+<tr class="odd">
+<td><code>POVLINE_PL420</code></td>
+<td>4.20</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2021</code></td>
+</tr>
+<tr class="even">
+<td><code>POVLINE_PL830</code></td>
+<td>8.30</td>
+<td>PPP$ per person per day</td>
+<td><code>PPP_2021</code></td>
+</tr>
+<tr class="odd">
+<td><code>POVLINE_NPL</code></td>
+<td>per survey</td>
+<td>Local currency; the value is in <code>SURVEYS.csv</code></td>
+<td><code>_Z</code></td>
+</tr>
+<tr class="even">
+<td><code>POVLINE_NPL_FOOD</code></td>
+<td>per survey</td>
+<td>Local currency; the value is in <code>SURVEYS.csv</code></td>
+<td><code>_Z</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>$2.15, $3.65 and $6.85 are the international, lower-middle-income and upper-middle-income lines at 2017 PPP; $3.00, $4.20 and $8.30 are their 2021 PPP replacements. <code>POVLINE_NPL</code> means “the national line of this survey”, whose value differs by country and round.</p>
+</section>
+<section id="sec-ppp" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="sec-ppp"><span class="header-section-number">4.2</span> PPP beyond poverty</h2>
+<p>The <code>PPP</code> qualifier also marks values expressed in PPP dollars, such as mean consumption per capita per day in 2021 PPP dollars. Values in local currency carry no <code>PPP</code> code (<code>_Z</code>); their currency comes from <code>CL_AREA</code>.</p>
+</section>
+</section>
+<section id="sec-metadata" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Metadata files</h1>
+<p>This section is the reference for every CSV under <code>metadata/</code> and <code>content/</code>: what each file holds and which columns must be filled. Most of them are <em>codelists</em> (<code>CL_*</code>). A codelist is the list of valid codes for one column of the data file, with the meaning of each code. The rest are registries (surveys, boundaries, figures) and the plan of which cuts to produce.</p>
+<p>Rules for every CSV under <code>metadata/</code> and <code>content/</code>:</p>
+<ul>
+<li>UTF-8, comma-separated, one header row. Readers must open with <code>utf-8-sig</code>, because Excel’s “CSV UTF-8” writes a byte-order mark.</li>
+<li>Multi-valued fields are space-separated.</li>
+<li>No literal newlines inside a cell. Anything that needs paragraphs goes in a Markdown file (<a href="#sec-text" class="quarto-xref">Section&nbsp;9</a>).</li>
+<li>Column status: <strong>R</strong> required, <strong>C</strong> required when relevant, <strong>O</strong> optional.</li>
+<li><strong>Every codelist has these columns</strong>, plus the extra ones listed in its own subsection: <code>code</code>, <code>name_en</code>, <code>definition_en</code>, <code>status</code> (<code>DRAFT</code>, <code>ACTIVE</code>, <code>DEPRECATED</code>), <code>version_added</code>, <code>replaced_by</code> (C), <code>notes</code> (O).</li>
+</ul>
+<section id="sec-code-rules" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="sec-code-rules"><span class="header-section-number">5.1</span> Code rules</h2>
+<ul>
+<li>Uppercase ASCII letters, digits and <code>_</code>; start with a letter; at most <strong>32 characters</strong>, the Stata variable-name limit. P-codes are used as issued and already comply.</li>
+<li><code>_T</code> and <code>_Z</code> are reserved sentinels and never appear as codes.</li>
+<li><strong>A code never changes meaning, and is never reused or deleted.</strong> A changed definition means a new code, with the old one <code>DEPRECATED</code> and <code>replaced_by</code> filled. Rewording a label is free.</li>
+<li>Breakdown and qualifier categories are <code>&lt;var_code&gt;_&lt;category&gt;</code>. The whole code must still fit in 32 characters, so keep <code>var_code</code> short.</li>
+<li>Indicator codes are <code>&lt;THEME&gt;_&lt;SUBJECT&gt;[_&lt;DETAIL&gt;]</code> and contain no poverty line, PPP round, welfare concept, COICOP division, unit or breakdown, because all of those are dimensions. Use <code>POV_HC</code>, never <code>POV_HC_PL420</code>.</li>
+<li>In Stata, name the variable holding an indicator after its code in lower case, so no lookup table is needed.</li>
+</ul>
+</section>
+<section id="sec-cl-indicator" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="sec-cl-indicator"><span class="header-section-number">5.2</span> <code>CL_INDICATOR.csv</code>: the indicator dictionary</h2>
+<p>Beyond the common columns, the dictionary has the columns in <a href="#tbl-cl-indicator" class="quarto-xref">Table&nbsp;10</a>.</p>
+<div id="tbl-cl-indicator" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cl-indicator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Columns of <code>CL_INDICATOR.csv</code>, beyond the common ones
+</figcaption>
+<div aria-describedby="tbl-cl-indicator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 42%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Content</th>
+<th>Example (<code>POP_SH</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>short_name_en</code></td>
+<td>R</td>
+<td>At most 40 characters, for chart labels</td>
+<td>Population share</td>
+</tr>
+<tr class="even">
+<td><code>theme</code></td>
+<td>R</td>
+<td><code>CL_THEME</code></td>
+<td><code>POP</code></td>
+</tr>
+<tr class="odd">
+<td><code>stat_unit</code></td>
+<td>R</td>
+<td><code>CL_STAT_UNIT</code>: what is counted</td>
+<td><code>IND</code></td>
+</tr>
+<tr class="even">
+<td><code>universe_unit</code></td>
+<td>R</td>
+<td>The unit forming the denominator</td>
+<td><code>IND</code></td>
+</tr>
+<tr class="odd">
+<td><code>universe_filter</code></td>
+<td>C</td>
+<td>Restriction in words; empty means all units</td>
+<td>(from the breakdown)</td>
+</tr>
+<tr class="even">
+<td><code>numerator</code></td>
+<td>C</td>
+<td>For shares and ratios</td>
+<td>The units in the breakdown category</td>
+</tr>
+<tr class="odd">
+<td><code>statistic</code></td>
+<td>R</td>
+<td><code>CL_STATISTIC</code></td>
+<td><code>PROPORTION</code></td>
+</tr>
+<tr class="even">
+<td><code>weight</code></td>
+<td>R</td>
+<td><code>CL_WEIGHT</code></td>
+<td><code>POP</code></td>
+</tr>
+<tr class="odd">
+<td><code>ref_period</code></td>
+<td>R</td>
+<td>ISO 8601 duration (<code>P7D</code>, <code>P12M</code>, <code>P3Y</code>) or <code>INTERVIEW</code>. Always <code>P12M</code>, never <code>P1Y</code>.</td>
+<td><code>INTERVIEW</code></td>
+</tr>
+<tr class="even">
+<td><code>qualifiers</code></td>
+<td>R</td>
+<td>Qualifier variables this indicator takes, with allowed categories or <code>*</code>; <code>_Z</code> if none</td>
+<td><code>_Z</code></td>
+</tr>
+<tr class="odd">
+<td><code>excluded_breakdowns</code></td>
+<td>O</td>
+<td>Breakdown variables or categories that lie outside its universe and must not be produced</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>unit_measure</code></td>
+<td>R</td>
+<td><code>CL_UNIT</code></td>
+<td><code>SHARE</code></td>
+</tr>
+<tr class="odd">
+<td><code>unit_denom</code></td>
+<td>C</td>
+<td>What the value is per, for levels</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>unit_time</code></td>
+<td>C</td>
+<td><code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>, for flows</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>price_basis</code></td>
+<td>C</td>
+<td><code>NOMINAL</code> or <code>DEFLATED</code>, for money</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>price_ref_year</code></td>
+<td>C</td>
+<td>Required when <code>price_basis = DEFLATED</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>display_as</code></td>
+<td>R</td>
+<td><code>PERCENT</code>, <code>NUMBER</code>, <code>THOUSANDS</code>, <code>MILLIONS</code>, <code>CURRENCY</code></td>
+<td><code>PERCENT</code></td>
+</tr>
+<tr class="even">
+<td><code>decimals</code></td>
+<td>R</td>
+<td>Decimals to display</td>
+<td><code>1</code></td>
+</tr>
+<tr class="odd">
+<td><code>valid_min</code>, <code>valid_max</code></td>
+<td>R</td>
+<td>Plausible range; empty means unbounded</td>
+<td><code>0</code>, <code>1</code></td>
+</tr>
+<tr class="even">
+<td><code>checks</code></td>
+<td>R</td>
+<td>Machine-readable verification rules (below)</td>
+<td><code>RANGE_0_1 EQUALS_NPOP_RATIO SUM_TO_1_OVER_BRK AGG_NPOP_MEAN</code></td>
+</tr>
+<tr class="odd">
+<td><code>higher_is</code></td>
+<td>R</td>
+<td><code>BETTER</code>, <code>WORSE</code>, <code>NEUTRAL</code>: color direction on maps</td>
+<td><code>NEUTRAL</code></td>
+</tr>
+<tr class="even">
+<td><code>sdg_indicator</code></td>
+<td>O</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>classification</code></td>
+<td>O</td>
+<td><code>COICOP2018</code>, <code>ISIC4:A</code>, …</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>related</code></td>
+<td>O</td>
+<td>Codes of close indicators (space-separated)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>related_note</code></td>
+<td>O</td>
+<td>How this one differs from them</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>source_questionnaire</code></td>
+<td>R</td>
+<td>Survey module or section</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>source_vars</code></td>
+<td>R</td>
+<td>Harmonized microdata variables used</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>program</code></td>
+<td>R</td>
+<td>Program that computes it</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>owner</code></td>
+<td>R</td>
+<td>Team or person responsible</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><code>display_as</code> fixes a defect the dashboard has today, where every value is formatted as a percentage. A share stored as 0.37 displays as <code>37.0%</code>, and <code>POV_NUM</code> stored as 6520000 displays as <code>6.52</code> (millions).</p>
+<p><strong><code>checks</code> vocabulary:</strong> <code>RANGE_0_1</code>, <code>RANGE_NONNEG</code>, <code>AGG_SUM</code> (totals sum over a partition), <code>AGG_NPOP_MEAN</code> (means aggregate as <code>N_POP</code>-weighted averages), <code>SUM_TO_1_OVER:&lt;QUAL_VAR&gt;</code> (for example COICOP), <code>SUM_TO_1_OVER_BRK</code> (categories of the breakdown sum to 1), <code>EQUALS_NPOP_RATIO</code>, <code>MONOTONE_IN:POVLINE</code>, <code>NONE</code>.</p>
+<p><strong>Why the population fields matter.</strong> <code>HHH_SEX_F</code> means “people living in female-headed households” for a person-level poverty rate, and “enterprises in female-headed households” for an enterprise indicator. Without <code>stat_unit</code>, <code>universe_*</code> and <code>weight</code>, person-weighted and household-weighted numbers end up on the same chart. <code>statistic</code> matters too: a budget share can be the mean of household shares (<code>MEAN</code>) or the share of aggregate spending (<code>RATIO_TOTALS</code>), and the two differ.</p>
+</section>
+<section id="sec-cl-brk-var" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="sec-cl-brk-var"><span class="header-section-number">5.3</span> <code>CL_BRK_VAR.csv</code></h2>
+<p>Beyond the common columns (<code>code</code> is the <code>var_code</code>), the file has the columns in <a href="#tbl-cl-brk-var" class="quarto-xref">Table&nbsp;11</a>.</p>
+<div id="tbl-cl-brk-var" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cl-brk-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: Columns of <code>CL_BRK_VAR.csv</code>, beyond the common ones
+</figcaption>
+<div aria-describedby="tbl-cl-brk-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>describes</code></td>
+<td>R</td>
+<td>Whose characteristic: <code>IND</code>, <code>HHH</code> (household head), <code>HH</code>, <code>HE</code></td>
+</tr>
+<tr class="even">
+<td><code>applies_to_units</code></td>
+<td>R</td>
+<td><code>stat_unit</code> values it may break down, e.g.&nbsp;<code>HH IND HE</code></td>
+</tr>
+<tr class="odd">
+<td><code>universe</code></td>
+<td>R</td>
+<td>The population its categories partition (<a href="#sec-universe" class="quarto-xref">Section&nbsp;3.2</a>)</td>
+</tr>
+<tr class="even">
+<td><code>classification</code></td>
+<td>O</td>
+<td>ISIC Rev.4, ISCED 2011, ISCO-08, …</td>
+</tr>
+<tr class="odd">
+<td><code>partition</code></td>
+<td>R</td>
+<td><code>Y</code> if the categories are mutually exclusive and cover the universe</td>
+</tr>
+<tr class="even">
+<td><code>requires_qual</code></td>
+<td>C</td>
+<td>Qualifier variables the categories depend on, e.g.&nbsp;<code>POVLINE PPP</code> for <code>POOR</code></td>
+</tr>
+<tr class="odd">
+<td><code>slot_order</code></td>
+<td>R</td>
+<td>Integer, spaced by 10. Ties break alphabetically, so collisions are harmless.</td>
+</tr>
+<tr class="even">
+<td><code>owner</code></td>
+<td>R</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-cl-comp-breakdown" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="sec-cl-comp-breakdown"><span class="header-section-number">5.4</span> <code>CL_COMP_BREAKDOWN.csv</code></h2>
+<p>Extra columns: <code>var_code</code> (R), <code>parent</code> (O, a category of the same variable, for nested classifications), <code>order</code> (R, display order). <code>definition_en</code> is required wherever the boundary is not obvious, such as age cutoffs, ISIC groupings and quantile ranking rules.</p>
+</section>
+<section id="sec-cl-qual" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="sec-cl-qual"><span class="header-section-number">5.5</span> <code>CL_QUAL_VAR.csv</code> and <code>CL_QUALIFIER.csv</code></h2>
+<p><code>CL_QUAL_VAR</code> extra columns: <code>slot_order</code> (R), <code>requires</code> (C, other qualifier variables that must appear with it, such as <code>PPP</code> for <code>POVLINE</code>), <code>owner</code> (R).</p>
+<p><code>CL_QUALIFIER</code> extra columns: <code>var_code</code> (R), <code>value</code> (C, the numeric parameter, such as 3.00 for <code>POVLINE_PL300</code>), <code>basis</code> (C, what that value is expressed in), <code>valid_with</code> (C, allowed categories of other qualifier variables), <code>order</code> (R).</p>
+</section>
+<section id="sec-cl-geo" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="sec-cl-geo"><span class="header-section-number">5.6</span> <code>CL_GEO_SCHEME.csv</code> and <code>CL_GEO.csv</code></h2>
+<p><strong>Schemes are parallel, not nested.</strong> ADM1 regions, ADM2 départements, Senegal’s zones and Guinea-Bissau’s agro-ecological zones are four different ways of cutting a country, and each is stored as its own set of units. Even where one scheme happens to group the units of another, as Senegal’s zones group its regions, nothing is derived from that nesting, and no scheme is required to decompose into another.</p>
+<p><code>CL_GEO_SCHEME</code> has one row per country and scheme, keyed <code>ref_area</code> + <code>code</code> (<a href="#tbl-cl-geo-scheme" class="quarto-xref">Table&nbsp;12</a>).</p>
+<div id="tbl-cl-geo-scheme" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cl-geo-scheme-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: Columns of <code>CL_GEO_SCHEME.csv</code>
+</figcaption>
+<div aria-describedby="tbl-cl-geo-scheme-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 50%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Content</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>code</code></td>
+<td>R</td>
+<td><code>ADM0</code>, <code>ADM1</code>, <code>ADM2</code>, <code>ZONES</code>, <code>AEZ</code></td>
+<td><code>ADM2</code></td>
+</tr>
+<tr class="even">
+<td><code>ref_area</code></td>
+<td>R</td>
+<td>Country</td>
+<td><code>SEN</code></td>
+</tr>
+<tr class="odd">
+<td><code>local_name_en</code></td>
+<td>R</td>
+<td>What that level is called in the country</td>
+<td>Département</td>
+</tr>
+<tr class="even">
+<td><code>has_geometry</code></td>
+<td>R</td>
+<td><code>Y</code> only for <code>ADM0</code> and <code>ADM1</code> (<a href="#sec-maps-scope" class="quarto-xref">Section&nbsp;8.1</a>)</td>
+<td><code>N</code></td>
+</tr>
+<tr class="odd">
+<td><code>nests_in</code></td>
+<td>O</td>
+<td>Another scheme, only where nesting is genuine; used for optional roll-up checks, never to derive geometry</td>
+<td><code>ADM1</code></td>
+</tr>
+<tr class="even">
+<td><code>partition</code></td>
+<td>R</td>
+<td><code>Y</code> if its units cover the country exactly once</td>
+<td><code>Y</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><code>CL_GEO</code> has one row per spatial unit (<a href="#tbl-cl-geo" class="quarto-xref">Table&nbsp;13</a>).</p>
+<div id="tbl-cl-geo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cl-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13: Columns of <code>CL_GEO.csv</code>, beyond the common ones
+</figcaption>
+<div aria-describedby="tbl-cl-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 50%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Content</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>code</code></td>
+<td>R</td>
+<td>P-code for admin units; <code>&lt;ISO2&gt;_&lt;SCHEME&gt;&lt;nn&gt;</code> for other schemes</td>
+<td><code>SN03</code>, <code>GW08</code>, <code>SN_ZONES01</code></td>
+</tr>
+<tr class="even">
+<td><code>ref_area</code></td>
+<td>R</td>
+<td></td>
+<td><code>SEN</code></td>
+</tr>
+<tr class="odd">
+<td><code>scheme</code></td>
+<td>R</td>
+<td><code>CL_GEO_SCHEME.code</code> for that country</td>
+<td><code>ADM1</code></td>
+</tr>
+<tr class="even">
+<td><code>name_en</code></td>
+<td>R</td>
+<td>Name as issued by the boundary source</td>
+<td>Fatick</td>
+</tr>
+<tr class="odd">
+<td><code>parent</code></td>
+<td>C</td>
+<td>Containing unit, only when <code>nests_in</code> is set</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>source_id</code></td>
+<td>C</td>
+<td><code>GEO_SOURCES.csv</code>; required when <code>has_geometry = Y</code></td>
+<td><code>SEN_CODAB_v02</code></td>
+</tr>
+<tr class="odd">
+<td><code>geom_layer</code></td>
+<td>C</td>
+<td>Layer holding the polygon</td>
+<td><code>adm1</code></td>
+</tr>
+<tr class="even">
+<td><code>valid_from</code>, <code>valid_to</code></td>
+<td>R/C</td>
+<td>The <strong>boundary vintage</strong> the code belongs to, not the validity of the data. <code>valid_to</code> is empty while current.</td>
+<td><code>2024-05-20</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The shapefiles in <code>INPUT shp/</code> already carry these P-codes: <code>SN01</code> is Dakar, <code>SN03</code> is Fatick, and <code>GW08</code> is Bissau (the current tables call it <code>SAB</code>). Maps join on codes, never on names.</p>
+</section>
+<section id="sec-cl-area" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="sec-cl-area"><span class="header-section-number">5.7</span> <code>CL_AREA.csv</code></h2>
+<p>Extra columns: <code>iso2</code> (R, the P-code prefix), <code>currency</code> (R, ISO 4217), <code>wb_region</code> (R).</p>
+<p>Currency matters more than it seems. “FCFA” is two different currencies: <code>XOF</code> (CFA franc BCEAO, used in WAEMU, including SEN and GNB) and <code>XAF</code> (CFA franc BEAC). Eight AFW economies use neither. Monetary values in <code>LCU</code> are therefore <strong>not comparable across countries</strong>; comparison needs a PPP-denominated indicator.</p>
+</section>
+<section id="sec-small-codelists" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="sec-small-codelists"><span class="header-section-number">5.8</span> Small codelists</h2>
+<div id="tbl-small-codelists" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-small-codelists-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;14: Small codelists and their codes
+</figcaption>
+<div aria-describedby="tbl-small-codelists-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 83%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Codelist</th>
+<th>Codes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CL_SEX</code></td>
+<td><code>F</code>, <code>M</code> (<code>_T</code> and <code>_Z</code> are also valid; see <a href="#sec-sentinels" class="quarto-xref">Section&nbsp;2.2</a>)</td>
+</tr>
+<tr class="even">
+<td><code>CL_AGE</code></td>
+<td>SDMX-style bands as needed: <code>Y_LT15</code>, <code>Y15T24</code>, <code>Y25T64</code>, <code>Y_GE65</code>, …</td>
+</tr>
+<tr class="odd">
+<td><code>CL_URBANISATION</code></td>
+<td><code>U</code>, <code>R</code>, <code>CAP</code> (<code>parent = U</code>), <code>OU</code> (<code>parent = U</code>). This codelist has a <code>parent</code> column.</td>
+</tr>
+<tr class="even">
+<td><code>CL_OBS_STATUS</code></td>
+<td><code>A</code>, <code>E</code>, <code>O</code>, <code>M</code> (<a href="#tbl-obs-status" class="quarto-xref">Table&nbsp;5</a>)</td>
+</tr>
+<tr class="odd">
+<td><code>CL_THEME</code></td>
+<td><code>POV</code>, <code>INEQ</code>, <code>FISC</code>, <code>POP</code>, <code>CONS</code>, <code>JOB</code>, <code>HE</code>, <code>AGR</code>, <code>EN</code>, <code>HOUS</code>, <code>SHK</code>, <code>SP</code></td>
+</tr>
+<tr class="even">
+<td><code>CL_STAT_UNIT</code></td>
+<td><code>IND</code>, <code>HH</code>, <code>HE</code>, <code>PLOT</code></td>
+</tr>
+<tr class="odd">
+<td><code>CL_STATISTIC</code></td>
+<td><code>PROPORTION</code>, <code>MEAN</code>, <code>MEDIAN</code>, <code>TOTAL</code>, <code>RATIO_TOTALS</code>, <code>GINI</code>, <code>INDEX</code></td>
+</tr>
+<tr class="even">
+<td><code>CL_WEIGHT</code></td>
+<td><code>POP</code> (household weight × household size), <code>HH</code>, <code>IND</code>, <code>HE</code></td>
+</tr>
+<tr class="odd">
+<td><code>CL_UNIT</code></td>
+<td><code>SHARE</code> (0–1), <code>INDEX</code> (for Gini and similar), <code>PERSON</code>, <code>HH</code>, <code>HE</code>, <code>LCU</code>, <code>PPP_USD</code>, <code>HA</code>, <code>TLU</code>, <code>DAY</code>, <code>YEAR</code>, <code>COUNT</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-surveys" class="level2" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="sec-surveys"><span class="header-section-number">5.9</span> <code>SURVEYS.csv</code></h2>
+<div id="tbl-surveys" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-surveys-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;15: Columns of <code>SURVEYS.csv</code>, with Senegal’s values as the example
+</figcaption>
+<div aria-describedby="tbl-surveys-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 12%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Example (SEN, from <code>About_SEN.txt</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>survey_id</code></td>
+<td>R</td>
+<td><code>SEN_EHCVM_2021</code></td>
+</tr>
+<tr class="even">
+<td><code>ref_area</code>, <code>time_period</code></td>
+<td>R</td>
+<td><code>SEN</code>, <code>2021</code></td>
+</tr>
+<tr class="odd">
+<td><code>survey_name</code>, <code>survey_acronym</code></td>
+<td>R</td>
+<td>Enquête Harmonisée sur les Conditions de Vie des Ménages, EHCVM</td>
+</tr>
+<tr class="even">
+<td><code>producer_agency</code></td>
+<td>R</td>
+<td>ANSD</td>
+</tr>
+<tr class="odd">
+<td><code>fieldwork_start</code>, <code>fieldwork_end</code></td>
+<td>R</td>
+<td><code>2021-11</code>, <code>2022-09</code></td>
+</tr>
+<tr class="even">
+<td><code>sample_hh</code>, <code>sample_ind</code></td>
+<td>R/O</td>
+<td>7100</td>
+</tr>
+<tr class="odd">
+<td><code>design</code></td>
+<td>R</td>
+<td>Stratification, stages, PSU</td>
+</tr>
+<tr class="even">
+<td><code>representative_levels</code></td>
+<td>R</td>
+<td>Levels the design supports. This is <strong>advisory metadata</strong> that the dashboard may display; it does not gate publication.</td>
+</tr>
+<tr class="odd">
+<td><code>analysis_units</code></td>
+<td>R</td>
+<td>Which file each <code>stat_unit</code> is estimated from, so <code>N_OBS</code> is interpretable</td>
+</tr>
+<tr class="even">
+<td><code>welfare_aggregate</code></td>
+<td>R</td>
+<td>Consumption per capita</td>
+</tr>
+<tr class="odd">
+<td><code>welfare_adjustments</code></td>
+<td>R</td>
+<td>Spatial and temporal deflation</td>
+</tr>
+<tr class="even">
+<td><code>npl_value</code>, <code>npl_currency</code>, <code>npl_unit</code>, <code>npl_ref_year</code></td>
+<td>C</td>
+<td>519.8, XOF, per capita per day, 2018. The source says “estimated using the EHCVM 2018 … in current prices”; the price year is an inference and should be recorded as one.</td>
+</tr>
+<tr class="odd">
+<td><code>ppp_rounds</code></td>
+<td>R</td>
+<td><code>2017 2021</code></td>
+</tr>
+<tr class="even">
+<td><code>microdata_ref</code></td>
+<td>O</td>
+<td>Catalogue ID or URL</td>
+</tr>
+<tr class="odd">
+<td><code>comparable_with</code></td>
+<td>O</td>
+<td><code>SEN_EHCVM_2018</code></td>
+</tr>
+<tr class="even">
+<td><code>contact</code>, <code>notes</code></td>
+<td>O</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-manifest" class="level2" data-number="5.10">
+<h2 data-number="5.10" class="anchored" data-anchor-id="sec-manifest"><span class="header-section-number">5.10</span> Manifest</h2>
+<p><code>AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;_manifest.csv</code> has two columns, <code>key</code> and <code>value</code>. The keys are:</p>
+<p><code>dataflow</code>, <code>dsd_version</code>, <code>metadata_version</code>, <code>ref_area</code>, <code>time_period</code>, <code>source_type</code> (<code>SURVEY</code>, <code>PROJECTION</code>, <code>ADMIN</code>), <code>survey_id</code> (the base survey, also for a projection), <code>precision</code> (<code>EXACT</code>, or <code>ROUNDED_2DP</code> for legacy conversions), <code>file_name</code>, <code>n_rows</code>, <code>producer</code>, <code>program</code>, <code>software</code>, <code>run_timestamp</code> (ISO 8601), <code>status</code> (<code>DRAFT</code>, <code>SUBMITTED</code>, <code>VALIDATED</code>, <code>PUBLISHED</code>), <code>notes</code>.</p>
+<p><code>TIME_PERIOD</code> is the year the estimate refers to, which is <strong>not</strong> always a survey year. A microsimulated 2026 poverty rate has <code>TIME_PERIOD=2026</code>, <code>source_type=PROJECTION</code> and <code>survey_id=SEN_EHCVM_2021</code>, and every row has <code>OBS_STATUS=E</code>.</p>
+</section>
+<section id="sec-tab-plan" class="level2" data-number="5.11">
+<h2 data-number="5.11" class="anchored" data-anchor-id="sec-tab-plan"><span class="header-section-number">5.11</span> <code>TAB_PLAN.csv</code>: which cuts are produced</h2>
+<p>A <em>cut</em> is one way of splitting the population, such as by residence, by region or by quintile. A row that lists two breakdowns is a crossed cut, such as quintile by sex of household head. <code>TAB_PLAN</code> is what turns the dictionary into a list of required rows (<a href="#sec-required-rows" class="quarto-xref">Section&nbsp;2.6</a>).</p>
+<p>There is one row per cut, with the columns in <a href="#tbl-tab-plan" class="quarto-xref">Table&nbsp;16</a>. They give the codes used, not yes/no flags.</p>
+<div id="tbl-tab-plan" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tab-plan-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16: Columns of <code>TAB_PLAN.csv</code>
+</figcaption>
+<div aria-describedby="tbl-tab-plan-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>cut_id</code></td>
+<td><code>ADM1</code>, <code>QUINT</code>, …</td>
+</tr>
+<tr class="even">
+<td><code>ref_area</code></td>
+<td>ISO3, or <code>ALL</code></td>
+</tr>
+<tr class="odd">
+<td><code>geo_scheme</code></td>
+<td><code>_T</code>, or a scheme code</td>
+</tr>
+<tr class="even">
+<td><code>urbanisation</code></td>
+<td><code>_T</code>, or a set such as <code>CAP OU R</code> or <code>U R</code></td>
+</tr>
+<tr class="odd">
+<td><code>sex</code></td>
+<td><code>_T</code>, or <code>F M</code></td>
+</tr>
+<tr class="even">
+<td><code>age</code></td>
+<td><code>_T</code>, or a set of <code>CL_AGE</code> codes</td>
+</tr>
+<tr class="odd">
+<td><code>comp_breakdowns</code></td>
+<td>Breakdown variable codes in slot order, e.g.&nbsp;<code>QUINT HHH_SEX</code></td>
+</tr>
+<tr class="even">
+<td><code>themes</code></td>
+<td><code>ALL</code>, or a list of <code>CL_THEME</code> codes</td>
+</tr>
+<tr class="odd">
+<td><code>status</code></td>
+<td><code>ACTIVE</code> or <code>DRAFT</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The initial plan (<a href="#tbl-initial-plan" class="quarto-xref">Table&nbsp;17</a>) reproduces the current Excel tables. Every row has <code>sex = _T</code>, <code>age = _T</code>, <code>themes = ALL</code> and <code>status = ACTIVE</code>. The zone cut needs one row per country, because the two countries’ zone schemes differ.</p>
+<div id="tbl-initial-plan" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-initial-plan-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;17: The initial plan, reproducing the current Excel tables
+</figcaption>
+<div aria-describedby="tbl-initial-plan-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>cut_id</code></th>
+<th><code>ref_area</code></th>
+<th><code>geo_scheme</code></th>
+<th><code>urbanisation</code></th>
+<th><code>comp_breakdowns</code></th>
+<th>Current source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>TOTAL</code></td>
+<td><code>ALL</code></td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td></td>
+<td><code>estimateTotal</code></td>
+</tr>
+<tr class="even">
+<td><code>URB</code></td>
+<td><code>ALL</code></td>
+<td><code>_T</code></td>
+<td><code>CAP OU R</code></td>
+<td></td>
+<td><code>estimateCapital</code>, <code>…Other_Urban</code>, <code>…Rural</code></td>
+</tr>
+<tr class="odd">
+<td><code>HHH_SEX</code></td>
+<td><code>ALL</code></td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>HHH_SEX</code></td>
+<td><code>estimateFemale_HH</code>, <code>…Male_HH</code></td>
+</tr>
+<tr class="even">
+<td><code>HHH_AGE</code></td>
+<td><code>ALL</code></td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>HHH_AGE</code></td>
+<td><code>estimateYouth_HH</code>, <code>…Older_HH</code></td>
+</tr>
+<tr class="odd">
+<td><code>QUINT</code></td>
+<td><code>ALL</code></td>
+<td><code>_T</code></td>
+<td><code>_T</code></td>
+<td><code>QUINT</code></td>
+<td><code>estimateQ1</code> … <code>Q5</code></td>
+</tr>
+<tr class="even">
+<td><code>ADM1</code></td>
+<td><code>ALL</code></td>
+<td><code>ADM1</code></td>
+<td><code>_T</code></td>
+<td></td>
+<td><code>ADM 1</code> sheet</td>
+</tr>
+<tr class="odd">
+<td><code>ZONES</code></td>
+<td><code>SEN</code></td>
+<td><code>ZONES</code></td>
+<td><code>_T</code></td>
+<td></td>
+<td><code>ZAE</code> sheet</td>
+</tr>
+<tr class="even">
+<td><code>AEZ</code></td>
+<td><code>GNB</code></td>
+<td><code>AEZ</code></td>
+<td><code>_T</code></td>
+<td></td>
+<td><code>ZAE</code> sheet</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="sec-deliver" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> What a producer delivers</h1>
+<p>This is the checklist for handing in a file. For each country and reference year, deliver:</p>
+<ol type="1">
+<li><strong><code>AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;.csv</code></strong>, UTF-8, with the 26 columns of <a href="#tbl-columns" class="quarto-xref">Table&nbsp;4</a> in that order.</li>
+<li><strong>Every required row</strong> (<a href="#sec-required-rows" class="quarto-xref">Section&nbsp;2.6</a>), including cells with no observations.</li>
+<li><strong>The manifest</strong> (<a href="#sec-manifest" class="quarto-xref">Section&nbsp;5.10</a>).</li>
+<li><strong>Any metadata changes</strong> the data need, in the same pull request (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>).</li>
+</ol>
+<section id="sec-estimation" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="sec-estimation"><span class="header-section-number">6.1</span> Estimation rules</h2>
+<ul>
+<li>Code the indicator variable as missing for units outside its universe, so they leave both the numerator and the denominator.</li>
+<li>Estimate with the survey design declared (weights, strata, PSUs), and use subpopulation estimation for groups rather than dropping observations, so that standard errors stay correct.</li>
+<li>Use the weight named in the dictionary (<code>POP</code> = household weight × household size, for person-level statistics computed on household data).</li>
+<li>Publish every estimate. Do not blank, round away or drop a small cell; report its <code>N_OBS</code>.</li>
+<li>Write values unrounded, in base units.</li>
+</ul>
+</section>
+<section id="sec-legacy" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="sec-legacy"><span class="header-section-number">6.2</span> A note on legacy conversions</h2>
+<p>Files that the converter produces from the current Excel inherit values already rounded to two decimals, and they carry no sample sizes. Such a file sets <code>precision = ROUNDED_2DP</code> in its manifest. The validator then relaxes its aggregation tolerances and does not demand <code>STD_ERR</code>, <code>CI_*</code> or <code>N_OBS</code>. This exemption applies only to converted legacy files, never to new production.</p>
+</section>
+<section id="sec-reliability" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="sec-reliability"><span class="header-section-number">6.3</span> How the dashboard shows reliability</h2>
+<p>Since nothing is suppressed, the dashboard carries the burden of honesty:</p>
+<ul>
+<li>Every value is shown with its <code>N_OBS</code>, available on hover, in a details panel or in the downloaded table.</li>
+<li>Charts show the confidence interval where one exists.</li>
+<li>A cell resting on few records is visually de-emphasized rather than hidden, and <code>OBS_STATUS=O</code> renders as “no observations”, never as zero.</li>
+</ul>
+</section>
+</section>
+<section id="sec-extend" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> How to extend</h1>
+<p>Start here whenever you want to add something. Find the row in <a href="#tbl-extend" class="quarto-xref">Table&nbsp;18</a>, edit the files it names, and bump the metadata version as shown (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>). Only one row changes the structure of the data file, and only the data team makes that change.</p>
+<div id="tbl-extend" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-extend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18: What to edit for each kind of extension
+</figcaption>
+<div aria-describedby="tbl-extend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>I want to…</th>
+<th>Files to edit</th>
+<th>Structural?</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Add an indicator</td>
+<td><code>CL_INDICATOR</code> (and <code>CL_THEME</code> if new)</td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>Add a category to an existing breakdown</td>
+<td><code>CL_COMP_BREAKDOWN</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="odd">
+<td>Add a breakdown variable</td>
+<td><code>CL_BRK_VAR</code>, <code>CL_COMP_BREAKDOWN</code>, <code>TAB_PLAN</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>Add a qualifier variable or category</td>
+<td><code>CL_QUAL_VAR</code>, <code>CL_QUALIFIER</code>, <code>CL_INDICATOR.qualifiers</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="odd">
+<td>Add a poverty line or PPP round</td>
+<td><code>CL_QUALIFIER</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>Cross existing breakdowns</td>
+<td><code>TAB_PLAN</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="odd">
+<td>Add a spatial scheme or its units</td>
+<td><code>CL_GEO_SCHEME</code>, <code>CL_GEO</code>, <code>TAB_PLAN</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>Add a country</td>
+<td><code>CL_AREA</code>, <code>CL_GEO_SCHEME</code>, <code>CL_GEO</code>, <code>SURVEYS</code>, <code>GEO_SOURCES</code> and the boundary file, <code>TAB_PLAN</code> if its cuts differ; then the data file and manifest</td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="odd">
+<td>Add a survey round or a projection</td>
+<td><code>SURVEYS</code> (for a survey); a new data file and manifest</td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>Reword a label, same meaning</td>
+<td>The codelist concerned</td>
+<td>No</td>
+<td>patch</td>
+</tr>
+<tr class="odd">
+<td>Change what an indicator measures</td>
+<td>New code; old one <code>DEPRECATED</code> + <code>replaced_by</code></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+<tr class="even">
+<td>A 6th breakdown or qualifier slot, or a new named dimension</td>
+<td><code>DSD_AFW360_HH</code> (data team only)</td>
+<td><strong>Yes</strong></td>
+<td>major</td>
+</tr>
+<tr class="odd">
+<td>Add boundaries, a figure or dashboard text</td>
+<td>See Sections <a href="#sec-extend-assets" class="quarto-xref">8.4</a> and <a href="#sec-extend-text" class="quarto-xref">9.4</a></td>
+<td>No</td>
+<td>minor</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<section id="sec-add-indicator" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="sec-add-indicator"><span class="header-section-number">7.1</span> Add an indicator</h2>
+<ol type="1">
+<li>Search <code>CL_INDICATOR</code> for the same concept. If it exists, reuse it. <strong>Before creating a code, check whether the difference is a qualifier:</strong> a different poverty line, PPP round, welfare concept or COICOP division is never a new indicator. Neither is a population share; that is <code>POP_SH</code> with a breakdown.</li>
+<li>If a near-duplicate exists, fill <code>related</code> and <code>related_note</code> on both rows.</li>
+<li>Standardize the variables it needs in the harmonized microdata, so that the indicator is a plain aggregate of them (<a href="#sec-growth" class="quarto-xref">Section&nbsp;1.4</a>). Record them in <code>source_questionnaire</code> and <code>source_vars</code>, and the program that computes the indicator in <code>program</code>.</li>
+<li>Fill every <strong>R</strong> column and the <strong>C</strong> columns that apply, including <code>qualifiers</code> and <code>checks</code>.</li>
+<li>Produce it for every applicable cut.</li>
+<li>Open a pull request (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>).</li>
+</ol>
+</section>
+<section id="sec-add-breakdown" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="sec-add-breakdown"><span class="header-section-number">7.2</span> Add a breakdown variable</h2>
+<p>Follow <a href="#sec-example-sector" class="quarto-xref">Section&nbsp;3.3</a>: decide <code>describes</code> and <code>applies_to_units</code>, write the <code>universe</code>, reuse an international classification if one exists, set <code>slot_order</code>, register the categories, and add the cuts. Expect small <code>N_OBS</code> in fine groups, and publish them anyway with their sample sizes.</p>
+</section>
+<section id="sec-add-qualifier" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="sec-add-qualifier"><span class="header-section-number">7.3</span> Add a qualifier variable</h2>
+<ol type="1">
+<li>Confirm it is a qualifier: the population behind each category is the same one (<a href="#sec-one-row" class="quarto-xref">Section&nbsp;1.1</a>).</li>
+<li>Register it with a <code>slot_order</code> and, if it depends on another qualifier, <code>requires</code>.</li>
+<li>Register its categories, with <code>value</code>, <code>basis</code> and <code>valid_with</code> where they apply.</li>
+<li>List it in the <code>qualifiers</code> field of every indicator that takes it, naming the allowed categories.</li>
+</ol>
+</section>
+<section id="sec-add-country" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="sec-add-country"><span class="header-section-number">7.4</span> Add a country</h2>
+<p>Follow the order in <a href="#sec-growth" class="quarto-xref">Section&nbsp;1.4</a>: metadata first, data last.</p>
+<ol type="1">
+<li><strong><code>CL_AREA</code></strong>: add the country, with its ISO2 code (the P-code prefix) and its currency.</li>
+<li><strong><code>CL_GEO_SCHEME</code></strong>: register every spatial scheme the country will publish, with the local name of each level.</li>
+<li><strong><code>CL_GEO</code></strong>: register the units of each scheme, using the P-codes of the boundary file you will map with.</li>
+<li><strong>Indicators</strong>: check each indicator in <code>CL_INDICATOR</code> against the country’s survey, and reuse the code wherever the definition holds. Where it does not, register a new code linked to the old one through <code>related</code> and <code>related_note</code> (<a href="#sec-add-indicator" class="quarto-xref">Section&nbsp;7.1</a>). Never stretch an existing definition to fit.</li>
+<li><strong>Breakdowns and qualifiers</strong>: map the survey’s own variable values to the shared codes, in the producer’s program. A country-specific category becomes a child of a shared code (a secondary-city stratum is <code>parent = U</code>), never an unrelated new code.</li>
+<li><strong><code>SURVEYS</code></strong>: add each survey round, with its design, welfare aggregate and national poverty line.</li>
+<li><strong>Boundaries</strong>: add the ADM0 and ADM1 boundary file and its <code>GEO_SOURCES</code> row (<a href="#sec-extend-assets" class="quarto-xref">Section&nbsp;8.4</a>).</li>
+<li><strong><code>TAB_PLAN</code></strong>: add rows only where the country’s cuts differ from the shared <code>ALL</code> rows, for example for its own zone scheme.</li>
+<li><strong>Data</strong>: produce the data file and manifest for each reference year (<a href="#sec-deliver" class="quarto-xref">Section&nbsp;6</a>), run the validator, and open one pull request with the metadata and the data together (<a href="#sec-change-control" class="quarto-xref">Section&nbsp;10</a>).</li>
+</ol>
+<p>Every other code comes from the shared codelists.</p>
+</section>
+</section>
+<section id="sec-assets" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Boundaries and figures</h1>
+<p>Every non-tabular asset follows the same pattern: a stable ID, a row in a registry carrying provenance, license and checksum, a path fixed by convention, and references <strong>by ID, never by path</strong>. Assets are never edited by hand; a wrong unit name, for example, is corrected in <code>CL_GEO</code>, not in the boundary file.</p>
+<section id="sec-maps-scope" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="sec-maps-scope"><span class="header-section-number">8.1</span> Maps exist for countries and ADM1 only</h2>
+<p><code>has_geometry = Y</code> is set for <code>ADM0</code> and <code>ADM1</code>. Every other scheme, including ADM2, zones and agro-ecological zones, is published as tables with no map, no geometry file and no missing-geometry error. Neither Senegal’s zones nor Guinea-Bissau’s agro-ecological zones therefore need polygons.</p>
+</section>
+<section id="sec-geo-storage" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="sec-geo-storage"><span class="header-section-number">8.2</span> Storage</h2>
+<p>Boundaries are stored as GeoPackage (<code>.gpkg</code>) files, one per country per boundary vintage, with one layer per level:</p>
+<pre><code>geo/boundaries/SEN_CODAB_v02.gpkg     layers: adm0, adm1</code></pre>
+<p>Why not shapefiles: a shapefile is 5–6 files that must travel together. Its DBF field names are cut at 10 characters (the current files show <code>cod_versio</code> and <code>adm1_ref_n</code>), its text fields stop at 254 characters, its encoding is declared in a side-car <code>.cpg</code>, and its <code>.prj</code> carries no authority code (the current files say <code>GCS_WGS_1984</code> with no EPSG number). A GeoPackage is one SQLite file with UTF-8 text, long field names, several layers and an SRS with its authority code, and geopandas, QGIS, ArcGIS and R all read it.</p>
+<p>Rules:</p>
+<ul>
+<li><strong>Required layer fields:</strong> <code>geo_code</code> (matching <code>CL_GEO.code</code>), <code>ref_area</code>, <code>scheme</code>. A <code>name</code> column may be kept for convenience, but <code>CL_GEO</code> is authoritative, and disagreement is a warning, not an error.</li>
+<li><strong>CRS:</strong> EPSG:4326 in storage. Reproject only for display or area computation.</li>
+<li><strong>Hygiene:</strong> valid geometries, one feature per code, units covering the country exactly once.</li>
+<li><strong>Vintages are explicit.</strong> <code>valid_from</code> and <code>valid_to</code> in <code>CL_GEO</code> describe the boundary release a code belongs to, not the period the data cover. SEN’s COD-AB v02 dates from 2024 while the data are for 2021, and that is not an error.</li>
+<li><strong>Derived layers are generated</strong>, never hand-edited. Simplified display copies live in <code>geo/derived/</code> and may be rebuilt at any time; the simplification tolerance is kept in the build script.</li>
+<li><strong>Size:</strong> keep files in git while they are small. Beyond a few MB, use Git LFS or an external store, with the URL and checksum in the registry.</li>
+</ul>
+<p><code>GEO_SOURCES.csv</code> columns: <code>source_id</code>, <code>ref_area</code>, <code>provider</code>, <code>version</code>, <code>valid_on</code>, <code>url</code>, <code>download_date</code>, <code>licence</code>, <code>attribution</code> (the credit line the map must show), <code>crs</code>, <code>file</code>, <code>layers</code>, <code>sha256</code>, <code>status</code>, <code>version_added</code>, <code>notes</code>.</p>
+</section>
+<section id="sec-figures" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="sec-figures"><span class="header-section-number">8.3</span> Figures</h2>
+<p>Figures live at <code>assets/figures/&lt;ISO3&gt;/&lt;figure_id&gt;.&lt;ext&gt;</code> and are registered in <code>FIGURES.csv</code>, with columns <code>figure_id</code>, <code>ref_area</code>, <code>time_period</code>, <code>theme</code>, <code>title_en</code>, <code>caption_en</code>, <code>alt_text_en</code> (required: what a screen reader announces), <code>indicators</code>, <code>source</code>, <code>producer</code>, <code>program</code>, <code>licence</code>, <code>file</code>, <code>sha256</code>, <code>status</code>, <code>version_added</code>, <code>notes</code>.</p>
+<p>Prefer generating figures from the data; an image is a last resort. Use SVG or PDF for charts, and PNG at twice display size for anything raster. The dashboard asks for a <code>figure_id</code>, not a file name.</p>
+</section>
+<section id="sec-extend-assets" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="sec-extend-assets"><span class="header-section-number">8.4</span> Extending</h2>
+<div id="tbl-extend-assets" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-extend-assets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;19: What to edit for boundaries and figures
+</figcaption>
+<div aria-describedby="tbl-extend-assets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>I want to…</th>
+<th>Files to edit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Add ADM0/ADM1 boundaries for a country</td>
+<td><code>GEO_SOURCES.csv</code>, the <code>.gpkg</code>, <code>CL_GEO</code></td>
+</tr>
+<tr class="even">
+<td>Refresh a boundary vintage</td>
+<td>New <code>GEO_SOURCES</code> row and file; close superseded <code>CL_GEO</code> rows with <code>valid_to</code>, and add the new ones</td>
+</tr>
+<tr class="odd">
+<td>Add a spatial scheme with no map</td>
+<td><code>CL_GEO_SCHEME</code> (<code>has_geometry = N</code>), <code>CL_GEO</code></td>
+</tr>
+<tr class="even">
+<td>Add a figure</td>
+<td><code>FIGURES.csv</code> and the file</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="sec-text" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Dashboard text</h1>
+<p>All prose the dashboard shows lives in one place and is written by hand, in English.</p>
+<pre><code>content/TEXT.csv                one row per slot
+content/text/&lt;ISO3&gt;/&lt;slot&gt;.md   long-form bodies</code></pre>
+<section id="sec-text-csv" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="sec-text-csv"><span class="header-section-number">9.1</span> <code>TEXT.csv</code></h2>
+<div id="tbl-text" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-text-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;20: Columns of <code>TEXT.csv</code>
+</figcaption>
+<div aria-describedby="tbl-text-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th></th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>slot</code></td>
+<td>R</td>
+<td>Where it appears: <code>about</code>, <code>messages</code>, <code>energy_intro</code>, <code>map_note</code>, … The dashboard asks for a slot by name.</td>
+</tr>
+<tr class="even">
+<td><code>ref_area</code></td>
+<td>R</td>
+<td>ISO3, or <code>ALL</code> for shared boilerplate</td>
+</tr>
+<tr class="odd">
+<td><code>time_period</code></td>
+<td>R</td>
+<td>Year, or <code>ALL</code></td>
+</tr>
+<tr class="even">
+<td><code>order</code></td>
+<td>R</td>
+<td>Position within a slot that holds several items, such as key messages</td>
+</tr>
+<tr class="odd">
+<td><code>title</code></td>
+<td>O</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>body</code></td>
+<td>C</td>
+<td>The text, one paragraph, no line breaks</td>
+</tr>
+<tr class="odd">
+<td><code>file</code></td>
+<td>C</td>
+<td>Path under <code>content/text/</code> for anything longer. Exactly one of <code>body</code> and <code>file</code> is filled.</td>
+</tr>
+<tr class="even">
+<td><code>status</code></td>
+<td>R</td>
+<td><code>DRAFT</code> or <code>PUBLISHED</code>; in production the dashboard shows only <code>PUBLISHED</code></td>
+</tr>
+<tr class="odd">
+<td><code>updated_on</code></td>
+<td>R</td>
+<td>ISO date</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A country row overrides an <code>ALL</code> row for the same slot. This keeps shared methodology in one place instead of copied per country; today <code>About.txt</code> and <code>About_SEN.txt</code> are byte-identical copies.</p>
+<p>Markdown in <code>body</code> and in the files is limited to paragraphs, emphasis, links, lists and footnotes. No raw HTML.</p>
+</section>
+<section id="sec-live-numbers" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="sec-live-numbers"><span class="header-section-number">9.2</span> Live numbers in prose</h2>
+<p>Numbers typed into prose go stale, and nothing checks them; the current key messages are typed into <code>index.qmd</code> by hand. Instead, reference the data inline, as in <a href="#lst-live-numbers" class="quarto-xref">Listing&nbsp;2</a>.</p>
+<div id="lst-live-numbers" class="listing quarto-float quarto-figure quarto-figure-left anchored">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-live-numbers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;2: Live numbers in dashboard prose
+</figcaption>
+<div aria-describedby="lst-live-numbers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<pre><code>Poverty at $4.20 a day stands at {{POV_HC:PL420}}, and {{POV_NUM:PL420}} million people are poor.
+Rural poverty stands at {{POV_HC:PL420@URBANISATION=R}}.</code></pre>
+</div>
+</figure>
+</div>
+<ul>
+<li>The country and year come from the <code>TEXT.csv</code> row, and every breakdown defaults to the national total, so a plain <code>{INDICATOR:QUALIFIER}</code> is usually enough.</li>
+<li>Anything else is added after <code>@</code> as <code>DIMENSION=CODE</code>, separated by commas.</li>
+<li>The dashboard formats each number with its indicator’s <code>display_as</code> and <code>decimals</code> (<code>37.0%</code> for a share, <code>6.52</code> for a count shown in millions), so prose and tables cannot disagree. Write only the words around the number.</li>
+<li>The validator resolves every reference to exactly one observation, and fails if it finds none or several.</li>
+</ul>
+</section>
+<section id="sec-text-replaces" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="sec-text-replaces"><span class="header-section-number">9.3</span> What this replaces</h2>
+<p><code>TEXT.csv</code> replaces <code>About_&lt;ISO3&gt;.txt</code>, <code>Messages_&lt;ISO3&gt;.txt</code> and every string hardcoded in <code>index.qmd</code>. Figure captions stay with their images in <code>FIGURES.csv</code>.</p>
+</section>
+<section id="sec-extend-text" class="level2" data-number="9.4">
+<h2 data-number="9.4" class="anchored" data-anchor-id="sec-extend-text"><span class="header-section-number">9.4</span> Extending</h2>
+<p>Add or edit a row in <code>TEXT.csv</code>, and add a <code>.md</code> file if the text is long. The same pull request rules apply as for codelists.</p>
+</section>
+</section>
+<section id="sec-change-control" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Change control</h1>
+<p>This section says how a change gets into the database.</p>
+<ul>
+<li><code>metadata/</code> and <code>content/</code> live in git. Producers extend them on a branch and open a pull request, which the data team reviews.</li>
+<li>Rows are <strong>append-only</strong>: no deletions, and no changing an existing code or its meaning. Deprecate instead.</li>
+<li>Every merged change bumps <code>metadata/VERSION</code> (<code>MAJOR.MINOR.PATCH</code>, as shown in <a href="#tbl-extend" class="quarto-xref">Table&nbsp;18</a>) and adds a line to <code>metadata/CHANGELOG.md</code>.</li>
+<li>Every data file’s manifest records the <code>metadata_version</code> it was produced against.</li>
+<li>The validator must pass before a pull request is merged or a file is published.</li>
+<li>Editing a CSV in Excel is fine if you save as “CSV UTF-8” and check that codes have not been turned into numbers or dates. The byte-order mark that Excel writes is expected and is stripped on read.</li>
+</ul>
+<p><strong>Structural changes</strong>, meaning adding, removing or reordering a column, are made by the data team only. They need a new <code>DSD_AFW360_HH.csv</code> and a major version, and the converter must backfill existing files with <code>_T</code> or <code>_Z</code>. <code>DSD_AFW360_HH.csv</code> itself has the columns <code>position</code>, <code>id</code>, <code>role</code> (<code>constant</code>, <code>breakdown</code>, <code>reference</code>, <code>qualifier</code>, <code>measure</code>, <code>attribute</code>, as in <a href="#tbl-columns" class="quarto-xref">Table&nbsp;4</a>), <code>codelist</code>, <code>required</code>, <code>sentinel</code> and <code>description</code>, and the data-file header must match it exactly.</p>
+</section>
+<section id="sec-validation" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Validation checks (to be implemented in Python)</h1>
+<p>This is the specification for the validator. Each check is phrased so that it can be implemented directly, and together they enforce every “must” in Sections <a href="#sec-data" class="quarto-xref">2</a> to <a href="#sec-text" class="quarto-xref">9</a>.</p>
+<p><strong>Structure</strong></p>
+<ul>
+<li>The header matches the DSD exactly: same names, same order (after stripping a BOM).</li>
+<li>No dimension or qualifier cell is empty.</li>
+<li>The key, meaning all dimension and qualifier columns together, is unique.</li>
+</ul>
+<p><strong>Codes</strong></p>
+<ul>
+<li>Every code exists in its codelist. Newly produced rows use <code>ACTIVE</code> codes; existing rows are valid against any code that is not <code>DRAFT</code>, with <code>valid_from</code> / <code>valid_to</code> respected for geography.</li>
+<li><code>GEO</code> belongs to <code>REF_AREA</code>, and its <code>scheme</code> is registered for that country.</li>
+<li>Breakdown slots are filled from the left in canonical order, with no variable twice, and unused slots are <code>_T</code>.</li>
+<li>Qualifier slots follow the same rules, and unused slots are <code>_Z</code>.</li>
+<li><code>SEX</code> and <code>AGE</code> are <code>_Z</code> when the indicator’s <code>stat_unit</code> is not <code>IND</code>, and <code>_T</code> or a code otherwise.</li>
+<li>Breakdown variables are compatible with the indicator’s <code>stat_unit</code>.</li>
+<li>Every qualifier used is declared by the indicator, or required by a breakdown in the same row.</li>
+<li><code>valid_with</code> pairings hold, for example <code>POVLINE_PL420</code> only with <code>PPP_2021</code>.</li>
+</ul>
+<p><strong>Coverage</strong></p>
+<ul>
+<li>The rows equal the set defined in <a href="#sec-required-rows" class="quarto-xref">Section&nbsp;2.6</a>: nothing missing, nothing extra.</li>
+<li>Nothing listed in <code>excluded_breakdowns</code> appears.</li>
+<li>A <code>SURVEYS</code> row and a manifest exist, and the manifest matches the file.</li>
+</ul>
+<p><strong>Values</strong></p>
+<ul>
+<li><code>OBS_VALUE</code> is numeric and within <code>valid_min</code> / <code>valid_max</code>.</li>
+<li><code>OBS_VALUE</code> is empty exactly when <code>OBS_STATUS</code> is <code>O</code> or <code>M</code>.</li>
+<li><code>STD_ERR ≥ 0</code> and <code>CI_LOWER ≤ OBS_VALUE ≤ CI_UPPER</code>.</li>
+<li><code>N_OBS</code> is a non-negative integer and <code>N_POP</code> is non-negative. Both are present except in legacy files (<a href="#sec-legacy" class="quarto-xref">Section&nbsp;6.2</a>).</li>
+<li><code>N_OBS = 0</code> implies <code>OBS_STATUS = O</code>.</li>
+</ul>
+<p><strong>Verification rules from <code>checks</code></strong></p>
+<ul>
+<li><code>AGG_SUM</code>: children sum to the parent over a partition.</li>
+<li><code>AGG_NPOP_MEAN</code>: the <code>N_POP</code>-weighted average of the children equals the parent.</li>
+<li><code>SUM_TO_1_OVER:&lt;QUAL_VAR&gt;</code> and <code>SUM_TO_1_OVER_BRK</code>: the categories sum to 1.</li>
+<li><code>EQUALS_NPOP_RATIO</code>: the value equals the child’s <code>N_POP</code> over the universe’s.</li>
+<li><code>MONOTONE_IN:POVLINE</code>: the value does not fall as the line rises.</li>
+<li><code>RANGE_0_1</code>, <code>RANGE_NONNEG</code>.</li>
+<li><strong>The parent of a row</strong> is the same row with one breakdown set to <code>_T</code>. If that breakdown required a qualifier (<code>POOR</code> requires <code>POVLINE</code>), the qualifier is cleared to <code>_Z</code> in the parent, unless the indicator itself declares it.</li>
+<li>Children’s <code>N_POP</code> sums to the parent’s for any <code>partition = Y</code> breakdown.</li>
+<li>Tolerances are relaxed for manifests with <code>precision = ROUNDED_2DP</code>.</li>
+</ul>
+<p><strong>Assets</strong></p>
+<ul>
+<li>Every <code>geo_code</code> in a geometry layer exists in <code>CL_GEO</code> with the same <code>ref_area</code> and <code>scheme</code>.</li>
+<li>Every <code>CL_GEO</code> code whose scheme has <code>has_geometry = Y</code> has a geometry; schemes with <code>N</code> are skipped.</li>
+<li>Geometries are valid, unique per code, and in EPSG:4326.</li>
+<li>Every registry row points at a file that exists, with a matching <code>sha256</code>.</li>
+</ul>
+<p><strong>Text</strong></p>
+<ul>
+<li>Every <code>{…}</code> reference resolves to exactly one observation.</li>
+<li>Exactly one of <code>body</code> and <code>file</code> is filled, and referenced files exist.</li>
+<li>Every slot the dashboard requests exists for the country and year, or inherits from <code>ALL</code>.</li>
+</ul>
+<p><strong>Metadata files</strong></p>
+<ul>
+<li>Codes are unique and follow <a href="#sec-code-rules" class="quarto-xref">Section&nbsp;5.1</a>.</li>
+<li>Every <strong>R</strong> column is filled.</li>
+<li>Every <code>var_code</code>, <code>parent</code>, <code>replaced_by</code>, <code>source_id</code>, <code>scheme</code> and <code>nests_in</code> reference resolves.</li>
+<li><code>slot_order</code> values should be unique within <code>CL_BRK_VAR</code> and within <code>CL_QUAL_VAR</code>. A tie is a warning, not an error, and is broken alphabetically.</li>
+</ul>
+</section>
+<section id="sec-decisions" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Decisions</h1>
+<section id="sec-decisions-taken" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="sec-decisions-taken"><span class="header-section-number">12.1</span> Decisions taken</h2>
+<div id="tbl-decisions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-decisions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21: Design decisions taken
+</figcaption>
+<div aria-describedby="tbl-decisions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Decision</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Breakdowns</td>
+<td>Named <code>GEO</code>, <code>URBANISATION</code>, <code>SEX</code>, <code>AGE</code>, plus five generic slots</td>
+</tr>
+<tr class="even">
+<td>Qualifiers</td>
+<td>Five generic slots. Poverty line, PPP round, welfare concept, COICOP division and fiscal instrument are all qualifiers.</td>
+</tr>
+<tr class="odd">
+<td>Population shares</td>
+<td>One indicator, <code>POP_SH</code>, with the group named by the breakdown</td>
+</tr>
+<tr class="even">
+<td>Suppression</td>
+<td><strong>None.</strong> Every estimate is published, with its sample size and confidence interval attached.</td>
+</tr>
+<tr class="odd">
+<td>Geography</td>
+<td>Parallel spatial schemes, not a hierarchy. Maps only for country outlines and ADM1.</td>
+</tr>
+<tr class="even">
+<td>Language</td>
+<td>English only</td>
+</tr>
+<tr class="odd">
+<td>Who extends codelists</td>
+<td>Producers, through pull requests reviewed by the data team</td>
+</tr>
+<tr class="even">
+<td>Tooling</td>
+<td>Producers deliver CSV. The converter, validator and dashboard loader are written in Python.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-open-decisions" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="sec-open-decisions"><span class="header-section-number">12.2</span> Open decisions</h2>
+<ol type="1">
+<li><strong>Age cutoff for household heads.</strong> The current <code>Youth_HH</code> / <code>Older_HH</code> boundary is undocumented; confirm it before publishing any <code>HHH_AGE_*</code> code.</li>
+<li><strong>Quintile definition.</strong> National or within-area ranking, person- or household-weighted. The answer goes in <code>CL_BRK_VAR.definition_en</code>.</li>
+<li><strong>Governance.</strong> Who owns <code>metadata/</code> and reviews pull requests.</li>
+<li><strong>GNB survey metadata.</strong> <code>About_GNB.txt</code> contains only a placeholder, so the survey round and its <code>TIME_PERIOD</code> are unknown.</li>
+<li><strong>Where large binaries live.</strong> Git, Git LFS, or an external store referenced from <code>GEO_SOURCES.csv</code>.</li>
+<li><strong>Boundary vintage policy.</strong> Who decides when to adopt a new COD-AB release, given that P-codes can change and older data must still resolve.</li>
+<li><strong>Where variable-level metadata lives.</strong> <a href="#sec-growth" class="quarto-xref">Section&nbsp;1.4</a> asks for documentation of every harmonized microdata variable behind an indicator. <code>CL_INDICATOR</code> names those variables but has nowhere to describe them. A variable dictionary per survey, kept with the producer programs or under <code>metadata/</code>, is the obvious candidate.</li>
+<li><strong>A country that cannot produce an indicator.</strong> <a href="#sec-required-rows" class="quarto-xref">Section&nbsp;2.6</a> requires every indicator for every country, and there is no way yet to record that a survey does not support an indicator at all.</li>
+<li><strong>The <code>Departement</code> sheet.</strong> Its 60 indicators shared with <code>ADM 1</code> would produce rows with the same key but mostly different values (<a href="#sec-legacy-departement">Annex 2</a>). The converter must either take only its 2017-PPP poverty rows or skip the sheet.</li>
+<li><strong>Reference syntax for live numbers.</strong> <a href="#sec-live-numbers" class="quarto-xref">Section&nbsp;9.2</a> is a sketch. It does not yet say how a reference names several qualifiers, or confirm that <code>PL420</code> is shorthand for <code>POVLINE_PL420</code>.</li>
+</ol>
+</section>
+</section>
+<section id="sec-appendix-legacy" class="level1 unnumbered">
+<h1 class="unnumbered">Annex. Mapping the current tables</h1>
+<p>Read this if you are writing the converter. It maps every label and column of the current Excel tables to the new codes.</p>
+<p>The full mapping goes in <code>plans/LEGACY_LABELS.csv</code>, with the columns <code>legacy_label</code>, <code>sheet</code>, <code>INDICATOR</code>, <code>MEASURE_QUAL_1…5</code> and <code>notes</code>. It must cover all four sheets, including the <code>Departement</code> sheet’s raw-variable labels (<code>npoor300</code>, <code>npoor420</code>, <code>(max) con_1</code> … <code>con_15</code>, <code>(max) ext_emp</code>).</p>
+<section id="sec-legacy-indicators" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-legacy-indicators">Annex 1. Indicators</h2>
+<div id="tbl-legacy-indicators" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-legacy-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;22: Current indicator labels mapped to codes
+</figcaption>
+<div aria-describedby="tbl-legacy-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Current label</th>
+<th><code>INDICATOR</code></th>
+<th>Qualifiers</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poor at $3.00/day (2021 PPP)</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL300</code>, <code>PPP_2021</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Poor at $4.20/day (2021 PPP)</td>
+<td><code>POV_HC</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Number poor $4.20/day (millions)</td>
+<td><code>POV_NUM</code></td>
+<td><code>POVLINE_PL420</code>, <code>PPP_2021</code></td>
+<td>Store 6520000; <code>display_as = MILLIONS</code></td>
+</tr>
+<tr class="even">
+<td>COICOP 1: food &amp; non-alc. beverages (share)</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP01</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Food consumption share</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP01</code></td>
+<td>Same series; not a second code</td>
+</tr>
+<tr class="even">
+<td>Housing &amp; utilities burden (COICOP 4 …)</td>
+<td><code>CONS_SH</code></td>
+<td><code>COICOP_CP04</code></td>
+<td>Same series as COICOP 4</td>
+</tr>
+<tr class="odd">
+<td>Employed (activ12m, 15–64)</td>
+<td><code>POP_SH</code></td>
+<td>—</td>
+<td>Breakdown <code>EMP_STATUS_EMPLOYED</code>; universe persons 15–64; <code>ref_period = P12M</code></td>
+</tr>
+<tr class="even">
+<td>Employed in agriculture (% of employed)</td>
+<td><code>POP_SH</code></td>
+<td>—</td>
+<td>Breakdown <code>EMP_SECTOR_AGR</code>; universe employed 15–64</td>
+</tr>
+<tr class="odd">
+<td>HH has 0 / 1 / 2 / 3 / 4+ HE</td>
+<td><code>POP_SH</code></td>
+<td>—</td>
+<td>Breakdown <code>HE_COUNT_0</code> … <code>HE_COUNT_4P</code></td>
+</tr>
+<tr class="even">
+<td>HE profits (FCFA)</td>
+<td><code>HE_PROFIT</code></td>
+<td>—</td>
+<td>Unit <code>LCU</code> (<code>XOF</code> via <code>CL_AREA</code>); may be negative; period to confirm</td>
+</tr>
+<tr class="odd">
+<td>Monthly electricity spend (FCFA)</td>
+<td><code>EN_ELEC_SPEND</code></td>
+<td>—</td>
+<td>Unit <code>LCU</code>, <code>unit_time = MONTH</code></td>
+</tr>
+<tr class="even">
+<td>Access to electricity (grid, SDG 7.1.1)</td>
+<td><code>EN_ELEC_ACCESS</code></td>
+<td>—</td>
+<td><code>sdg_indicator</code> 7.1.1; <code>related</code> must distinguish it from <code>EN_GRID_CONN</code> and <code>EN_GRID_USE</code></td>
+</tr>
+<tr class="odd">
+<td>Average outage duration (code)</td>
+<td><code>EN_OUTAGE_DUR_CODE</code></td>
+<td>—</td>
+<td>Mean of an ordinal code; consider replacing it with shares by duration class</td>
+</tr>
+<tr class="even">
+<td>wood_dist [ALL MISSING]</td>
+<td>not registered</td>
+<td></td>
+<td>Register as <code>DRAFT</code> once it is computed</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-legacy-departement" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-legacy-departement">Annex 2. The <code>Departement</code> sheet</h2>
+<p>The sheet exists only for Senegal. Despite its name it holds the same 14 regions as the <code>ADM 1</code> sheet (<a href="./input-tables-findings.html">findings</a>, 6.1), so its rows take ADM1 P-codes. Its poverty labels are taken at face value: “Poor at $3.00/day (2017 PPP)” maps to <code>POVLINE_PL300</code> + <code>PPP_2017</code>, which is why that pair is allowed in <a href="#tbl-povlines" class="quarto-xref">Table&nbsp;9</a>.</p>
+<p>Its other indicators are a problem. The 60 it shares with <code>ADM 1</code> would produce rows with the same key as the <code>ADM 1</code> rows, and most of their values differ, so the converter cannot load both sheets in full (item 9 in <a href="#sec-open-decisions" class="quarto-xref">Section&nbsp;12.2</a>).</p>
+</section>
+<section id="sec-legacy-columns" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-legacy-columns">Annex 3. Columns to dimensions</h2>
+<div id="tbl-legacy-columns" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-legacy-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;23: Current Excel columns mapped to dimensions
+</figcaption>
+<div aria-describedby="tbl-legacy-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Current column</th>
+<th>New dimensions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>estimateTotal</code></td>
+<td>all <code>_T</code></td>
+</tr>
+<tr class="even">
+<td><code>estimateCapital</code>, <code>estimateOther_Urban</code>, <code>estimateRural</code></td>
+<td><code>URBANISATION</code> = <code>CAP</code>, <code>OU</code>, <code>R</code></td>
+</tr>
+<tr class="odd">
+<td><code>estimateFemale_HH</code>, <code>estimateMale_HH</code></td>
+<td><code>COMP_BREAKDOWN_1</code> = <code>HHH_SEX_F</code>, <code>HHH_SEX_M</code></td>
+</tr>
+<tr class="even">
+<td><code>estimateYouth_HH</code>, <code>estimateOlder_HH</code></td>
+<td><code>COMP_BREAKDOWN_1</code> = <code>HHH_AGE_LT35</code>, <code>HHH_AGE_GE35</code> (cutoff to be confirmed)</td>
+</tr>
+<tr class="odd">
+<td><code>estimateQ1</code> … <code>estimateQ5</code></td>
+<td><code>COMP_BREAKDOWN_1</code> = <code>QUINT_Q1</code> … <code>QUINT_Q5</code></td>
+</tr>
+<tr class="even">
+<td><code>ADM 1</code> sheet columns</td>
+<td><code>GEO</code> = P-code, scheme <code>ADM1</code> (<code>DAKAR</code> → <code>SN01</code>, <code>SAB</code> → <code>GW08</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>ZAE</code> sheet columns</td>
+<td><code>GEO</code> = zone code, scheme <code>ZONES</code> (SEN) or <code>AEZ</code> (GNB)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/wbEAWPV\.github\.io\/AFW360_Glance\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 World Bank Group</p>
+</div>   
+    <div class="nav-footer-center">
+<p>AFW 360 data standard · draft v0.3</p>
+</div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/wbEAWPV/AFW360_Glance">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

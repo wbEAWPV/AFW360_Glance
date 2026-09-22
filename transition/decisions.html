@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-09-21">
+
+<title>Appendix B.3. AFW 360 transition: decisions – AFW 360 data standard</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">AFW 360 data standard</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Standard</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../input-tables-findings.html"> 
+<span class="menu-text">Appendix A · Input tables</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-appendix-b-·-transition" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Appendix B · Transition</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-appendix-b-·-transition">    
+        <li>
+    <a class="dropdown-item" href="../transition/plan.html">
+ <span class="dropdown-text">B.1 · Plan</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../transition/contract.html">
+ <span class="dropdown-text">B.2 · Contract</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../transition/decisions.html">
+ <span class="dropdown-text">B.3 · Decisions</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/wbEAWPV/AFW360_Glance"> <i class="bi bi-github" role="img" aria-label="Source repository on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#how-this-sheet-is-used" id="toc-how-this-sheet-is-used" class="nav-link active" data-scroll-target="#how-this-sheet-is-used"><span class="header-section-number">1</span> How this sheet is used</a></li>
+  <li><a href="#decisions-taken" id="toc-decisions-taken" class="nav-link" data-scroll-target="#decisions-taken"><span class="header-section-number">2</span> Decisions taken</a></li>
+  <li><a href="#sec-hard-cases" id="toc-sec-hard-cases" class="nav-link" data-scroll-target="#sec-hard-cases"><span class="header-section-number">3</span> Hard cases</a>
+  <ul class="collapse">
+  <li><a href="#sec-h01" id="toc-sec-h01" class="nav-link" data-scroll-target="#sec-h01"><span class="header-section-number">3.1</span> H1 — Non-food consumption share</a></li>
+  <li><a href="#sec-h02" id="toc-sec-h02" class="nav-link" data-scroll-target="#sec-h02"><span class="header-section-number">3.2</span> H2 — Own-production vs.&nbsp;market food share</a></li>
+  <li><a href="#sec-h03" id="toc-sec-h03" class="nav-link" data-scroll-target="#sec-h03"><span class="header-section-number">3.3</span> H3 — Wage vs.&nbsp;non-wage employment</a></li>
+  <li><a href="#sec-h04" id="toc-sec-h04" class="nav-link" data-scroll-target="#sec-h04"><span class="header-section-number">3.4</span> H4 — “Employed”</a></li>
+  <li><a href="#sec-h05" id="toc-sec-h05" class="nav-link" data-scroll-target="#sec-h05"><span class="header-section-number">3.5</span> H5 — “HH workers” in trade/transport</a></li>
+  <li><a href="#sec-h06" id="toc-sec-h06" class="nav-link" data-scroll-target="#sec-h06"><span class="header-section-number">3.6</span> H6 — “HH workers” informally employed</a></li>
+  <li><a href="#sec-h07" id="toc-sec-h07" class="nav-link" data-scroll-target="#sec-h07"><span class="header-section-number">3.7</span> H7 — Three electricity indicators</a></li>
+  <li><a href="#sec-h08" id="toc-sec-h08" class="nav-link" data-scroll-target="#sec-h08"><span class="header-section-number">3.8</span> H8 — Average outage duration (code)</a></li>
+  <li><a href="#sec-h09" id="toc-sec-h09" class="nav-link" data-scroll-target="#sec-h09"><span class="header-section-number">3.9</span> H9 — Cooker “proxy”</a></li>
+  <li><a href="#sec-h10" id="toc-sec-h10" class="nav-link" data-scroll-target="#sec-h10"><span class="header-section-number">3.10</span> H10 — Owner vs.&nbsp;owns enterprise</a></li>
+  <li><a href="#sec-h11" id="toc-sec-h11" class="nav-link" data-scroll-target="#sec-h11"><span class="header-section-number">3.11</span> H11 — HE owner female / married</a></li>
+  <li><a href="#sec-h12" id="toc-sec-h12" class="nav-link" data-scroll-target="#sec-h12"><span class="header-section-number">3.12</span> H12 — HE external employees</a></li>
+  <li><a href="#sec-h13" id="toc-sec-h13" class="nav-link" data-scroll-target="#sec-h13"><span class="header-section-number">3.13</span> H13 — ≥1 HH member covered</a></li>
+  <li><a href="#sec-h14" id="toc-sec-h14" class="nav-link" data-scroll-target="#sec-h14"><span class="header-section-number">3.14</span> H14 — Internet access</a></li>
+  <li><a href="#sec-h15" id="toc-sec-h15" class="nav-link" data-scroll-target="#sec-h15"><span class="header-section-number">3.15</span> H15 — Share indicators’ unit</a></li>
+  <li><a href="#sec-h16" id="toc-sec-h16" class="nav-link" data-scroll-target="#sec-h16"><span class="header-section-number">3.16</span> H16 — <code>Departement</code> sheet</a></li>
+  <li><a href="#sec-h17" id="toc-sec-h17" class="nav-link" data-scroll-target="#sec-h17"><span class="header-section-number">3.17</span> H17 — Household-head age cutoff</a></li>
+  <li><a href="#sec-h18" id="toc-sec-h18" class="nav-link" data-scroll-target="#sec-h18"><span class="header-section-number">3.18</span> H18 — GNB <code>Capital</code> column</a></li>
+  <li><a href="#sec-h19" id="toc-sec-h19" class="nav-link" data-scroll-target="#sec-h19"><span class="header-section-number">3.19</span> H19 — GNB cultivated area</a></li>
+  </ul></li>
+  <li><a href="#gaps-in-the-standard-and-their-resolutions" id="toc-gaps-in-the-standard-and-their-resolutions" class="nav-link" data-scroll-target="#gaps-in-the-standard-and-their-resolutions"><span class="header-section-number">4</span> Gaps in the standard and their resolutions</a></li>
+  <li><a href="#sec-open-decisions-v03" id="toc-sec-open-decisions-v03" class="nav-link" data-scroll-target="#sec-open-decisions-v03"><span class="header-section-number">5</span> Open decisions of the standard v0.3</a></li>
+  <li><a href="#sec-appendix-triage" id="toc-sec-appendix-triage" class="nav-link" data-scroll-target="#sec-appendix-triage">Appendix: label triage</a>
+  <ul class="collapse">
+  <li><a href="#sec-appendix-triage-summary" id="toc-sec-appendix-triage-summary" class="nav-link" data-scroll-target="#sec-appendix-triage-summary">Summary</a></li>
+  <li><a href="#sec-appendix-triage-star" id="toc-sec-appendix-triage-star" class="nav-link" data-scroll-target="#sec-appendix-triage-star">The 97 <code>National</code> / <code>ADM 1</code> / <code>ZAE</code> labels</a></li>
+  <li><a href="#sec-appendix-triage-departement" id="toc-sec-appendix-triage-departement" class="nav-link" data-scroll-target="#sec-appendix-triage-departement">The 82 <code>Departement</code> labels</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Appendix B.3. AFW 360 transition: decisions</h1>
+<p class="subtitle lead">Decisions taken, hard cases to confirm at gate G0, and gaps in the standard</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 21, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="how-this-sheet-is-used" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> How this sheet is used</h1>
+<p>Agents build the transition pipeline with the <em>recommended</em> coding of every open hard case (<a href="#sec-hard-cases" class="quarto-xref">Section&nbsp;3</a>), marked <code>DRAFT</code>. Nothing built from a <code>DRAFT</code> coding is <code>ACTIVE</code> until the user says so.</p>
+<p>At gate G0, which is asked at the start of the run and before anything is built, the user confirms or flips each open case (decision D10). The wave-1 integrator records the answers in the <code>Status</code> and <code>User note</code> lines of this sheet and in <code>reports/GATE-G0.md</code>. A flip is applied once, by package WP99, to the contract seeds (<code>contract/label_triage.csv</code>, <code>codes.csv</code>, <code>legacy_overrides.csv</code>), and <code>contract/check_contract.R</code> recomputes the expected counts. Every later package then builds the flipped coding from the start.</p>
+<p>Related documents: <a href="../transition/plan.html">plan</a>, <a href="../transition/contract.html">contract</a>, <a href="https://github.com/wbEAWPV/AFW360_Glance/tree/dev/eb/.docs/transition/packages">package cards</a>, <a href="../index.html">standard</a>, <a href="../input-tables-findings.html">input findings</a>.</p>
+</section>
+<section id="decisions-taken" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Decisions taken</h1>
+<p><a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a> lists the nine decisions the user made on 2026-09-21, overriding the triage report where the two differ. All are final; none needs confirmation at a gate. D10 to D12 were added on 2026-09-21 after the review of the first plan; the user accepted the review’s proposals (“go ahead update the plan”).</p>
+<div id="tbl-decisions-taken" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-decisions-taken-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Decisions taken, 2026-09-21
+</figcaption>
+<div aria-describedby="tbl-decisions-taken-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>ID</th>
+<th>Topic</th>
+<th>Decision</th>
+<th>Date</th>
+<th>Rationale</th>
+<th>Applied in</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>D1</td>
+<td>Tooling</td>
+<td>R for the metadata bootstrap, the converter and the validator. The dashboard stays Python/Quarto and later reads the harmonized CSVs through one loader. The standard’s references to “Python” (data-standard.qmd lines 19, 768, 848) are changed to R.</td>
+<td>2026-09-21</td>
+<td>Keeps the language boundary at the CSV files: the dashboard’s runtime does not change, only the pipeline that produces its inputs.</td>
+<td>WP02 (standard text), WP03 (pipeline scaffold, R modules), WP11–WP14 (validator), WP15 (converter)</td>
+</tr>
+<tr class="even">
+<td>D2</td>
+<td>Raw inputs</td>
+<td>All 122 tracked legacy files move to <code>data_raw/</code>, split into <code>tables/</code>, <code>shp/</code> (110 files), <code>text/</code>, <code>figures/</code> and <code>scratch/</code>. File names and bytes are unchanged, proven by <code>data_raw/CHECKSUMS.sha256</code>. <code>index.qmd</code> (12 path references) and <code>CLAUDE.md</code> are updated in the same package.</td>
+<td>2026-09-21</td>
+<td>Separates raw legacy inputs from the new harmonized outputs while proving byte-for-byte that nothing in the inputs themselves was altered.</td>
+<td>WP01 (the move), WP02 (layout in the standard)</td>
+</tr>
+<tr class="odd">
+<td>D3</td>
+<td><code>Departement</code> sheet</td>
+<td>Skip it entirely — all 82 labels. Remove the <code>PPP_2017</code> exception for <code>POVLINE_PL300</code> (standard line 343) and the example row (standard line 271); close open decision 9 (<a href="#sec-open-decisions-v03" class="quarto-xref">Section&nbsp;5</a>).</td>
+<td>2026-09-21</td>
+<td>The sheet’s poverty totals disagree with <code>ADM 1</code> (4.13M/7.88M vs 3.13M/6.52M poor), and several of its “shared” indicators are impossible (<code>HE has any credit access</code> = 1.00 in all 14 regions; <code>HH has 4+ HE</code> = 0.80–1.00 — see input-tables-findings.qmd §6.1). Loading it would create duplicate keys with mostly conflicting values.</td>
+<td>WP02 (standard text), WP09 (<code>LEGACY_LABELS.csv</code>: action <code>SKIP</code> on all 82 rows)</td>
+</tr>
+<tr class="even">
+<td>D4</td>
+<td>Share indicators</td>
+<td>Three codes: <code>POP_SH</code> (<code>stat_unit IND</code>, <code>weight IND</code>), <code>POP_HH_SH</code> (<code>HH</code>, <code>weight HH</code>), <code>POP_HE_SH</code> (<code>HE</code>, <code>weight HE</code>). This is report case H15’s recommended coding.</td>
+<td>2026-09-21</td>
+<td>A single <code>POP_SH</code> cannot hold one <code>stat_unit</code>: <code>HE_COUNT</code> breakdowns describe households (standard line 77) while <code>EMP_*</code> shares are individual-level (standard line 386 says <code>IND</code>). Three codes let each keep its own <code>stat_unit</code> and weight.</td>
+<td>WP02 (standard text), WP07 (<code>CL_INDICATOR</code> rows), WP09 (legacy maps use the three codes)</td>
+</tr>
+<tr class="odd">
+<td>D5</td>
+<td>Defective cells</td>
+<td>“Excluded” means the row is absent from the data file, not present with a value or a comment. Each exclusion is registered in <code>metadata/plans/LEGACY_OVERRIDES.csv</code> (action <code>WITHHOLD</code>, reason, evidence), and the coverage check reads the register to account for the gap. Covers the whole GNB <code>estimateCapital</code> column on <code>National</code> (it is a copy of the <code>Zonas_Costeiras_do_Sul</code> zone, not Bissau) and the 7 other GNB <code>Cultivated area (ha)</code> cells above 100 ha (<code>National</code> Total, Rural, Male_HH, Older_HH, Q4; <code>ADM 1</code> Quinara; <code>ZAE</code> Zonas_Costeiras_do_Sul). This supersedes the report’s H18/H19 text, which said “O rows” — the rows are absent, not <code>OBS_STATUS=O</code>. <code>COMMENT</code> overrides (value kept, <code>OBS_COMMENT</code> added) remain available for values that are suspicious but worth keeping.</td>
+<td>2026-09-21</td>
+<td>The GNB <code>Capital</code> values are known to be wrong (a coding error in the residence variable, not a definitional difference — input-tables-findings.qmd §6.3), and the 7 outlier cultivated-area cells reach up to 148.4M ha. Keeping them as rows, even flagged, would make <code>AGG_SUM</code>/<code>AGG_NPOP_MEAN</code> checks fail on values already known to be corrupt.</td>
+<td>WP02 (standard text), WP09 (<code>LEGACY_OVERRIDES.csv</code>), WP12 (validator coverage reads the register), WP15 (converter drops withheld rows)</td>
+</tr>
+<tr class="even">
+<td>D6</td>
+<td>GNB survey</td>
+<td>EHCVM 2021/22 maps to <code>TIME_PERIOD</code> 2021, <code>survey_id</code> <code>GNB_EHCVM_2021</code> (user-confirmed; <code>About_GNB.txt</code> is a placeholder with no real survey metadata).</td>
+<td>2026-09-21</td>
+<td>Closes open decision 4 of the standard (<a href="#sec-open-decisions-v03" class="quarto-xref">Section&nbsp;5</a>) so the GNB data file has a <code>TIME_PERIOD</code> and a <code>SURVEYS</code> row to key against.</td>
+<td>WP02 (open decision 4 closed), WP10 (<code>SURVEYS.csv</code>)</td>
+</tr>
+<tr class="odd">
+<td>D7</td>
+<td>Hard cases H1–H19</td>
+<td>Built with the recommended coding, all <code>DRAFT</code>. The user confirms or flips each at a gate (moved to G0 by D10).</td>
+<td>2026-09-21</td>
+<td>Lets the build proceed in parallel across 19 unresolved judgment calls instead of blocking on each one individually.</td>
+<td>WP99 applies any flip to the contract seeds before the build (see D10); WP06–WP09 then build from the seeds</td>
+</tr>
+<tr class="even">
+<td>D8</td>
+<td>Execution</td>
+<td>Parallel agents only. The Opus orchestrator never edits, runs or merges; Sonnet agents implement, verify and integrate.</td>
+<td>2026-09-21</td>
+<td>Keeps the orchestrator’s role to coordination only, so review effort concentrates on the Sonnet agents’ actual changes.</td>
+<td>Process decision — governs execution in plan.qmd and orchestrator-prompt.md; not a data-file WP</td>
+</tr>
+<tr class="odd">
+<td>D9</td>
+<td>Empty legacy cells</td>
+<td><code>OBS_STATUS=O</code> is widened to mean “no value available” generally, not only “in the universe but no observations fell in this cell”. In <code>ROUNDED_2DP</code> files, every <code>O</code> row requires an <code>OBS_COMMENT</code> prefixed <code>LEGACY_EMPTY:</code>.</td>
+<td>2026-09-21</td>
+<td>Makes an empty legacy cell traceable to a specific, checked reason instead of an unexplained gap, without inventing a value that was never estimated.</td>
+<td>WP02 (standard text), WP09 (legacy maps generate the comment), WP15 (converter writes it)</td>
+</tr>
+<tr class="even">
+<td>D10</td>
+<td>Gate order</td>
+<td>The open hard cases (H1–H14, H17) and the key-messages question (T1) are asked at gate <strong>G0, at the start of the run</strong>, while wave 1 works. A flip is applied once to the contract seeds by package WP99, and <code>contract/check_contract.R</code> recomputes the expected counts. The standard v0.4 and the contract are approved at G1, after wave 1; the results are accepted at G2. This supersedes the timing in D7.</td>
+<td>2026-09-21</td>
+<td>Every hard case can be answered from the evidence on this sheet, without any built file. Asked after the build, one flip would need patches in up to three packages and would change counts that the acceptance scripts had already fixed, with nobody allowed to update them.</td>
+<td>WP99; <code>templates/gate-review.md</code></td>
+</tr>
+<tr class="odd">
+<td>D11</td>
+<td>Metadata by code</td>
+<td>Every metadata file is generated by an R script under <code>pipeline/bootstrap/</code> from the contract seeds (<code>contract/*.csv</code>) and a small authored text file (<code>pipeline/bootstrap/text/*.csv</code>). The scripts take <code>--out-root</code>, so any file can be rebuilt and compared. From metadata version 0.1.0 onward the CSV files are the source of truth and are edited by hand through pull requests; the bootstrap scripts are then frozen.</td>
+<td>2026-09-21</td>
+<td>The goal is clear code that turns the inputs into structured data <strong>and</strong> its metadata. Hand-typed codelists cannot be rerun or checked, and they are where agents make silent errors.</td>
+<td>WP02 (standard text), WP04–WP10</td>
+</tr>
+<tr class="even">
+<td>D12</td>
+<td>Line endings</td>
+<td><code>.gitattributes</code> pins <code>*.csv</code>, <code>*.R</code>, <code>*.md</code>, <code>*.qmd</code> and <code>*.sha256</code> to LF, and marks <code>data_raw/**</code> as binary.</td>
+<td>2026-09-21</td>
+<td><code>core.autocrlf=true</code> on this machine would check every generated CSV out with CRLF in a new worktree, which breaks the LF rule and every byte-identity check.</td>
+<td><code>.gitattributes</code>; WP00 (check), WP01 (restores the exact bytes after the move)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>D2 overrides the CLAUDE.md working rule “until objective 3 is done, don’t restructure or edit the input files” — at the user’s explicit request, made together with D2 itself. WP01 updates <code>CLAUDE.md</code> in the same package that moves the files, so the working rule and the actual layout change together.</p>
+</section>
+<section id="sec-hard-cases" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Hard cases</h1>
+<p>Report cases H1–H19 are open judgment calls: places where a label, a value or a cross-check did not resolve cleanly to one coding. Each is built with its <em>recommended</em> coding as <code>DRAFT</code>; the user confirms or flips it at gate G0. <code>DECIDED</code> cases (H15, H16, H18, H19) were already settled by the user decisions in <a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a> and are listed here for completeness and cross-reference, with an empty user note since no further input is expected.</p>
+<p>Each case below gives: the question, the evidence for the recommended coding, the recommended (built) coding, the alternative, which packages build the coding, its status, and the user’s note (empty until G0).</p>
+<section id="sec-h01" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="sec-h01"><span class="header-section-number">3.1</span> H1 — Non-food consumption share</h2>
+<p><strong>Case.</strong> Whether label #72, “Non-food consumption share”, is stored as its own series or derived from COICOP 1.</p>
+<p><strong>Evidence.</strong> Food share + non-food share sums to 0.98–1.02 across cells; non-food minus the sum of COICOP 2–13 sits in −0.02 to +0.03. This follows the standard’s existing precedent of not storing a separate “housing burden” indicator (data-standard.qmd line 73).</p>
+<p><strong>Recommended (built default).</strong> <code>DERIVED</code>, not stored as its own series: value = 1 − <code>CONS_SH</code>/<code>COICOP_CP01</code>.</p>
+<p><strong>Alternative.</strong> An aggregate qualifier <code>COICOP_CP02T13</code> — needs an aggregate-category flag the standard does not have, and the closure check currently excludes aggregates.</p>
+<p><strong>Built by.</strong> WP08 (<code>SERIES_PLAN.csv</code> — no series row for label #72), WP09 (<code>LEGACY_LABELS.csv</code> <code>assert_rule: ONE_MINUS:&lt;label#&gt;</code>).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h02" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-h02"><span class="header-section-number">3.2</span> H2 — Own-production vs.&nbsp;market food share</h2>
+<p><strong>Case.</strong> Whether label #77 “Own-production food share” and label #69 “Market food share” are a new qualifier on <code>CONS_SH</code> + COICOP 1, or two separate indicators.</p>
+<p><strong>Evidence.</strong> Own-production share + market share is less than the food share by 0.01–0.03 in SEN and 0.03–0.08 in GNB — the gap is gifts/in-kind acquisition, and there is no closure check across the three.</p>
+<p><strong>Recommended (built default).</strong> A new qualifier variable <code>ACQ</code> (acquisition mode) on <code>CONS_SH</code> + <code>COICOP_CP01</code>, categories <code>ACQ_PURCH</code>, <code>ACQ_OWNPROD</code> (<code>DRAFT</code> categories <code>ACQ_GIFT</code>, <code>ACQ_INKIND</code> registered but not populated).</p>
+<p><strong>Alternative.</strong> Two separate indicators, <code>CONS_FOOD_OWN_SH</code> and <code>CONS_FOOD_MKT_SH</code>.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_QUAL_VAR.csv</code>, <code>CL_QUALIFIER.csv</code> — the <code>ACQ</code> variable and its categories), WP08 (<code>SERIES_PLAN.csv</code>), WP09 (legacy maps).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h03" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-h03"><span class="header-section-number">3.3</span> H3 — Wage vs.&nbsp;non-wage employment</h2>
+<p><strong>Case.</strong> Whether label #95 “Wage-employed” and label #73 “Non-wage employed” need a new breakdown variable or a derived indicator.</p>
+<p><strong>Evidence.</strong> Wage share + non-wage share sums to exactly 1.00 in every cell of both countries.</p>
+<p><strong>Recommended (built default).</strong> <code>POP_SH</code> with a new breakdown variable <code>EMP_TYPE</code> (categories <code>EMP_TYPE_WAGE</code>, <code>EMP_TYPE_NONWAGE</code>, ICSE-based).</p>
+<p><strong>Alternative.</strong> A single proportion indicator <code>JOB_WAGE</code>, with non-wage <code>DERIVED</code> as 1 − <code>JOB_WAGE</code>.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_BRK_VAR.csv</code>, <code>CL_COMP_BREAKDOWN.csv</code> — <code>EMP_TYPE</code>), WP08 (<code>SERIES_PLAN.csv</code>), WP09 (legacy maps).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h04" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="sec-h04"><span class="header-section-number">3.4</span> H4 — “Employed”</h2>
+<p><strong>Case.</strong> Whether label #26 “Employed (activ12m, 15–64)” also needs a derived “not employed” row.</p>
+<p><strong>Evidence.</strong> No cross-check issue found; the existing breakdown variable <code>EMP_STATUS</code> already has both categories (<code>EMP_STATUS_EMPLOYED</code>, <code>EMP_STATUS_NOT_EMPLOYED</code> — see the standard’s initial breakdown variables table, sec-initial-breakdowns), but only the employed category is populated by the legacy label.</p>
+<p><strong>Recommended (built default).</strong> Map to <code>POP_SH</code> with breakdown <code>EMP_STATUS_EMPLOYED</code> only; <code>EMP_STATUS_NOT_EMPLOYED</code> is never derived from it, since no legacy label provides an independent value to check against.</p>
+<p><strong>Alternative.</strong> None proposed in the report.</p>
+<p><strong>Built by.</strong> WP09 (<code>LEGACY_LABELS.csv</code> mapping only; no new codelist rows).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h05" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="sec-h05"><span class="header-section-number">3.5</span> H5 — “HH workers” in trade/transport</h2>
+<p><strong>Case.</strong> Whether labels #89 “Share of HH workers in trade/commerce” and #90 “…in transport” are children of <code>EMP_SECTOR_SER</code> or a new breakdown variable, and what “HH workers” means as a universe.</p>
+<p><strong>Evidence.</strong> Trade + transport is always ≤ services (gap 0.00–0.36 across cells), consistent with being subsets of it. The universe “HH workers” is not otherwise defined in the legacy labels.</p>
+<p><strong>Recommended (built default).</strong> <code>POP_SH</code> with a new breakdown variable <code>EMP_ISIC</code> (ISIC sections; register the full A–U set, publish sections G and H). Universe left <code>TBD</code>.</p>
+<p><strong>Alternative.</strong> Nest trade and transport as children of <code>EMP_SECTOR_SER</code>, or register them as separate <code>JOB_*</code> proportion indicators.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_BRK_VAR.csv</code>, <code>CL_COMP_BREAKDOWN.csv</code> — <code>EMP_ISIC</code>), WP08 (<code>SERIES_PLAN.csv</code>), WP09 (legacy maps).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h06" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="sec-h06"><span class="header-section-number">3.6</span> H6 — “HH workers” informally employed</h2>
+<p><strong>Case.</strong> Whether label #91 “Share of HH workers informally employed” is a new breakdown of the employed, or of wage employees only.</p>
+<p><strong>Evidence.</strong> Correlates with the non-wage share at r = 0.86–1.00, and sits 0.01–0.04 below it. This contradicts how the dashboard currently labels the equivalent figure, “Informal wage employment (% of wage)” (index.qmd:93), which implies a wage-employee universe.</p>
+<p><strong>Recommended (built default).</strong> <code>POP_SH</code> with a new breakdown variable <code>EMP_FORMAL</code> (categories <code>EMP_FORMAL_Y</code>, publish <code>EMP_FORMAL_N</code>), universe = employed persons, marked <code>DRAFT</code>.</p>
+<p><strong>Alternative.</strong> Universe = wage employees only, matching how the dashboard currently reads the figure.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_BRK_VAR.csv</code>, <code>CL_COMP_BREAKDOWN.csv</code> — <code>EMP_FORMAL</code>), WP08 (<code>SERIES_PLAN.csv</code>), WP09 (legacy maps).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h07" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="sec-h07"><span class="header-section-number">3.7</span> H7 — Three electricity indicators</h2>
+<p><strong>Case.</strong> Whether labels #1 “Access to electricity (grid, SDG 7.1.1)”, #17 “Connected to electricity grid (SDG7.1.1)” and #93 “Uses grid electricity” are three distinct indicators or duplicates of one concept.</p>
+<p><strong>Evidence.</strong> The three differ by country: GNB national totals are 0.23 / 0.27 / 0.26 (a narrow spread), but SEN’s are 0.68 / 0.98 / 0.66 (a 32-point spread) — the definitions clearly differ but are undocumented. On SEN, <code>EN_GRID_CONN</code> (#17) is 0.96–1.00 in every cell, including Q1 and Rural, which cannot be true grid connection of essentially all households. SDG 7.1.1 is normally population-based, so the <code>weight</code> needs confirming.</p>
+<p><strong>Recommended (built default).</strong> Three <code>DRAFT</code> codes (<code>EN_ELEC_ACCESS</code>, <code>EN_GRID_CONN</code>, <code>EN_GRID_USE</code>) cross-linked with <code>related</code>/<code>related_note</code>; a <code>COMMENT</code> override on the SEN <code>EN_GRID_CONN</code> rows noting the implausible near-universal value.</p>
+<p><strong>Alternative.</strong> Skip <code>EN_GRID_CONN</code> in both countries until its definition is documented.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — the three codes and their <code>related</code> fields), WP09 (<code>LEGACY_OVERRIDES.csv</code> <code>COMMENT</code> on SEN <code>EN_GRID_CONN</code>).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h08" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="sec-h08"><span class="header-section-number">3.8</span> H8 — Average outage duration (code)</h2>
+<p><strong>Case.</strong> Whether label #3 “Average outage duration (code)” — a mean of an ordinal code, not a time unit — can be mapped at all.</p>
+<p><strong>Evidence.</strong> The value is explicitly a mean of a code (Annex 1 of the standard), not a duration; the code scale itself is not documented anywhere in the legacy files.</p>
+<p><strong>Recommended (built default).</strong> Map as <code>DRAFT</code>, <code>unit_measure INDEX</code>, checked with <code>RANGE_NONNEG</code> only; flagged for later deprecation in favour of shares by duration class once the code scale is documented.</p>
+<p><strong>Alternative.</strong> Skip #3 until the code scale is documented.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — <code>EN_OUTAGE_DUR_CODE</code>, <code>unit_measure INDEX</code>), WP09 (legacy map).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h09" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="sec-h09"><span class="header-section-number">3.9</span> H9 — Cooker “proxy”</h2>
+<p><strong>Case.</strong> Whether label #86 “Proxy: owns gas/electric cooker (cuisin)” is mapped as a proxy for label #85 “Primary cooking fuel clean (gas/electricity)”, and whether the “proxy” wording belongs in the indicator name.</p>
+<p><strong>Evidence.</strong> SEN clean-cooking share is 0.73 nationally against a cooker-ownership share of only 0.04, and clean cooking is <em>higher</em> in Rural (0.76) than Capital (0.60) and higher for Q1 (0.79) than Q4 (0.57) — the reverse of what “clean cooking” should show, and implausible on its face.</p>
+<p><strong>Recommended (built default).</strong> <code>EN_ASSET_COOKER</code>, “proxy” dropped from the name, <code>related = EN_COOK_CLEAN</code>; both flagged for human review given the implausible pattern.</p>
+<p><strong>Alternative.</strong> Skip label #86 entirely.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — name and <code>related</code> field), WP09 (legacy map, <code>LEGACY_OVERRIDES.csv</code> <code>COMMENT</code>).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h10" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="sec-h10"><span class="header-section-number">3.10</span> H10 — Owner vs.&nbsp;owns enterprise</h2>
+<p><strong>Case.</strong> Whether label #59 “HH has non-agric enterprise owner” and label #60 “HH owns a non-agric enterprise” are the same fact from two sources, or two different indicators.</p>
+<p><strong>Evidence.</strong> Label #60 equals 1 − (label #53, “HH has 0 HE”) exactly in every cell of both countries. Label #59 differs from #60 by −0.28 to +0.39, so it comes from a different source variable, not a rounding difference.</p>
+<p><strong>Recommended (built default).</strong> #60 is <code>DERIVED</code> (not stored); #59 is mapped as a new <code>DRAFT</code> indicator <code>HE_HH_OWNER</code>.</p>
+<p><strong>Alternative.</strong> Code #60 as <code>POP_HH_SH</code> with a new aggregate breakdown category <code>HE_COUNT_1P</code> (parent of <code>HE_COUNT_1</code>…<code>HE_COUNT_4P</code>).</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — <code>HE_HH_OWNER</code>), WP09 (<code>LEGACY_LABELS.csv</code> <code>assert_rule: ONE_MINUS:&lt;label#&gt;</code> for #60).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h11" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="sec-h11"><span class="header-section-number">3.11</span> H11 — HE owner female / married</h2>
+<p><strong>Case.</strong> Whether labels #67 “Main HE owner is female” and #68 “Main HE owner is married” are breakdown categories of <code>POP_HE_SH</code> or their own proportion indicators.</p>
+<p><strong>Evidence.</strong> No cross-check contradiction found; the choice is structural — the standard has no rule yet for “share as a breakdown vs.&nbsp;share as a proportion indicator” (see gap (o)/(t) discussion and <a href="#sec-open-decisions-v03" class="quarto-xref">Section&nbsp;5</a> item 7 area).</p>
+<p><strong>Recommended (built default).</strong> <code>POP_HE_SH</code> with two new breakdown variables, <code>HEO_SEX</code> (categories <code>HEO_SEX_F</code>, publish <code>HEO_SEX_M</code>) and <code>HEO_MSTAT</code> (categories <code>HEO_MSTAT_MARRIED</code>, <code>HEO_MSTAT_NOT_MARRIED</code>), so either can also break down other HE indicators.</p>
+<p><strong>Alternative.</strong> Two proportion indicators, <code>HE_OWNER_FEMALE</code> and <code>HE_OWNER_MARRIED</code>.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_BRK_VAR.csv</code>, <code>CL_COMP_BREAKDOWN.csv</code> — <code>HEO_SEX</code>, <code>HEO_MSTAT</code>), WP08 (<code>SERIES_PLAN.csv</code>), WP09 (legacy maps).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h12" class="level2" data-number="3.12">
+<h2 data-number="3.12" class="anchored" data-anchor-id="sec-h12"><span class="header-section-number">3.12</span> H12 — HE external employees</h2>
+<p><strong>Case.</strong> Whether label #38 “HE has external (non-HH) employees” can be mapped as-is.</p>
+<p><strong>Evidence.</strong> The share is 0.96 (SEN) / 1.00 (GNB) — impossible for “all HEs have external employees” when mean non-HH employees (label #71) is only 0.54/0.48. Label #74 “Number of employees in HE” does not equal #52 + #71 (residual −0.53 to +1.96 in SEN, −0.76 to +0.09 in GNB), so there is no additive check to fall back on.</p>
+<p><strong>Recommended (built default).</strong> Map <code>DRAFT</code>, universe <code>TBD</code>, with a <code>COMMENT</code> override noting the implausible near-universal value.</p>
+<p><strong>Alternative.</strong> Skip label #38.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — <code>universe_filter</code>), WP09 (<code>LEGACY_OVERRIDES.csv</code> <code>COMMENT</code>).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h13" class="level2" data-number="3.13">
+<h2 data-number="3.13" class="anchored" data-anchor-id="sec-h13"><span class="header-section-number">3.13</span> H13 — ≥1 HH member covered</h2>
+<p><strong>Case.</strong> Whether label #97 “≥1 HH member has health coverage (proxy social protection)” is a household-level indicator or a breakdown of label #62 “Has health insurance/coverage (couvmal)”.</p>
+<p><strong>Evidence.</strong> Always ≥ label #62 by 0.00–0.08, consistent with “at least one member” being a looser condition than the individual-level question.</p>
+<p><strong>Recommended (built default).</strong> A new household-level indicator <code>SP_HEALTH_COV_HH</code>; “proxy social protection” kept only in <code>notes</code>, not the name.</p>
+<p><strong>Alternative.</strong> <code>POP_HH_SH</code> with a new breakdown variable.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — <code>SP_HEALTH_COV_HH</code>), WP09 (legacy map).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h14" class="level2" data-number="3.14">
+<h2 data-number="3.14" class="anchored" data-anchor-id="sec-h14"><span class="header-section-number">3.14</span> H14 — Internet access</h2>
+<p><strong>Case.</strong> Whether label #58 “HH has internet access” is worth mapping at all.</p>
+<p><strong>Evidence.</strong> 0.00 or empty in every cell of both countries — implausible for SEN in particular, and carries no information.</p>
+<p><strong>Recommended (built default).</strong> <code>SKIP</code>.</p>
+<p><strong>Alternative.</strong> Map it with a <code>COMMENT</code> override instead of skipping.</p>
+<p><strong>Built by.</strong> WP09 (<code>LEGACY_LABELS.csv</code>, action <code>SKIP</code>).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h15" class="level2" data-number="3.15">
+<h2 data-number="3.15" class="anchored" data-anchor-id="sec-h15"><span class="header-section-number">3.15</span> H15 — Share indicators’ unit</h2>
+<p><strong>Case.</strong> Whether population shares need one indicator (<code>POP_SH</code>) or several, split by the statistical unit of the breakdown behind them.</p>
+<p><strong>Evidence.</strong> A single <code>POP_SH</code> cannot keep one <code>stat_unit</code>: <code>HE_COUNT</code> breakdowns describe households (standard line 77) while <code>POP_SH</code>’s declared <code>stat_unit</code> is <code>IND</code> (standard line 386).</p>
+<p><strong>Decision.</strong> DECIDED by D4 (<a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a>): three codes, <code>POP_SH</code> (<code>IND</code>), <code>POP_HH_SH</code> (<code>HH</code>), <code>POP_HE_SH</code> (<code>HE</code>), each with its matching weight.</p>
+<p><strong>Alternative (not taken).</strong> One <code>POP_SH</code> with <code>stat_unit</code> inferred from the breakdown’s <code>describes</code> field.</p>
+<p><strong>Built by.</strong> WP07 (<code>CL_INDICATOR.csv</code> — the three codes).</p>
+<p><strong>Status.</strong> DECIDED — D4.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h16" class="level2" data-number="3.16">
+<h2 data-number="3.16" class="anchored" data-anchor-id="sec-h16"><span class="header-section-number">3.16</span> H16 — <code>Departement</code> sheet</h2>
+<p><strong>Case.</strong> Whether to load any of the <code>Departement</code> sheet’s 82 labels.</p>
+<p><strong>Evidence.</strong> Its poverty totals disagree with <code>ADM 1</code> (4.13M/7.88M vs 3.13M/6.52M poor), and several values that should match a shared indicator are impossible (<code>HE has any credit access</code> = 1.00 in every region; <code>HH has 4+ HE</code> = 0.80–1.00, though 0/1/2/3 already sum to about 1).</p>
+<p><strong>Decision.</strong> DECIDED by D3 (<a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a>): skip all 82 labels.</p>
+<p><strong>Alternative (not taken).</strong> Keep the sheet’s two poverty rows as <code>POV_HC</code> with <code>PPP_2017</code>.</p>
+<p><strong>Built by.</strong> WP02 (standard text — removes the <code>PPP_2017</code> exception and example row, closes open decision 9), WP09 (<code>LEGACY_LABELS.csv</code>, action <code>SKIP</code>).</p>
+<p><strong>Status.</strong> DECIDED — D3.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h17" class="level2" data-number="3.17">
+<h2 data-number="3.17" class="anchored" data-anchor-id="sec-h17"><span class="header-section-number">3.17</span> H17 — Household-head age cutoff</h2>
+<p><strong>Case.</strong> Where the boundary between <code>Youth_HH</code> and <code>Older_HH</code> falls, since the legacy files never document it.</p>
+<p><strong>Evidence.</strong> The dashboard currently labels <code>Older_HH</code> as “29+” (index.qmd:64), which contradicts the standard’s placeholder <code>HHH_AGE_LT35</code>/<code>HHH_AGE_GE35</code> (standard lines 296, 905) and suggests a cutoff of 29 or 30, not 35.</p>
+<p><strong>Recommended (built default).</strong> <code>DRAFT</code> codes that stay renamable without becoming a new code (per the “never changes meaning” rule, standard line 373 — a <code>DRAFT</code> code can still be corrected); confirm the true cutoff with the producer before the codes go <code>ACTIVE</code>.</p>
+<p><strong>Alternative.</strong> Keep <code>HHH_AGE_LT35</code>/<code>HHH_AGE_GE35</code> as written in the standard.</p>
+<p><strong>Built by.</strong> WP06 (<code>CL_BRK_VAR.csv</code>, <code>CL_COMP_BREAKDOWN.csv</code> — the <code>HHH_AGE</code> categories).</p>
+<p><strong>Status.</strong> DEFAULT.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h18" class="level2" data-number="3.18">
+<h2 data-number="3.18" class="anchored" data-anchor-id="sec-h18"><span class="header-section-number">3.18</span> H18 — GNB <code>Capital</code> column</h2>
+<p><strong>Case.</strong> Whether to keep the GNB <code>National</code> <code>estimateCapital</code> column, given it does not hold Bissau’s values.</p>
+<p><strong>Evidence.</strong> <code>estimateCapital</code> is byte-identical to <code>ZAE</code> <code>estimateZonas_Costeiras_do_Sul</code> on all 97 indicators, and matches <code>SAB</code> (Bissau) on only 9 of 97 rows — all rows that are constant everywhere anyway. Keeping it with <code>AGG_SUM</code> would fail: residence shares would sum to 1.24M poor at $4.20 against a national 1.09M.</p>
+<p><strong>Decision.</strong> DECIDED by D5 (<a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a>): withheld — the whole column is absent as rows, registered in <code>LEGACY_OVERRIDES.csv</code>.</p>
+<p><strong>Alternative (not taken).</strong> Keep it with a <code>COMMENT</code> override, accepting that <code>AGG_SUM</code> would fail on it.</p>
+<p><strong>Built by.</strong> WP09 (<code>LEGACY_OVERRIDES.csv</code>, action <code>WITHHOLD</code>).</p>
+<p><strong>Status.</strong> DECIDED — D5.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+<section id="sec-h19" class="level2" data-number="3.19">
+<h2 data-number="3.19" class="anchored" data-anchor-id="sec-h19"><span class="header-section-number">3.19</span> H19 — GNB cultivated area</h2>
+<p><strong>Case.</strong> Whether to keep the 7 GNB <code>Cultivated area (ha)</code> cells above 100 ha outside the <code>Capital</code> column.</p>
+<p><strong>Evidence.</strong> Values reach the millions of “ha” (<code>National</code> Total 9.1M, Rural 10.8M, Male_HH 10.4M, Older_HH 10.5M, Q4 57.9M; <code>ADM 1</code> Quinara 148.4M; <code>ZAE</code> Zonas_Costeiras_do_Sul 53.0M), against 1–15 ha for the rest of the indicator — almost certainly outlier records from a unit error in the microdata, each inflating the mean it enters.</p>
+<p><strong>Decision.</strong> DECIDED by D5 (<a href="#tbl-decisions-taken" class="quarto-xref">Table&nbsp;1</a>): withhold these 7 cells (plus <code>Capital</code>’s own cell, already withheld under H18).</p>
+<p><strong>Alternative (not taken).</strong> Withhold the whole <code>AGR_CULT_AREA</code> indicator for GNB (26 rows), rather than just the affected cells.</p>
+<p><strong>Built by.</strong> WP09 (<code>LEGACY_OVERRIDES.csv</code>, action <code>WITHHOLD</code>, 7 rows).</p>
+<p><strong>Status.</strong> DECIDED — D5.</p>
+<p><strong>User note.</strong> —</p>
+</section>
+</section>
+<section id="gaps-in-the-standard-and-their-resolutions" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Gaps in the standard and their resolutions</h1>
+<p>The triage report found 25 places where data-standard.qmd v0.3 does not say enough to write the converter or the validator, lettered (a)–(y). The review of the first plan added (z) and (aa). <a href="#tbl-gaps" class="quarto-xref">Table&nbsp;2</a> lists the resolution adopted for each. The column lists in this table are summaries; where they differ from <code>contract/csv_headers.csv</code>, the contract file is authoritative. WP02 writes all of these into data-standard v0.4; the user approves them at gate G1, before the metadata packages (WP04–WP10) begin. The package cards already carry the resolutions that each package needs.</p>
+<div id="tbl-gaps" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Gaps found in data-standard.qmd v0.3, and their resolutions
+</figcaption>
+<div aria-describedby="tbl-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>ID</th>
+<th>Gap (standard reference)</th>
+<th>Resolution adopted</th>
+<th>Applied in</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(a)</td>
+<td><code>LEGACY_LABELS</code> columns (line 869) are not enough to drive a converter.</td>
+<td>Add columns <code>legacy_label, sheet, action (MAP\|DUPLICATE_OF\|DERIVED\|SKIP), series_id, scale, assert_rule, notes</code>; <code>assert_rule</code> values <code>EQUALS:&lt;series_id&gt;</code>, <code>ONE_MINUS:&lt;series_id&gt;</code> and <code>ONE_MINUS:&lt;series_id&gt; tol=0.02</code>, checked by the converter, plus a <code>duplicate_of</code> column holding the same target <code>series_id</code> (the triage seed points at its own row IDs, such as <code>L008</code>; WP09 translates them). <code>sheet</code> is single-valued (<code>*</code> = National+ADM 1+ZAE) because “ADM 1” contains a space. Add <code>plans/LEGACY_COLUMNS.csv</code> (<code>ref_area, sheet, column, cut_id, GEO, URBANISATION, COMP_BREAKDOWN, action</code>) and <code>plans/LEGACY_OVERRIDES.csv</code> (<code>ref_area, sheet, column\|*, legacy_label\|*, action (WITHHOLD\|COMMENT), obs_comment, reason, evidence</code>).</td>
+<td>WP02 (spec), WP09 (the three CSV files)</td>
+</tr>
+<tr class="even">
+<td>(b)</td>
+<td>The coverage rule (line 250) cannot generate share rows, and a Cartesian product over qualifiers over-generates (e.g.&nbsp;<code>CONS_SH</code> COICOP × ACQ gives 39 combinations, only 15 real).</td>
+<td>Add an explicit <code>plans/SERIES_PLAN.csv</code> (<code>series_id, ref_area, INDICATOR, qualifiers, defining_breakdown, status</code>). Required rows = <code>SERIES_PLAN</code> × compatible <code>TAB_PLAN</code> cut categories − excluded breakdowns − <code>LEGACY_OVERRIDES</code> withheld. <code>CL_INDICATOR.qualifiers</code> lists allowed values only, grammar <code>VAR:CODE,CODE\|* …</code>. The validator keeps each generated row’s provenance (<code>cut_id</code>, defining variable).</td>
+<td>WP02 (spec), WP08 (<code>SERIES_PLAN.csv</code>), WP12 (validator coverage)</td>
+</tr>
+<tr class="odd">
+<td>(c)</td>
+<td>Empty cells with unknown reason.</td>
+<td><code>OBS_STATUS=O</code> widened; <code>ROUNDED_2DP</code> files require an <code>OBS_COMMENT</code> prefixed <code>LEGACY_EMPTY:</code> (D9).</td>
+<td>WP02 (spec), WP09 (legacy maps), WP15 (converter)</td>
+</tr>
+<tr class="even">
+<td>(d)</td>
+<td>Unknowable required fields (<code>source_vars</code>, etc.) block filling every <strong>R</strong> column.</td>
+<td>Reserved token <code>TBD</code> allowed in required text columns only on <code>status=DRAFT</code> rows (warning); error once <code>ACTIVE</code>. <code>owner = "AFW DIP/POV team"</code> where known; <code>source_vars</code> taken from variable names inside labels (<code>activ12m</code>, <code>couvmal</code>, <code>cuisin</code>, <code>superf</code>), else <code>TBD</code>. In <code>ROUNDED_2DP</code> files, <code>N_OBS</code>, <code>N_POP</code>, <code>STD_ERR</code>, <code>CI_*</code> are empty (reconciles standard lines 800 vs.&nbsp;590 and the <strong>R</strong>/<strong>C</strong> marks in the standard’s columns table, sec-columns). <code>DRAFT</code> codes are allowed only in files whose manifest <code>status=DRAFT</code> (warning); <code>DRAFT</code> codes stay renamable; the “never changes” rule (line 373) applies only from first <code>ACTIVE</code> onward.</td>
+<td>WP02 (spec), WP07–WP09 (<code>DRAFT</code> rows), WP11 (validator <code>TBD</code> check)</td>
+</tr>
+<tr class="odd">
+<td>(e)</td>
+<td>R code location is unspecified; standard still says “Python” (lines 19, 768, 848).</td>
+<td>Top-level <code>pipeline/</code> folder: <code>R/</code> modules, <code>convert_legacy.R</code>, <code>build_geo.R</code>, <code>validate.R</code> as CLI entry points with <code>--root</code>, <code>tests/testthat/</code> with fixtures, <code>acceptance/</code>, <code>README.md</code>.</td>
+<td>WP02 (spec, updates the three lines), WP03 (pipeline scaffold)</td>
+</tr>
+<tr class="even">
+<td>(f)</td>
+<td><code>Departement</code> sheet handling was undecided (line 862 area).</td>
+<td>Skip entirely (D3); remove the <code>PPP_2017</code> exception and example row.</td>
+<td>WP02 (spec), WP09 (legacy maps)</td>
+</tr>
+<tr class="odd">
+<td>(g)</td>
+<td>Age cutoff and GNB survey year were unknown.</td>
+<td>H17 (age cutoff, <code>DRAFT</code>, asked at G0) and D6 (GNB year). Add a <code>status</code> column to <code>SURVEYS.csv</code> (lines 505–526) so a placeholder survey record can be told apart from a confirmed one.</td>
+<td>WP02 (spec, <code>SURVEYS.status</code>), WP06 (H17 codes), WP10 (<code>SURVEYS.csv</code> GNB row)</td>
+</tr>
+<tr class="even">
+<td>(h)</td>
+<td>Several validation rules are ambiguous: “parent of a row” (line 811) undefined for share rows; <code>N_POP</code> meaning differs between line 232 and <code>EQUALS_NPOP_RATIO</code> (line 808); <code>ROUNDED_2DP</code> tolerance (line 813) unspecified; closure/partition checks need a full category set.</td>
+<td>(1) A row’s parent comes from cut variables only (provenance), not from breakdown structure in general. (2) <code>N_POP</code> for share rows is defined explicitly as the universe’s population. (3) Tolerance <code>h = 0.005 × scale</code>; single value ±h; sum of k children vs.&nbsp;parent ±(k+1)h; closure over k categories ±k·h (COICOP ±0.065; observed range 0.96–1.02); monotonicity gets no tolerance; <code>AGG_NPOP_MEAN</code> is impossible without <code>N_POP</code>, replaced by <code>AGG_BRACKET</code> (parent within [min child − h, max child + h]) — 0 violations found across all mean/share series in both countries; only <code>POV_NUM</code> totals fail, as expected of a total, not a mean; every tolerance comparison is <code>abs(dev) &lt;= tol + 1e-9</code>, so floating-point noise at the boundary does not fail a valid value. (4) Partial category sets: <code>INFO</code> (skip) when categories are partial, <code>WARN</code> when a child is <code>O</code> or withheld.</td>
+<td>WP02 (spec), WP13 (validator rules)</td>
+</tr>
+<tr class="odd">
+<td>(i)</td>
+<td><code>valid_min</code>/<code>valid_max</code> marked <strong>R</strong>, yet “empty means unbounded” (line 402 vs.&nbsp;831).</td>
+<td>Change both to <strong>C</strong>.</td>
+<td>WP02 (spec), WP07 (<code>CL_INDICATOR</code> rows)</td>
+</tr>
+<tr class="even">
+<td>(j)</td>
+<td><code>valid_from</code>/<code>valid_to</code> for geography vs.&nbsp;what they are compared against (line 780 vs.&nbsp;681) was unclear.</td>
+<td>Compare against the manifest’s <code>run_timestamp</code>, never against <code>TIME_PERIOD</code>.</td>
+<td>WP02 (spec), WP05 (geography), WP14 (validator assets)</td>
+</tr>
+<tr class="odd">
+<td>(k)</td>
+<td>ADM0 geometry needs <code>CL_GEO</code> rows, but <code>GEO=SN</code> vs.&nbsp;<code>GEO=_T</code> would be two spellings of “the whole country”.</td>
+<td>ADM0 codes are registered in <code>CL_GEO</code> as geometry-only and rejected if used in the <code>GEO</code> breakdown column of a data row.</td>
+<td>WP02 (spec), WP05 (<code>CL_GEO</code> rows for SN, GW), WP11 (validator check <code>CODES.GEO_ADM0</code>)</td>
+</tr>
+<tr class="even">
+<td>(l)</td>
+<td><code>TAB_PLAN</code> writes <code>sex=_T</code>, but HH/HE indicator rows must write <code>SEX=_Z</code> (lines 205, 784).</td>
+<td>The coverage generator converts <code>_T</code> to <code>_Z</code> for <code>SEX</code>/<code>AGE</code> based on the indicator’s <code>stat_unit</code>.</td>
+<td>WP02 (spec), WP08 (required-row generator), WP11 (validator check <code>CODES.SEX_AGE_UNIT</code>)</td>
+</tr>
+<tr class="odd">
+<td>(m)</td>
+<td>“Cuts that cover its theme and unit” (line 250) assumes <code>TAB_PLAN</code> has a unit column, which it does not.</td>
+<td>Derive applicable cuts from <code>applies_to_units</code> instead; geography and urbanisation cuts cover all units.</td>
+<td>WP02 (spec), WP06 (<code>CL_BRK_VAR.applies_to_units</code>), WP08</td>
+</tr>
+<tr class="even">
+<td>(n)</td>
+<td><code>CL_QUAL_VAR.requires</code> (<code>POVLINE</code> requires <code>PPP</code>) conflicts with <code>POVLINE_NPL</code>’s <code>valid_with _Z</code> (line 346).</td>
+<td><code>valid_with _Z</code> overrides <code>requires</code> for that category.</td>
+<td>WP02 (spec), WP06 (<code>CL_QUAL_VAR</code>/<code>CL_QUALIFIER</code> rows)</td>
+</tr>
+<tr class="odd">
+<td>(o)</td>
+<td>“Statistic admits a standard error” (line 191) was never defined anywhere.</td>
+<td>Add an <code>admits_se</code> column to <code>CL_STATISTIC</code>.</td>
+<td>WP02 (spec), WP04 (small codelists)</td>
+</tr>
+<tr class="even">
+<td>(p)</td>
+<td>No registry exists of which text/number slots the dashboard requests (line 826).</td>
+<td>Add <code>content/SLOTS.csv</code>, read by the validator.</td>
+<td>WP02 (spec only). The file and its validator check are <strong>deferred</strong> to the dashboard switch-over; no package of this transition builds them.</td>
+</tr>
+<tr class="odd">
+<td>(q)</td>
+<td>Validator output format is undefined.</td>
+<td>A findings CSV: <code>check_id, severity (ERROR\|WARN\|INFO), file, row_key, message</code>; non-zero process exit on any <code>ERROR</code>.</td>
+<td>WP02 (spec), WP11 (validator core)</td>
+</tr>
+<tr class="even">
+<td>(r)</td>
+<td>Deterministic output was not specified.</td>
+<td>Sort rows by the 18 key columns in DSD order; UTF-8, LF line endings, <code>NA</code> written as <code>""</code>, never scientific notation (<code>round(x*scale, 10)</code> plus a fixed formatter), and an injectable <code>run_timestamp</code> for reproducible test runs.</td>
+<td>WP02 (spec), WP03 (R writer), WP15 (converter)</td>
+</tr>
+<tr class="odd">
+<td>(s)</td>
+<td><code>dsd_version</code> (line 532) has no stated source.</td>
+<td>Taken from the <code>DSD_AFW360_HH.csv</code> file itself, via the metadata <code>VERSION</code>.</td>
+<td>WP02 (spec), WP03/WP15</td>
+</tr>
+<tr class="even">
+<td>(t)</td>
+<td>No rule against inferring a category’s variable by string-prefix matching (<code>HE_</code> is a prefix of <code>HE_COUNT_…</code>).</td>
+<td>Category → variable lookup goes only through <code>CL_COMP_BREAKDOWN.var_code</code>, never prefix parsing.</td>
+<td>WP02 (spec), WP06 (<code>CL_COMP_BREAKDOWN</code>), WP11 (validator)</td>
+</tr>
+<tr class="odd">
+<td>(u)</td>
+<td>Geometry validity engine unspecified; SN01 and SN13 fail s2/GEOS validity.</td>
+<td>Build with GEOS (<code>sf_use_s2(FALSE)</code>) plus <code>st_make_valid</code>; check with GEOS; use the plain (non-<code>_em</code>) shapefiles as source.</td>
+<td>WP02 (spec), WP05 (geography build)</td>
+</tr>
+<tr class="even">
+<td>(v)</td>
+<td><code>CL_GEO.name_en</code> says “as issued by the boundary source” (line 473), which does not fit zones/AEZ names, and legacy zone column names are truncated at 32 characters.</td>
+<td>Full zone names marked <code>TBD</code> pending confirmation with the producer; the boundary-sourced name rule stays for ADM0/ADM1.</td>
+<td>WP02 (spec), WP05 (<code>CL_GEO</code> zone rows)</td>
+</tr>
+<tr class="odd">
+<td>(w)</td>
+<td><code>weight</code>, <code>statistic</code> (<code>MEAN</code> vs.&nbsp;<code>RATIO_TOTALS</code>) and <code>unit_time</code> for every HE flow indicator are unknown from the legacy labels alone.</td>
+<td>Best guess recorded with <code>notes: LEGACY assumed</code>, rows kept <code>DRAFT</code> until a producer confirms.</td>
+<td>WP02 (spec), WP07 (<code>CL_INDICATOR</code> HE rows)</td>
+</tr>
+<tr class="even">
+<td>(x)</td>
+<td>Text handling was unspecified: <code>About_SEN.txt</code> has 2 paragraphs; <code>Messages_SEN.txt</code> is Python chunks with raw HTML (not allowed, line 731) and <code>##</code> placeholders and 2026 projections not present in the data; <code>index.qmd</code>’s hardcoded message titles differ from <code>Messages_SEN.txt</code> (“Drivers of Inequality” vs.&nbsp;“Inequality”); scope of <code>About.txt</code> vs.&nbsp;<code>About_SEN.txt</code> was unclear.</td>
+<td><code>About_SEN.txt</code> → <code>content/text/SEN/about.md</code>. <code>Messages_SEN.txt</code> stripped of chunk/HTML wrappers and stored as <code>DRAFT</code> literal prose with no invented numbers; both title variants recorded, with the <code>index.qmd</code> version as the candidate, <code>DRAFT</code>. <code>About.txt</code> is treated as SEN-specific (<code>ref_area = SEN</code>, not <code>ALL</code>). <code>Messages_SEN.txt2</code> and <code>Tables_SEN_TEST.xlsx</code> are ignored as scratch files.</td>
+<td>WP02 (spec), WP10 (<code>TEXT.csv</code>, <code>content/text/SEN/about.md</code>)</td>
+</tr>
+<tr class="odd">
+<td>(y)</td>
+<td>1-decimal percent display implies false precision for data that is only 2-decimal-place accurate.</td>
+<td>The dashboard caps displayed decimals by the file’s declared precision (<code>ROUNDED_2DP</code> vs.&nbsp;exact).</td>
+<td>WP02 (spec); the dashboard loader change itself is out of scope of this transition and deferred to the later dashboard switch-over (objective 3 of CLAUDE.md)</td>
+</tr>
+<tr class="even">
+<td>(z)</td>
+<td><code>CL_INDICATOR</code> has one <code>ref_period</code> per indicator, but <code>POP_SH</code> covers “employed in the last 12 months” (<code>P12M</code>) as well as point-in-time shares (<code>INTERVIEW</code>). <code>check_contract.R</code> found the conflict in the triage.</td>
+<td><code>POP_SH</code>, <code>POP_HH_SH</code> and <code>POP_HE_SH</code> carry <code>ref_period = INTERVIEW</code>. A recall period that defines who is in a group belongs to the universe of the breakdown variable (<code>CL_BRK_VAR.universe</code> and the category’s <code>definition_en</code>), not to the share indicator.</td>
+<td>WP02 (spec), WP06 (<code>EMP_STATUS</code> universe text), WP07</td>
+</tr>
+<tr class="odd">
+<td>(aa)</td>
+<td>The validator must know each metadata file’s columns and which are required (line 831, “every <strong>R</strong> column is filled”), but only the data file has a machine-readable column list (the DSD).</td>
+<td>Add <code>metadata/structure/COLUMNS.csv</code> (<code>file, position, column, status, description</code>), the column registry of every metadata and content file, generated from <code>contract/csv_headers.csv</code>.</td>
+<td>WP02 (spec), WP03 (the file), WP11 (validator <code>META.HEADER</code>, <code>META.REQUIRED</code>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-open-decisions-v03" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Open decisions of the standard v0.3</h1>
+<p>Data-standard.qmd’s own “Open decisions” section (sec-open-decisions) lists ten items. <a href="#tbl-open-decisions-v03" class="quarto-xref">Table&nbsp;3</a> maps each to what this transition round did with it. Items still open stay open in standard v0.4; they are out of scope of this transition.</p>
+<div id="tbl-open-decisions-v03" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-open-decisions-v03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: The ten open decisions of data-standard.qmd v0.3, and their disposition after this transition round
+</figcaption>
+<div aria-describedby="tbl-open-decisions-v03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Item (standard’s own wording)</th>
+<th>Disposition</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Age cutoff for household heads</td>
+<td>Handled by H17 (<a href="#sec-h17" class="quarto-xref">Section&nbsp;3.17</a>)</td>
+<td><code>DRAFT</code> codes, renamable; confirmed cutoff still pending producer input</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Quintile definition (national or within-area ranking, person- or household-weighted)</td>
+<td>Still open</td>
+<td>Not addressed by any D or H decision in this round; the answer still belongs in <code>CL_BRK_VAR.definition_en</code> once decided</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Governance: who owns <code>metadata/</code> and reviews pull requests</td>
+<td>Still open</td>
+<td>Out of scope of the transition</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>GNB survey metadata (round, <code>TIME_PERIOD</code>)</td>
+<td>Closed by D6</td>
+<td>EHCVM 2021/22 → <code>TIME_PERIOD</code> 2021, <code>survey_id GNB_EHCVM_2021</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Where large binaries live (git, Git LFS, or external store)</td>
+<td>Still open</td>
+<td>Out of scope of the transition; current boundary files are small enough to stay in git for now</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Boundary vintage policy: who decides when to adopt a new COD-AB release</td>
+<td>Still open</td>
+<td>Out of scope of the transition</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Where variable-level metadata lives (per-survey variable dictionary)</td>
+<td>Still open</td>
+<td>Out of scope of the transition</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>A country that cannot produce an indicator: no way yet to record it</td>
+<td>Still open</td>
+<td>Out of scope of the transition</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>The <code>Departement</code> sheet: keep 2017-PPP poverty rows, or skip</td>
+<td>Closed by D3 (see also H16, <a href="#sec-h16" class="quarto-xref">Section&nbsp;3.16</a>)</td>
+<td>Skip entirely, all 82 labels</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Reference syntax for live numbers in prose (<code>{INDICATOR:QUALIFIER}</code>)</td>
+<td>Still open</td>
+<td>Out of scope of the transition; the standard’s live-numbers section (sec-live-numbers) remains a sketch</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-appendix-triage" class="level1 unnumbered">
+<h1 class="unnumbered">Appendix: label triage</h1>
+<p>The machine-readable version of the label triage is <code>contract/label_triage.csv</code>, one row per legacy label of the current Excel tables; it is authoritative, and this appendix is its readable view. Every <code>MAP</code> row carries <code>status = DRAFT</code>: none of the 91 series it defines becomes <code>ACTIVE</code> until the user confirms or flips its hard case (<a href="#sec-hard-cases" class="quarto-xref">Section&nbsp;3</a>) at gate G0.</p>
+<section id="sec-appendix-triage-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-triage-summary">Summary</h2>
+<div id="tbl-triage-actions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-triage-actions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Rows of <code>label_triage.csv</code> by action. 91 distinct <code>series_id</code> values and 62 distinct <code>INDICATOR</code> codes appear among the 91 <code>MAP</code> rows.
+</figcaption>
+<div aria-describedby="tbl-triage-actions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Action</th>
+<th style="text-align: right;">Rows</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>DERIVED</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><code>DUPLICATE_OF</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td><code>MAP</code></td>
+<td style="text-align: right;">91</td>
+</tr>
+<tr class="even">
+<td><code>SKIP</code></td>
+<td style="text-align: right;">84</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>179</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div id="tbl-triage-series-theme" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-triage-series-theme-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Series by theme, as classified from each <code>MAP</code> row’s <code>INDICATOR</code> code (<code>POV_HC</code>/<code>POV_NUM</code> grouped as <code>POV</code>; <code>HE_*</code>, <code>AGR_*</code>, <code>EN_*</code>, <code>HOUS_*</code>, <code>SHK_*</code>, <code>SP_*</code> grouped by prefix).
+</figcaption>
+<div aria-describedby="tbl-triage-series-theme-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Theme</th>
+<th style="text-align: right;">Series</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>POV</code></td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td><code>CONS</code></td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td><code>POP_SH</code></td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td><code>POP_HH_SH</code></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td><code>POP_HE_SH</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><code>HE</code></td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="odd">
+<td><code>AGR</code></td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td><code>EN</code></td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="odd">
+<td><code>HOUS</code></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td><code>SHK</code></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td><code>SP</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>91</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-appendix-triage-star" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-triage-star">The 97 <code>National</code> / <code>ADM 1</code> / <code>ZAE</code> labels</h2>
+<p><a href="#tbl-triage-star" class="quarto-xref">Table&nbsp;6</a> lists every label found identically on the <code>National</code>, <code>ADM 1</code> and <code>ZAE</code> sheets of both <code>Tables_SEN.xlsx</code> and <code>Tables_GNB.xlsx</code>. <code>DUPLICATE_OF</code> and <code>DERIVED</code> rows carry no <code>series_id</code> of their own; the <code>series_id / duplicate_of</code> column instead shows the row they resolve against, and <code>contract/label_triage.csv</code>’s <code>assert_rule</code> column has the exact check.</p>
+<div id="tbl-triage-star" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-triage-star-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: The 97 labels shared by the <code>National</code>, <code>ADM 1</code> and <code>ZAE</code> sheets (identical across both countries), in workbook (code-point sort) order.
+</figcaption>
+<div aria-describedby="tbl-triage-star-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>row_id</th>
+<th>Label</th>
+<th>Action</th>
+<th>series_id / duplicate_of</th>
+<th>stat_unit</th>
+<th>unit / scale / display</th>
+<th>Hard case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>L001</code></td>
+<td>Access to electricity (grid, SDG 7.1.1)</td>
+<td><code>MAP</code></td>
+<td><code>EN_ELEC_ACCESS</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h07">H7</a></td>
+</tr>
+<tr class="even">
+<td><code>L002</code></td>
+<td>Any power outage in last 7 days (grid-connected)</td>
+<td><code>MAP</code></td>
+<td><code>EN_OUTAGE_ANY</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L003</code></td>
+<td>Average outage duration (code)</td>
+<td><code>MAP</code></td>
+<td><code>EN_OUTAGE_DUR_CODE</code></td>
+<td>HH</td>
+<td>INDEX · NUMBER(2dp)</td>
+<td><a href="#sec-h08">H8</a></td>
+</tr>
+<tr class="even">
+<td><code>L004</code></td>
+<td>COICOP 10: education (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP10</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L005</code></td>
+<td>COICOP 11: restaurants &amp; hotels (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP11</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L006</code></td>
+<td>COICOP 12: insurance &amp; financial (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP12</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L007</code></td>
+<td>COICOP 13: personal care &amp; effects (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP13</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L008</code></td>
+<td>COICOP 1: food &amp; non-alc. beverages (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP01</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L009</code></td>
+<td>COICOP 2: alcohol &amp; tobacco (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP02</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L010</code></td>
+<td>COICOP 3: clothing &amp; footwear (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP03</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L011</code></td>
+<td>COICOP 4: housing &amp; utilities (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP04</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L012</code></td>
+<td>COICOP 5: furnishings &amp; equipment (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP05</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L013</code></td>
+<td>COICOP 6: health (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP06</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L014</code></td>
+<td>COICOP 7: transport (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP07</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L015</code></td>
+<td>COICOP 8: information &amp; communication (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP08</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L016</code></td>
+<td>COICOP 9: recreation &amp; culture (share)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP09</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L017</code></td>
+<td>Connected to electricity grid (SDG7.1.1)</td>
+<td><code>MAP</code></td>
+<td><code>EN_GRID_CONN</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h07">H7</a></td>
+</tr>
+<tr class="even">
+<td><code>L018</code></td>
+<td>Covariate economic shock</td>
+<td><code>MAP</code></td>
+<td><code>SHK_COV_ECON</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L019</code></td>
+<td>Covariate natural shock (drought, flood, etc.)</td>
+<td><code>MAP</code></td>
+<td><code>SHK_COV_NATURAL</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L020</code></td>
+<td>Covariate violence/conflict shock</td>
+<td><code>MAP</code></td>
+<td><code>SHK_COV_CONFLICT</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L021</code></td>
+<td>Cultivated area (ha)</td>
+<td><code>MAP</code></td>
+<td><code>AGR_CULT_AREA</code></td>
+<td>HH</td>
+<td>HA · NUMBER(2dp)</td>
+<td><a href="#sec-h19">H19</a></td>
+</tr>
+<tr class="even">
+<td><code>L022</code></td>
+<td>Days with an outage (last 7)</td>
+<td><code>MAP</code></td>
+<td><code>EN_OUTAGE_DAYS</code></td>
+<td>HH</td>
+<td>DAY · NUMBER(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L023</code></td>
+<td>Durable floor materials</td>
+<td><code>MAP</code></td>
+<td><code>HOUS_FLOOR_DURABLE</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L024</code></td>
+<td>Durable roof materials</td>
+<td><code>MAP</code></td>
+<td><code>HOUS_ROOF_DURABLE</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L025</code></td>
+<td>Durable wall materials</td>
+<td><code>MAP</code></td>
+<td><code>HOUS_WALL_DURABLE</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L026</code></td>
+<td>Employed (activ12m, 15–64)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_STATUS_EMPLOYED</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L027</code></td>
+<td>Employed in agriculture (% of employed)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_SECTOR_AGR</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L028</code></td>
+<td>Employed in industry (% of employed)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_SECTOR_IND</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L029</code></td>
+<td>Employed in services (% of employed)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_SECTOR_SER</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L030</code></td>
+<td>Exposed to any shock (past 3 years)</td>
+<td><code>MAP</code></td>
+<td><code>SHK_ANY</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L031</code></td>
+<td>Food consumption share</td>
+<td><code>DUPLICATE_OF</code></td>
+<td>DUPLICATE_OF <code>L008</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L032</code></td>
+<td>HE age (years)</td>
+<td><code>MAP</code></td>
+<td><code>HE_AGE</code></td>
+<td>HE</td>
+<td>YEAR · NUMBER(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L033</code></td>
+<td>HE buys from firms/state</td>
+<td><code>MAP</code></td>
+<td><code>HE_BUY_FIRMS</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L034</code></td>
+<td>HE capital stock (FCFA)</td>
+<td><code>MAP</code></td>
+<td><code>HE_CAPITAL</code></td>
+<td>HE</td>
+<td>LCU · CURRENCY(0dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L035</code></td>
+<td>HE costs (FCFA)</td>
+<td><code>MAP</code></td>
+<td><code>HE_COSTS</code></td>
+<td>HE</td>
+<td>LCU · CURRENCY(0dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L036</code></td>
+<td>HE has any credit access</td>
+<td><code>MAP</code></td>
+<td><code>HE_CREDIT_ANY</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L037</code></td>
+<td>HE has electricity</td>
+<td><code>MAP</code></td>
+<td><code>HE_ELEC</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L038</code></td>
+<td>HE has external (non-HH) employees</td>
+<td><code>MAP</code></td>
+<td><code>HE_EMP_EXT_ANY</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h12">H12</a></td>
+</tr>
+<tr class="odd">
+<td><code>L039</code></td>
+<td>HE has formal credit access</td>
+<td><code>MAP</code></td>
+<td><code>HE_CREDIT_FORMAL</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L040</code></td>
+<td>HE has formal premises</td>
+<td><code>MAP</code></td>
+<td><code>HE_PREMISES_FORMAL</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L041</code></td>
+<td>HE has informal credit access</td>
+<td><code>MAP</code></td>
+<td><code>HE_CREDIT_INFORMAL</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L042</code></td>
+<td>HE has phone</td>
+<td><code>MAP</code></td>
+<td><code>HE_PHONE</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L043</code></td>
+<td>HE has tax ID</td>
+<td><code>MAP</code></td>
+<td><code>HE_TAX_ID</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L044</code></td>
+<td>HE has water</td>
+<td><code>MAP</code></td>
+<td><code>HE_WATER</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L045</code></td>
+<td>HE keeps accounts</td>
+<td><code>MAP</code></td>
+<td><code>HE_ACCOUNTS</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L046</code></td>
+<td>HE operates from home</td>
+<td><code>MAP</code></td>
+<td><code>HE_HOME_BASED</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L047</code></td>
+<td>HE pays rent</td>
+<td><code>MAP</code></td>
+<td><code>HE_RENT</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L048</code></td>
+<td>HE profits (FCFA)</td>
+<td><code>MAP</code></td>
+<td><code>HE_PROFIT</code></td>
+<td>HE</td>
+<td>LCU · CURRENCY(0dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L049</code></td>
+<td>HE revenue per worker (FCFA)</td>
+<td><code>MAP</code></td>
+<td><code>HE_REV_PER_WORKER</code></td>
+<td>HE</td>
+<td>LCU/PERSON · CURRENCY(0dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L050</code></td>
+<td>HE sells to firms/state</td>
+<td><code>MAP</code></td>
+<td><code>HE_SELL_FIRMS</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L051</code></td>
+<td>HH cultivates agricultural land (superf &gt; 0)</td>
+<td><code>MAP</code></td>
+<td><code>AGR_CULTIVATES</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L052</code></td>
+<td>HH employees in HE</td>
+<td><code>MAP</code></td>
+<td><code>HE_EMP_HH_NUM</code></td>
+<td>HE</td>
+<td>PERSON · NUMBER(2dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L053</code></td>
+<td>HH has 0 HE</td>
+<td><code>MAP</code></td>
+<td><code>POP_HH_SH.HE_COUNT_0</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L054</code></td>
+<td>HH has 1 HE</td>
+<td><code>MAP</code></td>
+<td><code>POP_HH_SH.HE_COUNT_1</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L055</code></td>
+<td>HH has 2 HE</td>
+<td><code>MAP</code></td>
+<td><code>POP_HH_SH.HE_COUNT_2</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L056</code></td>
+<td>HH has 3 HE</td>
+<td><code>MAP</code></td>
+<td><code>POP_HH_SH.HE_COUNT_3</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L057</code></td>
+<td>HH has 4+ HE</td>
+<td><code>MAP</code></td>
+<td><code>POP_HH_SH.HE_COUNT_4P</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L058</code></td>
+<td>HH has internet access</td>
+<td><code>SKIP</code></td>
+<td>SKIP</td>
+<td></td>
+<td></td>
+<td><a href="#sec-h14">H14</a></td>
+</tr>
+<tr class="odd">
+<td><code>L059</code></td>
+<td>HH has non-agric enterprise owner</td>
+<td><code>MAP</code></td>
+<td><code>HE_HH_OWNER</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h10">H10</a></td>
+</tr>
+<tr class="even">
+<td><code>L060</code></td>
+<td>HH owns a non-agric enterprise</td>
+<td><code>DERIVED</code></td>
+<td>DERIVED <code>L053</code></td>
+<td></td>
+<td></td>
+<td><a href="#sec-h10">H10</a></td>
+</tr>
+<tr class="odd">
+<td><code>L061</code></td>
+<td>HH owns any livestock</td>
+<td><code>MAP</code></td>
+<td><code>AGR_LIVESTOCK_ANY</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L062</code></td>
+<td>Has health insurance/coverage (couvmal)</td>
+<td><code>MAP</code></td>
+<td><code>SP_HEALTH_COV</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L063</code></td>
+<td>Housing &amp; utilities burden (COICOP 4 share of total cons.)</td>
+<td><code>DUPLICATE_OF</code></td>
+<td>DUPLICATE_OF <code>L011</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L064</code></td>
+<td>Idiosyncratic economic shock</td>
+<td><code>MAP</code></td>
+<td><code>SHK_IDIO_ECON</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L065</code></td>
+<td>Improved lighting (grid or solar)</td>
+<td><code>MAP</code></td>
+<td><code>EN_LIGHT_IMPROVED</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L066</code></td>
+<td>Informal electricity connection (neighbour/pole)</td>
+<td><code>MAP</code></td>
+<td><code>EN_ELEC_INFORMAL</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L067</code></td>
+<td>Main HE owner is female</td>
+<td><code>MAP</code></td>
+<td><code>POP_HE_SH.HEO_SEX_F</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h11">H11</a></td>
+</tr>
+<tr class="even">
+<td><code>L068</code></td>
+<td>Main HE owner is married</td>
+<td><code>MAP</code></td>
+<td><code>POP_HE_SH.HEO_MSTAT_MARRIED</code></td>
+<td>HE</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h11">H11</a></td>
+</tr>
+<tr class="odd">
+<td><code>L069</code></td>
+<td>Market food share (% total cons.)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP01.ACQ_PURCH</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h02">H2</a></td>
+</tr>
+<tr class="even">
+<td><code>L070</code></td>
+<td>Monthly electricity spend (FCFA)</td>
+<td><code>MAP</code></td>
+<td><code>EN_ELEC_SPEND</code></td>
+<td>HH</td>
+<td>LCU · CURRENCY(0dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L071</code></td>
+<td>Non-HH employees in HE</td>
+<td><code>MAP</code></td>
+<td><code>HE_EMP_NONHH_NUM</code></td>
+<td>HE</td>
+<td>PERSON · NUMBER(2dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L072</code></td>
+<td>Non-food consumption share</td>
+<td><code>DERIVED</code></td>
+<td>DERIVED <code>L008</code></td>
+<td></td>
+<td></td>
+<td><a href="#sec-h01">H1</a></td>
+</tr>
+<tr class="odd">
+<td><code>L073</code></td>
+<td>Non-wage employed (% of employed)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_TYPE_NONWAGE</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h03">H3</a></td>
+</tr>
+<tr class="even">
+<td><code>L074</code></td>
+<td>Number of employees in HE</td>
+<td><code>MAP</code></td>
+<td><code>HE_EMP_NUM</code></td>
+<td>HE</td>
+<td>PERSON · NUMBER(2dp)</td>
+<td><a href="#sec-h12">H12</a></td>
+</tr>
+<tr class="odd">
+<td><code>L075</code></td>
+<td>Number poor $3.00/day (millions)</td>
+<td><code>MAP</code></td>
+<td><code>POV_NUM.POVLINE_PL300.PPP_2021</code></td>
+<td>IND</td>
+<td>PERSON · x1000000 · MILLIONS(2dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L076</code></td>
+<td>Number poor $4.20/day (millions)</td>
+<td><code>MAP</code></td>
+<td><code>POV_NUM.POVLINE_PL420.PPP_2021</code></td>
+<td>IND</td>
+<td>PERSON · x1000000 · MILLIONS(2dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L077</code></td>
+<td>Own-production food share (% total cons.)</td>
+<td><code>MAP</code></td>
+<td><code>CONS_SH.COICOP_CP01.ACQ_OWNPROD</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h02">H2</a></td>
+</tr>
+<tr class="even">
+<td><code>L078</code></td>
+<td>Owns ceiling fan</td>
+<td><code>MAP</code></td>
+<td><code>EN_ASSET_FAN</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L079</code></td>
+<td>Owns wall AC/split</td>
+<td><code>MAP</code></td>
+<td><code>EN_ASSET_AC</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L080</code></td>
+<td>Owns water heater</td>
+<td><code>MAP</code></td>
+<td><code>EN_ASSET_WATER_HEATER</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L081</code></td>
+<td>Poor at $3.00/day (2021 PPP)</td>
+<td><code>MAP</code></td>
+<td><code>POV_HC.POVLINE_PL300.PPP_2021</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L082</code></td>
+<td>Poor at $4.20/day (2021 PPP)</td>
+<td><code>MAP</code></td>
+<td><code>POV_HC.POVLINE_PL420.PPP_2021</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L083</code></td>
+<td>Prepaid meter (among grid-connected)</td>
+<td><code>MAP</code></td>
+<td><code>EN_PREPAID_METER</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L084</code></td>
+<td>Primary cooking fuel biomass (wood/charcoal)</td>
+<td><code>MAP</code></td>
+<td><code>EN_COOK_BIOMASS</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L085</code></td>
+<td>Primary cooking fuel clean (gas/electricity)</td>
+<td><code>MAP</code></td>
+<td><code>EN_COOK_CLEAN</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h09">H9</a></td>
+</tr>
+<tr class="even">
+<td><code>L086</code></td>
+<td>Proxy: owns gas/electric cooker (cuisin)</td>
+<td><code>MAP</code></td>
+<td><code>EN_ASSET_COOKER</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h09">H9</a></td>
+</tr>
+<tr class="odd">
+<td><code>L087</code></td>
+<td>Safe drinking water – dry season</td>
+<td><code>MAP</code></td>
+<td><code>HOUS_WATER_SAFE_DRY</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>L088</code></td>
+<td>Sanitary toilet facility</td>
+<td><code>MAP</code></td>
+<td><code>HOUS_SANIT_IMPROVED</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L089</code></td>
+<td>Share of HH workers in trade/commerce</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_ISIC_G</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h05">H5</a></td>
+</tr>
+<tr class="even">
+<td><code>L090</code></td>
+<td>Share of HH workers in transport</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_ISIC_H</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h05">H5</a></td>
+</tr>
+<tr class="odd">
+<td><code>L091</code></td>
+<td>Share of HH workers informally employed</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_FORMAL_N</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h06">H6</a></td>
+</tr>
+<tr class="even">
+<td><code>L092</code></td>
+<td>Tropical Livestock Units (TLU)</td>
+<td><code>MAP</code></td>
+<td><code>AGR_TLU</code></td>
+<td>HH</td>
+<td>TLU · NUMBER(2dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L093</code></td>
+<td>Uses grid electricity</td>
+<td><code>MAP</code></td>
+<td><code>EN_GRID_USE</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h07">H7</a></td>
+</tr>
+<tr class="even">
+<td><code>L094</code></td>
+<td>Uses solar/generator electricity</td>
+<td><code>MAP</code></td>
+<td><code>EN_OFFGRID_USE</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L095</code></td>
+<td>Wage-employed (% of employed)</td>
+<td><code>MAP</code></td>
+<td><code>POP_SH.EMP_TYPE_WAGE</code></td>
+<td>IND</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h03">H3</a></td>
+</tr>
+<tr class="even">
+<td><code>L096</code></td>
+<td>wood_dist [ALL MISSING]</td>
+<td><code>SKIP</code></td>
+<td>SKIP</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>L097</code></td>
+<td>≥1 HH member has health coverage (proxy social protection)</td>
+<td><code>MAP</code></td>
+<td><code>SP_HEALTH_COV_HH</code></td>
+<td>HH</td>
+<td>SHARE · PERCENT(1dp)</td>
+<td><a href="#sec-h13">H13</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-appendix-triage-departement" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-triage-departement">The 82 <code>Departement</code> labels</h2>
+<p>The <code>Departement</code> sheet exists only for Senegal. Per decision D3 all 82 of its labels are <code>SKIP</code>: 60 share a label with <code>ADM 1</code> but produce a different, mostly conflicting value under the same key, and 22 are unique to the sheet (raw collapse variables, a mislabelled PPP round, or poverty counts that disagree with the sheet’s own rates). <a href="#tbl-triage-departement" class="quarto-xref">Table&nbsp;7</a> groups them; the full row-by-row detail, with each label’s own reason in <code>notes</code>, is in <code>contract/label_triage.csv</code>.</p>
+<div id="tbl-triage-departement" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-triage-departement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: The 82 <code>Departement</code> rows (all <code>SKIP</code>, D3), grouped by reason.
+</figcaption>
+<div aria-describedby="tbl-triage-departement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Group</th>
+<th style="text-align: right;">Count</th>
+<th>Example label(s)</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Raw <code>(max) con_k</code> collapse leftovers</td>
+<td style="text-align: right;">15</td>
+<td><code>(max) con_1</code>, <code>(max) con_10</code></td>
+<td>Raw variable, not a defined indicator; values do not sum to 1 (1.48-3.02 per region)</td>
+</tr>
+<tr class="even">
+<td>Raw <code>(max) ext_emp</code> variable</td>
+<td style="text-align: right;">1</td>
+<td><code>(max) ext_emp</code></td>
+<td>Raw variable, within 0.07 of <code>HE has external (non-HH) employees</code> (L038)</td>
+</tr>
+<tr class="odd">
+<td><code>Access to electricity (grid or off-grid)</code></td>
+<td style="text-align: right;">1</td>
+<td><code>Access to electricity (grid or off-grid)</code></td>
+<td>Distinct concept from <code>EN_ELEC_ACCESS</code> (grid only); not registered as a code</td>
+</tr>
+<tr class="even">
+<td><code>Energy expenditure burden (share of total cons.)</code></td>
+<td style="text-align: right;">1</td>
+<td><code>Energy expenditure burden (share of total cons.)</code></td>
+<td>Dashboard shows an empty placeholder row for this label (index.qmd:127)</td>
+</tr>
+<tr class="odd">
+<td>2017-PPP poverty lines (mislabelled)</td>
+<td style="text-align: right;">2</td>
+<td><code>Poor at \$3.00/day (2017 PPP)</code>, <code>Poor at \$4.20/day (2017 PPP)</code></td>
+<td>Mislabelled lines; the PPP_2017 exception for POVLINE_PL300 is removed per D3, and POVLINE_PL420 was never valid with PPP_2017</td>
+</tr>
+<tr class="even">
+<td>Raw <code>npoor300</code> / <code>npoor420</code> variables</td>
+<td style="text-align: right;">2</td>
+<td><code>npoor300</code>, <code>npoor420</code></td>
+<td>Disagree with the sheet’s own rates (e.g.&nbsp;Diourbel 0.35M poor at rate 0.11 -&gt; ~3.2M people)</td>
+</tr>
+<tr class="odd">
+<td>60 labels shared with <code>National</code>/<code>ADM 1</code>/<code>ZAE</code></td>
+<td style="text-align: right;">60</td>
+<td><code>Covariate economic shock</code>, <code>Covariate natural shock (drought, flood, etc.)</code></td>
+<td>Same key as the <code>ADM 1</code> row for the same label, but a different (mostly conflicting) value; superseded 2017-PPP poverty rows fold into this group too</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/wbEAWPV\.github\.io\/AFW360_Glance\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 World Bank Group</p>
+</div>   
+    <div class="nav-footer-center">
+<p>AFW 360 data standard · draft v0.3</p>
+</div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/wbEAWPV/AFW360_Glance">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
