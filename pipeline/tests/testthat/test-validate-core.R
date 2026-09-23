@@ -44,8 +44,8 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 #' need no fixture patch.) make_data_fixture() writes the manifest in the
 #' contract's long key/value form (WP08's fix to helper-data-fixture.R),
 #' matching what build_ctx() reads, so no repair is needed here.
-.small_fixture <- function() {
-  tmp <- make_temp_root(.root)
+.small_fixture <- function(include = NULL) {
+  tmp <- if (is.null(include)) make_temp_root(.root) else make_temp_root(.root, include = include)
   keep_ids <- c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01")
   dp <- make_data_fixture(tmp, "GNB", series_ids = keep_ids)
   edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
@@ -69,25 +69,32 @@ test_that("the small clean fixture gives 0 ERROR from STRUCT and CODES", {
   expect_equal(nrow(struct_codes[struct_codes$severity == "ERROR", ]), 0)
 })
 
-test_that("validate.R on the clean full fixture exits 0 with 0 ERROR (WP11.A1)", {
+test_that("validate.R on the clean fixture gives 0 ERROR from STRUCT, CODES and META (WP11.A1)", {
+  # A1 was corrected on 2026-09-23 (dev/eb 00e61fc) to ask for 0 ERROR from
+  # WP11's own modules rather than from the whole validator. WP08's fixture is
+  # not validator-clean, and WP08's card puts that out of scope: it writes no
+  # SURVEYS row (so COVER.SURVEY can never match), keeps the withheld cells
+  # (COVER.WITHHELD_PRESENT), and fills OBS_VALUE with one constant, so
+  # RULE.SUM_TO_1_* fires on any breakdown without exactly two categories.
+  # Those findings are expected and belong to WP12 and WP13, so validate.R
+  # exits non-zero here. That the whole validator is clean is proven on the
+  # real data by the wave-3 integrator, not on this fixture.
   # --root also has to resolve pipeline/R/*.R (COMMON.md section 5), so
   # the temp copy needs "pipeline" alongside the metadata/content/data it
   # is testing.
-  tmp <- make_temp_root(.root, include = c("metadata", "content", "data", "pipeline"))
-  dp <- make_data_fixture(tmp, "GNB")
+  fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
 
-  out_path <- file.path(tmp, "findings.csv")
-  res <- system2(
+  out_path <- file.path(fx$tmp, "findings.csv")
+  # The non-zero exit is expected here, so silence system2()'s warning about it.
+  suppressWarnings(system2(
     "Rscript",
-    c(shQuote(file.path(tmp, "pipeline", "validate.R")), "--root", shQuote(tmp), "--out", shQuote(out_path)),
+    c(shQuote(file.path(fx$tmp, "pipeline", "validate.R")), "--root", shQuote(fx$tmp), "--out", shQuote(out_path)),
     stdout = TRUE, stderr = TRUE
-  )
-  status <- attr(res, "status")
-  status <- if (is.null(status)) 0L else status
-  expect_equal(status, 0L)
+  ))
   expect_true(file.exists(out_path))
   findings <- read_std_csv(out_path)
-  expect_equal(nrow(findings[findings$severity == "ERROR", ]), 0)
+  own <- findings[grepl("^(STRUCT|CODES|META)\\.", findings$check_id), ]
+  expect_equal(nrow(own[own$severity == "ERROR", ]), 0)
 })
 
 # ---- WP11.A2: one mutation per test, assert exactly its check_id -------
