@@ -58,25 +58,6 @@ suppressPackageStartupMessages({
   source(file.path(root, "pipeline", "tests", "testthat", "helper-data-fixture.R"))
 })
 
-# helper-data-fixture.R's make_data_fixture() (owned by WP08, wave 2) writes
-# the "<stem>_manifest.csv" beside the data file in WIDE form (one row, 16
-# named columns). contract/csv_headers.csv defines that file as exactly two
-# columns, "key" and "value" (one row per field), and pipeline/R/ctx.R's
-# build_ctx() reads it that way. Left as WIDE, a manifest field such as
-# "status" is never found, which silently breaks any check that reads it
-# (observed: CODES.DRAFT gives ERROR instead of WARN on a manifest that says
-# status = DRAFT). This is a pre-existing mismatch in wave-2 shared test
-# infrastructure, not WP11's fault and not this script's to fix (see the
-# verifier report's Questions section) - so every fixture built below is
-# repaired to the contract's long form before use.
-fix_manifest_long <- function(data_path) {
-  mp <- file.path(dirname(data_path), paste0(tools::file_path_sans_ext(basename(data_path)), "_manifest.csv"))
-  wide <- read_std_csv(mp)
-  long <- data.frame(key = names(wide), value = as.character(unlist(wide[1, ])), stringsAsFactors = FALSE)
-  write_std_csv(long, mp)
-  invisible(mp)
-}
-
 # A root with metadata/content/geo/assets copied, plus a copy of pipeline/R
 # (validate.R sources shared code as file.path(root,"pipeline","R",...), so
 # a temp --root needs its own copy; COMMON.md section 5).
@@ -87,26 +68,38 @@ build_root_with_code <- function() {
   tmp
 }
 
-# The full clean GNB/2021 fixture (every indicator required_rows() derives),
-# used for WP11.A1 so nothing is trimmed out of SERIES_PLAN (trimming it, as
-# the card's own series_ids= example does, orphans LEGACY_LABELS.series_id
-# references and manufactures unrelated META.REFERENCE noise).
-build_full_clean_root <- function() {
-  tmp <- build_root_with_code()
-  dp <- make_data_fixture(tmp, "GNB", series_ids = NULL)
-  fix_manifest_long(dp)
-  list(root = tmp, data_path = dp, data_rel = "data/AFW360_HH_GNB_2021.csv")
-}
+# NOTE on a helper removed from an earlier attempt of this script: it defined
+# fix_manifest_long(), which re-wrote the "<stem>_manifest.csv" make_data_fixture()
+# produces from what it assumed was WIDE form (one row, 16 named columns) into
+# the contract's long key/value form. Checked directly against
+# pipeline/tests/testthat/helper-data-fixture.R as it reads on this branch:
+# make_data_fixture() already writes the manifest in the contract's long form
+# (16 key/value rows; see its own comment there, "written long form ... per
+# contract/csv_headers.csv"). Running the old helper over that already-correct
+# manifest treated its 2 columns ("key","value") as 16 fields and its first
+# data row as their values, collapsing it to a bogus 2-row table (key/value
+# literally "key"/"value"). pipeline/R/ctx.R's build_ctx() zips column 1
+# against column 2 into a named vector, so that bogus table has no "status"
+# entry, which silently broke CODES.DRAFT (WARN becomes ERROR when the
+# manifest's status can't be found). Fixed here by removing the helper and
+# using make_data_fixture()'s own (correct) output as-is.
 
-# A small (78-row), fast fixture over three indicators, exactly the set the
-# card's Steps section 2 names, used as the base for WP11.A2/A3's mutations
-# (which only need presence of one check_id, not an error-free baseline).
-build_small_clean_root <- function() {
+# The clean fixture of the card's step 2: SERIES_PLAN.csv reduced to the
+# three named series by make_data_fixture() itself, and LEGACY_LABELS.csv
+# trimmed to match by hand (plan commit 6d23f48) - make_data_fixture() only
+# trims the first file; leaving LEGACY_LABELS.csv whole orphans 88 series_id
+# references and wrongly fires META.REFERENCE against the fixture itself,
+# not against the code under test. This is WP11.A1's own fixture, word for
+# word ("the clean fixture of step 2 - both files trimmed"), and is also the
+# shared base every WP11.A2/A3 mutation copies before editing one file.
+build_clean_root <- function() {
   tmp <- build_root_with_code()
-  dp <- make_data_fixture(tmp, "GNB", series_ids = c(
+  series3 <- c(
     "POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01"
-  ))
-  fix_manifest_long(dp)
+  )
+  dp <- make_data_fixture(tmp, "GNB", series_ids = series3)
+  ll_path <- file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv")
+  edit_csv(ll_path, function(df) df[df$series_id == "" | df$series_id %in% series3, , drop = FALSE])
   list(root = tmp, data_path = dp, data_rel = "data/AFW360_HH_GNB_2021.csv")
 }
 
@@ -141,20 +134,27 @@ err_ids <- function(findings) {
 }
 
 ## ---- 3. Fixtures (built once) --------------------------------------------------
-full_fixture <- build_full_clean_root()
-small_fixture <- build_small_clean_root()
+clean_root <- build_clean_root()
 
 ## ---- 4. Checks ------------------------------------------------------------------
 
-## WP11.A1: on the clean fixture, validate.R exits 0 with 0 ERROR.
+## WP11.A1: on the clean fixture of step 2 (both SERIES_PLAN.csv and
+## LEGACY_LABELS.csv trimmed to the three series), validate.R runs and gives
+## 0 ERROR from STRUCT, CODES and META. Per the card and plan commit
+## 00e61fc, this is scoped to those three modules only: the fixture is not
+## validator-clean for COVER/RULE (WP08's card puts subtracting withheld
+## cells and every validator check out of scope), so those modules' ERRORs -
+## and a nonzero overall exit code because of them - are expected here and
+## are not asserted on; only a crash (exit 2) would be a defect.
 try_check("WP11.A1", {
-  r1 <- run_validate(full_fixture$root, data_rel = full_fixture$data_rel)
-  e1 <- err_ids(r1$findings)
-  n_err <- if (nrow(r1$findings)) sum(r1$findings$severity == "ERROR") else 0L
-  by_mod <- function(pfx) sum(grepl(paste0("^", pfx, "\\."), r1$findings$check_id[r1$findings$severity == "ERROR"]))
-  check("WP11.A1", r1$status == 0L && n_err == 0L,
-        sprintf("exit=%d ERROR rows=%d (STRUCT=%d CODES=%d META=%d) ids=%s - see report Questions for pre-existing metadata ERRORs",
-                r1$status, n_err, by_mod("STRUCT"), by_mod("CODES"), by_mod("META"), paste(e1, collapse = "|")))
+  r1 <- run_validate(clean_root$root, data_rel = clean_root$data_rel)
+  core <- if (nrow(r1$findings)) {
+    r1$findings[r1$findings$severity == "ERROR" & grepl("^(STRUCT|CODES|META)\\.", r1$findings$check_id), ]
+  } else r1$findings[0, ]
+  by_mod <- function(pfx) sum(grepl(paste0("^", pfx, "\\."), core$check_id))
+  check("WP11.A1", r1$status != 2L && nrow(core) == 0L,
+        sprintf("exit=%d STRUCT/CODES/META ERROR rows=%d (STRUCT=%d CODES=%d META=%d)",
+                r1$status, nrow(core), by_mod("STRUCT"), by_mod("CODES"), by_mod("META")))
 })
 a1_findings <- if (exists("r1")) r1$findings else data.frame()
 
@@ -202,7 +202,7 @@ mutations <- list(
 
 try_check("WP11.A2", {
   results <- vapply(mutations, function(m) {
-    d <- copy_root(small_fixture$root)
+    d <- copy_root(clean_root$root)
     if (is.null(m$meta)) {
       edit_csv(file.path(d, "data", "AFW360_HH_GNB_2021.csv"), m$fn)
       r <- run_validate(d, data_rel = "data/AFW360_HH_GNB_2021.csv")
@@ -221,24 +221,36 @@ try_check("WP11.A2", {
 })
 
 ## WP11.A3: a check function that calls stop() gives exit 2 and a finding
-## <MODULE>.CRASH; the other checks still run (proven by also mutating GEO).
+## <MODULE>.CRASH; the other checks still run. Proven in both directions:
+## validate.R discovers checks with ls(pattern="^vc_") and "runs them in
+## alphabetical order" (the card's Interface section), so a crashing check
+## named "vc_zzz_..." (as an earlier attempt of this script had it) can only
+## ever show that checks scheduled BEFORE it still ran - never that checks
+## AFTER the crash point do. Naming it "vc_moxie_crash" instead sorts it
+## between META and RULE (CODES, COVER, META < MOXIE < RULE, STRUCT, TEXT,
+## VALUE), so both directions are exercised: CODES.UNKNOWN (forced by also
+## mutating GEO) for before, and one of RULE/TEXT/VALUE's checks - which the
+## clean fixture already fires per WP08's known, out-of-scope gaps (note c)
+## - for after.
 try_check("WP11.A3", {
-  d3 <- copy_root(small_fixture$root)
+  d3 <- copy_root(clean_root$root)
   writeLines(c(
-    "vc_zzz_forcedcrash <- function(ctx) {",
+    "vc_moxie_crash <- function(ctx) {",
     "  stop(\"forced crash for WP11.A3\")",
     "}"
-  ), file.path(d3, "pipeline", "R", "validate_zzz_crash.R"))
+  ), file.path(d3, "pipeline", "R", "validate_moxie_crash.R"))
   edit_csv(file.path(d3, "data", "AFW360_HH_GNB_2021.csv"), function(df) { df$GEO[1] <- "XX99"; df })
   r3 <- run_validate(d3, data_rel = "data/AFW360_HH_GNB_2021.csv")
   crash_rows <- if (nrow(r3$findings)) r3$findings[grepl("\\.CRASH$", r3$findings$check_id), ] else r3$findings[0, ]
   has_crash <- nrow(crash_rows) >= 1 &&
-    any(grepl("vc_zzz_forcedcrash", crash_rows$message)) &&
+    any(grepl("vc_moxie_crash", crash_rows$message)) &&
     any(grepl("forced crash for WP11.A3", crash_rows$message))
-  others_ran <- "CODES.UNKNOWN" %in% err_ids(r3$findings)
-  check("WP11.A3", r3$status == 2L && has_crash && others_ran,
-        sprintf("exit=%d crash finding(s)=%d naming function+message=%s CODES.UNKNOWN still ran=%s",
-                r3$status, nrow(crash_rows), has_crash, others_ran))
+  ran_before <- "CODES.UNKNOWN" %in% err_ids(r3$findings)
+  after_ids <- c("RULE.CLOSURE_PARTIAL", "RULE.SUM_TO_1_QUAL", "RULE.SUM_TO_1_GEO", "TEXT.TBD", "VALUE.N")
+  ran_after <- nrow(r3$findings) > 0 && any(r3$findings$check_id %in% after_ids)
+  check("WP11.A3", r3$status == 2L && has_crash && ran_before && ran_after,
+        sprintf("exit=%d crash finding(s)=%d naming function+message=%s pre-crash module ran=%s post-crash module ran=%s",
+                r3$status, nrow(crash_rows), has_crash, ran_before, ran_after))
 })
 
 ## WP11.A4: the findings file has exactly the columns check_id, severity,
@@ -264,17 +276,28 @@ try_check("WP11.A5", {
   if (nrow(core) == 0) {
     check("WP11.A5", TRUE, sprintf("exit=%d, 0 ERROR from STRUCT/CODES/META on the real metadata", r5$status))
   } else {
-    report_path <- file.path(root, ".docs", "transition", "reports", "WP11-implementer.md")
-    report_txt <- if (file.exists(report_path)) paste(readLines(report_path, warn = FALSE), collapse = "\n") else ""
+    # Glob every WP11-implementer*.md report (base plus every -pN patch
+    # attempt), not just one fixed file name: a later attempt's report
+    # often describes only what changed in that attempt, not a full restatement
+    # of defects the base report already listed.
+    report_files <- Sys.glob(file.path(root, ".docs", "transition", "reports", "WP11-implementer*.md"))
+    report_txt <- paste(unlist(lapply(report_files, function(f) readLines(f, warn = FALSE))), collapse = "\n")
     files_affected <- unique(core$file)
     documented <- vapply(files_affected, function(f) grepl(f, report_txt, fixed = TRUE), logical(1))
-    check("WP11.A5", file.exists(report_path) && all(documented),
-          sprintf("%d ERROR rows from STRUCT/CODES/META; files=%s; documented in WP11-implementer.md=%s",
-                  nrow(core), paste(files_affected, collapse = "|"), paste(documented, collapse = ",")))
+    check("WP11.A5", length(report_files) > 0 && all(documented),
+          sprintf("%d ERROR rows from STRUCT/CODES/META; files=%s; documented across %d implementer report(s)=%s",
+                  nrow(core), paste(files_affected, collapse = "|"), length(report_files), paste(documented, collapse = ",")))
   }
 })
 
-## WP11.A6: the unit tests pass.
+## WP11.A6: the unit tests pass. The card's line 17 names the one test file
+## WP11 owns: pipeline/tests/testthat/test-validate-core.R. All four
+## validator cards (WP11-WP14) carry this identical sentence, and WP12's and
+## WP13's own fixes to THEIR test files live on transition/wp12-validator-
+## coverage-v2 and transition/wp13-validator-rules-v3 - not on this branch -
+## so a whole-directory run here would fail inside files WP11 does not own
+## and cannot edit. Scoped to WP11's own file only, as WP12/WP13/WP14's
+## verifiers each did for theirs (note e).
 try_check("WP11.A6", {
   # A temp runner file (not an -e string) avoids Windows path backslashes
   # being misread as R string escapes; --root is passed as a plain argument.
@@ -284,13 +307,13 @@ try_check("WP11.A6", {
     "i <- which(args == '--root')",
     "r <- args[i + 1]",
     "setwd(r)",
-    "testthat::test_dir('pipeline/tests/testthat', stop_on_failure = TRUE, reporter = 'summary')"
+    "testthat::test_dir('pipeline/tests/testthat', filter = '^validate-core$', stop_on_failure = TRUE, reporter = 'summary')"
   ), runner6)
   log6 <- tempfile(fileext = ".log")
   res6 <- system2("Rscript", c(shQuote(runner6), "--root", shQuote(root)), stdout = log6, stderr = log6)
   ok6 <- identical(as.integer(res6), 0L)
   tail6 <- tail(readLines(log6, warn = FALSE), 15)
-  check("WP11.A6", ok6, sprintf("testthat::test_dir exit=%s; last lines: %s", res6, paste(tail6, collapse = " / ")))
+  check("WP11.A6", ok6, sprintf("testthat::test_dir(filter='validate-core') exit=%s; last lines: %s", res6, paste(tail6, collapse = " / ")))
 })
 
 ## ---- 5. Exit ----------------------------------------------------------------------
