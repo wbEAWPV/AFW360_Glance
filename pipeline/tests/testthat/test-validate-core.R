@@ -24,24 +24,6 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 
 # ---- local test helpers -----------------------------------------------
 
-#' make_data_fixture() writes its manifest as one wide row (dataflow,
-#' dsd_version, ..., status, notes as columns). build_ctx() reads a
-#' manifest as key/value pairs from columns 1 and 2 of every row (and the
-#' transition's own contract, .docs/transition/contract/csv_headers.csv,
-#' fixes the manifest file's columns as exactly "key","value"). The two
-#' disagree: as written, ctx$manifests[[stem]] ends up as a single
-#' nonsensical pair (names(wide)[1] -> wide[[2]][1]), so ctx$manifests[[
-#' stem]]["status"] is always NA and CODES.DRAFT always falls back to
-#' ERROR. This is flagged under Questions in the implementer report; it is
-#' not this package's file to fix (helper-data-fixture.R is a shared wave-2
-#' test helper), so every test that needs a correct manifest repairs its
-#' own temp copy first.
-.fix_manifest_format <- function(manifest_path) {
-  wide <- read_std_csv(manifest_path)
-  long <- tibble::tibble(key = names(wide), value = as.character(unlist(wide[1, ])))
-  write_std_csv(long, manifest_path)
-}
-
 #' Run every discovered vc_*() check against ctx and return one combined
 #' findings tibble (mirrors validate.R's discovery, without the CLI/cap
 #' machinery).
@@ -59,13 +41,13 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 #' filtering removed. (`metadata/structure/COLUMNS.csv` now marks
 #' LEGACY_LABELS.csv's `scale` column `status=C`, not `R` -- WP03 patch
 #' p1 -- so its 88 blank `scale` cells no longer trip META.REQUIRED and
-#' need no fixture patch.)
+#' need no fixture patch.) make_data_fixture() writes the manifest in the
+#' contract's long key/value form (WP08's fix to helper-data-fixture.R),
+#' matching what build_ctx() reads, so no repair is needed here.
 .small_fixture <- function() {
   tmp <- make_temp_root(.root)
   keep_ids <- c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01")
   dp <- make_data_fixture(tmp, "GNB", series_ids = keep_ids)
-  mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
-  .fix_manifest_format(mp)
   edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
     df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
   })
@@ -93,8 +75,6 @@ test_that("validate.R on the clean full fixture exits 0 with 0 ERROR (WP11.A1)",
   # is testing.
   tmp <- make_temp_root(.root, include = c("metadata", "content", "data", "pipeline"))
   dp <- make_data_fixture(tmp, "GNB")
-  mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
-  .fix_manifest_format(mp)
 
   out_path <- file.path(tmp, "findings.csv")
   res <- system2(
