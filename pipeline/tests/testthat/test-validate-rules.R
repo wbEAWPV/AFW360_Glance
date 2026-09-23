@@ -45,38 +45,20 @@ BASE_SERIES <- c(
   paste0("POP_HH_SH.HE_COUNT_", c("0", "1", "2", "3", "4P"))
 )
 
-#' make_data_fixture() (helper-data-fixture.R) writes its manifest as one
-#' row of named columns (dataflow, ..., precision, ...). ctx.R's
-#' build_ctx() reads a manifest as key/value pairs (column 1 = key, column
-#' 2 = value), matching contract/csv_headers.csv's 2-column schema for
-#' `AFW360_HH_<ISO3>_<YEAR>_manifest.csv`. Reading the fixture's wide
-#' manifest that way turns its first two column names/values
-#' ("dataflow"/"AFW360_HH", "dsd_version"/"TBD") into the only key/value
-#' pair, so `ctx$precision` always comes back "EXACT" (the default),
-#' never the fixture's "ROUNDED_2DP" (see the implementer report's
-#' Questions). Rewritten here, in the test fixture only, into the format
-#' build_ctx() and the contract expect.
-fix_manifest_format <- function(data_path) {
-  manifest_path <- sub("\\.csv$", "_manifest.csv", data_path)
-  wide <- read_std_csv(manifest_path)
-  long <- data.frame(
-    key = names(wide),
-    value = as.character(unlist(wide[1, ])),
-    stringsAsFactors = FALSE
-  )
-  write_std_csv(long, manifest_path)
-  invisible(long)
-}
-
 #' A temp metadata root with TAB_PLAN trimmed to TOTAL plus `cuts`, and a
 #' data fixture for `series_ids` under it (WP13.md Steps).
+#'
+#' make_data_fixture() (helper-data-fixture.R) writes its manifest in the
+#' contract's long key/value form (one `key`, `value` row per key), which
+#' ctx.R's build_ctx() reads directly (column 1 = key, column 2 = value),
+#' matching contract/csv_headers.csv's 2-column schema for
+#' `AFW360_HH_<ISO3>_<YEAR>_manifest.csv`. No rewrite is needed here.
 make_rules_root <- function(series_ids = BASE_SERIES, cuts = "URB", ref_area = "SEN") {
   tmp <- make_temp_root(root)
   edit_csv(file.path(tmp, "metadata", "plans", "TAB_PLAN.csv"), function(df) {
     df[df$cut_id %in% c("TOTAL", cuts), , drop = FALSE]
   })
   data_path <- make_data_fixture(tmp, ref_area, "2021", series_ids = series_ids)
-  fix_manifest_format(data_path)
   list(root = tmp, data_path = data_path)
 }
 
