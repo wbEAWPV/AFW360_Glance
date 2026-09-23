@@ -97,6 +97,33 @@ test_that("validate.R on the clean fixture gives 0 ERROR from STRUCT, CODES and 
   expect_equal(nrow(own[own$severity == "ERROR", ]), 0)
 })
 
+test_that("a group a module already capped is not capped a second time", {
+  # Regression. The modules are sourced into one environment, so a module whose
+  # file sorts later can replace a same-named private binder that an earlier
+  # module's checks call, and those checks then cap before returning. validate.R
+  # used to cap such a group again, which added a second SUMMARY row for the
+  # same check_id and file and dropped a real finding: the SUMMARY's empty
+  # row_key sorts first, so it survived the re-cap and displaced the twentieth.
+  # Leaving LEGACY_LABELS.csv untrimmed orphans 88 series_id references, well
+  # over the cap of 20, which is the case that exposed it.
+  tmp <- make_temp_root(.root, include = c("metadata", "content", "data", "pipeline"))
+  make_data_fixture(tmp, "GNB", series_ids = c("POV_HC.POVLINE_PL420.PPP_2021"))
+
+  out_path <- file.path(tmp, "findings.csv")
+  suppressWarnings(system2(
+    "Rscript",
+    c(shQuote(file.path(tmp, "pipeline", "validate.R")), "--root", shQuote(tmp), "--out", shQuote(out_path)),
+    stdout = TRUE, stderr = TRUE
+  ))
+  expect_true(file.exists(out_path))
+  findings <- read_std_csv(out_path)
+  grp <- findings[findings$check_id == "META.REFERENCE" &
+                    findings$file == "metadata/plans/LEGACY_LABELS.csv", , drop = FALSE]
+  summaries <- grp[grepl("^SUMMARY: ", grp$message), , drop = FALSE]
+  expect_equal(nrow(summaries), 1L)
+  expect_equal(nrow(grp) - nrow(summaries), 20L)
+})
+
 # ---- WP11.A2: one mutation per test, assert exactly its check_id -------
 
 test_that("two data columns swapped gives STRUCT.HEADER", {
