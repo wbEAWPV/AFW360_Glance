@@ -3,17 +3,11 @@
 # Tests for pipeline/R/validate_coverage.R and pipeline/R/validate_values.R
 # (WP12: coverage and value checks).
 #
-# KNOWN INFRASTRUCTURE MISMATCH (see .docs/transition/reports/
-# WP12-implementer.md, "Questions"): contract/csv_headers.csv and
-# ctx.R's build_ctx() (and its own test, test-ctx.R) both expect a data
-# file's manifest as a LONG 2-column CSV (`key`, `value`, one row per
-# key). helper-data-fixture.R's make_data_fixture() instead writes it
-# WIDE (one row, 16 columns named after the keys) - the shape
-# test-plan.R's own test of make_data_fixture() asserts. WP12 does not
-# own either file, so it does not edit them. fix_manifest_long() below
-# rewrites a fixture's manifest into the long form the rest of the
-# pipeline (and this package's own checks) expect, entirely within this
-# test file.
+# helper-data-fixture.R's make_data_fixture() writes a data file's manifest
+# as a LONG 2-column CSV (`key`, `value`, one row per key), matching
+# contract/csv_headers.csv and ctx.R's build_ctx(). This file's tests use
+# that manifest as written; set_manifest() below only edits one key of an
+# already long-form manifest.
 
 root <- find_root()
 source(file.path(root, "pipeline", "R", "io.R"))
@@ -35,20 +29,6 @@ expected_count <- function(check_id) {
 #' The manifest path next to a standard data file.
 manifest_path_for <- function(data_path) {
   file.path(dirname(data_path), paste0(tools::file_path_sans_ext(basename(data_path)), "_manifest.csv"))
-}
-
-#' Rewrite make_data_fixture()'s wide manifest into the long (key, value)
-#' form the contract and build_ctx() expect. See the file header.
-fix_manifest_long <- function(data_path) {
-  manifest_path <- manifest_path_for(data_path)
-  wide <- read_std_csv(manifest_path)
-  long <- data.frame(
-    key = names(wide),
-    value = as.character(unlist(wide[1, ], use.names = FALSE)),
-    stringsAsFactors = FALSE
-  )
-  write_std_csv(long, manifest_path)
-  invisible(manifest_path)
 }
 
 #' Set one key of a (already long-form) manifest.
@@ -83,7 +63,6 @@ build_clean_gnb_fixture <- function() {
   df_clean <- df[!(df_key %in% withheld_key), , drop = FALSE]
   write_std_csv(df_clean, data_path)
 
-  fix_manifest_long(data_path)
   set_manifest(data_path, "n_rows", as.character(nrow(df_clean)))
   set_manifest(data_path, "survey_id", "GNB_EHCVM_2021")
 
