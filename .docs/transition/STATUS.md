@@ -22,9 +22,9 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 | WP08 | Plans and the required-row generator | W2 | MERGED | transition/wp08-plans-v2 | PASS | 2 | 2026-09-22 |
 | WP09 | Legacy maps | W2 | MERGED | transition/wp09-legacy-maps-v1 | PASS | 1 | 2026-09-22 |
 | WP10 | Text, figures and surveys | W2 | MERGED | transition/wp10-content-v1 | PASS | 1 | 2026-09-22 |
-| WP11 | Validator core | W3 | MERGED | transition/wp11-validator-core-v2 | PASS | 2 | 2026-09-22 |
-| WP12 | Validator coverage and values | W3 | MERGED | transition/wp12-validator-coverage-v1 | PASS | 1 | 2026-09-22 |
-| WP13 | Validator rules | W3 | MERGED | transition/wp13-validator-rules-v2 | PASS | 2 | 2026-09-22 |
+| WP11 | Validator core | W3 | MERGED | transition/wp11-validator-core-v5 | PASS | 5 | 2026-09-23 |
+| WP12 | Validator coverage and values | W3 | MERGED | transition/wp12-validator-coverage-v2 | PASS | 2 | 2026-09-23 |
+| WP13 | Validator rules | W3 | MERGED | transition/wp13-validator-rules-v3 | PASS | 3 | 2026-09-23 |
 | WP14 | Validator assets and text | W3 | MERGED | transition/wp14-validator-assets-text-v1 | PASS | 1 | 2026-09-22 |
 | WP15 | Legacy converter | W3 | MERGED | transition/wp15-converter-v1 | PASS | 1 | 2026-09-22 |
 | WP16 | Independent reconciliation tool | W3 | MERGED | transition/wp16-reconcile-v1 | PASS | 1 | 2026-09-22 |
