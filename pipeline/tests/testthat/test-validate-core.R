@@ -24,24 +24,6 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 
 # ---- local test helpers -----------------------------------------------
 
-#' make_data_fixture() writes its manifest as one wide row (dataflow,
-#' dsd_version, ..., status, notes as columns). build_ctx() reads a
-#' manifest as key/value pairs from columns 1 and 2 of every row (and the
-#' transition's own contract, .docs/transition/contract/csv_headers.csv,
-#' fixes the manifest file's columns as exactly "key","value"). The two
-#' disagree: as written, ctx$manifests[[stem]] ends up as a single
-#' nonsensical pair (names(wide)[1] -> wide[[2]][1]), so ctx$manifests[[
-#' stem]]["status"] is always NA and CODES.DRAFT always falls back to
-#' ERROR. This is flagged under Questions in the implementer report; it is
-#' not this package's file to fix (helper-data-fixture.R is a shared wave-2
-#' test helper), so every test that needs a correct manifest repairs its
-#' own temp copy first.
-.fix_manifest_format <- function(manifest_path) {
-  wide <- read_std_csv(manifest_path)
-  long <- tibble::tibble(key = names(wide), value = as.character(unlist(wide[1, ])))
-  write_std_csv(long, manifest_path)
-}
-
 #' Run every discovered vc_*() check against ctx and return one combined
 #' findings tibble (mirrors validate.R's discovery, without the CLI/cap
 #' machinery).
@@ -59,13 +41,13 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
 #' filtering removed. (`metadata/structure/COLUMNS.csv` now marks
 #' LEGACY_LABELS.csv's `scale` column `status=C`, not `R` -- WP03 patch
 #' p1 -- so its 88 blank `scale` cells no longer trip META.REQUIRED and
-#' need no fixture patch.)
-.small_fixture <- function() {
-  tmp <- make_temp_root(.root)
+#' need no fixture patch.) make_data_fixture() writes the manifest in the
+#' contract's long key/value form (WP08's fix to helper-data-fixture.R),
+#' matching what build_ctx() reads, so no repair is needed here.
+.small_fixture <- function(include = NULL) {
+  tmp <- if (is.null(include)) make_temp_root(.root) else make_temp_root(.root, include = include)
   keep_ids <- c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01")
   dp <- make_data_fixture(tmp, "GNB", series_ids = keep_ids)
-  mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
-  .fix_manifest_format(mp)
   edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
     df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
   })
@@ -87,27 +69,59 @@ test_that("the small clean fixture gives 0 ERROR from STRUCT and CODES", {
   expect_equal(nrow(struct_codes[struct_codes$severity == "ERROR", ]), 0)
 })
 
-test_that("validate.R on the clean full fixture exits 0 with 0 ERROR (WP11.A1)", {
+test_that("validate.R on the clean fixture gives 0 ERROR from STRUCT, CODES and META (WP11.A1)", {
+  # A1 was corrected on 2026-09-23 (dev/eb 00e61fc) to ask for 0 ERROR from
+  # WP11's own modules rather than from the whole validator. WP08's fixture is
+  # not validator-clean, and WP08's card puts that out of scope: it writes no
+  # SURVEYS row (so COVER.SURVEY can never match), keeps the withheld cells
+  # (COVER.WITHHELD_PRESENT), and fills OBS_VALUE with one constant, so
+  # RULE.SUM_TO_1_* fires on any breakdown without exactly two categories.
+  # Those findings are expected and belong to WP12 and WP13, so validate.R
+  # exits non-zero here. That the whole validator is clean is proven on the
+  # real data by the wave-3 integrator, not on this fixture.
   # --root also has to resolve pipeline/R/*.R (COMMON.md section 5), so
   # the temp copy needs "pipeline" alongside the metadata/content/data it
   # is testing.
+  fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
+
+  out_path <- file.path(fx$tmp, "findings.csv")
+  # The non-zero exit is expected here, so silence system2()'s warning about it.
+  suppressWarnings(system2(
+    "Rscript",
+    c(shQuote(file.path(fx$tmp, "pipeline", "validate.R")), "--root", shQuote(fx$tmp), "--out", shQuote(out_path)),
+    stdout = TRUE, stderr = TRUE
+  ))
+  expect_true(file.exists(out_path))
+  findings <- read_std_csv(out_path)
+  own <- findings[grepl("^(STRUCT|CODES|META)\\.", findings$check_id), ]
+  expect_equal(nrow(own[own$severity == "ERROR", ]), 0)
+})
+
+test_that("a group a module already capped is not capped a second time", {
+  # Regression. The modules are sourced into one environment, so a module whose
+  # file sorts later can replace a same-named private binder that an earlier
+  # module's checks call, and those checks then cap before returning. validate.R
+  # used to cap such a group again, which added a second SUMMARY row for the
+  # same check_id and file and dropped a real finding: the SUMMARY's empty
+  # row_key sorts first, so it survived the re-cap and displaced the twentieth.
+  # Leaving LEGACY_LABELS.csv untrimmed orphans 88 series_id references, well
+  # over the cap of 20, which is the case that exposed it.
   tmp <- make_temp_root(.root, include = c("metadata", "content", "data", "pipeline"))
-  dp <- make_data_fixture(tmp, "GNB")
-  mp <- file.path(dirname(dp), paste0(tools::file_path_sans_ext(basename(dp)), "_manifest.csv"))
-  .fix_manifest_format(mp)
+  make_data_fixture(tmp, "GNB", series_ids = c("POV_HC.POVLINE_PL420.PPP_2021"))
 
   out_path <- file.path(tmp, "findings.csv")
-  res <- system2(
+  suppressWarnings(system2(
     "Rscript",
     c(shQuote(file.path(tmp, "pipeline", "validate.R")), "--root", shQuote(tmp), "--out", shQuote(out_path)),
     stdout = TRUE, stderr = TRUE
-  )
-  status <- attr(res, "status")
-  status <- if (is.null(status)) 0L else status
-  expect_equal(status, 0L)
+  ))
   expect_true(file.exists(out_path))
   findings <- read_std_csv(out_path)
-  expect_equal(nrow(findings[findings$severity == "ERROR", ]), 0)
+  grp <- findings[findings$check_id == "META.REFERENCE" &
+                    findings$file == "metadata/plans/LEGACY_LABELS.csv", , drop = FALSE]
+  summaries <- grp[grepl("^SUMMARY: ", grp$message), , drop = FALSE]
+  expect_equal(nrow(summaries), 1L)
+  expect_equal(nrow(grp) - nrow(summaries), 20L)
 })
 
 # ---- WP11.A2: one mutation per test, assert exactly its check_id -------

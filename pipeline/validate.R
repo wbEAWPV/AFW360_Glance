@@ -88,6 +88,19 @@ findings <- if (length(all_findings) == 0) empty_findings else dplyr::bind_rows(
 
 # The cap: when one check has more than 20 findings for one file, keep the
 # first 20 in row_key order, and add one SUMMARY finding.
+#
+# A group may arrive here already capped by the module that produced it. The
+# modules are sourced into one environment, so a module whose file sorts later
+# can replace a same-named private binder that an earlier module's checks call,
+# and those checks then cap before returning. Capping such a group a second
+# time would add another SUMMARY row for the same check_id and file and drop a
+# real row: the SUMMARY's empty row_key sorts first, so it survives the re-cap
+# and displaces the twentieth finding. A group that already carries a SUMMARY
+# row is therefore left exactly as it stands. Its message holds the true total,
+# which cannot be recovered here, since the rows behind it are already gone.
+.has_summary_row <- function(sub) {
+  any(!is.na(sub$message) & grepl("^SUMMARY: ", sub$message))
+}
 if (nrow(findings) > 0) {
   findings <- findings[order(findings$check_id, findings$file, findings$row_key), ]
   groups <- split(seq_len(nrow(findings)), list(findings$check_id, findings$file), drop = TRUE)
@@ -95,7 +108,9 @@ if (nrow(findings) > 0) {
   for (g in groups) {
     sub <- findings[g, , drop = FALSE]
     sub <- sub[order(sub$row_key), ]
-    if (nrow(sub) > 20) {
+    if (.has_summary_row(sub)) {
+      capped[[length(capped) + 1]] <- sub
+    } else if (nrow(sub) > 20) {
       capped[[length(capped) + 1]] <- sub[seq_len(20), ]
       capped[[length(capped) + 1]] <- tibble::tibble(
         check_id = sub$check_id[1], severity = sub$severity[1], file = sub$file[1],
