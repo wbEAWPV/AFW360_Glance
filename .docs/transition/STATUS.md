@@ -28,7 +28,7 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 | WP14 | Validator assets and text | W3 | MERGED | transition/wp14-validator-assets-text-v1 | PASS | 1 | 2026-09-22 |
 | WP15 | Legacy converter | W3 | MERGED | transition/wp15-converter-v1 | PASS | 1 | 2026-09-22 |
 | WP16 | Independent reconciliation tool | W3 | MERGED | transition/wp16-reconcile-v1 | PASS | 1 | 2026-09-22 |
-| WP17 | Final audit | after W3 | TODO | — | — | 0 | — |
+| WP17 | Final audit | after W3 | MERGED | transition/wp17-final-audit-v1 | PASS | 1 | 2026-09-23 |
 
 ## Gates
 
@@ -36,4 +36,4 @@ States: `TODO` · `MERGED` (integrated into `transition/main`) · `BLOCKED` (esc
 |---|---|---|---|---|
 | G0 | Hard cases H1–H14, H17 and key messages T1 | DONE | 2026-09-22 | reports/GATE-G0.md |
 | G1 | Standard v0.4 and the contract | DONE | 2026-09-22 | reports/GATE-G1.md |
-| G2 | Accept results; merge into dev/eb | PENDING | — | — |
+| G2 | Accept results; merge into dev/eb | DONE | 2026-09-23 | reports/GATE-G2.md |
