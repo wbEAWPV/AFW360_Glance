@@ -73,8 +73,8 @@ suppressPackageStartupMessages({
   source(file.path(root, "pipeline", "R", "ctx.R"))
   source(file.path(root, "pipeline", "R", "plan.R"))
   source(file.path(root, "pipeline", "R", "validate_rules.R"))
-  # make_temp_root()/edit_csv() are plain R helpers (not testthat-specific)
-  # shared by every WP's tests; they only need io.R, already sourced above.
+  # make_temp_root() is a plain R helper (not testthat-specific) shared by
+  # every WP's tests; it only needs io.R, already sourced above.
   source(file.path(root, "pipeline", "tests", "testthat", "helper-temp-root.R"))
 })
 
@@ -87,6 +87,11 @@ POV_HC_PL420  <- "POV_HC.POVLINE_PL420.PPP_2021"
 COICOP_IDS <- sprintf("CONS_SH.COICOP_CP%02d", 1:13)
 HE_COUNT_IDS <- c("POP_HH_SH.HE_COUNT_0", "POP_HH_SH.HE_COUNT_1", "POP_HH_SH.HE_COUNT_2",
                    "POP_HH_SH.HE_COUNT_3", "POP_HH_SH.HE_COUNT_4P")
+# POP_SH's SUM_TO_1_OVER_BRK closure over EMP_STATUS is genuinely partial in
+# the real plan: CL_COMP_BREAKDOWN has two EMP_STATUS categories (EMPLOYED,
+# NOT_EMPLOYED) but SERIES_PLAN defines a series for only one of them. No
+# plan mutation is needed to exercise RULE.CLOSURE_PARTIAL for it (WP13.A5).
+EMP_STATUS_ID <- "POP_SH.EMP_STATUS_EMPLOYED"
 
 # A fresh temp copy of metadata+content only (no real data/ dir: none exists
 # yet, WP15 builds the converter separately). Mutating this copy never
@@ -94,19 +99,11 @@ HE_COUNT_IDS <- c("POP_HH_SH.HE_COUNT_0", "POP_HH_SH.HE_COUNT_1", "POP_HH_SH.HE_
 new_temp_root <- function() make_temp_root(root, include = c("metadata", "content"))
 
 # required_rows() gives every required (series_id, cut_id) row for the given
-# series_ids, on whatever SERIES_PLAN the temp root currently has (so a plan
-# restricted by restrict_series_plan() is honoured).
+# series_ids, on whatever SERIES_PLAN the temp root currently has.
 rows_for <- function(tmp_root, series_ids) {
   meta <- load_metadata(tmp_root)
   rows <- required_rows(meta, REF_AREA, TIME_PERIOD)
   rows[rows$series_id %in% series_ids, , drop = FALSE]
-}
-
-# Drop SERIES_PLAN rows outside keep_ids on a temp root's own copy, so a
-# comp-breakdown/qual-var closure is no longer fully present in the plan.
-restrict_series_plan <- function(tmp_root, keep_ids) {
-  sp_path <- file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv")
-  edit_csv(sp_path, function(df) df[df$series_id %in% keep_ids, , drop = FALSE])
 }
 
 # Every POV_NUM child in a cut is parent_val / k, split so children sum to
@@ -337,12 +334,11 @@ try_check("WP13.A4", {
 })
 
 ## WP13.A5 -- a deleted child gives WARN RULE.AGG_SKIPPED (no ERROR for that
-## parent/cut); a plan not covering every category of a comp-breakdown
-## variable gives INFO RULE.CLOSURE_PARTIAL (no ERROR). The second case is
-## simulated with HE_COUNT (drop 1 of its 5 categories from SERIES_PLAN on a
-## temp copy) rather than the real EMP_STATUS data, since CLOSURE_PARTIAL is
-## a generic "plan vs CL_COMP_BREAKDOWN" mechanism, not indicator-specific;
-## see the verifier report's Deviations.
+## parent/cut); the partial variable EMP_STATUS gives INFO RULE.CLOSURE_PARTIAL
+## (no ERROR). The second case uses the real POP_SH.EMP_STATUS_EMPLOYED series
+## as-is (no plan mutation): CL_COMP_BREAKDOWN has two EMP_STATUS categories
+## but SERIES_PLAN carries a series for only one of them, so its
+## SUM_TO_1_OVER_BRK closure is already, genuinely partial in the real plan.
 try_check("WP13.A5", {
   tmp_root1 <- new_temp_root()
   rows1 <- build_povnum_rows(rows_for(tmp_root1, c(POV_NUM_PL300, POV_NUM_PL420)))
@@ -353,9 +349,7 @@ try_check("WP13.A5", {
   no_err1 <- !any(res1$severity == "ERROR")
 
   tmp_root2 <- new_temp_root()
-  partial_ids <- HE_COUNT_IDS[1:4]
-  restrict_series_plan(tmp_root2, partial_ids)
-  rows2 <- build_flat_rows(rows_for(tmp_root2, partial_ids), 1 / 4)
+  rows2 <- build_flat_rows(rows_for(tmp_root2, EMP_STATUS_ID), 0.5)
   res2 <- run_all_rules(ctx_for(tmp_root2, write_fixture(tmp_root2, rows2)))
   partial_ok <- any(res2$check_id == "RULE.CLOSURE_PARTIAL" & res2$severity == "INFO")
   no_err2 <- !any(res2$severity == "ERROR")
