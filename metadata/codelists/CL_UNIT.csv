@@ -1,0 +1,13 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes
+SHARE,Share,"A share from 0 to 1, never 0 to 100.",DRAFT,0.1.0,,
+INDEX,Index,"An index, for Gini and similar statistics.",DRAFT,0.1.0,,
+PERSON,Person,A count of persons.,DRAFT,0.1.0,,
+HH,Household,A count of households.,DRAFT,0.1.0,,
+HE,Household enterprise,A count of non-agricultural household enterprises.,DRAFT,0.1.0,,
+LCU,Local currency units,Local currency units.,DRAFT,0.1.0,,
+PPP_USD,PPP US dollars,US dollars at purchasing power parity.,DRAFT,0.1.0,,
+HA,Hectares,Hectares.,DRAFT,0.1.0,,
+TLU,Tropical livestock units,Tropical livestock units.,DRAFT,0.1.0,,
+DAY,Day,A count of days.,DRAFT,0.1.0,,
+YEAR,Year,A count of years.,DRAFT,0.1.0,,
+COUNT,Count,A plain count.,DRAFT,0.1.0,,

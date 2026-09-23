@@ -185,7 +185,7 @@ def download_table(df, filename="table.xlsx"):
 
 ```{python}
 # Load Excel file
-file_path = "INPUT Tables/Tables_SEN.xlsx"
+file_path = "data_raw/tables/Tables_SEN.xlsx"
 ```
 
 ## Row Messages {height=10%}
@@ -367,8 +367,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 base_dir = Path(".")
-file_path = base_dir / "INPUT Tables" / "Tables_SEN.xlsx"
-shp_path = base_dir / "INPUT shp" / "sen_admin1.shp"
+file_path = base_dir / "data_raw" / "tables" / "Tables_SEN.xlsx"
+shp_path = base_dir / "data_raw" / "shp" / "sen_admin1.shp"
 
 
 def clean_region_name(x):
@@ -655,14 +655,14 @@ styled_table
 ::: {.card}
 ## Fiscal Equity I - Who pays & Who receives
 
-![](INPUT Figures/Fiscal Equity SEN.png){width=100%}
+![](data_raw/figures/Fiscal Equity SEN.png){width=100%}
 _Note: The figure shows the relative incidence of taxes, transfers, and subsidies across the welfare distribution. Source: CEQ/GamSim simulations based on EHCVM._
 :::
 
 ::: {.card}
 ## Fiscal Equity II - Who pays & Who receives
 
-![](INPUT Figures/Fiscal Equity SEN.png){width=100%}
+![](data_raw/figures/Fiscal Equity SEN.png){width=100%}
 _Note: The figure shows the absolute incidence of taxes, transfers, and subsidies across the welfare distribution. Source: CEQ/GamSim simulations based on EHCVM._
 :::
 
@@ -672,7 +672,7 @@ _Note: The figure shows the absolute incidence of taxes, transfers, and subsidie
 ```{python}
 #| title: Data and Methodology
 
-text = Path("INPUT Text/About_SEN.txt").read_text(encoding="utf-8")
+text = Path("data_raw/text/About_SEN.txt").read_text(encoding="utf-8")
 
 HTML(f"""
 <div style="
@@ -691,7 +691,7 @@ HTML(f"""
 from IPython.display import HTML
 import base64
 
-file_name = "INPUT Tables/Tables_SEN.xlsx"
+file_name = "data_raw/tables/Tables_SEN.xlsx"
 
 with open(file_name, "rb") as f:
     b64 = base64.b64encode(f.read()).decode()
@@ -1112,14 +1112,14 @@ styled_table
 ::: {.card}
 ## Fiscal Equity I - Who pays & Who receives
 
-![](INPUT Figures/Fiscal Equity SEN.png){width=100%}
+![](data_raw/figures/Fiscal Equity SEN.png){width=100%}
 _Note: The figure shows the relative incidence of taxes, transfers, and subsidies across the welfare distribution. Source: CEQ/GamSim simulations based on EHCVM._
 :::
 
 ::: {.card}
 ## Fiscal Equity II - Who pays & Who receives
 
-![](INPUT Figures/Fiscal Equity SEN.png){width=100%}
+![](data_raw/figures/Fiscal Equity SEN.png){width=100%}
 _Note: The figure shows the absolute incidence of taxes, transfers, and subsidies across the welfare distribution. Source: CEQ/GamSim simulations based on EHCVM._
 :::
 
@@ -1129,7 +1129,7 @@ _Note: The figure shows the absolute incidence of taxes, transfers, and subsidie
 ```{python}
 #| title: Data and Methodology
 
-text = Path("INPUT Text/About_GNB.txt").read_text(encoding="utf-8")
+text = Path("data_raw/text/About_GNB.txt").read_text(encoding="utf-8")
 
 HTML(f"""
 <div style="
@@ -1148,7 +1148,7 @@ HTML(f"""
 from IPython.display import HTML
 import base64
 
-file_name = "INPUT Tables/Tables_GNB.xlsx"
+file_name = "data_raw/tables/Tables_GNB.xlsx"
 
 with open(file_name, "rb") as f:
     b64 = base64.b64encode(f.read()).decode()
@@ -1179,7 +1179,7 @@ HTML(f"""
 ```{python}
 #| title: Key Messages
 
-text = Path("INPUT Text/About.txt").read_text(encoding="utf-8")
+text = Path("data_raw/text/About.txt").read_text(encoding="utf-8")
 
 HTML(f"""
 <div style="

@@ -1,0 +1,17 @@
+key,value
+dataflow,AFW360_HH
+dsd_version,0.1.0
+metadata_version,0.1.0
+ref_area,SEN
+time_period,2021
+source_type,SURVEY
+survey_id,SEN_EHCVM_2021
+precision,ROUNDED_2DP
+file_name,AFW360_HH_SEN_2021.csv
+n_rows,3003
+producer,AFW DIP/POV team
+program,pipeline/convert_legacy.R
+software,R 4.5.3
+run_timestamp,2026-01-01T00:00:00Z
+status,DRAFT
+notes,Legacy conversion of data_raw/tables/Tables_SEN.xlsx
