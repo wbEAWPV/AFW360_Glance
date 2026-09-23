@@ -1,16 +1,11 @@
 #!/usr/bin/env Rscript
-# Acceptance script for WP12 (Validator: coverage and values).
-# .docs/transition/packages/WP12.md
+# Acceptance script for WP12 -- Validator: coverage and values.
 #
 #   Rscript pipeline/acceptance/wp12_validator-coverage.R --root .
 #
-# Standalone; sources pipeline/R/ only because every WP12 check is about the
-# functions those files define (validate_coverage.R, validate_values.R) and
-# the ctx/plan machinery the card's Interface section names as their input
-# (build_ctx(), required_rows()). Expected numbers come from
-# contract/expected_counts.csv, read with this script's own reader, never
-# with read_std_csv()/write_std_csv(). All fixtures are written under
-# tempdir().
+# Rules: standalone; expected numbers come from contract/expected_counts.csv;
+# writes only to tempdir(); compares against the tag transition-base and
+# against files, never against transition/main or the branch diff.
 
 ## ---- 1. Root and check() -----------------------------------------------------
 args <- commandArgs(trailingOnly = TRUE)
@@ -30,13 +25,15 @@ try_check <- function(id, expr) {
   invisible(r)
 }
 
-## ---- 2. Helpers (this script's own reader; never read_std_csv/write_std_csv) --
+## ---- 2. Helpers ---------------------------------------------------------------
+# All columns as character, BOM stripped, "" stays "" (never NA).
 read_csv_char <- function(path) {
   raw <- readLines(path, encoding = "UTF-8", warn = FALSE)
   if (length(raw)) raw[1] <- sub("^﻿", "", raw[1])
   read.csv(text = paste(raw, collapse = "\n"), colClasses = "character", na.strings = NULL,
            check.names = FALSE, encoding = "UTF-8")
 }
+# Expected value and tolerance from the contract, by check_id.
 expected <- function(check_id) {
   tab <- read_csv_char(file.path(contract, "expected_counts.csv"))
   row <- tab[tab$check_id == check_id, ]
@@ -45,234 +42,204 @@ expected <- function(check_id) {
 }
 meets <- function(actual, check_id) { e <- expected(check_id); abs(actual - e$value) <= e$tol + 1e-9 }
 
-## ---- 3. Load the modules under test and their declared dependencies -----------
-# ctx.R depends on io.R; plan.R depends on codes.R/constants.R and (for
-# meta) io.R; validate_coverage.R/validate_values.R are the two modules
-# WP12 owns. The two test helpers build fixtures the way the card's Step 2
-# specifies.
-suppressWarnings(suppressMessages({
-  source(file.path(root, "pipeline", "R", "constants.R"))
-  source(file.path(root, "pipeline", "R", "io.R"))
-  source(file.path(root, "pipeline", "R", "codes.R"))
-  source(file.path(root, "pipeline", "R", "ctx.R"))
-  source(file.path(root, "pipeline", "R", "plan.R"))
-  source(file.path(root, "pipeline", "R", "validate_coverage.R"))
-  source(file.path(root, "pipeline", "R", "validate_values.R"))
-  source(file.path(root, "pipeline", "tests", "testthat", "helper-temp-root.R"))
-  source(file.path(root, "pipeline", "tests", "testthat", "helper-data-fixture.R"))
-}))
+## ---- 3. Module setup -----------------------------------------------------------
+# These checks are about the functions in plan.R, validate_coverage.R and
+# validate_values.R, so sourcing pipeline/R/ is in scope for this card.
+pr <- function(...) file.path(root, "pipeline", "R", ...)
+source(pr("constants.R"))
+source(pr("io.R"))
+source(pr("codes.R"))     # plan.R depends on slot_sort()/fill_slots() from codes.R
+source(pr("ctx.R"))
+source(pr("plan.R"))
+source(file.path(root, "pipeline", "tests", "testthat", "helper-temp-root.R"))
+source(file.path(root, "pipeline", "tests", "testthat", "helper-data-fixture.R"))
 
-CHECK_IDS <- c(
-  "COVER.MISSING", "COVER.EXTRA", "COVER.WITHHELD_PRESENT", "COVER.MANIFEST",
-  "COVER.SURVEY", "VALUE.NUMERIC", "VALUE.RANGE", "VALUE.STATUS_EMPTY",
-  "VALUE.LEGACY_EMPTY", "VALUE.SE_CI", "VALUE.N"
-)
+vc_env <- new.env()
+sys.source(pr("validate_coverage.R"), envir = vc_env)
+sys.source(pr("validate_values.R"), envir = vc_env)
+vc_fun_names <- sort(ls(vc_env, pattern = "^vc_(cover|value)_"))
 
-# check_id -> function name, from the card's Interface section:
-# "Your functions are named vc_cover_<check>(ctx) and vc_value_<check>(ctx)"
-# and "check_id is COVER.<NAME> or VALUE.<NAME>".
-vc_fn_name <- function(check_id) {
-  parts <- strsplit(check_id, ".", fixed = TRUE)[[1]]
-  prefix <- if (identical(parts[1], "COVER")) "cover" else "value"
-  paste0("vc_", prefix, "_", tolower(parts[2]))
-}
-
-# Run every vc_cover_*/vc_value_* function named on the card against ctx and
-# rbind their findings. A missing function or one that errors becomes a
-# synthetic ERROR finding under its own check_id, so a single check() call
-# sees a broken interface as a failure instead of crashing the script.
-run_all_vc <- function(ctx) {
-  parts <- lapply(CHECK_IDS, function(id) {
-    nm <- vc_fn_name(id)
-    if (!exists(nm, mode = "function")) {
-      return(data.frame(check_id = id, severity = "ERROR", file = "", row_key = "",
-                         message = paste("function not found:", nm), stringsAsFactors = FALSE))
-    }
-    fn <- get(nm, mode = "function")
-    res <- tryCatch(as.data.frame(fn(ctx), stringsAsFactors = FALSE),
-                     error = function(e) data.frame(check_id = id, severity = "ERROR", file = "",
-                                                     row_key = "",
-                                                     message = paste("error calling", nm, ":", conditionMessage(e)),
-                                                     stringsAsFactors = FALSE))
-    if (nrow(res) == 0) {
-      res <- res[, c("check_id", "severity", "file", "row_key", "message"), drop = FALSE]
-    }
-    res
+# Run every vc_cover_*/vc_value_* function on ctx and row-bind the findings.
+run_all_checks <- function(ctx) {
+  out <- lapply(vc_fun_names, function(fn) {
+    res <- get(fn, envir = vc_env)(ctx)
+    if (is.null(res) || nrow(res) == 0) return(NULL)
+    as.data.frame(res, stringsAsFactors = FALSE)
   })
-  do.call(rbind, parts)
+  out <- out[!vapply(out, is.null, logical(1))]
+  if (!length(out)) {
+    return(data.frame(check_id = character(0), severity = character(0), file = character(0),
+                       row_key = character(0), message = character(0)))
+  }
+  do.call(rbind, out)
 }
 
-# A manifest in the contract's key/value shape (csv_headers.csv: columns
-# key, value), not the wide one-row shape
-# pipeline/tests/testthat/helper-data-fixture.R writes for
-# "<stem>_manifest.csv" -- see this run's report, Questions section.
-write_manifest_kv <- function(path, kv) {
-  df <- data.frame(key = names(kv), value = unname(unlist(kv)), stringsAsFactors = FALSE)
-  write_std_csv(df, path)
-}
-base_manifest_kv <- function(ref_area, time_period, file_name, n_rows, survey_id) {
-  c(dataflow = DATAFLOW_ID, dsd_version = "TBD", metadata_version = "TBD",
-    ref_area = ref_area, time_period = time_period, source_type = "SURVEY",
-    survey_id = survey_id, precision = "ROUNDED_2DP", file_name = file_name,
-    n_rows = as.character(n_rows), producer = "TBD", program = "TBD",
-    software = "TBD", run_timestamp = "TBD", status = "DRAFT", notes = "")
-}
+KEY_COLS <- c("DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",
+              "URBANISATION", paste0("COMP_BREAKDOWN_", 1:5), paste0("MEASURE_QUAL_", 1:5))
 
-## ---- 4. The shared GNB fixture -------------------------------------------------
-# AGR_CULT_AREA (withheld cells exist for it, card Step 2/3) and
-# EN_ELEC_ACCESS (a share, valid_min=0/valid_max=1 in CL_INDICATOR, needed
-# to make "a share set to 1.3" an out-of-range value under WP12.A2).
-tmp_root <- make_temp_root(root, include = "metadata")
-raw_data_path <- make_data_fixture(tmp_root, "GNB", "2021",
-                                    series_ids = c("AGR_CULT_AREA", "EN_ELEC_ACCESS"))
-meta_fx <- load_metadata(tmp_root)
-withheld_fx <- withheld_rows(meta_fx, "GNB", "2021")
-stopifnot(nrow(withheld_fx) >= 1)
-
-raw_data <- read_std_csv(raw_data_path)
-clean_data <- dplyr::anti_join(raw_data, withheld_fx[KEY_COLUMNS], by = KEY_COLUMNS)
-
-idx_agr <- which(clean_data$INDICATOR == "AGR_CULT_AREA")
-idx_en <- which(clean_data$INDICATOR == "EN_ELEC_ACCESS")
-stopifnot(length(idx_agr) >= 4, length(idx_en) >= 1)
-
-clean_dir <- tempfile("wp12_clean_")
-dir.create(clean_dir, recursive = TRUE)
-clean_data_path <- file.path(clean_dir, basename(raw_data_path))
-clean_manifest_path <- sub("\\.csv$", "_manifest.csv", clean_data_path)
-write_std_csv(clean_data, clean_data_path)
-write_manifest_kv(clean_manifest_path,
-                   base_manifest_kv("GNB", "2021", basename(clean_data_path),
-                                     nrow(clean_data), "GNB_EHCVM_2021"))
-
-# Writes `d` (a mutated copy of clean_data) and a manifest that always
-# agrees with `d`'s own row count, into a fresh temp dir, then builds ctx.
-ctx_for_data <- function(d, manifest_kv_edit = identity) {
-  dir <- tempfile("wp12_fx_")
-  dir.create(dir, recursive = TRUE)
-  dp <- file.path(dir, basename(raw_data_path))
-  mp <- sub("\\.csv$", "_manifest.csv", dp)
-  write_std_csv(d, dp)
-  kv <- base_manifest_kv("GNB", "2021", basename(dp), nrow(d), "GNB_EHCVM_2021")
-  kv <- manifest_kv_edit(kv)
-  write_manifest_kv(mp, kv)
-  build_ctx(tmp_root, data_files = dp)
+# Build a clean GNB fixture (temp dir): every required row for two series
+# (AGR_CULT_AREA, which has withheld cells, and a share series), minus the
+# withheld rows -- so it should validate with zero ERROR findings. Returns a
+# list with tmp root, data-file path, manifest path and the withheld-row table.
+build_clean_fixture <- function() {
+  tmp <- make_temp_root(root)
+  fx <- make_data_fixture(tmp, "GNB", series_ids = c("AGR_CULT_AREA", "POP_HH_SH.HE_COUNT_0"))
+  mf <- sub("[.]csv$", "_manifest.csv", fx)
+  meta <- load_metadata(tmp)
+  wh <- vc_env$withheld_rows(meta, "GNB", "2021")
+  d <- read.csv(fx, colClasses = "character", na.strings = NULL)
+  d_clean <- dplyr::anti_join(d, wh[KEY_COLS], by = KEY_COLS)
+  write_std_csv(d_clean, fx)
+  m <- read.csv(mf, colClasses = "character", na.strings = NULL)
+  m$value[m$key == "n_rows"] <- as.character(nrow(d_clean))
+  # SURVEYS.csv carries GNB_EHCVM_2021 for GNB/2021 (see metadata/surveys/SURVEYS.csv);
+  # give the fixture a real survey_id so the clean baseline has no COVER.SURVEY finding.
+  m$value[m$key == "survey_id"] <- "GNB_EHCVM_2021"
+  write_std_csv(m, mf)
+  list(tmp = tmp, fx = fx, mf = mf, wh = wh)
 }
 
-error_ids <- function(fnd) sort(unique(fnd$check_id[fnd$severity == "ERROR"]))
+# Apply one mutation to a fresh clean fixture and return the ERROR check_ids found.
+mutation_error_ids <- function(mutate_fn) {
+  cl <- build_clean_fixture()
+  mutate_fn(cl)
+  ctx <- build_ctx(cl$tmp, data_files = cl$fx)
+  res <- run_all_checks(ctx)
+  unique(res$check_id[res$severity == "ERROR"])
+}
 
-ctx_clean <- ctx_for_data(clean_data)
+## ---- 4. Checks ------------------------------------------------------------------
 
-## ---- WP12.A1 --------------------------------------------------------------------
+## WP12.A1: on the clean fixture, the functions return 0 ERROR.
 try_check("WP12.A1", {
-  fnd <- run_all_vc(ctx_clean)
-  n_err <- sum(fnd$severity == "ERROR")
-  check("WP12.A1", n_err == 0,
-        sprintf("clean GNB fixture (%d rows): %d ERROR finding(s)%s", nrow(clean_data), n_err,
-                if (n_err > 0) paste0(" [", paste(error_ids(fnd), collapse = ", "), "]") else ""))
+  cl <- build_clean_fixture()
+  ctx <- build_ctx(cl$tmp, data_files = cl$fx)
+  res <- run_all_checks(ctx)
+  n_error <- sum(res$severity == "ERROR")
+  check("WP12.A1", n_error == 0,
+        sprintf("clean GNB fixture (%d rows): %d ERROR findings", nrow(read.csv(cl$fx, colClasses = "character", na.strings = NULL)), n_error))
 })
 
-## ---- WP12.A2 --------------------------------------------------------------------
-mutations <- list(
-  list(name = "row deleted", expect = "COVER.MISSING",
-       fn = function(d) d[-idx_agr[1], ]),
-  list(name = "row added, unplanned breakdown", expect = "COVER.EXTRA",
-       fn = function(d) { row <- d[idx_agr[1], ]; row$COMP_BREAKDOWN_1 <- "BOGUS_CAT"; rbind(d, row) }),
-  list(name = "withheld row added back", expect = "COVER.WITHHELD_PRESENT",
-       fn = function(d) {
-         wr <- withheld_fx[1, KEY_COLUMNS]
-         wr$OBS_VALUE <- "0.5"; wr$OBS_STATUS <- "A"
-         wr$STD_ERR <- ""; wr$CI_LOWER <- ""; wr$CI_UPPER <- ""
-         wr$N_OBS <- ""; wr$N_POP <- ""; wr$OBS_COMMENT <- ""
-         wr <- wr[DSD_COLUMNS]
-         rbind(d, wr)
-       }),
-  list(name = "share set to 1.3", expect = "VALUE.RANGE",
-       fn = function(d) { d$OBS_VALUE[idx_en[1]] <- "1.3"; d }),
-  list(name = "value 1e-3", expect = "VALUE.NUMERIC",
-       fn = function(d) { d$OBS_VALUE[idx_agr[2]] <- "1e-3"; d }),
-  list(name = "O row with a value", expect = "VALUE.STATUS_EMPTY",
-       fn = function(d) {
-         i <- idx_agr[3]
-         d$OBS_STATUS[i] <- "O"; d$OBS_VALUE[i] <- "0.5"; d$OBS_COMMENT[i] <- "LEGACY_EMPTY: test"
-         d
-       }),
-  list(name = "A row without a value", expect = "VALUE.STATUS_EMPTY",
-       fn = function(d) { i <- idx_agr[4]; d$OBS_STATUS[i] <- "A"; d$OBS_VALUE[i] <- ""; d }),
-  list(name = "O row with an empty comment", expect = "VALUE.LEGACY_EMPTY",
-       fn = function(d) {
-         i <- idx_en[1]
-         d$OBS_STATUS[i] <- "O"; d$OBS_VALUE[i] <- ""; d$OBS_COMMENT[i] <- ""
-         d
-       })
-)
-
-manifest_mutations <- list(
-  list(name = "manifest n_rows changed", expect = "COVER.MANIFEST",
-       fn = function(kv) { kv["n_rows"] <- as.character(as.integer(kv["n_rows"]) + 1); kv }),
-  list(name = "manifest survey_id set to XXX", expect = "COVER.SURVEY",
-       fn = function(kv) { kv["survey_id"] <- "XXX"; kv })
-)
-
+## WP12.A2: each mutation gives exactly its check_id.
 try_check("WP12.A2", {
-  lines <- character(0)
-  all_ok <- TRUE
-  for (m in mutations) {
-    d <- m$fn(clean_data)
-    ctx <- ctx_for_data(d)
-    got <- error_ids(run_all_vc(ctx))
-    ok <- identical(got, m$expect)
-    all_ok <- all_ok && ok
-    lines <- c(lines, sprintf("%s: got {%s} want {%s} %s", m$name,
-                               paste(got, collapse = ","), m$expect, if (ok) "OK" else "MISMATCH"))
-  }
-  for (m in manifest_mutations) {
-    ctx <- ctx_for_data(clean_data, manifest_kv_edit = m$fn)
-    got <- error_ids(run_all_vc(ctx))
-    ok <- identical(got, m$expect)
-    all_ok <- all_ok && ok
-    lines <- c(lines, sprintf("%s: got {%s} want {%s} %s", m$name,
-                               paste(got, collapse = ","), m$expect, if (ok) "OK" else "MISMATCH"))
-  }
-  check("WP12.A2", all_ok, paste(lines, collapse = " | "))
+  mutations <- list(
+    "COVER.MISSING" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      d2 <- d[-1, ]
+      write_std_csv(d2, cl$fx)
+      m <- read.csv(cl$mf, colClasses = "character", na.strings = NULL)
+      m$value[m$key == "n_rows"] <- as.character(nrow(d2))
+      write_std_csv(m, cl$mf)
+    },
+    "COVER.EXTRA" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      newrow <- d[1, ]
+      newrow$GEO <- "ZZZ"  # not a code any required row of this cut uses
+      d2 <- rbind(d, newrow)
+      write_std_csv(d2, cl$fx)
+      m <- read.csv(cl$mf, colClasses = "character", na.strings = NULL)
+      m$value[m$key == "n_rows"] <- as.character(nrow(d2))
+      write_std_csv(m, cl$mf)
+    },
+    "COVER.WITHHELD_PRESENT" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      wrow <- cl$wh[1, intersect(names(d), names(cl$wh))]
+      full <- d[1, ]
+      for (nm in names(wrow)) full[[nm]] <- wrow[[nm]]
+      full$OBS_VALUE <- "0.5"; full$OBS_STATUS <- "A"; full$OBS_COMMENT <- ""
+      full$STD_ERR <- ""; full$CI_LOWER <- ""; full$CI_UPPER <- ""
+      full$N_OBS <- ""; full$N_POP <- ""
+      d2 <- rbind(d, full)
+      write_std_csv(d2, cl$fx)
+      m <- read.csv(cl$mf, colClasses = "character", na.strings = NULL)
+      m$value[m$key == "n_rows"] <- as.character(nrow(d2))
+      write_std_csv(m, cl$mf)
+    },
+    "COVER.MANIFEST" = function(cl) {
+      m <- read.csv(cl$mf, colClasses = "character", na.strings = NULL)
+      m$value[m$key == "n_rows"] <- as.character(as.integer(m$value[m$key == "n_rows"]) + 5L)
+      write_std_csv(m, cl$mf)
+    },
+    "COVER.SURVEY" = function(cl) {
+      m <- read.csv(cl$mf, colClasses = "character", na.strings = NULL)
+      m$value[m$key == "survey_id"] <- "XXX"
+      write_std_csv(m, cl$mf)
+    },
+    "VALUE.RANGE" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      idx <- which(d$INDICATOR == "POP_HH_SH")[1]
+      d$OBS_VALUE[idx] <- "1.3"
+      write_std_csv(d, cl$fx)
+    },
+    "VALUE.NUMERIC" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      idx <- which(d$INDICATOR == "AGR_CULT_AREA")[1]
+      d$OBS_VALUE[idx] <- "1e-3"
+      write_std_csv(d, cl$fx)
+    },
+    "VALUE.STATUS_EMPTY (O with value)" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      d$OBS_STATUS[1] <- "O"
+      d$OBS_COMMENT[1] <- "LEGACY_EMPTY: dummy"  # keep LEGACY_EMPTY silent for this case
+      write_std_csv(d, cl$fx)
+    },
+    "VALUE.STATUS_EMPTY (A without value)" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      d$OBS_VALUE[1] <- ""
+      write_std_csv(d, cl$fx)
+    },
+    "VALUE.LEGACY_EMPTY" = function(cl) {
+      d <- read.csv(cl$fx, colClasses = "character", na.strings = NULL)
+      d$OBS_STATUS[1] <- "O"
+      d$OBS_VALUE[1] <- ""
+      d$OBS_COMMENT[1] <- ""
+      write_std_csv(d, cl$fx)
+    }
+  )
+  expected_ids <- sub(" \\(.*\\)$", "", names(mutations))
+  actual <- Map(function(label, fn) mutation_error_ids(fn), names(mutations), mutations)
+  ok_each <- mapply(function(exp_id, act_ids) identical(act_ids, exp_id), expected_ids, actual)
+  bad <- names(mutations)[!ok_each]
+  evidence <- paste(sprintf("%s -> {%s}", names(mutations), vapply(actual, paste, character(1), collapse = ",")), collapse = "; ")
+  check("WP12.A2", all(ok_each), if (length(bad)) sprintf("mismatches: %s | %s", paste(bad, collapse = ", "), evidence) else evidence)
 })
 
-## ---- WP12.A3 --------------------------------------------------------------------
+## WP12.A3: withheld_rows() on the real metadata, and required - withheld == GNB.DATA.ROWS.
 try_check("WP12.A3", {
   meta_real <- load_metadata(root)
-  wh_gnb <- withheld_rows(meta_real, "GNB", "2021")
-  wh_sen <- withheld_rows(meta_real, "SEN", "2021")
-  req_gnb <- required_rows(meta_real, "GNB", "2021")
-  n_wh_gnb <- nrow(wh_gnb)
-  n_wh_sen <- nrow(wh_sen)
-  n_data_gnb <- nrow(req_gnb) - n_wh_gnb
-  ok <- meets(n_wh_gnb, "GNB.WITHHELD_CELLS") && n_wh_sen == 0 && meets(n_data_gnb, "GNB.DATA.ROWS")
+  wh_gnb <- vc_env$withheld_rows(meta_real, "GNB", "2021")
+  wh_sen <- vc_env$withheld_rows(meta_real, "SEN", "2021")
+  rr_gnb <- required_rows(meta_real, "GNB", "2021")
+  net <- nrow(rr_gnb) - nrow(wh_gnb)
+  ok <- meets(nrow(wh_gnb), "GNB.WITHHELD_CELLS") && nrow(wh_sen) == 0 && meets(net, "GNB.DATA.ROWS")
   check("WP12.A3", ok,
-        sprintf("withheld GNB=%d (want %s), withheld SEN=%d (want 0), required-withheld GNB=%d (want %s)",
-                n_wh_gnb, expected("GNB.WITHHELD_CELLS")$value, n_wh_sen, n_data_gnb,
-                expected("GNB.DATA.ROWS")$value))
+        sprintf("GNB withheld=%d (expect %s), SEN withheld=%d (expect 0), required-withheld=%d (expect %s)",
+                nrow(wh_gnb), expected("GNB.WITHHELD_CELLS")$value, nrow(wh_sen), net, expected("GNB.DATA.ROWS")$value))
 })
 
-## ---- WP12.A4 --------------------------------------------------------------------
+## WP12.A4: with ctx$data empty, every function returns zero rows and does not fail.
 try_check("WP12.A4", {
-  ctx_empty <- build_ctx(root, data_files = character(0))
-  fnd <- run_all_vc(ctx_empty)
-  ok <- nrow(fnd) == 0
-  check("WP12.A4", ok,
-        sprintf("empty ctx$data: %d row(s) returned%s", nrow(fnd),
-                if (!ok) paste0(" [", paste(unique(fnd$check_id), collapse = ", "), "]") else ""))
+  tmp <- make_temp_root(root)
+  ctx <- build_ctx(tmp, data_files = character(0))
+  ok <- length(ctx$data) == 0
+  errs <- character(0)
+  for (fn in vc_fun_names) {
+    res <- tryCatch(get(fn, envir = vc_env)(ctx), error = function(e) { errs[[length(errs) + 1]] <<- fn; NULL })
+    if (!is.null(res) && nrow(res) != 0) { ok <- FALSE }
+  }
+  check("WP12.A4", ok && length(errs) == 0,
+        sprintf("ctx$data empty=%s, functions erroring=%s, all zero rows=%s", length(ctx$data) == 0, paste(errs, collapse = ","), ok))
 })
 
-## ---- WP12.A5 --------------------------------------------------------------------
+## WP12.A5: the unit tests pass.
 try_check("WP12.A5", {
-  test_dir_path <- file.path(root, "pipeline", "tests", "testthat")
-  res <- testthat::test_dir(test_dir_path, filter = "validate-coverage",
-                             reporter = "silent", stop_on_failure = FALSE)
+  suppressPackageStartupMessages(library(testthat))
+  res <- test_dir(file.path(root, "pipeline", "tests", "testthat"),
+                   filter = "validate-coverage", reporter = "silent", stop_on_failure = FALSE)
   df <- as.data.frame(res)
-  ok <- nrow(df) > 0 && sum(df$failed) == 0 && !any(as.logical(df$error))
-  check("WP12.A5", ok,
-        sprintf("%d test(s) in test-validate-coverage.R: %d failed, %d errored",
-                nrow(df), sum(df$failed), sum(as.logical(df$error))))
+  n_fail <- sum(df$failed) + sum(df$error)
+  check("WP12.A5", nrow(df) > 0 && n_fail == 0,
+        sprintf("test-validate-coverage.R: %d test blocks, %d failed/errored", nrow(df), n_fail))
 })
 
 ## ---- 5. Exit ----------------------------------------------------------------------
