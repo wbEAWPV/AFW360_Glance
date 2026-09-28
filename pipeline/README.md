@@ -14,6 +14,7 @@ pipeline/
   build_content.R    About text, key messages, figures -> content/, assets/, FIGURES.csv
   validate.R         checks data and metadata against the standard -> findings CSV
   reconcile.R        independent cell-by-cell check of data/ against the workbooks
+  build_docs.R       metadata/ + content/ -> .docs/generated/<id>.md, the standard's generated tables
   R/                 shared functions (I/O, codes, plans, conversion, validator checks)
   migrations/        one-off scripts that move metadata/ between versions, one folder per version
   tests/testthat/    unit tests
@@ -33,6 +34,7 @@ Rscript pipeline/build_content.R  --root .
 Rscript pipeline/convert_legacy.R --root . --country ALL --timestamp 2026-01-01T00:00:00Z
 #   writes data/AFW360_HH_SEN_2021_SURVEY.csv, data/AFW360_HH_GNB_2021_SURVEY.csv
 #   and their _manifest.csv (31 DSD columns, ESTIMATION = SURVEY)
+Rscript pipeline/build_docs.R     --root .            # --check: exit 1 if a generated table is stale
 
 # Check them
 Rscript pipeline/validate.R  --root . --out findings.csv     # exit 1 on any ERROR
