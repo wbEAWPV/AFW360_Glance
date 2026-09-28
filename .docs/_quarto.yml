@@ -5,9 +5,8 @@
 # starts with "." or "_", so `.docs/` is invisible to the root `_quarto.yml`
 # and the two sites never render each other's files.
 #
-# `render:` lists the pages explicitly. Without it Quarto would also pick up
-# the package cards under `transition/packages/`, which are agent-facing
-# working documents, not part of this site.
+# `render:` lists the pages explicitly, so notes such as shiny-port-plan.md
+# stay out of the site.
 
 project:
   type: website
@@ -15,9 +14,7 @@ project:
   render:
     - data-standard.qmd           # -> index.html (set in its own front matter)
     - input-tables-findings.qmd   # -> Appendix A
-    - transition/plan.qmd         # -> Appendix B.1
-    - transition/contract.qmd     # -> Appendix B.2
-    - transition/decisions.qmd    # -> Appendix B.3
+    - transition.qmd              # -> Appendix B
 
 website:
   title: "AFW 360 data standard"
@@ -30,21 +27,15 @@ website:
         text: "Standard"
       - href: input-tables-findings.qmd
         text: "Appendix A · Input tables"
-      - text: "Appendix B · Transition"
-        menu:
-          - href: transition/plan.qmd
-            text: "B.1 · Plan"
-          - href: transition/contract.qmd
-            text: "B.2 · Contract"
-          - href: transition/decisions.qmd
-            text: "B.3 · Decisions"
+      - href: transition.qmd
+        text: "Appendix B · Transition"
     right:
       - icon: github
         href: https://github.com/wbEAWPV/AFW360_Glance
         aria-label: "Source repository on GitHub"
   page-footer:
     left: "© 2026 World Bank Group"
-    center: "AFW 360 data standard · draft v0.3"
+    center: "AFW 360 data standard · draft v0.4"
     right: "[Source](https://github.com/wbEAWPV/AFW360_Glance)"
 
 format:

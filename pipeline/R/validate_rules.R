@@ -1,6 +1,6 @@
 # pipeline/R/validate_rules.R
 #
-# WP13 - Validator: verification rules (.docs/transition/packages/WP13.md).
+# WP13 - Validator: verification rules (.docs/transition.qmd).
 # Checks that the numbers are internally consistent: aggregations that sum
 # to their parent, shares that close to 1, poverty rates that rise with the
 # poverty line.

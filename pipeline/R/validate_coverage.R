@@ -9,7 +9,7 @@
 # pipeline/R/codes.R and pipeline/R/constants.R), and on `ctx` built by
 # build_ctx() (pipeline/R/ctx.R), which needs pipeline/R/io.R. Callers
 # source those before this file; this file does not source anything
-# itself (.docs/transition/packages/WP12.md).
+# itself (.docs/transition.qmd).
 #
 # Findings format (word for word the same on WP11-WP14): a tibble with
 # columns check_id, severity, file, row_key, message. `file` is the path
@@ -20,7 +20,7 @@
 # findings for one check_id/file pair are capped to the first 20 in
 # row_key order, plus one SUMMARY finding (see .vc_apply_cap() below).
 
-# The 18 KEY_COLUMNS, in their contract order (contract/csv_headers.csv,
+# The 18 KEY_COLUMNS, in their contract order (seeds/csv_headers.csv,
 # AFW360_HH_<ISO3>_<YEAR>.csv, positions 1-18). required_rows() returns
 # these plus series_id and cut_id; the standard data file carries these
 # plus OBS_VALUE .. OBS_COMMENT (positions 19-26).
@@ -31,7 +31,7 @@
   "MEASURE_QUAL_3", "MEASURE_QUAL_4", "MEASURE_QUAL_5"
 )
 
-# The 16 manifest keys (contract/csv_headers.csv,
+# The 16 manifest keys (seeds/csv_headers.csv,
 # AFW360_HH_<ISO3>_<YEAR>_manifest.csv; WP08.md step 4).
 .VC_MANIFEST_KEYS <- c(
   "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",

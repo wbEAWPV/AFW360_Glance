@@ -3,7 +3,7 @@
 #
 # WP06 (breakdowns-qualifiers): builds the four breakdown/qualifier
 # codelists -- CL_BRK_VAR, CL_COMP_BREAKDOWN, CL_QUAL_VAR, CL_QUALIFIER --
-# from the contract's seed rows (.docs/transition/contract/codes.csv) and
+# from the seed rows (pipeline/bootstrap/seeds/codes.csv) and
 # the text seed written for this package
 # (pipeline/bootstrap/text/breakdowns_qualifiers_text.csv).
 #
@@ -39,8 +39,8 @@ VERSION_ADDED <- "0.1.0"
 
 CODELISTS <- c("CL_BRK_VAR", "CL_COMP_BREAKDOWN", "CL_QUAL_VAR", "CL_QUALIFIER")
 
-seed_path <- file.path(root, ".docs", "transition", "contract", "codes.csv")
-headers_path <- file.path(root, ".docs", "transition", "contract", "csv_headers.csv")
+seed_path <- file.path(root, "pipeline", "bootstrap", "seeds", "codes.csv")
+headers_path <- file.path(root, "pipeline", "bootstrap", "seeds", "csv_headers.csv")
 text_path <- file.path(root, "pipeline", "bootstrap", "text", "breakdowns_qualifiers_text.csv")
 
 seed <- read_std_csv(seed_path)

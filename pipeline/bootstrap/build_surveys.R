@@ -2,9 +2,9 @@
 # pipeline/bootstrap/build_surveys.R
 #
 # WP10 (Text, figures and surveys): checks the header of the hand-authored
-# pipeline/bootstrap/text/surveys_text.csv against contract/csv_headers.csv,
+# pipeline/bootstrap/text/surveys_text.csv against seeds/csv_headers.csv,
 # then writes it through the standard CSV writer to
-# metadata/surveys/SURVEYS.csv. See .docs/transition/packages/WP10.md.
+# metadata/surveys/SURVEYS.csv. See .docs/transition.qmd.
 #
 # Usage: Rscript pipeline/bootstrap/build_surveys.R [--root <dir>] [--out-root <dir>]
 
@@ -22,17 +22,17 @@ root <- .arg(args, "--root", ".")
 source(file.path(root, "pipeline", "R", "io.R"))
 out_root <- cli_arg(args, "--out-root", root)
 
-headers <- read_std_csv(repo_path(root, ".docs", "transition", "contract", "csv_headers.csv"))
+headers <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "seeds", "csv_headers.csv"))
 expected_cols <- headers$column[headers$file == "SURVEYS.csv"]
 if (length(expected_cols) == 0) {
-  stop("build_surveys: no SURVEYS.csv header found in contract/csv_headers.csv", call. = FALSE)
+  stop("build_surveys: no SURVEYS.csv header found in seeds/csv_headers.csv", call. = FALSE)
 }
 
 surveys <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "text", "surveys_text.csv"))
 
 if (!identical(names(surveys), expected_cols)) {
   stop(
-    "build_surveys: surveys_text.csv header does not match contract/csv_headers.csv for SURVEYS.csv.\n",
+    "build_surveys: surveys_text.csv header does not match seeds/csv_headers.csv for SURVEYS.csv.\n",
     "  expected: ", paste(expected_cols, collapse = ", "), "\n",
     "  found:    ", paste(names(surveys), collapse = ", "),
     call. = FALSE

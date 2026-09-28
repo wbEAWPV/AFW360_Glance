@@ -1,8 +1,8 @@
 # data_raw/
 
 The legacy input files for the AFW 360 At A Glance dashboard, moved here byte-for-byte
-from their original per-type folders at the repository root (decision D2 of the data
-transition; see `.docs/transition/plan.qmd`).
+from their original per-type folders at the repository root during the data
+transition (see `.docs/transition.qmd`).
 
 These files are kept exactly as received and are never edited. Any fix to what the
 dashboard shows belongs in the code or presentation layer, not here.

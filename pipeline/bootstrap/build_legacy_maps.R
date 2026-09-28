@@ -8,10 +8,10 @@
 #   Rscript pipeline/bootstrap/build_legacy_maps.R --root . --out-root .
 #
 # Reads:
-#   .docs/transition/contract/label_triage.csv
-#   .docs/transition/contract/legacy_national_columns.csv
-#   .docs/transition/contract/legacy_overrides.csv
-#   .docs/transition/contract/geo_codes.csv
+#   pipeline/bootstrap/seeds/label_triage.csv
+#   pipeline/bootstrap/seeds/legacy_national_columns.csv
+#   pipeline/bootstrap/seeds/legacy_overrides.csv
+#   pipeline/bootstrap/seeds/geo_codes.csv
 #   data_raw/tables/Tables_SEN.xlsx, data_raw/tables/Tables_GNB.xlsx
 #
 # Writes:
@@ -34,15 +34,15 @@ root <- .get_flag("--root", ".")
 source(file.path(root, "pipeline", "R", "io.R"))
 out_root <- cli_arg(args, "--out-root", root)
 
-contract_dir <- file.path(root, ".docs", "transition", "contract")
+seeds_dir <- file.path(root, "pipeline", "bootstrap", "seeds")
 tables_dir <- file.path(root, "data_raw", "tables")
 
 ## ---- 1. Load seeds --------------------------------------------------------
 
-triage <- read_std_csv(file.path(contract_dir, "label_triage.csv"))
-nat_cols_seed <- read_std_csv(file.path(contract_dir, "legacy_national_columns.csv"))
-overrides_seed <- read_std_csv(file.path(contract_dir, "legacy_overrides.csv"))
-geo_codes <- read_std_csv(file.path(contract_dir, "geo_codes.csv"))
+triage <- read_std_csv(file.path(seeds_dir, "label_triage.csv"))
+nat_cols_seed <- read_std_csv(file.path(seeds_dir, "legacy_national_columns.csv"))
+overrides_seed <- read_std_csv(file.path(seeds_dir, "legacy_overrides.csv"))
+geo_codes <- read_std_csv(file.path(seeds_dir, "geo_codes.csv"))
 
 ## ---- 2. Load workbooks -----------------------------------------------------
 

@@ -1,0 +1,91 @@
+---
+title: "Appendix B. The data transition"
+subtitle: "How the legacy Excel, shapefile and text inputs became data in the AFW360 standard"
+date: 2026-09-23
+format:
+  html:
+    toc: true
+    toc-location: left
+---
+
+In September 2026 the dashboard's inputs were converted, without changing a single number, into the files defined by the [data standard](data-standard.qmd). This page summarises what was done, which part was done by code and which by hand, and where each piece lives.
+
+# In one paragraph
+
+The dashboard used to read two Excel workbooks in which every row is identified by a free-text label and every column by a spelled-out region name. The transition kept those files untouched in `data_raw/`, wrote down by hand how each label and column maps to a coded indicator, breakdown and area, and used R code to turn that mapping into a documented, machine-checkable dataset: one long table per country and year, plus codelists, boundaries, text and figures. The output reproduces every value in the workbooks, and it is marked `DRAFT` until the team confirms it.
+
+# Before and after
+
+| | Before | After |
+|---|---|---|
+| Indicator values | 2 wide Excel workbooks, rows found by label text | `data/AFW360_HH_<ISO3>_2021.csv`: one row per value, every dimension coded |
+| What a number means | Written inside the label ("Poor at \$4.20/day (2021 PPP)") | Indicator, poverty line, PPP round, unit and population defined in `metadata/codelists/` |
+| Regions and zones | Names, some cut at 32 characters | COD-AB P-codes (`SN01`, `GW08`…) in `CL_GEO`, boundaries in `geo/boundaries/*.gpkg` |
+| Methodology and messages | Loose `.txt` files, partly hard-coded in `index.qmd` | `content/TEXT.csv` and `content/text/<ISO3>/` |
+| Figures | Loose PNG | `assets/figures/<ISO3>/`, registered in `metadata/registries/FIGURES.csv` |
+| Surveys | Not recorded | `metadata/surveys/SURVEYS.csv` (EHCVM 2021/22 for both countries) |
+
+# What was done by hand
+
+These are the judgement calls. Everything else is derived from them by code.
+
+- **The mapping of the workbooks.** `pipeline/bootstrap/seeds/` holds seven small tables written during the transition:
+  - `label_triage.csv`: each of the 179 workbook labels, what it measures, and whether to keep, skip, or treat as a duplicate or derivable series;
+  - `codes.csv`: the codes and hierarchies of every codelist (breakdowns, qualifiers, units…);
+  - `geo_codes.csv`: the 35 regions and zones, with the workbook column each one came from;
+  - `legacy_national_columns.csv`: what each column of the `National` sheet means (urban/rural, sex of head, quintile…);
+  - `tab_plan.csv`: which breakdowns are published for which geography;
+  - `legacy_overrides.csv`: the 12 cells or columns withheld or flagged as wrong;
+  - `csv_headers.csv`: the columns of every metadata file.
+- **The definitions.** `pipeline/bootstrap/text/` holds the names, definitions, universes and notes of every indicator, breakdown, area, survey and figure (about 250 entries).
+- **The standard itself.** [`data-standard.qmd`](data-standard.qmd) was revised to v0.4 to close 27 gaps found while writing the mapping.
+- **The decisions.** The team settled the questions the data could not answer (see below).
+
+# What was done by code
+
+All code is in R, under `pipeline/`. Every script runs from the repository root with `--root .`, and running it twice gives identical files.
+
+| Step | Script | Reads | Writes |
+|---|---|---|---|
+| 1. Freeze the inputs | (one-off move) | the original input folders | `data_raw/`, with `CHECKSUMS.sha256` proving no byte changed |
+| 2. Build the metadata | `pipeline/bootstrap/build_*.R` | the seeds and texts above | `metadata/codelists/`, `plans/`, `surveys/` |
+| 3. Build the boundaries | `pipeline/build_geo.R` | `data_raw/shp/` | `geo/boundaries/*.gpkg`, `metadata/registries/GEO_SOURCES.csv` |
+| 4. Build text and figures | `pipeline/build_content.R` | `data_raw/text/`, `data_raw/figures/`, `index.qmd` messages | `content/`, `assets/`, `FIGURES.csv` |
+| 5. Convert the tables | `pipeline/convert_legacy.R` | `data_raw/tables/`, `metadata/plans/` | `data/AFW360_HH_<ISO3>_2021.csv` and its manifest |
+| 6. Check the result | `pipeline/validate.R` | everything above | a list of errors and warnings |
+| 7. Check the conversion | `pipeline/reconcile.R` | the workbooks and `data/`, independently of step 5 | a cell-by-cell report |
+
+Shared functions are in `pipeline/R/`, and unit tests in `pipeline/tests/`.
+
+**The bootstrap scripts (step 2) are now frozen.** From metadata version 0.1.0 onward the metadata CSV files themselves are the source of truth, and they are edited directly. The seeds and bootstrap scripts are kept as the record of how the first version was built.
+
+# Main decisions
+
+- **Inputs are never edited.** Every fix goes into the mapping or the code, so the original workbooks remain the audit trail.
+- **SEN `Departement` sheet skipped.** It is an older version whose poverty totals disagree with `ADM 1`.
+- **Known-bad values withheld, not corrected.** The GNB `Capital` column (a copy of a zone) and 7 GNB cultivated-area outliers (up to 148 million ha) are left out and registered in `LEGACY_OVERRIDES.csv`.
+- **Empty cells kept as empty.** They are recorded as "no value available" (`OBS_STATUS = O`) with a comment, never filled.
+- **Three kinds of population share.** A share of individuals, of households and of household enterprises get separate codes, because each needs its own weight.
+- **GNB survey dated 2021.** EHCVM 2021/22 is recorded as 2021.
+- **Key messages taken from the dashboard.** The version hard-coded in `index.qmd` was preferred over `Messages_<ISO3>.txt`.
+- **19 ambiguous indicators coded as recommended.** Examples: non-food share derived from the food share; three electricity indicators kept but flagged; household-head age groups kept as draft codes. All 19 were confirmed by the team and remain `DRAFT`.
+
+# Results
+
+- **Senegal:** 3,003 values (91 series × 33 population groups).
+- **Guinea-Bissau:** 2,268 values; 98 withheld as known errors; 39 empty in the source.
+- **Coverage:** every one of the 5,723 source cells is accounted for exactly once: converted, derived, duplicated, withheld or skipped.
+- **Dictionary:** 62 indicators, 13 breakdown variables (60 groups), 6 qualifiers (42 values), 35 geographic units in 6 schemes.
+- **Checks:** the validator finds no errors; the independent reconciliation matches every value.
+- **Poverty headcounts reproduced exactly:** SEN 3.13M / 6.52M and GNB 0.70M / 1.09M poor at \$3.00 / \$4.20 (2021 PPP).
+
+# What is still open
+
+- The dashboard still reads `data_raw/`. Pointing it at `data/`, `metadata/`, `geo/` and `content/` is the next step.
+- Everything is `DRAFT`. Codes become `ACTIVE` only once the team confirms them.
+- The workbooks carry no sample sizes, population counts or standard errors. Producer files with those columns should replace them.
+- Some questions in the standard remain open: quintile definition, who owns `metadata/`, the policy on boundary versions, and how to record an indicator a country cannot produce.
+
+# How the work was run
+
+The transition was carried out by AI agents in 17 work packages, each checked by an independent verifier, with the team deciding at three gates (hard cases, the standard, final acceptance on 2026-09-23). The detailed plan, the per-package instructions and the verification reports were removed once the work was accepted. They remain in the git history at commit `af378e9`, under `.docs/transition/`.

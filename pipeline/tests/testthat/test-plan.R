@@ -13,14 +13,14 @@ source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "constants.R"))
 source(file.path(root, "pipeline", "R", "plan.R"))
 
-contract_path <- function(...) file.path(root, ".docs", "transition", "contract", ...)
+seed_path <- function(...) file.path(root, "pipeline", "bootstrap", "seeds", ...)
 
 #' Build `meta` from the real contract seeds and this package's own plan
 #' files (WP08.md step 3).
 seed_meta_real <- function() {
-  codes <- read_std_csv(contract_path("codes.csv"))
-  geo <- read_std_csv(contract_path("geo_codes.csv"))
-  triage <- read_std_csv(contract_path("label_triage.csv"))
+  codes <- read_std_csv(seed_path("codes.csv"))
+  geo <- read_std_csv(seed_path("geo_codes.csv"))
+  triage <- read_std_csv(seed_path("label_triage.csv"))
 
   series_plan <- read_std_csv(file.path(root, "metadata", "plans", "SERIES_PLAN.csv"))
   tab_plan <- read_std_csv(file.path(root, "metadata", "plans", "TAB_PLAN.csv"))
@@ -243,7 +243,7 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   manifest_path <- file.path(dirname(path), "AFW360_HH_GNB_2021_manifest.csv")
   expect_true(file.exists(manifest_path))
   manifest <- read_std_csv(manifest_path)
-  # Long `key`, `value` form (contract/csv_headers.csv for
+  # Long `key`, `value` form (seeds/csv_headers.csv for
   # AFW360_HH_<ISO3>_<YEAR>_manifest.csv; read that way by build_ctx() in
   # pipeline/R/ctx.R), not one wide row.
   expect_equal(names(manifest), c("key", "value"))

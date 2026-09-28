@@ -51,7 +51,7 @@ BASE_SERIES <- c(
 #' make_data_fixture() (helper-data-fixture.R) writes its manifest in the
 #' contract's long key/value form (one `key`, `value` row per key), which
 #' ctx.R's build_ctx() reads directly (column 1 = key, column 2 = value),
-#' matching contract/csv_headers.csv's 2-column schema for
+#' matching seeds/csv_headers.csv's 2-column schema for
 #' `AFW360_HH_<ISO3>_<YEAR>_manifest.csv`. No rewrite is needed here.
 make_rules_root <- function(series_ids = BASE_SERIES, cuts = "URB", ref_area = "SEN") {
   tmp <- make_temp_root(root)

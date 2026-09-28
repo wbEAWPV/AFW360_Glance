@@ -3,7 +3,7 @@
 #
 # WP07 -- Indicator dictionary. Builds metadata/codelists/CL_INDICATOR.csv
 # from two inputs:
-#   - .docs/transition/contract/label_triage.csv: the mechanical columns
+#   - pipeline/bootstrap/seeds/label_triage.csv: the mechanical columns
 #     (stat_unit, statistic, weight, ref_period, unit_measure, unit_denom,
 #     unit_time, price_basis, display_as, decimals, valid_min, valid_max)
 #     and the qualifier codes each indicator's series use (MEASURE_QUALS),
@@ -12,7 +12,7 @@
 #     columns (name_en, definition_en, universe_filter, ...).
 #
 # `theme`, `universe_unit`, `qualifiers` and `checks` are derived by rule
-# (see .docs/transition/packages/WP07.md); every other mechanical column is
+# (see .docs/transition.qmd); every other mechanical column is
 # copied from the triage, after checking it is identical across every label
 # of a given indicator code. The two inputs' code sets must match exactly.
 #
@@ -39,10 +39,10 @@ out_root <- cli_arg(args, "--out-root", root)
 
 ## ---- paths ------------------------------------------------------------
 
-contract_dir <- file.path(root, ".docs", "transition", "contract")
-triage_path <- file.path(contract_dir, "label_triage.csv")
-codes_path <- file.path(contract_dir, "codes.csv")
-headers_path <- file.path(contract_dir, "csv_headers.csv")
+seeds_dir <- file.path(root, "pipeline", "bootstrap", "seeds")
+triage_path <- file.path(seeds_dir, "label_triage.csv")
+codes_path <- file.path(seeds_dir, "codes.csv")
+headers_path <- file.path(seeds_dir, "csv_headers.csv")
 text_path <- file.path(root, "pipeline", "bootstrap", "text", "indicators_text.csv")
 out_path <- file.path(out_root, "metadata", "codelists", "CL_INDICATOR.csv")
 

@@ -4,7 +4,7 @@
 # WP15 (Legacy converter): turns data_raw/tables/Tables_<ISO3>.xlsx into
 # data/AFW360_HH_<ISO3>_<YEAR>.csv and its manifest, driven entirely by the
 # LEGACY_LABELS, LEGACY_COLUMNS, LEGACY_OVERRIDES and SERIES_PLAN metadata
-# plans. See .docs/transition/packages/WP15.md.
+# plans. See .docs/transition.qmd.
 #
 # Usage: Rscript pipeline/convert_legacy.R --root <dir> --country SEN|GNB|ALL [--timestamp <ISO8601>] [--out-root <dir>]
 

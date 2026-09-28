@@ -4,13 +4,13 @@
 # WP05 - Geography. One-time bootstrap script (frozen after metadata 0.1.0,
 # decision D11): writes metadata/codelists/CL_GEO_SCHEME.csv and
 # metadata/codelists/CL_GEO.csv from pipeline/bootstrap/text/geo_schemes_text.csv
-# and the seed .docs/transition/contract/geo_codes.csv, reading `valid_from`
+# and the seed pipeline/bootstrap/seeds/geo_codes.csv, reading `valid_from`
 # for ADM0/ADM1 units from the legacy shapefiles.
 #
 #   Rscript pipeline/bootstrap/build_geo_codelists.R --root . --out-root .
 #
 # Run from the repo root. Reads data_raw/shp/{sen,gnb}_admin{0,1}.shp and
-# .docs/transition/contract/geo_codes.csv under --root. Writes both
+# pipeline/bootstrap/seeds/geo_codes.csv under --root. Writes both
 # codelists under --out-root, at the same relative paths.
 
 .args <- commandArgs(trailingOnly = TRUE)
@@ -51,7 +51,7 @@ write_std_csv(scheme, file.path(out_root, "metadata", "codelists", "CL_GEO_SCHEM
 
 ## ---- CL_GEO ----------------------------------------------------------------
 
-seed <- read_std_csv(file.path(root, ".docs", "transition", "contract", "geo_codes.csv"))
+seed <- read_std_csv(file.path(root, "pipeline", "bootstrap", "seeds", "geo_codes.csv"))
 
 shp_path <- function(ref_area, level) {
   iso2 <- if (ref_area == "SEN") "sen" else "gnb"

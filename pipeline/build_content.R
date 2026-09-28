@@ -5,7 +5,7 @@
 # content/text/SEN/about.md, assets/figures/SEN/SEN_FISCAL_EQUITY.png and
 # metadata/registries/FIGURES.csv from the legacy dashboard prose (About_SEN.txt,
 # the "## Row Messages" blocks of index.qmd) and the fiscal-equity figure.
-# See .docs/transition/packages/WP10.md.
+# See .docs/transition.qmd.
 #
 # Usage: Rscript pipeline/build_content.R [--root <dir>] [--out-root <dir>]
 

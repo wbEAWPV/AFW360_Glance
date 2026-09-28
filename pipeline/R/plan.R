@@ -2,7 +2,7 @@
 #
 # The required-row generator (WP08): turns SERIES_PLAN and TAB_PLAN into the
 # exact set of rows a country's data file must contain
-# (.docs/transition/packages/WP08.md). Does not subtract withheld cells;
+# (.docs/transition.qmd). Does not subtract withheld cells;
 # that is the coverage check's job (WP12).
 #
 # Depends on pipeline/R/codes.R for slot_sort() and fill_slots(), and

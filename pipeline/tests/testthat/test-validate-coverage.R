@@ -5,7 +5,7 @@
 #
 # helper-data-fixture.R's make_data_fixture() writes a data file's manifest
 # as a LONG 2-column CSV (`key`, `value`, one row per key), matching
-# contract/csv_headers.csv and ctx.R's build_ctx(). This file's tests use
+# seeds/csv_headers.csv and ctx.R's build_ctx(). This file's tests use
 # that manifest as written; set_manifest() below only edits one key of an
 # already long-form manifest.
 
@@ -18,13 +18,11 @@ source(file.path(root, "pipeline", "R", "ctx.R"))
 source(file.path(root, "pipeline", "R", "validate_coverage.R"))
 source(file.path(root, "pipeline", "R", "validate_values.R"))
 
-contract_path <- function(...) file.path(root, ".docs", "transition", "contract", ...)
-
-#' Read one `expected` value from contract/expected_counts.csv.
-expected_count <- function(check_id) {
-  counts <- read_std_csv(contract_path("expected_counts.csv"))
-  as.integer(trimws(counts$expected[counts$check_id == check_id]))
-}
+#' Targets fixed when the transition was accepted (metadata 0.1.0): GNB has
+#' 98 withheld cells (the whole `estimateCapital` column on `National`, plus
+#' 7 cultivated-area outliers) and 2,268 data rows.
+EXPECTED_COUNTS <- c(GNB.WITHHELD_CELLS = 98L, GNB.DATA.ROWS = 2268L)
+expected_count <- function(check_id) EXPECTED_COUNTS[[check_id]]
 
 #' The manifest path next to a standard data file.
 manifest_path_for <- function(data_path) {
@@ -87,7 +85,7 @@ only_errors <- function(findings) findings[findings$severity == "ERROR", , drop 
 
 # ---- withheld_rows() (WP12.A3, and the "Withheld cells" rule) -------------
 
-test_that("withheld_rows on the real metadata matches expected_counts.csv (WP12.A3)", {
+test_that("withheld_rows on the real metadata matches the accepted counts", {
   meta <- load_metadata(root)
 
   withheld_gnb <- withheld_rows(meta, "GNB", "2021")

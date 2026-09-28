@@ -51,7 +51,7 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   write_std_csv(data, data_path)
 
   # The 16 manifest keys (WP08.md step 4), written long form (one `key`,
-  # `value` row per key) per contract/csv_headers.csv for
+  # `value` row per key) per seeds/csv_headers.csv for
   # AFW360_HH_<ISO3>_<YEAR>_manifest.csv and read that way by build_ctx()
   # (pipeline/R/ctx.R), which zips column 1 (key) against column 2 (value)
   # into a named vector. Descriptive fields this helper cannot know from its

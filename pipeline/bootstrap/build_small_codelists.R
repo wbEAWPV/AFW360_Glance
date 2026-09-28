@@ -6,7 +6,7 @@
 # One-time bootstrap generator (frozen after metadata 0.1.0, see
 # pipeline/README.md). Builds the ten small codelists that every other
 # metadata file refers to, from:
-#   - contract/codes.csv:  the codelist/code/parent/order seed
+#   - seeds/codes.csv:  the codelist/code/parent/order seed
 #   - pipeline/bootstrap/text/small_codelists_text.csv: the hand-written
 #     name_en/definition_en/notes/admits_se/iso2/currency/wb_region text
 #
@@ -39,7 +39,7 @@ EXTRA_COLUMNS <- list(
   CL_AREA = c("iso2", "currency", "wb_region")
 )
 
-codes <- read_std_csv(repo_path(root, ".docs", "transition", "contract", "codes.csv"))
+codes <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "seeds", "codes.csv"))
 codes <- codes[codes$codelist %in% CODELISTS, , drop = FALSE]
 
 text <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "text", "small_codelists_text.csv"))
@@ -66,7 +66,7 @@ if (anyDuplicated(key(text)) > 0) {
   stop("small_codelists_text.csv has duplicate (codelist, code) pairs.", call. = FALSE)
 }
 
-headers <- read_std_csv(repo_path(root, ".docs", "transition", "contract", "csv_headers.csv"))
+headers <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "seeds", "csv_headers.csv"))
 
 for (cl in CODELISTS) {
   file_name <- paste0(cl, ".csv")

@@ -12,7 +12,7 @@ It is a Quarto website (`index.qmd`, `_quarto.yml`) with Python chunks (pandas, 
 2. **Write guidelines for extending and enriching the dataset.** Document how to add a country, an indicator, a disaggregation, a geographic level or a year without editing the dashboard code.
 3. **Make the dashboard work well now, without changing the data flow yet.** Keep reading the current Excel, shapefile and text inputs as they are, but structure the code so the data source can be swapped later in one place.
 
-**Working rule:** until objective 3 is done, don't restructure or edit the input files or change how they are loaded. Put fixes in the code and presentation layer, and route data access through a single loader per country so the later switch to a harmonized source touches one place. The inputs now live under byte-frozen `data_raw/` (moved from their original per-type folders by decision D2 of the data transition; see `.docs/transition/plan.qmd`) and are still not edited.
+**Working rule:** until objective 3 is done, don't restructure or edit the input files or change how they are loaded. Put fixes in the code and presentation layer, and route data access through a single loader per country so the later switch to a harmonized source touches one place. The inputs now live under byte-frozen `data_raw/` (moved from their original per-type folders during the data transition; see `.docs/transition.qmd`) and are still not edited.
 
 ## Layout
 

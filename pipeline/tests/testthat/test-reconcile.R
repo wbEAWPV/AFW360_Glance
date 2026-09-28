@@ -58,7 +58,7 @@ source(file.path(root, "pipeline", "R", "reconcile.R"))
   list(tmp = tmp, erows = erows, paths = paths)
 }
 
-test_that("source_cells() classifies every real source cell as expected_counts.csv requires", {
+test_that("source_cells() classifies every real source cell as accepted", {
   cells <- source_cells(root)
 
   expect_equal(sum(cells$ref_area == "SEN" & cells$sheet != "Departement"), 3201)

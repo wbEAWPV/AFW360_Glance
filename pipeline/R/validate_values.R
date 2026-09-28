@@ -8,7 +8,7 @@
 # Depends on `ctx` built by build_ctx() (pipeline/R/ctx.R), which needs
 # pipeline/R/io.R, and on ctx$meta$CL_INDICATOR for valid_min/valid_max.
 # Callers source those before this file; this file does not source
-# anything itself (.docs/transition/packages/WP12.md).
+# anything itself (.docs/transition.qmd).
 #
 # Findings format is the same as pipeline/R/validate_coverage.R's checks
 # (word for word the same on WP11-WP14); see that file's header for the
@@ -16,7 +16,7 @@
 # cap. The small private helpers below are duplicated there on purpose,
 # so this file stays independently sourceable.
 
-# The 18 KEY_COLUMNS, in their contract order (contract/csv_headers.csv,
+# The 18 KEY_COLUMNS, in their contract order (seeds/csv_headers.csv,
 # AFW360_HH_<ISO3>_<YEAR>.csv, positions 1-18).
 .VC_KEY_COLS <- c(
   "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",

@@ -19,6 +19,5 @@ rsconnect-python/
 _shinylive/
 
 
-# Agent worktrees of the data transition (Agent isolation: "worktree"). Untracked
-# entries here would fail the final integrator's clean-tree check at gate G2.
+# Agent worktrees (Claude Code, isolation: "worktree")
 .claude/worktrees/

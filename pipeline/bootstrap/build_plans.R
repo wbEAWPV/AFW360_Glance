@@ -4,8 +4,8 @@
 # Builds metadata/plans/SERIES_PLAN.csv and metadata/plans/TAB_PLAN.csv
 # (WP08) from the contract's label triage and cut list:
 #   - SERIES_PLAN.csv: one row per MAP row of
-#     .docs/transition/contract/label_triage.csv.
-#   - TAB_PLAN.csv: .docs/transition/contract/tab_plan.csv, in order, plus
+#     pipeline/bootstrap/seeds/label_triage.csv.
+#   - TAB_PLAN.csv: pipeline/bootstrap/seeds/tab_plan.csv, in order, plus
 #     status = DRAFT.
 #
 # Usage: Rscript pipeline/bootstrap/build_plans.R [--root <repo root>] [--out-root <dir>]
@@ -28,8 +28,8 @@ source(file.path(root, "pipeline", "R", "io.R"))
 
 out_root <- cli_arg(args, "--out-root", root)
 
-triage <- read_std_csv(repo_path(root, ".docs", "transition", "contract", "label_triage.csv"))
-tab_plan_src <- read_std_csv(repo_path(root, ".docs", "transition", "contract", "tab_plan.csv"))
+triage <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "seeds", "label_triage.csv"))
+tab_plan_src <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "seeds", "tab_plan.csv"))
 
 map_rows <- triage[triage$action == "MAP", , drop = FALSE]
 
