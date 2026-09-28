@@ -339,7 +339,7 @@ Adding one changes no structure. It takes a row in `CL_BRK_VAR`, a row per categ
 
 ## Initial breakdown variables {#sec-initial-breakdowns}
 
-@tbl-brk-vars lists the registered breakdown variables. It is generated from `CL_BRK_VAR.csv`.
+@tbl-brk-vars lists the registered breakdown variables with their categories. It is generated from `CL_BRK_VAR.csv` and `CL_COMP_BREAKDOWN.csv`. A variable whose universe reads `TBD` is registered from a legacy label whose population the producer has not yet confirmed; it stays `DRAFT` until then.
 
 {{< include generated/tbl-brk-vars.md >}}
 
@@ -482,7 +482,7 @@ One row per country and survey round (@tbl-surveys). `status` is `DRAFT` until a
 
 The manifest summarises the file; it holds nothing that a row needs. Precision is on each row (`PRECISION`), and the program run that produced each row is its `SOURCE_ID`, whose registry row carries the program version and inputs (@sec-sources). The `source_type` and `precision` keys of version 0.1.0 are gone (D15, D16, D17).
 
-`dsd_version` is not chosen independently: it is read from `DSD_AFW360_HH.csv` itself, via that file's own `VERSION` metadata.
+`dsd_version` is not chosen independently: the DSD is versioned with the metadata package, so it equals `metadata/VERSION`.
 
 `TIME_PERIOD` is the year the estimate refers to, which is **not** always a survey year. A microsimulated 2026 poverty rate has `TIME_PERIOD=2026`, `ESTIMATION=MODEL`, a source whose `survey_id` is `SEN_EHCVM_2021`, and `OBS_STATUS=E` on every row (@sec-estimation-method).
 
