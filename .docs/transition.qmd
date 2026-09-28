@@ -18,7 +18,7 @@ The dashboard used to read two Excel workbooks in which every row is identified 
 
 | | Before | After |
 |---|---|---|
-| Indicator values | 2 wide Excel workbooks, rows found by label text | `data/AFW360_HH_<ISO3>_2021.csv`: one row per value, every dimension coded |
+| Indicator values | 2 wide Excel workbooks, rows found by label text | `data/AFW360_HH_<ISO3>_2021_SURVEY.csv`: one row per value, every dimension coded |
 | What a number means | Written inside the label ("Poor at \$4.20/day (2021 PPP)") | Indicator, poverty line, PPP round, unit and population defined in `metadata/codelists/` |
 | Regions and zones | Names, some cut at 32 characters | COD-AB P-codes (`SN01`, `GW08`…) in `CL_GEO`, boundaries in `geo/boundaries/*.gpkg` |
 | Methodology and messages | Loose `.txt` files, partly hard-coded in `index.qmd` | `content/TEXT.csv` and `content/text/<ISO3>/` |
@@ -38,7 +38,7 @@ These are the judgement calls. Everything else is derived from them by code.
   - `legacy_overrides.csv`: the 12 cells or columns withheld or flagged as wrong;
   - `csv_headers.csv`: the columns of every metadata file.
 - **The definitions.** `pipeline/bootstrap/text/` holds the names, definitions, universes and notes of every indicator, breakdown, area, survey and figure (about 250 entries).
-- **The standard itself.** [`data-standard.qmd`](data-standard.qmd) was revised to v0.4 to close 27 gaps found while writing the mapping.
+- **The standard itself.** [`data-standard.qmd`](data-standard.qmd) was revised to v0.4 to close 27 gaps found while writing the mapping, and to v0.5 after the acceptance (see below).
 - **The decisions.** The team settled the questions the data could not answer (see below).
 
 # What was done by code
@@ -51,13 +51,14 @@ All code is in R, under `pipeline/`. Every script runs from the repository root 
 | 2. Build the metadata | `pipeline/bootstrap/build_*.R` | the seeds and texts above | `metadata/codelists/`, `plans/`, `surveys/` |
 | 3. Build the boundaries | `pipeline/build_geo.R` | `data_raw/shp/` | `geo/boundaries/*.gpkg`, `metadata/registries/GEO_SOURCES.csv` |
 | 4. Build text and figures | `pipeline/build_content.R` | `data_raw/text/`, `data_raw/figures/`, `index.qmd` messages | `content/`, `assets/`, `FIGURES.csv` |
-| 5. Convert the tables | `pipeline/convert_legacy.R` | `data_raw/tables/`, `metadata/plans/` | `data/AFW360_HH_<ISO3>_2021.csv` and its manifest |
+| 5. Convert the tables | `pipeline/convert_legacy.R` | `data_raw/tables/`, `metadata/plans/`, `metadata/registries/SOURCES.csv` | `data/AFW360_HH_<ISO3>_2021_SURVEY.csv` and its manifest |
 | 6. Check the result | `pipeline/validate.R` | everything above | a list of errors and warnings |
 | 7. Check the conversion | `pipeline/reconcile.R` | the workbooks and `data/`, independently of step 5 | a cell-by-cell report |
+| 8. Generate the standard's tables | `pipeline/build_docs.R` | `metadata/`, `content/` | `.docs/generated/*.md`, included by the standard |
 
 Shared functions are in `pipeline/R/`, and unit tests in `pipeline/tests/`.
 
-**The bootstrap scripts (step 2) are now frozen.** From metadata version 0.1.0 onward the metadata CSV files themselves are the source of truth, and they are edited directly. The seeds and bootstrap scripts are kept as the record of how the first version was built.
+**The bootstrap scripts (step 2) are now frozen.** From metadata version 0.1.0 onward the metadata CSV files themselves are the source of truth, and they are edited directly. The seeds and bootstrap scripts are kept as the record of how the first version was built. Later structural changes are made by one-off scripts under `pipeline/migrations/<version>/`; the first, `0.2.0/migrate.R`, took the metadata from 0.1.0 to 0.2.0 (below).
 
 # Main decisions
 
@@ -84,7 +85,18 @@ Shared functions are in `pipeline/R/`, and unit tests in `pipeline/tests/`.
 - The dashboard still reads `data_raw/`. Pointing it at `data/`, `metadata/`, `geo/` and `content/` is the next step.
 - Everything is `DRAFT`. Codes become `ACTIVE` only once the team confirms them.
 - The workbooks carry no sample sizes, population counts or standard errors. Producer files with those columns should replace them.
-- Some questions in the standard remain open: quintile definition, who owns `metadata/`, the policy on boundary versions, and how to record an indicator a country cannot produce.
+- Some questions in the standard remain open: quintile definition, who owns `metadata/`, and the policy on boundary versions. How to record an indicator a country cannot produce was settled in v0.5 (a country row in `SERIES_PLAN.csv`).
+
+# After acceptance: standard v0.5 and metadata 0.2.0
+
+On 2026-09-28 the standard was reviewed against the SDMX information model and revised to v0.5, with the metadata migrated to 0.2.0 and the data files regenerated. The review found the model sound and closed three kinds of gap: a data row could not be read from its key and the DSD alone, unit and provenance metadata sat at the file level rather than the row, and the population count on share rows was defined twice. In short:
+
+- Every data row now carries `SERIES_ID`, `UNIT_MEASURE`, `PRECISION` and `SOURCE_ID`, and the key gains an `ESTIMATION` dimension (`SURVEY` or `MODEL`), so a nowcast and a survey estimate for the same year can coexist. Files are named `AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`.
+- Verification rules and the indicator–qualifier relations moved out of codelist cells into `metadata/rules/RULES.csv`, `metadata/structure/INDICATOR_QUALIFIERS.csv` and `QUALIFIER_PAIRS.csv`; program runs are registered in `metadata/registries/SOURCES.csv`.
+- `OBS_STATUS` gains a rule-based low-reliability code and a definition-differs code; `SERIES_PLAN.csv` gains display names and per-country status.
+- Every table in the standard that lists a metadata file is generated from it and checked for staleness.
+
+The decisions are recorded as D12 to D26 in the standard's "Changes since v0.4" table. The values in `data/` are unchanged: projecting the new files onto the old 26 columns reproduces the accepted files exactly, and the reconciliation still matches every cell.
 
 # How the work was run
 
