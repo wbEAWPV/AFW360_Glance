@@ -15,6 +15,7 @@ pipeline/
   validate.R         checks data and metadata against the standard -> findings CSV
   reconcile.R        independent cell-by-cell check of data/ against the workbooks
   R/                 shared functions (I/O, codes, plans, conversion, validator checks)
+  migrations/        one-off scripts that move metadata/ between versions, one folder per version
   tests/testthat/    unit tests
   bootstrap/         one-time generators of metadata/ (frozen, see below)
     seeds/           hand-written mapping tables: labels, codes, geography, columns, overrides
@@ -54,6 +55,21 @@ files under `metadata/` are the source of truth and are edited directly; the
 bootstrap scripts are not rerun or edited. They stay as the record of how the
 first version was built. A new codelist or a larger change gets a new,
 separately named script.
+
+## Migrations
+
+A structural change to `metadata/` (adding, removing or reordering a column,
+or a new file) is made by a one-off script in `pipeline/migrations/<version>/`,
+one folder per target version, with a README saying what it changes. Each
+script runs once: it is guarded on the version it migrates from and refuses to
+run (exit 1) on any other `metadata/VERSION`. Its test runs it with
+`--out-root` on a frozen copy of the old metadata under
+`tests/testthat/fixtures/`. The first is `migrations/0.2.0/migrate.R`
+(0.1.0 to 0.2.0, standard v0.5):
+
+```
+Rscript pipeline/migrations/0.2.0/migrate.R --root .
+```
 
 ## Conventions
 
