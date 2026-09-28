@@ -2,7 +2,7 @@
 # pipeline/reconcile.R
 #
 # WP16 - Independent reconciliation tool. A second, independent path from
-# data/AFW360_HH_<ISO3>_<YEAR>.csv back to data_raw/tables/Tables_<ISO3>.xlsx,
+# data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv back to data_raw/tables/Tables_<ISO3>.xlsx,
 # built entirely from the legacy maps (never from the converter). Proves
 # every source cell is accounted for exactly once, and every converted
 # value matches its cell.

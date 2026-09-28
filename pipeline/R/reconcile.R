@@ -1,7 +1,7 @@
 # pipeline/R/reconcile.R
 #
 # WP16 - Independent reconciliation tool. A second, independent path from
-# the standard data files (data/AFW360_HH_<ISO3>_<YEAR>.csv) back to the
+# the standard data files (data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv) back to the
 # legacy workbooks (data_raw/tables/Tables_<ISO3>.xlsx). It shares no code
 # with the converter: every key here is built straight from the legacy
 # maps (metadata/plans/LEGACY_*.csv, metadata/plans/SERIES_PLAN.csv) and
@@ -11,19 +11,35 @@
 #   source_cells(root)   -- every (country, sheet, label, column) cell,
 #                            classified as skipped / duplicate / derived /
 #                            withheld / converted.
-#   expected_rows(root)  -- the 18-column key and expected value for every
-#                            converted or withheld cell.
+#   expected_rows(root)  -- the 19-column key, series and precision, and the
+#                            expected value for every converted or withheld
+#                            cell.
 #   reconcile(root)      -- compares expected_rows() against the data
 #                            files on disk and returns the full result.
 
 .reconcile_key_cols <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",
-  "URBANISATION",
+  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "ESTIMATION", "INDICATOR",
+  "SEX", "AGE", "URBANISATION",
   paste0("COMP_BREAKDOWN_", 1:5),
   paste0("MEASURE_QUAL_", 1:5)
 )
 
 .reconcile_sheets_star <- c("National", "ADM 1", "ZAE")
+
+# Every legacy conversion is a direct survey estimate (standard v0.5, D17).
+.reconcile_estimation <- "SURVEY"
+
+#' The data file a country's legacy conversion is expected in.
+#'
+#' @param root Repo root.
+#' @param ref_area,time_period The country and year.
+#' @return `<root>/data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv`.
+.reconcile_data_path <- function(root, ref_area, time_period) {
+  repo_path(
+    root, "data",
+    paste0("AFW360_HH_", ref_area, "_", time_period, "_", .reconcile_estimation, ".csv")
+  )
+}
 
 #' Match rows of a wildcard-keyed table (LEGACY_OVERRIDES) against cells.
 #'
@@ -171,16 +187,17 @@ source_cells <- function(root) {
   cells
 }
 
-#' The 18-column key and expected value for every converted or withheld
+#' The 19-column key and expected value for every converted or withheld
 #' cell.
 #'
 #' @param root Repo root.
 #' @return A tibble with one row per converted/withheld source cell:
 #'   identity columns (ref_area, sheet, legacy_label, column, class,
-#'   raw_value, scale), the 18 key columns, `row_key` (the 18 columns
-#'   pasted with "|"), `OBS_VALUE`, `OBS_STATUS`, and `comment_mode` /
-#'   `OBS_COMMENT_EXPECTED` (comment_mode is "OVERRIDE", "LEGACY_EMPTY" or
-#'   "NONE").
+#'   raw_value, scale), the 19 key columns, `row_key` (the 19 columns
+#'   pasted with "|"), `SERIES_ID` (the label's series), `PRECISION`
+#'   (`0.01 x scale`, the workbook's two decimals in base units), `OBS_VALUE`,
+#'   `OBS_STATUS`, and `comment_mode` / `OBS_COMMENT_EXPECTED` (comment_mode
+#'   is "OVERRIDE", "LEGACY_EMPTY" or "NONE").
 expected_rows <- function(root) {
   meta <- load_metadata(root)
   cells <- source_cells(root)
@@ -204,12 +221,14 @@ expected_rows <- function(root) {
       column = character(0), class = character(0), raw_value = character(0),
       scale = character(0), DATAFLOW = character(0), REF_AREA = character(0),
       GEO = character(0), URBANISATION = character(0), SEX = character(0),
-      AGE = character(0), TIME_PERIOD = character(0), INDICATOR = character(0),
+      AGE = character(0), TIME_PERIOD = character(0), ESTIMATION = character(0),
+      INDICATOR = character(0),
       COMP_BREAKDOWN_1 = character(0), COMP_BREAKDOWN_2 = character(0),
       COMP_BREAKDOWN_3 = character(0), COMP_BREAKDOWN_4 = character(0),
       COMP_BREAKDOWN_5 = character(0), MEASURE_QUAL_1 = character(0),
       MEASURE_QUAL_2 = character(0), MEASURE_QUAL_3 = character(0),
       MEASURE_QUAL_4 = character(0), MEASURE_QUAL_5 = character(0),
+      SERIES_ID = character(0), PRECISION = character(0),
       OBS_VALUE = character(0), OBS_STATUS = character(0),
       comment_mode = character(0), OBS_COMMENT_EXPECTED = character(0),
       row_key = character(0)
@@ -231,6 +250,7 @@ expected_rows <- function(root) {
   GEO <- ifelse(is.na(rows$GEO) | rows$GEO == "", "_T", rows$GEO)
   URBANISATION <- ifelse(is.na(rows$URBANISATION) | rows$URBANISATION == "", "_T", rows$URBANISATION)
   TIME_PERIOD <- unname(time_of[REF_AREA])
+  ESTIMATION <- rep(.reconcile_estimation, n)
 
   stat_unit <- unname(stat_unit_of[INDICATOR])
   SEX <- ifelse(!is.na(stat_unit) & stat_unit == "IND", "_T", "_Z")
@@ -262,6 +282,9 @@ expected_rows <- function(root) {
   obs_value_num <- ifelse(is_empty, NA_real_, raw_num * scale_num)
 
   OBS_VALUE <- ifelse(is_empty, "", fmt_num(obs_value_num))
+  scale_or_one <- ifelse(is.na(rows$scale) | trimws(rows$scale) == "", 1, scale_num)
+  PRECISION <- fmt_num(0.01 * scale_or_one)
+  SERIES_ID <- rows$series_id
   OBS_STATUS <- ifelse(is_empty, "O", "A")
 
   comment_mode <- ifelse(
@@ -280,8 +303,8 @@ expected_rows <- function(root) {
 
   DATAFLOW <- rep("AFW360_HH", n)
   key_parts <- cbind(
-    DATAFLOW, REF_AREA, GEO, TIME_PERIOD, INDICATOR, SEX, AGE, URBANISATION,
-    brk_mat, qual_mat
+    DATAFLOW, REF_AREA, GEO, TIME_PERIOD, ESTIMATION, INDICATOR, SEX, AGE,
+    URBANISATION, brk_mat, qual_mat
   )
   row_key <- apply(key_parts, 1, paste, collapse = "|")
 
@@ -290,9 +313,12 @@ expected_rows <- function(root) {
     column = rows$column, class = rows$class, raw_value = rows$raw_value,
     scale = rows$scale,
     DATAFLOW = DATAFLOW, REF_AREA = REF_AREA, GEO = GEO, URBANISATION = URBANISATION,
-    SEX = SEX, AGE = AGE, TIME_PERIOD = TIME_PERIOD, INDICATOR = INDICATOR
+    SEX = SEX, AGE = AGE, TIME_PERIOD = TIME_PERIOD, ESTIMATION = ESTIMATION,
+    INDICATOR = INDICATOR
   )
   out <- dplyr::bind_cols(out, tibble::as_tibble(brk_mat), tibble::as_tibble(qual_mat))
+  out$SERIES_ID <- SERIES_ID
+  out$PRECISION <- PRECISION
   out$OBS_VALUE <- OBS_VALUE
   out$OBS_STATUS <- OBS_STATUS
   out$comment_mode <- comment_mode
@@ -322,16 +348,19 @@ reconcile <- function(root) {
   missing_files <- character(0)
   for (ra in ref_areas) {
     tp <- unname(time_of[ra])
-    path <- repo_path(root, "data", paste0("AFW360_HH_", ra, "_", tp, ".csv"))
+    path <- .reconcile_data_path(root, ra, tp)
     if (!file.exists(path)) {
       missing_files <- c(missing_files, path)
       next
     }
     d <- read_std_csv(path)
-    missing_cols <- setdiff(.reconcile_key_cols, names(d))
+    missing_cols <- setdiff(
+      c(.reconcile_key_cols, "SERIES_ID", "PRECISION", "OBS_VALUE", "OBS_STATUS", "OBS_COMMENT"),
+      names(d)
+    )
     if (length(missing_cols) > 0) {
       stop(
-        "reconcile: ", path, " is missing key column(s): ",
+        "reconcile: ", path, " is missing column(s): ",
         paste(missing_cols, collapse = ", "), call. = FALSE
       )
     }
@@ -377,6 +406,12 @@ reconcile <- function(root) {
     }
     drow <- data_all[idx[1], ]
     data_value[i] <- drow$OBS_VALUE
+    # The row names the label's series, and carries the workbook's rounding
+    # unit (0.01 x scale) whether or not the cell holds a value.
+    ok_series <- identical(drow$SERIES_ID, erows$SERIES_ID[i])
+    drow_prec <- suppressWarnings(as.numeric(drow$PRECISION))
+    ok_prec <- !is.na(drow_prec) &&
+      abs(drow_prec - as.numeric(erows$PRECISION[i])) <= 1e-9 * max(1, abs(drow_prec))
     ok <- TRUE
     if (erows$OBS_VALUE[i] == "") {
       ok <- identical(trimws(drow$OBS_VALUE), "") &&
@@ -394,7 +429,7 @@ reconcile <- function(root) {
       }
       ok <- ok_val && ok_comment
     }
-    if (!ok) result[i] <- "MISMATCH"
+    if (!(ok && ok_series && ok_prec)) result[i] <- "MISMATCH"
   }
 
   # duplicate / derived: assert_rule evaluation.

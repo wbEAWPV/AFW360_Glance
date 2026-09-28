@@ -1,8 +1,10 @@
 # pipeline/tests/testthat/test-convert.R
 #
-# Tests for pipeline/R/convert_tables.R (card WP15). Covers the slot order,
-# the SEX/AGE sentinel rule, an empty cell, WITHHOLD, COMMENT, a failing
-# assertion and an unknown label, plus the small pure helpers.
+# Tests for pipeline/R/convert_tables.R (card WP15) and pipeline/R/manifest.R.
+# Covers the slot order, the SEX/AGE sentinel rule, an empty cell, WITHHOLD,
+# COMMENT, a failing assertion and an unknown label, the DSD 0.2.0 columns
+# (ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION, SOURCE_ID), the file names
+# and the manifest keys, plus the small pure helpers.
 
 root <- find_root()
 source(file.path(root, "pipeline", "R", "codes.R"))
@@ -18,9 +20,11 @@ source(file.path(root, "pipeline", "R", "manifest.R"))
 #
 # Four labels:
 #   "Indicator One"       MAP,  series S1 (HH,  no quals, no defining brk)
-#   "Indicator Two"       MAP,  series S2 (IND, qual QUALX_A, no defining brk)
+#   "Indicator Two"       MAP,  series S2 (IND, qual QUALX_A, no defining brk,
+#                                           scale 1000000, unit PERSON)
 #   "Indicator Three"     MAP,  series S3 (HH,  no quals, defining brk BRKY_LO,
-#                                           var BRKVARY, slot_order 20)
+#                                           var BRKVARY, slot_order 20,
+#                                           unit LCU, scale empty)
 #   "Indicator Duplicate" DUPLICATE_OF, assert_rule "EQUALS:S1"
 
 make_fixture <- function() {
@@ -39,7 +43,7 @@ make_fixture <- function() {
     action = c("MAP", "MAP", "MAP", "DUPLICATE_OF"),
     series_id = c("S1", "S2", "S3", ""),
     duplicate_of = c("", "", "", ""),
-    scale = c("1", "1000000", "1", ""),
+    scale = c("1", "1000000", "", ""),
     assert_rule = c("", "", "", "EQUALS:S1"),
     notes = c("", "", "", ""),
     stringsAsFactors = FALSE
@@ -91,6 +95,22 @@ make_fixture <- function() {
   cl_indicator <- data.frame(
     code = c("IND_ONE", "IND_TWO", "IND_THREE"),
     stat_unit = c("HH", "IND", "HH"),
+    unit_measure = c("SHARE", "PERSON", "LCU"),
+    stringsAsFactors = FALSE
+  )
+
+  cl_area <- data.frame(
+    code = c("ZZ", "YY"),
+    currency = c("XOF", "EUR"),
+    stringsAsFactors = FALSE
+  )
+
+  # Two LEGACY_CONVERSION runs for ZZ (v2 is the one to use), a PRODUCER run
+  # with a higher version and another country's legacy run, both ignored.
+  sources <- data.frame(
+    source_id = c("ZZ_TEST_LEGACY_v1", "ZZ_TEST_LEGACY_v2", "ZZ_TEST_PROD_v3", "YY_TEST_LEGACY_v9"),
+    kind = c("LEGACY_CONVERSION", "LEGACY_CONVERSION", "PRODUCER", "LEGACY_CONVERSION"),
+    ref_area = c("ZZ", "ZZ", "ZZ", "YY"),
     stringsAsFactors = FALSE
   )
 
@@ -119,6 +139,9 @@ make_fixture <- function() {
   )
 
   meta <- list(
+    DSD_AFW360_HH = read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv")),
+    SOURCES = sources,
+    CL_AREA = cl_area,
     LEGACY_LABELS = legacy_labels,
     LEGACY_COLUMNS = legacy_columns,
     LEGACY_OVERRIDES = legacy_overrides,
@@ -248,14 +271,155 @@ test_that("build_country_rows applies the slot order, the SEX/AGE sentinel rule,
   expect_equal(nrow(rows[rows$INDICATOR == "IND_ONE" | rows$INDICATOR == "IND_TWO" | rows$INDICATOR == "IND_THREE", ]), 5)
 })
 
-test_that("finalize_rows sorts by the 18-column key and stays byte-identical on re-sort", {
+test_that("finalize_rows sorts by the 19-column key and stays byte-identical on re-sort", {
+  fx <- make_fixture()
+  key_cols <- dsd_key_columns(fx$meta)
+  expect_length(key_cols, 19)
+  expect_equal(key_cols[c(1, 5, 19)], c("DATAFLOW", "ESTIMATION", "MEASURE_QUAL_5"))
+
+  rows <- build_country_rows("ZZ", fx$wb, fx$meta)
+  sorted1 <- finalize_rows(rows[rev(seq_len(nrow(rows))), ], key_cols)
+  sorted2 <- finalize_rows(sorted1, key_cols)
+  expect_equal(sorted1, sorted2)
+  ord <- do.call(order, c(unname(as.list(sorted1[, key_cols])), list(method = "radix")))
+  expect_equal(ord, seq_len(nrow(sorted1)))
+})
+
+test_that("finalize_rows stops on a duplicate key", {
   fx <- make_fixture()
   rows <- build_country_rows("ZZ", fx$wb, fx$meta)
-  sorted1 <- finalize_rows(rows)
-  sorted2 <- finalize_rows(sorted1)
-  expect_equal(sorted1, sorted2)
-  key_str <- do.call(paste0, sorted1[, KEY_COLUMNS])
-  expect_equal(order(key_str, method = "radix"), seq_along(key_str))
+  expect_error(
+    finalize_rows(rbind(rows, rows[1, ]), dsd_key_columns(fx$meta)),
+    "duplicate key"
+  )
+})
+
+# ---- DSD 0.2.0 columns ------------------------------------------------
+
+test_that("build_country_rows writes the 31 DSD columns in DSD order", {
+  fx <- make_fixture()
+  rows <- build_country_rows("ZZ", fx$wb, fx$meta)
+  dsd <- fx$meta$DSD_AFW360_HH
+  expected <- dsd$id[order(as.integer(dsd$position))]
+  expect_length(expected, 31)
+  expect_equal(names(rows), expected)
+  expect_equal(dsd_columns(fx$meta), expected)
+  expect_equal(
+    names(rows)[c(1, 5, 20, 21, 22, 23, 24, 30, 31)],
+    c("DATAFLOW", "ESTIMATION", "SERIES_ID", "OBS_VALUE", "UNIT_MEASURE", "PRECISION",
+      "OBS_STATUS", "SOURCE_ID", "OBS_COMMENT")
+  )
+})
+
+test_that("build_country_rows fills ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION and SOURCE_ID", {
+  fx <- make_fixture()
+  rows <- build_country_rows("ZZ", fx$wb, fx$meta)
+
+  expect_true(all(rows$ESTIMATION == "SURVEY"))
+  expect_true(all(rows$SOURCE_ID == "ZZ_TEST_LEGACY_v2"))
+  expect_true(all(rows$SERIES_ID != ""))
+
+  series_of <- c(IND_ONE = "S1", IND_TWO = "S2", IND_THREE = "S3")
+  expect_equal(rows$SERIES_ID, unname(series_of[rows$INDICATOR]))
+
+  one <- rows[rows$INDICATOR == "IND_ONE", ]
+  expect_true(all(one$UNIT_MEASURE == "SHARE"))
+  # An unscaled share: 0.01, on the A row and on the O (empty cell) row alike.
+  expect_equal(sort(one$OBS_STATUS), c("A", "O"))
+  expect_true(all(one$PRECISION == "0.01"))
+
+  two <- rows[rows$INDICATOR == "IND_TWO", ]
+  expect_equal(two$UNIT_MEASURE, "PERSON")
+  expect_equal(two$PRECISION, "10000")
+
+  # An LCU indicator resolves to the country currency; an empty scale is 1.
+  three <- rows[rows$INDICATOR == "IND_THREE", ]
+  expect_true(all(three$UNIT_MEASURE == "XOF"))
+  expect_true(all(three$PRECISION == "0.01"))
+
+  # Reliability attributes stay empty on legacy rows.
+  for (col in c("STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP")) {
+    expect_true(all(rows[[col]] == ""), info = col)
+  }
+})
+
+test_that("legacy_precision is 0.01 x scale in fixed notation", {
+  expect_equal(legacy_precision("1"), "0.01")
+  expect_equal(legacy_precision(""), "0.01")
+  expect_equal(legacy_precision(NA_character_), "0.01")
+  expect_equal(legacy_precision("1000000"), "10000")
+  expect_error(legacy_precision("abc"), "invalid LEGACY_LABELS scale")
+})
+
+test_that("legacy_source_id picks the highest _v<N> LEGACY_CONVERSION row of the country", {
+  fx <- make_fixture()
+  expect_equal(legacy_source_id(fx$meta$SOURCES, "ZZ"), "ZZ_TEST_LEGACY_v2")
+  expect_equal(legacy_source_id(fx$meta$SOURCES, "YY"), "YY_TEST_LEGACY_v9")
+  expect_error(legacy_source_id(fx$meta$SOURCES, "XX"), "no LEGACY_CONVERSION row")
+})
+
+test_that("resolve_unit_measure resolves LCU per country and stops without a currency", {
+  fx <- make_fixture()
+  expect_equal(resolve_unit_measure(fx$meta$CL_INDICATOR, fx$meta$CL_AREA, "IND_THREE", "YY"), "EUR")
+  expect_equal(resolve_unit_measure(fx$meta$CL_INDICATOR, fx$meta$CL_AREA, "IND_ONE", "YY"), "SHARE")
+  expect_error(
+    resolve_unit_measure(fx$meta$CL_INDICATOR, fx$meta$CL_AREA, "IND_THREE", "XX"),
+    "no currency"
+  )
+})
+
+# ---- file names and manifest -----------------------------------------------
+
+test_that("data and manifest file names follow AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>", {
+  fn <- data_file_name("SEN", "2021", "SURVEY")
+  expect_equal(fn, "AFW360_HH_SEN_2021_SURVEY.csv")
+  expect_match(fn, "^AFW360_HH_[A-Z]{3}_[0-9]{4}_(SURVEY|MODEL)[.]csv$")
+  expect_equal(manifest_file_name(fn), "AFW360_HH_SEN_2021_SURVEY_manifest.csv")
+})
+
+test_that("build_manifest writes the 16 keys in order, with sorted distinct sources", {
+  man <- build_manifest(
+    country = "ZZ", time_period = "2099", estimation = "SURVEY",
+    survey_id = "ZZ_TEST_2099",
+    source_ids = c("ZZ_B_v1", "ZZ_A_v1", "ZZ_B_v1", ""),
+    file_name = "AFW360_HH_ZZ_2099_SURVEY.csv", n_rows = 5,
+    metadata_version = "0.2.0", run_timestamp = "2026-01-01T00:00:00Z"
+  )
+  expect_equal(names(man), c("key", "value"))
+  expect_equal(
+    man$key,
+    c("dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+      "estimation", "survey_id", "sources", "file_name", "n_rows", "producer",
+      "program", "software", "run_timestamp", "status", "notes")
+  )
+  v <- stats::setNames(man$value, man$key)
+  expect_equal(v[["estimation"]], "SURVEY")
+  expect_equal(v[["sources"]], "ZZ_A_v1 ZZ_B_v1")
+  expect_equal(v[["file_name"]], "AFW360_HH_ZZ_2099_SURVEY.csv")
+  expect_equal(v[["n_rows"]], "5")
+  expect_equal(v[["dsd_version"]], "0.2.0")
+  expect_false(any(c("source_type", "precision") %in% man$key))
+})
+
+test_that("the committed data files match the 0.2.0 contract", {
+  meta <- load_metadata(root)
+  cols <- dsd_columns(meta)
+  files <- list.files(file.path(root, "data"), pattern = "^AFW360_HH_.*[.]csv$")
+  data_files <- files[!grepl("_manifest[.]csv$", files)]
+  expect_setequal(data_files, c("AFW360_HH_GNB_2021_SURVEY.csv", "AFW360_HH_SEN_2021_SURVEY.csv"))
+  for (f in data_files) {
+    d <- read_std_csv(file.path(root, "data", f))
+    expect_equal(names(d), cols, info = f)
+    for (col in c("SERIES_ID", "UNIT_MEASURE", "PRECISION", "SOURCE_ID")) {
+      expect_true(all(d[[col]] != ""), info = paste(f, col))
+    }
+    man <- read_std_csv(file.path(root, "data", manifest_file_name(f)))
+    v <- stats::setNames(man$value, man$key)
+    expect_equal(man$key, MANIFEST_KEYS, info = f)
+    expect_equal(v[["file_name"]], f)
+    expect_equal(v[["n_rows"]], as.character(nrow(d)))
+    expect_equal(v[["sources"]], paste(sort(unique(d$SOURCE_ID)), collapse = " "))
+  }
 })
 
 test_that("a failing DUPLICATE_OF assertion stops with a clear message", {

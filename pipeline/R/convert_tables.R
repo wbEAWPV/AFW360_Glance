@@ -2,9 +2,10 @@
 #
 # Pure functions that turn a legacy workbook (data_raw/tables/Tables_<ISO3>.xlsx)
 # into AFW360_HH rows, driven entirely by the LEGACY_LABELS, LEGACY_COLUMNS,
-# LEGACY_OVERRIDES and SERIES_PLAN metadata plans (card WP15). This file holds
-# no label, no column name and no country-specific rule of its own: every
-# sheet name and label it needs comes from the plans, at run time.
+# LEGACY_OVERRIDES and SERIES_PLAN metadata plans (card WP15), with the column
+# set and order read from DSD_AFW360_HH (DSD 0.2.0). This file holds no label
+# and no country-specific rule of its own: every sheet name and label it needs
+# comes from the plans, at run time.
 
 #' Whether a value is blank: `NA`, or empty after trimming whitespace.
 #'
@@ -271,26 +272,121 @@ match_overrides <- function(overrides, country, sheet, column, legacy_label, wc)
   overrides[hit, ]
 }
 
+#' The `SOURCES.csv` row a country's legacy conversion writes as `SOURCE_ID`.
+#'
+#' Among the rows with `kind = LEGACY_CONVERSION` and the country's
+#' `ref_area`, the one with the highest `_v<N>` suffix (a new run of the same
+#' program is a new source with a higher `_v<N>`; standard, "Sources").
+#'
+#' @param sources The `SOURCES` registry.
+#' @param country The country code (`ref_area`).
+#' @return A single `source_id`.
+legacy_source_id <- function(sources, country) {
+  if (is.null(sources)) {
+    stop("convert_tables: metadata table SOURCES is missing", call. = FALSE)
+  }
+  cand <- sources$source_id[sources$kind == "LEGACY_CONVERSION" & sources$ref_area == country]
+  if (length(cand) == 0) {
+    stop(
+      "convert_tables: SOURCES.csv has no LEGACY_CONVERSION row for ", country,
+      call. = FALSE
+    )
+  }
+  has_suffix <- grepl("_v[0-9]+$", cand)
+  if (!all(has_suffix)) {
+    stop(
+      "convert_tables: LEGACY_CONVERSION source_id(s) without a _v<N> suffix for ",
+      country, ": ", paste(cand[!has_suffix], collapse = ", "),
+      call. = FALSE
+    )
+  }
+  ver <- as.integer(sub("^.*_v([0-9]+)$", "\\1", cand))
+  if (sum(ver == max(ver)) > 1) {
+    stop(
+      "convert_tables: several LEGACY_CONVERSION sources for ", country,
+      " share the highest version _v", max(ver),
+      call. = FALSE
+    )
+  }
+  cand[which.max(ver)]
+}
+
+#' The `UNIT_MEASURE` of an indicator's rows in a country.
+#'
+#' `CL_INDICATOR.unit_measure`, with `LCU` replaced by the country's ISO 4217
+#' `currency` from `CL_AREA` (D14).
+#'
+#' @param cl_indicator The `CL_INDICATOR` codelist.
+#' @param cl_area The `CL_AREA` codelist.
+#' @param indicator An indicator code.
+#' @param country The country code.
+#' @return A single unit code.
+resolve_unit_measure <- function(cl_indicator, cl_area, indicator, country) {
+  unit <- cl_indicator$unit_measure[cl_indicator$code == indicator]
+  if (length(unit) != 1 || is_blank(unit)) {
+    stop(
+      "convert_tables: indicator '", indicator, "' has no unit_measure in CL_INDICATOR",
+      call. = FALSE
+    )
+  }
+  if (unit == "LCU") {
+    cur <- cl_area$currency[cl_area$code == country]
+    if (length(cur) != 1 || is_blank(cur)) {
+      stop(
+        "convert_tables: ", country, " has no currency in CL_AREA (needed for LCU indicator '",
+        indicator, "')",
+        call. = FALSE
+      )
+    }
+    unit <- cur
+  }
+  unit
+}
+
+#' The `PRECISION` of a legacy label's rows.
+#'
+#' The workbooks hold values rounded to two decimals, so the rounding unit
+#' in base units is `0.01 x scale` (D15), with an empty `scale` meaning 1.
+#'
+#' @param scale The label's `LEGACY_LABELS.scale`, as a string.
+#' @return A string in fixed notation, e.g. `"0.01"` or `"10000"`.
+legacy_precision <- function(scale) {
+  s <- if (is_blank(scale)) 1 else suppressWarnings(as.numeric(scale))
+  if (is.na(s) || s <= 0) {
+    stop("convert_tables: invalid LEGACY_LABELS scale '", scale, "'", call. = FALSE)
+  }
+  fmt_num(round(0.01 * s, 10))
+}
+
 #' Build the AFW360_HH rows for one country.
 #'
 #' Pure function: takes the workbook and the metadata plans, returns the
-#' rows as a data frame of [DSD_COLUMNS], one row per mapped, non-withheld
-#' cell, unsorted. `constants.R` must already be sourced.
+#' rows as a data frame with the DSD columns (read from `DSD_AFW360_HH`, in
+#' DSD order), one row per mapped, non-withheld cell, unsorted.
+#' `constants.R` and `io.R` must already be sourced.
+#'
+#' Only `MAP` labels produce rows; `DUPLICATE_OF` and `DERIVED` labels are
+#' checked against their target with [check_label_assertions()] and write
+#' nothing, and `SKIP` labels are ignored.
 #'
 #' @param country The country code (`ref_area`).
 #' @param wb A named list of tibbles, as returned by [read_legacy_workbook()].
 #' @param meta A named list of plan/codelist tibbles (as from
-#'   `load_metadata()`): `LEGACY_LABELS`, `LEGACY_COLUMNS`,
-#'   `LEGACY_OVERRIDES`, `SERIES_PLAN`, `SURVEYS`, `CL_INDICATOR`,
-#'   `CL_BRK_VAR`, `CL_QUAL_VAR`, `CL_COMP_BREAKDOWN`, `CL_QUALIFIER`.
-#' @return A data frame with the [DSD_COLUMNS] columns.
-build_country_rows <- function(country, wb, meta) {
+#'   `load_metadata()`): `DSD_AFW360_HH`, `LEGACY_LABELS`, `LEGACY_COLUMNS`,
+#'   `LEGACY_OVERRIDES`, `SERIES_PLAN`, `SURVEYS`, `SOURCES`, `CL_AREA`,
+#'   `CL_INDICATOR`, `CL_BRK_VAR`, `CL_QUAL_VAR`, `CL_COMP_BREAKDOWN`,
+#'   `CL_QUALIFIER`.
+#' @param estimation The `ESTIMATION` code written on every row.
+#' @return A data frame with the DSD columns.
+build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
+  columns <- dsd_columns(meta)
   legacy_labels <- meta$LEGACY_LABELS
   legacy_columns <- meta$LEGACY_COLUMNS
   overrides <- meta$LEGACY_OVERRIDES
   series_plan <- meta$SERIES_PLAN
   surveys <- meta$SURVEYS
   cl_indicator <- meta$CL_INDICATOR
+  cl_area <- meta$CL_AREA
   cl_brk_var <- meta$CL_BRK_VAR
   cl_qual_var <- meta$CL_QUAL_VAR
   cl_comp_breakdown <- meta$CL_COMP_BREAKDOWN
@@ -311,6 +407,7 @@ build_country_rows <- function(country, wb, meta) {
     )
   }
   time_period <- sv$time_period[1]
+  source_id <- legacy_source_id(meta$SOURCES, country)
 
   lc <- legacy_columns[legacy_columns$ref_area == country & legacy_columns$action == "MAP", ]
 
@@ -353,7 +450,8 @@ build_country_rows <- function(country, wb, meta) {
       }
 
       series_id <- ll$series_id[1]
-      scale <- as.numeric(ll$scale[1])
+      scale <- if (is_blank(ll$scale[1])) 1 else as.numeric(ll$scale[1])
+      precision <- legacy_precision(ll$scale[1])
       indicator <- unname(indicator_of_series[series_id])
       if (is.na(indicator)) {
         stop(
@@ -362,6 +460,7 @@ build_country_rows <- function(country, wb, meta) {
           call. = FALSE
         )
       }
+      unit_measure <- resolve_unit_measure(cl_indicator, cl_area, indicator, country)
       stat_unit <- unname(stat_unit_of[indicator])
       sex_age <- if (identical(stat_unit, "IND")) SENTINEL_TOTAL else SENTINEL_NA
 
@@ -390,56 +489,80 @@ build_country_rows <- function(country, wb, meta) {
       geo <- if (lc$GEO[i] == "") SENTINEL_TOTAL else lc$GEO[i]
       urb <- if (lc$URBANISATION[i] == "") SENTINEL_TOTAL else lc$URBANISATION[i]
 
-      row <- stats::setNames(as.list(rep("", length(DSD_COLUMNS))), DSD_COLUMNS)
-      row$DATAFLOW <- DATAFLOW_ID
-      row$REF_AREA <- country
-      row$GEO <- geo
-      row$TIME_PERIOD <- time_period
-      row$INDICATOR <- indicator
-      row$SEX <- sex_age
-      row$AGE <- sex_age
-      row$URBANISATION <- urb
-      row$COMP_BREAKDOWN_1 <- brk[1]
-      row$COMP_BREAKDOWN_2 <- brk[2]
-      row$COMP_BREAKDOWN_3 <- brk[3]
-      row$COMP_BREAKDOWN_4 <- brk[4]
-      row$COMP_BREAKDOWN_5 <- brk[5]
-      row$MEASURE_QUAL_1 <- qual[1]
-      row$MEASURE_QUAL_2 <- qual[2]
-      row$MEASURE_QUAL_3 <- qual[3]
-      row$MEASURE_QUAL_4 <- qual[4]
-      row$MEASURE_QUAL_5 <- qual[5]
-      row$OBS_VALUE <- obs_value
-      row$OBS_STATUS <- obs_status
-      row$OBS_COMMENT <- obs_comment
+      values <- c(
+        DATAFLOW = DATAFLOW_ID,
+        REF_AREA = country,
+        GEO = geo,
+        TIME_PERIOD = time_period,
+        ESTIMATION = estimation,
+        INDICATOR = indicator,
+        SEX = sex_age,
+        AGE = sex_age,
+        URBANISATION = urb,
+        COMP_BREAKDOWN_1 = brk[1],
+        COMP_BREAKDOWN_2 = brk[2],
+        COMP_BREAKDOWN_3 = brk[3],
+        COMP_BREAKDOWN_4 = brk[4],
+        COMP_BREAKDOWN_5 = brk[5],
+        MEASURE_QUAL_1 = qual[1],
+        MEASURE_QUAL_2 = qual[2],
+        MEASURE_QUAL_3 = qual[3],
+        MEASURE_QUAL_4 = qual[4],
+        MEASURE_QUAL_5 = qual[5],
+        SERIES_ID = series_id,
+        OBS_VALUE = obs_value,
+        UNIT_MEASURE = unit_measure,
+        PRECISION = precision,
+        OBS_STATUS = obs_status,
+        SOURCE_ID = source_id,
+        OBS_COMMENT = obs_comment
+      )
+      unknown <- setdiff(names(values), columns)
+      if (length(unknown) > 0) {
+        stop(
+          "convert_tables: column(s) not in DSD_AFW360_HH: ", paste(unknown, collapse = ", "),
+          call. = FALSE
+        )
+      }
+      row <- stats::setNames(as.list(rep("", length(columns))), columns)
+      row[names(values)] <- as.list(unname(values))
 
-      out[[length(out) + 1]] <- as.data.frame(row, stringsAsFactors = FALSE)
+      out[[length(out) + 1]] <- as.data.frame(row, stringsAsFactors = FALSE, check.names = FALSE)
     }
   }
 
   if (length(out) == 0) {
-    empty_cols <- stats::setNames(replicate(length(DSD_COLUMNS), character(0), simplify = FALSE), DSD_COLUMNS)
-    return(as.data.frame(empty_cols, stringsAsFactors = FALSE))
+    empty_cols <- stats::setNames(replicate(length(columns), character(0), simplify = FALSE), columns)
+    return(as.data.frame(empty_cols, stringsAsFactors = FALSE, check.names = FALSE))
   }
   do.call(rbind, out)
 }
 
-#' Sort rows by the 18-column key, in C-locale radix order, and check that
-#' the key is unique.
+#' Sort rows by the key columns, in C-locale radix order, and check that the
+#' key is unique.
 #'
-#' @param df A data frame with the [DSD_COLUMNS] columns.
+#' @param df A data frame with the DSD columns.
+#' @param key_cols The key columns in DSD order, from [dsd_key_columns()]
+#'   (the 19 columns `DATAFLOW` through `MEASURE_QUAL_5` in DSD 0.2.0).
 #' @return `df`, sorted, with row names reset.
-finalize_rows <- function(df) {
+finalize_rows <- function(df, key_cols) {
   if (nrow(df) == 0) {
     return(df)
   }
+  missing <- setdiff(key_cols, names(df))
+  if (length(missing) > 0) {
+    stop(
+      "convert_tables: key column(s) missing from the rows: ", paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
 
-  key_cols <- df[, KEY_COLUMNS]
-  ord <- do.call(order, c(as.list(key_cols), list(method = "radix")))
+  keys <- unname(as.list(df[, key_cols, drop = FALSE]))
+  ord <- do.call(order, c(keys, list(method = "radix")))
   df <- df[ord, , drop = FALSE]
   rownames(df) <- NULL
 
-  key_str <- do.call(paste, c(as.list(df[, KEY_COLUMNS]), list(sep = "|")))
+  key_str <- do.call(paste, c(unname(as.list(df[, key_cols, drop = FALSE])), list(sep = "|")))
   dups <- unique(key_str[duplicated(key_str)])
   if (length(dups) > 0) {
     stop(

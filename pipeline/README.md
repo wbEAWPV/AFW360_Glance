@@ -9,7 +9,7 @@ data standard (`.docs/data-standard.qmd`): `data/`, `geo/`, `metadata/`,
 
 ```
 pipeline/
-  convert_legacy.R   Excel workbooks -> data/AFW360_HH_<ISO3>_<YEAR>.csv + manifest
+  convert_legacy.R   Excel workbooks -> data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv + _manifest.csv
   build_geo.R        shapefiles -> geo/boundaries/*.gpkg + metadata/registries/GEO_SOURCES.csv
   build_content.R    About text, key messages, figures -> content/, assets/, FIGURES.csv
   validate.R         checks data and metadata against the standard -> findings CSV
@@ -31,6 +31,8 @@ From the repository root:
 Rscript pipeline/build_geo.R      --root .
 Rscript pipeline/build_content.R  --root .
 Rscript pipeline/convert_legacy.R --root . --country ALL --timestamp 2026-01-01T00:00:00Z
+#   writes data/AFW360_HH_SEN_2021_SURVEY.csv, data/AFW360_HH_GNB_2021_SURVEY.csv
+#   and their _manifest.csv (31 DSD columns, ESTIMATION = SURVEY)
 
 # Check them
 Rscript pipeline/validate.R  --root . --out findings.csv     # exit 1 on any ERROR

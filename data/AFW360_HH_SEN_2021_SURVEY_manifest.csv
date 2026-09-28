@@ -1,13 +1,13 @@
 key,value
 dataflow,AFW360_HH
-dsd_version,0.1.0
-metadata_version,0.1.0
+dsd_version,0.2.0
+metadata_version,0.2.0
 ref_area,SEN
 time_period,2021
-source_type,SURVEY
+estimation,SURVEY
 survey_id,SEN_EHCVM_2021
-precision,ROUNDED_2DP
-file_name,AFW360_HH_SEN_2021.csv
+sources,SEN_EHCVM2021_LEGACY_v1
+file_name,AFW360_HH_SEN_2021_SURVEY.csv
 n_rows,3003
 producer,AFW DIP/POV team
 program,pipeline/convert_legacy.R

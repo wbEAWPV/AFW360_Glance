@@ -169,3 +169,38 @@ cli_args <- function(args, flag) {
 cli_flag <- function(args, flag) {
   flag %in% args
 }
+
+#' The data file columns, in DSD order.
+#'
+#' Read from `metadata/structure/DSD_AFW360_HH.csv` (as loaded by
+#' [load_metadata()] under the name `DSD_AFW360_HH`), ordered by `position`,
+#' so no script hard-codes the column list.
+#'
+#' @param meta A named list from [load_metadata()].
+#' @return A character vector of column ids.
+dsd_columns <- function(meta) {
+  dsd <- meta$DSD_AFW360_HH
+  if (is.null(dsd) || nrow(dsd) == 0) {
+    stop("dsd_columns: metadata table DSD_AFW360_HH is missing or empty", call. = FALSE)
+  }
+  pos <- suppressWarnings(as.integer(dsd$position))
+  if (anyNA(pos) || anyDuplicated(pos) > 0) {
+    stop("dsd_columns: DSD_AFW360_HH.position must be unique integers", call. = FALSE)
+  }
+  dsd$id[order(pos)]
+}
+
+#' The key columns of the data file, in DSD order.
+#'
+#' The key is every DSD column whose `role` is `constant`, `breakdown`,
+#' `reference` or `qualifier` (in DSD 0.2.0, the 19 columns `DATAFLOW`
+#' through `MEASURE_QUAL_5`); attributes and the measure are not part of it.
+#'
+#' @param meta A named list from [load_metadata()].
+#' @return A character vector of column ids.
+dsd_key_columns <- function(meta) {
+  dsd <- meta$DSD_AFW360_HH
+  cols <- dsd_columns(meta)
+  role_of <- stats::setNames(dsd$role, dsd$id)
+  cols[role_of[cols] %in% c("constant", "breakdown", "reference", "qualifier")]
+}
