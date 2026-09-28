@@ -261,7 +261,7 @@ Every row of a `MODEL` file carries `OBS_STATUS=E` unless the cell is empty (`O`
 1. Fill from the left, with no gaps. Unused slots are `_Z`.
 2. Use the canonical order: ascending `slot_order` from `CL_QUAL_VAR`, with ties broken alphabetically.
 3. One category per qualifier variable per row.
-4. **A row may use only the qualifiers its indicator declares** in `CL_INDICATOR.qualifiers`, plus any qualifier required by a breakdown it uses. `POOR_Y` requires a poverty line, so a food-share row broken down by poverty status carries `POVLINE_*` and `PPP_*` even though `CONS_SH` does not otherwise use them.
+4. **A row may use only the qualifiers its indicator declares** in `INDICATOR_QUALIFIERS.csv` (@sec-relations), plus any qualifier required by a breakdown it uses. `POOR_Y` requires a poverty line, so a food-share row broken down by poverty status carries `POVLINE_*` and `PPP_*` even though `CONS_SH` does not otherwise use them.
 5. Pairings must be allowed: `QUALIFIER_PAIRS.csv` says which PPP rounds go with which line (@sec-relations).
 
 ## Values and attributes {#sec-values}
