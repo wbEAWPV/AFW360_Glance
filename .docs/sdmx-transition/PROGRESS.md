@@ -20,14 +20,14 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 |---|---|---|---|---|---|---|---|
 | WP0 | Scaffolding | | committed | orchestrator | orchestrator (WP0 check prints OK) | 883ba6b | 2026-09-29 |
 | WP1 | Standard v0.6 draft | WP0 | committed | opus (162k tokens, over budget; deliverables complete, no split) | sonnet, PASS 7/7 | a9b1b09 | 2026-09-29 |
-| WP1-fix | Standard: SERIES_ID uncoded, no CL_SERIES, D43 wording, sentinel annotations (Gate 1) | WP1, Gate 1 answers | in progress | opus | | | 2026-09-29 |
+| WP1-fix | Standard: SERIES_ID uncoded, no CL_SERIES, D43 wording, sentinel annotations (Gate 1) | WP1, Gate 1 answers | committed | opus (86k tokens) | sonnet, PASS 8/8 | ae7db97 | 2026-09-29 |
 | WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | committed | opus (91k tokens) | sonnet, PASS 9/9 (check 6 re-run in corrected form by a second verifier, `bad 0` over 27 URNs) | df94270 | 2026-09-29 |
 | WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | committed | opus (113k tokens, slightly over budget; deliverables complete) | sonnet, PASS 10/10 | 16d4170 | 2026-09-29 |
 | WP5a1 | Vendored SDMX-ML 3.1.0 schemas | WP0 | committed | sonnet (61k tokens) | sonnet, PASS 4/4 | 6af721e | 2026-09-29 |
 | WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | committed | opus (69k tokens) | sonnet, PASS 6/6 | 5e37861 | 2026-09-29 |
-| WP2-fix | Metadata 0.3.0: CL_SERIES dropped, SERIES_ID uncoded; generated tables refreshed (Gate 1) | WP2b, WP2c, Gate 1 answers | in progress | opus | | | 2026-09-29 |
-| Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c, WP1-fix, WP2-fix | pending (all answers received; approved when the two fix rows are committed) | | | | 2026-09-29 |
-| WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | todo | | | | |
+| WP2-fix | Metadata 0.3.0: CL_SERIES dropped, SERIES_ID uncoded; generated tables refreshed (Gate 1) | WP2b, WP2c, Gate 1 answers | committed | opus (63k tokens) | sonnet, PASS 8/8 | 8f5fa20 | 2026-09-29 |
+| Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c, WP1-fix, WP2-fix | approved | | | ae7db97, 8f5fa20 | 2026-09-29 |
+| WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | in progress | opus | | | 2026-09-29 |
 | WP3b | Reconciliation and 0.2.0 projection test | WP3a | todo | | | | |
 | WP7 | Independent verification tools (pysdmx, lxml) | WP3a, WP5a1 | todo | | | | |
 | WP9a | Dashboard loader | WP3a, WP2c | todo | | | | |
@@ -135,3 +135,4 @@ Questions raised during WP1 and WP2a:
 | 2026-09-29 | Data lead answered Q1 to Q5 (all as recommended); answers folded into `plan.md` and recorded under Gate 1. |
 | 2026-09-29 | Orchestration started (Fable session). WP0 committed (883ba6b): `tmp/`, `.gitignore`, `.gitattributes`; environment table filled. Implementer briefs are extracted verbatim from `plan.md` with `sed` into `tmp/briefs/` (gitignored) and read by each agent as its first step, so the pasted text is byte-exact. |
 | 2026-09-29 | WP5a1, WP2a, WP1, WP2b, WP2c verified and committed (6af721e, df94270, a9b1b09, 16d4170, 5e37861). Three plan amendments and 13 surfaced points recorded. Gate 1 report written; three questions (G1-Q1 series ids versus `IDType`, G1-Q2 D43 wording, G1-Q3 artefact descriptions) put to the data lead. Waiting. |
+| 2026-09-29 | Gate 1 approved: D38 to D46 confirmed; chapter approved on a reviewer's summary (wording fixes to WP10a, surfaced point 14); G1-Q1 option A, G1-Q2, G1-Q3 accepted, G1-Q4 drop three annotations. D43 amended. WP2-fix (8f5fa20) and WP1-fix (ae7db97) committed. WP3a started. |
