@@ -22,3 +22,8 @@ SDMX 3.1 alignment (standard v0.6); migrated from 0.2.0 by `pipeline/migrations/
 - D44: new `structure/ARTEFACTS.csv` lists every SDMX artefact to generate, with its name and description.
 - D45: project-only metadata stays CSV, documented as tooling metadata outside SDMX; no VTL and no DataConstraint in this release.
 - D46: data file column order follows the DSD: fixed columns, dimensions, `TIME_PERIOD`, measures, attributes; 37 columns, 19-column key.
+- Generated from this version by `pipeline/build_sdmx.R`: `sdmx/structures/AFW360_structures.xml`, one SDMX-ML 3.1 structure message with 32 maintainables (agency scheme, 22 codelists, concept scheme `CS_AFW360` with 82 concepts, `DSD_AFW360_HH`, dataflow `AFW360_HH`, `MSD_AFW360`, metadataflow `MDF_AFW360`, data and metadata provider schemes, provision agreements `PA_AFW360_HH` and `MPA_AFW360`), and four SDMX-CSV 2.1 metadata messages `sdmx/metadata/MDS_*.csv`.
+- `data/` regenerated as SDMX-CSV 2.1 data messages; every value unchanged (reconciliation and the 0.2.0 projection match).
+- `pipeline/import_sdmx.R` reads a structure message back into these CSVs; the round trip is byte-identical.
+- The validator gains six `SDMX.*` checks (`pipeline/R/validate_sdmx.R`).
+- Fusion Metadata Registry 12.4.2 rejects SDMX-ML 3.1; it loads the SDMX-ML 3.0 profile (`build_sdmx.R --sdmx-ml-version 3.0`, without the MSD, metadataflow and metadata agreement) once the `WB` agency is registered, validates both data files unchanged, and its 3.0 export imports with an empty diff.

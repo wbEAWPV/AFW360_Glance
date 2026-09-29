@@ -1,7 +1,7 @@
 ---
 title: "Appendix B. The data transition"
 subtitle: "How the legacy Excel, shapefile and text inputs became data in the AFW360 standard"
-date: 2026-09-23
+date: 2026-09-29
 format:
   html:
     toc: true
@@ -82,7 +82,7 @@ Shared functions are in `pipeline/R/`, and unit tests in `pipeline/tests/`.
 
 # What is still open
 
-- The dashboard still reads `data_raw/`. Pointing it at `data/`, `metadata/`, `geo/` and `content/` is the next step.
+- The dashboard still reads `data_raw/`. Pointing it at `data/`, `metadata/`, `geo/` and `content/` is the next step. (Done in the SDMX transition, below.)
 - Everything is `DRAFT`. Codes become `ACTIVE` only once the team confirms them.
 - The workbooks carry no sample sizes, population counts or standard errors. Producer files with those columns should replace them.
 - Some questions in the standard remain open: quintile definition, who owns `metadata/`, and the policy on boundary versions. How to record an indicator a country cannot produce was settled in v0.5 (a country row in `SERIES_PLAN.csv`).
@@ -101,3 +101,23 @@ The decisions are recorded as D12 to D26 in the standard's "Changes since v0.4" 
 # How the work was run
 
 The transition was carried out by AI agents in 17 work packages, each checked by an independent verifier, with the team deciding at three gates (hard cases, the standard, final acceptance on 2026-09-23). The detailed plan, the per-package instructions and the verification reports were removed once the work was accepted. They remain in the git history at commit `af378e9`, under `.docs/transition/`.
+
+# SDMX transition (standard v0.6, metadata 0.3.0)
+
+On 2026-09-29 the files themselves were made SDMX 3.1 conformant, with the standard revised to v0.6 and the metadata migrated to 0.3.0 by `pipeline/migrations/0.3.0/migrate.R`. v0.5 already followed the SDMX information model in spirit; v0.6 makes the published files readable by SDMX tools while keeping CSV as the working format and the CSVs under `metadata/`, `content/` and `data/` as the source of truth. The same step switched the dashboard from `data_raw/` to the harmonised files. In short:
+
+- **Data.** The two data files are SDMX-CSV 2.1 data messages: three fixed leading columns, one column per component of the data structure, 37 columns with a 19-column key, a `FREQ` dimension first, `ACTION` `R` on every row, and `NaN` where a value is intentionally missing.
+- **Structures.** `pipeline/build_sdmx.R` generates one SDMX-ML 3.1 structure message, `sdmx/structures/AFW360_structures.xml`, with 32 maintainables: the agency scheme, 22 codelists, a concept scheme of 82 concepts, the data structure and dataflow, the metadata structure and metadataflow, the data and metadata provider schemes and the two provision agreements. Agency `WB.AFW360` is declared as a sub-agency of the World Bank's `WB`. The file is validated against the vendored SDMX-ML 3.1.0 schemas before it is written.
+- **Reference metadata.** Surveys, sources, dashboard text and figures are published as four SDMX-CSV 2.1 metadata messages under `sdmx/metadata/`, generated from the registry CSVs.
+- **Round trip.** `pipeline/import_sdmx.R` turns a structure message (SDMX-ML 3.0 or 3.1) back into the metadata CSVs. Importing the generated message and rebuilding gives the same file byte for byte.
+- **Checks.** The validator gains six `SDMX.*` checks (staleness, schema, references, identity, data-file header, skipped). `tools/verify/` checks the same files independently with pysdmx and lxml.
+- **Dashboard.** `afw360/loader.py` is the single data-access layer; the Senegal and Guinea-Bissau sections and the About page read `data/`, `metadata/`, `content/`, `geo/` and `assets/` through it. Guinea-Bissau now shows its own data, and every cell follows its indicator's display rule.
+- **Fusion Metadata Registry.** FMR 12.4.2 was installed locally under `tools/fmr/runtime/` (Tomcat 10.1, MySQL 8.0, no Docker, no administrator rights). It rejects SDMX-ML 3.1, so `build_sdmx.R --sdmx-ml-version 3.0` writes a 3.0 profile without the metadata structure, metadataflow and metadata agreement. FMR loads that profile once the `WB` agency is registered, validates both SDMX-CSV 2.1 data files unchanged, and exports SDMX-ML 3.0, which the importer reads back with an empty diff. The workflow is in the [FMR guide](fmr-guide.qmd).
+
+The decisions are recorded as D27 to D46 in the standard's "Changes since v0.5" table and in `metadata/CHANGELOG.md`; the [SDMX conformance](sdmx-conformance.qmd) page gives the evidence for each requirement. The main ones: target the SDMX 3.1 family (SDMX-CSV 2.1 for data and reference metadata, SDMX-ML 3.1 for structures, no SDMX-JSON); keep the pipeline in R, with Python only in the dashboard loader and the verification tool; align project codes to global SDMX, SDG and World Bank codelists where one exists; nine measures; registries become codelists plus metadatasets; `SERIES_ID` stays an uncoded attribute, because series ids contain dots.
+
+The results: every value in `data/` is unchanged (the reconciliation matches all 6871 cells, and projecting the new files onto the v0.5 columns reproduces them); the validator reports no errors; the test suite holds 1503 expectations; the SDMX files and the generated tables of the standard are current; the independent reader reports no failures.
+
+What remains open: every code is still `DRAFT`; FMR cannot read the 3.1 message or the metadata structure, so the reference metadata files are checked only by the build, the validator and `tools/verify`; the page is not yet laid out as a Quarto dashboard.
+
+The work was run as 30 work packages and three gates, all on 2026-09-29, on branch `standard/v0.6-sdmx`. An orchestrating agent wrote a brief for each package; Opus agents implemented them and fresh Sonnet agents verified each one against its own checklist before it was committed. The data lead decided at Gate 1 (the design, decisions D38 to D46), Gate 2 (install FMR now rather than defer) and Gate 3 (final acceptance and merge). The plan, the progress log with every commit hash and the surfaced points are in `.docs/sdmx-transition/`.
