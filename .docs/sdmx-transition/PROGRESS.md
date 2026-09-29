@@ -19,10 +19,10 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP | Title | Depends on | State | Implementer | Verifier | Commit | Date |
 |---|---|---|---|---|---|---|---|
 | WP0 | Scaffolding | | committed | orchestrator | orchestrator (WP0 check prints OK) | 883ba6b | 2026-09-29 |
-| WP1 | Standard v0.6 draft | WP0 | todo | | | | |
-| WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | todo | | | | |
+| WP1 | Standard v0.6 draft | WP0 | in progress | opus | | | 2026-09-29 |
+| WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | in progress | opus | | | 2026-09-29 |
 | WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | todo | | | | |
-| WP5a1 | Vendored SDMX-ML 3.1.0 schemas | WP0 | todo | | | | |
+| WP5a1 | Vendored SDMX-ML 3.1.0 schemas | WP0 | committed | sonnet (61k tokens) | sonnet, PASS 4/4 | 6af721e | 2026-09-29 |
 | WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | todo | | | | |
 | Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c | pending | | | | |
 | WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | todo | | | | |
@@ -65,6 +65,8 @@ Review questions answered by the data lead on 2026-09-29, ahead of the gate: Q1 
 
 | # | WP | Point | Resolved in |
 |---|---|---|---|
+| 1 | WP5a1 | `sdmx-twg/sdmx-ml` has no LICENSE, LICENCE or COPYING file at tag `v3.1.0` (all raw URLs 404) and its README states no licence terms; `pipeline/xsd/sdmx-ml-3.1/README.md` records the absence instead of quoting a licence. | WP10a (conformance page, XSD row) |
+| 2 | WP5a1 | `.gitattributes` has no `*.xsd` rule, so with `core.autocrlf=true` the vendored XSDs get CRLF on a fresh checkout (git add warned on 5 files). Harmless for XSD parsing; a `*.xsd text eol=lf` line would keep them byte-identical to the download. | WP10c (`.gitattributes`) |
 
 ## Plan amendments
 
