@@ -79,6 +79,28 @@ test_that("docs_check reports a stale fragment and an unknown file", {
   expect_setequal(f$check_id, c("DOCS.FRAGMENT_STALE", "DOCS.FRAGMENT_UNKNOWN"))
 })
 
+test_that("fragment row order follows position and slot_order, not the file's row order", {
+  tmp <- make_temp_root(root, include = c("metadata", "content"))
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+  set.seed(20260928)
+  for (rel in c(
+    "metadata/structure/DSD_AFW360_HH.csv",
+    "metadata/codelists/CL_BRK_VAR.csv",
+    "metadata/codelists/CL_QUAL_VAR.csv"
+  )) {
+    df <- read_std_csv(file.path(tmp, rel))
+    df <- df[rev(seq_len(nrow(df))), , drop = FALSE] # reversed: every row moves
+    df <- df[sample(nrow(df)), , drop = FALSE]
+    write_std_csv(df, file.path(tmp, rel))
+  }
+  ids <- c("tbl-columns", "tbl-brk-vars", "tbl-qual-vars")
+  expect_identical(docs_fragments(tmp)[ids], docs_fragments(root)[ids])
+})
+
+test_that("a line break inside a cell becomes one space", {
+  expect_identical(md_text("a\r\nb\nc\rd"), "a b c d")
+})
+
 test_that("md_text escapes the characters that would change a cell", {
   expect_identical(md_text("a | b <x> $1 *y*"), "a \\| b \\<x> \\$1 \\*y\\*")
   expect_identical(md_code(c("POV_HC", "")), c("`POV_HC`", ""))

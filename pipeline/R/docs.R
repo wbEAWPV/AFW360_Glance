@@ -92,6 +92,17 @@ docs_fragment_ids <- function() {
 
 # ---- Markdown helpers ----------------------------------------------------
 
+#' Make a cell value one line: `NA` becomes "", and each line break (CRLF,
+#' CR or LF) becomes a single space, so one table row stays one line.
+#'
+#' @param x A character vector.
+#' @return A character vector.
+md_oneline <- function(x) {
+  x <- as.character(x)
+  x[is.na(x)] <- ""
+  gsub("\r\n|[\r\n]", " ", x, perl = TRUE)
+}
+
 #' Escape free text for a pipe-table cell.
 #'
 #' Escapes the characters that would otherwise change the cell's meaning in
@@ -103,8 +114,7 @@ docs_fragment_ids <- function() {
 #' @param x A character vector.
 #' @return A character vector.
 md_text <- function(x) {
-  x <- as.character(x)
-  x[is.na(x)] <- ""
+  x <- md_oneline(x)
   gsub("([][\\\\|<$@*`~^])", "\\\\\\1", x, perl = TRUE)
 }
 
@@ -115,8 +125,7 @@ md_text <- function(x) {
 #' @param x A character vector.
 #' @return A character vector.
 md_code <- function(x) {
-  x <- as.character(x)
-  x[is.na(x)] <- ""
+  x <- md_oneline(x)
   out <- ifelse(x == "", "", paste0("`", gsub("|", "\\|", x, fixed = TRUE), "`"))
   unname(out)
 }
@@ -238,12 +247,13 @@ md_categories <- function(codes) {
   invisible(TRUE)
 }
 
-#' Order rows by a numeric `order` column, keeping file order on ties.
-.docs_by_order <- function(df) {
-  if (nrow(df) == 0 || !"order" %in% names(df)) {
+#' Order rows by an integer column (`order`, `position`, `slot_order`),
+#' keeping file order on ties; a non-integer value sorts last.
+.docs_by_order <- function(df, col = "order") {
+  if (nrow(df) == 0 || !col %in% names(df)) {
     return(df)
   }
-  ord <- suppressWarnings(as.numeric(df$order))
+  ord <- suppressWarnings(as.integer(df[[col]]))
   df[order(ord, seq_len(nrow(df)), na.last = TRUE), , drop = FALSE]
 }
 
@@ -253,6 +263,7 @@ md_categories <- function(codes) {
   dsd <- .docs_read(root, "DSD_AFW360_HH")
   .docs_need(dsd, c("position", "id", "role", "codelist", "required", "sentinel", "description"),
     "DSD_AFW360_HH.csv")
+  dsd <- .docs_by_order(dsd, "position")
   md_table(
     c("#", "Column", "Role", "Codelist", "Sentinels", "Required", "Description"),
     list(
@@ -278,6 +289,7 @@ md_categories <- function(codes) {
   cats <- .docs_read(root, "CL_COMP_BREAKDOWN")
   .docs_need(vars, c("code", "describes", "universe", "slot_order", "status"), "CL_BRK_VAR.csv")
   .docs_need(cats, c("code", "var_code", "order"), "CL_COMP_BREAKDOWN.csv")
+  vars <- .docs_by_order(vars, "slot_order")
   categories <- vapply(vars$code, function(v) {
     md_categories(.docs_by_order(cats[cats$var_code == v, , drop = FALSE])$code)
   }, character(1), USE.NAMES = FALSE)
@@ -296,6 +308,7 @@ md_categories <- function(codes) {
   cats <- .docs_read(root, "CL_QUALIFIER")
   .docs_need(vars, c("code", "name_en", "slot_order"), "CL_QUAL_VAR.csv")
   .docs_need(cats, c("code", "var_code", "order"), "CL_QUALIFIER.csv")
+  vars <- .docs_by_order(vars, "slot_order")
   categories <- vapply(vars$code, function(v) {
     md_categories(.docs_by_order(cats[cats$var_code == v, , drop = FALSE])$code)
   }, character(1), USE.NAMES = FALSE)
