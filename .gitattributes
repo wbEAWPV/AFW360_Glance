@@ -5,6 +5,7 @@
 *.R      text eol=lf
 *.md     text eol=lf
 *.qmd    text eol=lf
+*.xml text eol=lf
 *.sha256 text eol=lf
 metadata/VERSION text eol=lf
 

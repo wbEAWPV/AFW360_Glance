@@ -6,8 +6,8 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 
 | Tool | Version seen | Date |
 |---|---|---|
-| R / Rscript | | |
-| xml2 | | |
+| R / Rscript | R 4.5.3 (2026-03-11 ucrt); readr 2.2.0, testthat 3.3.2, sf 1.1.1 | 2026-09-29 |
+| xml2 | 1.3.8 | 2026-09-29 |
 | quarto | 1.10.18 | 2026-09-29 |
 | Java | OpenJDK 21.0.12.1 Zulu | 2026-09-29 |
 | Python (.venv) | 3.11.9 (pandas, geopandas, pytest, openpyxl; no matplotlib, no lxml) | 2026-09-29 |
