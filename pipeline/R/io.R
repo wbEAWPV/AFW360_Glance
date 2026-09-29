@@ -170,14 +170,17 @@ cli_flag <- function(args, flag) {
   flag %in% args
 }
 
-#' The data file columns, in DSD order.
+#' The DSD component ids, in data-file order.
 #'
 #' Read from `metadata/structure/DSD_AFW360_HH.csv` (as loaded by
 #' [load_metadata()] under the name `DSD_AFW360_HH`), ordered by `position`,
-#' so no script hard-codes the column list.
+#' so no script hard-codes the column list. Every row is a component
+#' (`component` is `dimension`, `time_dimension`, `measure` or `attribute`;
+#' 34 in DSD 0.3.0). The three fixed SDMX-CSV columns (`STRUCTURE`,
+#' `STRUCTURE_ID`, `ACTION`) are not DSD components and are not returned.
 #'
 #' @param meta A named list from [load_metadata()].
-#' @return A character vector of column ids.
+#' @return A character vector of component ids.
 dsd_columns <- function(meta) {
   dsd <- meta$DSD_AFW360_HH
   if (is.null(dsd) || nrow(dsd) == 0) {
@@ -187,20 +190,24 @@ dsd_columns <- function(meta) {
   if (anyNA(pos) || anyDuplicated(pos) > 0) {
     stop("dsd_columns: DSD_AFW360_HH.position must be unique integers", call. = FALSE)
   }
+  if (!"component" %in% names(dsd)) {
+    stop("dsd_columns: DSD_AFW360_HH lacks the column `component`", call. = FALSE)
+  }
   dsd$id[order(pos)]
 }
 
 #' The key columns of the data file, in DSD order.
 #'
-#' The key is every DSD column whose `role` is `constant`, `breakdown`,
-#' `reference` or `qualifier` (in DSD 0.2.0, the 19 columns `DATAFLOW`
-#' through `MEASURE_QUAL_5`); attributes and the measure are not part of it.
+#' The key is every DSD component whose `component` is `dimension` or
+#' `time_dimension` (in DSD 0.3.0, the 18 dimensions `FREQ` through
+#' `MEASURE_QUAL_5` plus `TIME_PERIOD`, 19 in all); measures and attributes
+#' are not part of it.
 #'
 #' @param meta A named list from [load_metadata()].
-#' @return A character vector of column ids.
+#' @return A character vector of component ids.
 dsd_key_columns <- function(meta) {
   dsd <- meta$DSD_AFW360_HH
   cols <- dsd_columns(meta)
-  role_of <- stats::setNames(dsd$role, dsd$id)
-  cols[role_of[cols] %in% c("constant", "breakdown", "reference", "qualifier")]
+  kind_of <- stats::setNames(dsd$component, dsd$id)
+  cols[kind_of[cols] %in% c("dimension", "time_dimension")]
 }

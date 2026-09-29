@@ -47,14 +47,15 @@ test_that("every fragment is one pipe table, a blank line and its caption", {
   }
 })
 
-test_that("tbl-columns has one row per data-file column, positions 1 to 31", {
+test_that("tbl-columns has one row per DSD component, positions 1 to 34", {
   out <- build_into_temp()
   on.exit(unlink(out, recursive = TRUE), add = TRUE)
   lines <- readLines(file.path(out, "tbl-columns.md"), encoding = "UTF-8")
   rows <- lines[grepl("^\\| [0-9]+ \\|", lines)]
-  expect_length(rows, 31)
-  expect_identical(as.integer(sub("^\\| ([0-9]+) \\|.*$", "\\1", rows)), 1:31)
-  expect_match(rows[1], "^\\| 1 \\| `DATAFLOW` \\|")
+  expect_length(rows, 34)
+  expect_identical(as.integer(sub("^\\| ([0-9]+) \\|.*$", "\\1", rows)), 1:34)
+  expect_match(rows[1], "^\\| 1 \\| `FREQ` \\|")
+  expect_false(any(grepl("DATAFLOW", lines, fixed = TRUE)))
 })
 
 test_that("docs_check finds nothing on a fresh set and one finding when a fragment is deleted", {

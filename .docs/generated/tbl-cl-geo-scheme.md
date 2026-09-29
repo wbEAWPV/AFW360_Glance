@@ -12,5 +12,6 @@
 | `has_geometry` | R | Y only for ADM0 and ADM1. |
 | `nests_in` | O | Another scheme, only where nesting is genuine; roll-up checks only, never used to derive geometry. |
 | `partition` | R | Y if its units cover the country exactly once. |
+| `global_urn` | O | Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=\<agency>:\<id>(\<version>).\<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41). |
 
 : Columns of `CL_GEO_SCHEME.csv` {#tbl-cl-geo-scheme}
