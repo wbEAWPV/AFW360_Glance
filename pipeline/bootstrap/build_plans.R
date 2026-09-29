@@ -11,7 +11,7 @@
 # Usage: Rscript pipeline/bootstrap/build_plans.R [--root <repo root>] [--out-root <dir>]
 #
 # Reads inputs under --root (default "."), writes outputs under --out-root
-# (default: --root) at the same relative paths (COMMON.md section 5).
+# (default: --root) at the same relative paths (.docs/data-standard.qmd).
 
 .get_flag <- function(args, flag, default = NULL) {
   idx <- which(args == flag)

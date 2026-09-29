@@ -1,7 +1,7 @@
 # pipeline/R/io.R
 #
 # Shared I/O helpers for the AFW 360 pipeline: reading and writing the
-# standard CSV format (COMMON.md section 3), hashing, metadata loading and
+# standard CSV format (.docs/data-standard.qmd), hashing, metadata loading and
 # small command-line argument helpers.
 
 #' Read a standard pipeline CSV.
@@ -26,7 +26,7 @@ read_std_csv <- function(path) {
 
 #' Write a standard pipeline CSV.
 #'
-#' Follows COMMON.md section 3: UTF-8 without a byte-order mark, LF line
+#' Follows the data standard (.docs/data-standard.qmd): UTF-8 without a byte-order mark, LF line
 #' endings (even on Windows), one header row, `NA` written as an empty
 #' string, and numeric columns formatted with [fmt_num()] (fixed notation,
 #' no scientific notation, at most 10 decimals, no trailing zeros). Parent

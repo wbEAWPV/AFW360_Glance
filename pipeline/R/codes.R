@@ -1,7 +1,7 @@
 # pipeline/R/codes.R
 #
 # Code validation and ordering helpers shared by the pipeline and its
-# validators (COMMON.md section 4).
+# validators (.docs/data-standard.qmd).
 
 #' Whether each element is a well-formed code.
 #'

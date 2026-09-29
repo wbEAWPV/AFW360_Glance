@@ -89,7 +89,7 @@ test_that("validate.R on the clean fixture gives 0 ERROR from STRUCT, CODES and 
   # Those findings are expected and belong to WP12 and WP13, so validate.R
   # exits non-zero here. That the whole validator is clean is proven on the
   # real data by the wave-3 integrator, not on this fixture.
-  # --root also has to resolve pipeline/R/*.R (COMMON.md section 5), so
+  # --root also has to resolve pipeline/R/*.R (.docs/data-standard.qmd), so
   # the temp copy needs "pipeline" alongside the metadata/content/data it
   # is testing.
   fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
@@ -422,7 +422,7 @@ test_that("validate.R --metadata-only on the real metadata has no unexplained ER
   # The one known, reported metadata defect (WP11-implementer.md,
   # Questions): metadata/plans/LEGACY_LABELS.csv leaves `scale` empty on
   # rows this transition did not touch (mostly action != MAP); a findings
-  # cap (COMMON.md "Findings format") can fold those 20+ rows into one
+  # cap (see .docs/data-standard.qmd) can fold those 20+ rows into one
   # extra SUMMARY row for the same check_id/file. Every other ERROR would
   # be unexplained and should fail this test.
   unexplained <- errors[!(errors$check_id == "META.REQUIRED" &

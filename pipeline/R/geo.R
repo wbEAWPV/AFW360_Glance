@@ -5,7 +5,7 @@
 # the standard boundary layers used by pipeline/build_geo.R and
 # pipeline/bootstrap/build_geo_codelists.R.
 #
-# GEOS, not S2, is this pipeline's validity engine (WP05.md): SN01 is
+# GEOS, not S2, is this pipeline's validity engine (.docs/data-standard.qmd): SN01 is
 # invalid only under S2, and SN13 is invalid under GEOS as delivered but
 # fixed by st_make_valid(). Sourcing this file switches S2 off so every
 # script that uses these helpers reads and builds under GEOS.

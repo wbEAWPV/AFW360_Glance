@@ -40,5 +40,5 @@ SENTINEL_NA <- "_Z"
 SENTINELS <- c("_T", "_Z", "_U", "_O", "_X")
 
 #' The placeholder used in a required text column when a value cannot be
-#' known from the inputs (COMMON.md section 4).
+#' known from the inputs (.docs/data-standard.qmd).
 TBD <- "TBD"

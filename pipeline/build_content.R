@@ -3,11 +3,13 @@
 #
 # WP10 (Text, figures and surveys): builds content/TEXT.csv,
 # content/text/SEN/about.md, assets/figures/SEN/SEN_FISCAL_EQUITY.png and
-# metadata/registries/FIGURES.csv from the legacy dashboard prose (About_SEN.txt,
-# the "## Row Messages" blocks of index.qmd) and the fiscal-equity figure.
-# See .docs/transition.qmd.
+# metadata/registries/FIGURES.csv from the legacy About_SEN.txt, the
+# fiscal-equity figure and the key messages. The source of the key messages
+# is content/TEXT.csv itself: its `messages` rows are read and written back
+# unchanged, so a re-run is idempotent. See .docs/transition.qmd.
 #
 # Usage: Rscript pipeline/build_content.R [--root <dir>] [--out-root <dir>]
+#          [--messages-source csv|dashboard|files]
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -25,10 +27,14 @@ source(file.path(root, "pipeline", "R", "constants.R"))
 source(file.path(root, "pipeline", "R", "content.R"))
 out_root <- cli_arg(args, "--out-root", root)
 
-# The user's answer to gate G0's question T1 (card WP10, "Read" section):
-# where the key-message titles and bodies come from. Fixed by decision, not
-# a run-time flag.
-MESSAGES_SOURCE <- "dashboard"
+# Where the key-message titles and bodies come from. The default, "csv",
+# keeps the `messages` rows of the committed content/TEXT.csv, which is the
+# source of truth for the messages since WP9c. "dashboard" (the original
+# answer to gate G0's question T1) is obsolete: since WP9c index.qmd calls
+# show_message() instead of Markdown(...), so the extractor finds no bodies
+# and would blank them. It and "files" (data_raw/text/Messages_<ISO3>.txt)
+# are kept only as explicit opt-ins via --messages-source.
+MESSAGES_SOURCE <- cli_arg(args, "--messages-source", "csv")
 
 # The date the legacy text was frozen (card WP10, "Rules you need").
 UPDATED_ON <- "2026-09-21"
@@ -55,10 +61,9 @@ close(con)
 
 # ---- key messages ------------------------------------------------------
 
-qmd_lines <- readLines(repo_path(root, "index.qmd"), warn = FALSE, encoding = "UTF-8")
-
 get_messages <- function(source) {
   if (identical(source, "dashboard")) {
+    qmd_lines <- readLines(repo_path(root, "index.qmd"), warn = FALSE, encoding = "UTF-8")
     blocks <- extract_row_messages(qmd_lines)
     if (length(blocks) < 2) {
       stop(
@@ -83,29 +88,51 @@ get_messages <- function(source) {
   }
 }
 
-messages <- get_messages(MESSAGES_SOURCE)
-
-# Guinea-Bissau's bodies are still the "TEXT" placeholder (card WP10, step 1):
-# it becomes TBD rather than being kept as literal placeholder prose.
-messages$GNB <- lapply(messages$GNB, function(m) {
-  if (identical(m$body, "TEXT")) {
-    m$body <- TBD
+if (identical(MESSAGES_SOURCE, "csv")) {
+  # Keep the existing `messages` rows of content/TEXT.csv exactly as they are.
+  existing <- read_std_csv(repo_path(root, "content", "TEXT.csv"))
+  existing[] <- lapply(existing, as.character)
+  existing_msgs <- existing[existing$slot == "messages", , drop = FALSE]
+  messages <- list(SEN = NULL, GNB = NULL) # unused on this path
+  for (cc in c("SEN", "GNB")) {
+    n_cc <- sum(existing_msgs$ref_area == cc)
+    if (n_cc != 3) {
+      stop(
+        "build_content: expected 3 key messages for ", cc,
+        " in content/TEXT.csv, found ", n_cc, call. = FALSE
+      )
+    }
   }
-  m
-})
+} else {
+  messages <- get_messages(MESSAGES_SOURCE)
 
-for (cc in c("SEN", "GNB")) {
-  if (length(messages[[cc]]) != 3) {
-    stop(
-      "build_content: expected 3 key messages for ", cc, ", found ",
-      length(messages[[cc]]), call. = FALSE
-    )
+  # Guinea-Bissau's bodies are still the "TEXT" placeholder (card WP10, step 1):
+  # it becomes TBD rather than being kept as literal placeholder prose.
+  messages$GNB <- lapply(messages$GNB, function(m) {
+    if (identical(m$body, "TEXT")) {
+      m$body <- TBD
+    }
+    m
+  })
+
+  for (cc in c("SEN", "GNB")) {
+    if (length(messages[[cc]]) != 3) {
+      stop(
+        "build_content: expected 3 key messages for ", cc, ", found ",
+        length(messages[[cc]]), call. = FALSE
+      )
+    }
   }
 }
 
 # ---- TEXT.csv ------------------------------------------------------------
 
 msg_rows <- function(cc, msgs) {
+  if (identical(MESSAGES_SOURCE, "csv")) {
+    out <- existing_msgs[existing_msgs$ref_area == cc, , drop = FALSE]
+    rownames(out) <- NULL
+    return(out)
+  }
   do.call(rbind, lapply(seq_along(msgs), function(i) {
     data.frame(
       slot = "messages", ref_area = cc, time_period = TIME_PERIOD, order = as.character(i),
@@ -145,6 +172,10 @@ if (!ok) {
 
 fig_sha <- sha256_file(fig_src)
 
+# Exception to the frozen-bootstrap rule (D11): this is the only live script
+# that reads under pipeline/bootstrap/; figures_text.csv holds the one-off
+# fiscal-equity caption text and has no home yet in metadata/registries/, so
+# it is read in place rather than duplicated (inventory inconsistency 12).
 fig_text <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "text", "figures_text.csv"))
 if (nrow(fig_text) != 1) {
   stop(

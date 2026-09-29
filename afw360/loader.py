@@ -261,15 +261,6 @@ def load_figures(iso3: str, root=None) -> pd.DataFrame:
     return rows
 
 
-def legacy_table_path(iso3: str, root=None) -> Path:
-    """Legacy Excel tables ``data_raw/tables/Tables_<ISO3>.xlsx``.
-
-    Transitional: only dashboard sections not yet switched to the SDMX-CSV data
-    read it (the Guinea-Bissau section until WP9c); remove it with the last reader.
-    """
-    return _root(root) / "data_raw" / "tables" / f"Tables_{iso3.upper()}.xlsx"
-
-
 def load_boundaries(iso3: str, layer: str = "adm1", root=None):
     """Boundary layer (``adm0``, ``adm1``) of ``geo/boundaries/<ISO3>_CODAB_*.gpkg``.
 
