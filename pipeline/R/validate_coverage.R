@@ -19,7 +19,7 @@
 # Findings format (word for word the same on WP11-WP14): a tibble with
 # columns check_id, severity, file, row_key, message. `file` is the path
 # to the data file relative to the root, with forward slashes. `row_key`
-# is the key-column values (19 in DSD 0.2.0) joined by one space for a data row, empty
+# is the key-column values (19 in DSD 0.3.0) joined by one space for a data row, empty
 # for a whole-file finding, or `key=<name>` / `survey_id=<value>` for a
 # finding about one manifest key or SURVEYS.csv row. More than 20
 # findings for one check_id/file pair are capped to the first 20 in
@@ -27,7 +27,8 @@
 # pipeline/R/validate_common.R, which callers source before this file).
 
 # The key columns come from the DSD (ctx_key_columns(), pipeline/R/ctx.R:
-# the 19 columns DATAFLOW .. MEASURE_QUAL_5 in DSD 0.2.0), and the manifest
+# the 19 columns FREQ .. MEASURE_QUAL_5 plus TIME_PERIOD in DSD 0.3.0;
+# required_rows() fills FREQ = A), and the manifest
 # keys from MANIFEST_KEYS (pipeline/R/manifest.R, which the caller sources),
 # so neither list is repeated here.
 
@@ -86,7 +87,8 @@
 #' @param ref_area A country code, e.g. `"GNB"`.
 #' @param time_period A time period string, e.g. `"2021"`.
 #' @return A data frame with the same columns as [required_rows()]
-#'   (the 18 key columns plus series_id and cut_id), one row per withheld
+#'   (the 19 key columns, FREQ = A, plus series_id, cut_id and
+#'   defining_breakdown), one row per withheld
 #'   required row, deduplicated. Zero rows when nothing is withheld.
 withheld_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
   comp_cols <- c(
@@ -200,9 +202,11 @@ withheld_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
   result
 }
 
-#' COVER.FILE_MISSING: for every SURVEYS.csv row, a SURVEY data file and
-#' its manifest exist under `data/` for that country and year (standard,
-#' "Validation checks" > "Coverage"). A missing file is a WARN, not an
+#' COVER.FILE_MISSING: for every SURVEYS.csv row, a data file and its
+#' manifest exist under `data/` for that country and year and for every
+#' estimation method the country's effective SERIES_PLAN lists in its
+#' `estimation` column (series not NOT_PRODUCED; [.vc_plan_estimations()])
+#' (standard, "Validation checks" > "Coverage"). A missing file is a WARN, not an
 #' ERROR, because metadata precedes data. One finding per SURVEYS row, with
 #' `file` the expected data file and an empty `row_key`. The check looks
 #' at the files on disk, whichever files this run loads; it is skipped with
@@ -221,24 +225,45 @@ vc_cover_file_missing <- function(ctx) {
   }
   pairs <- unique(data.frame(ref_area = surveys$ref_area, time_period = surveys$time_period, stringsAsFactors = FALSE))
   for (i in seq_len(nrow(pairs))) {
-    stem <- paste0(DATAFLOW_ID, "_", pairs$ref_area[i], "_", pairs$time_period[i], "_SURVEY")
-    data_rel <- paste0("data/", stem, ".csv")
-    man_rel <- paste0("data/", stem, "_manifest.csv")
-    has_data <- file.exists(file.path(ctx$root, data_rel))
-    has_man <- file.exists(file.path(ctx$root, man_rel))
-    if (has_data && has_man) next
-    missing <- c(if (!has_data) data_rel, if (!has_man) man_rel)
-    out[[length(out) + 1]] <- data.frame(
-      check_id = "COVER.FILE_MISSING", severity = "WARN", file = data_rel, row_key = "",
-      message = sprintf(
-        "SURVEYS.csv has a survey for %s %s, but %s %s missing.",
-        pairs$ref_area[i], pairs$time_period[i], paste(missing, collapse = " and "),
-        if (length(missing) == 1) "is" else "are"
-      ),
-      stringsAsFactors = FALSE
-    )
+    for (est in .vc_plan_estimations(ctx$meta, pairs$ref_area[i])) {
+      stem <- paste0(DATAFLOW_ID, "_", pairs$ref_area[i], "_", pairs$time_period[i], "_", est)
+      data_rel <- paste0("data/", stem, ".csv")
+      man_rel <- paste0("data/", stem, "_manifest.csv")
+      has_data <- file.exists(file.path(ctx$root, data_rel))
+      has_man <- file.exists(file.path(ctx$root, man_rel))
+      if (has_data && has_man) next
+      missing <- c(if (!has_data) data_rel, if (!has_man) man_rel)
+      out[[length(out) + 1]] <- data.frame(
+        check_id = "COVER.FILE_MISSING", severity = "WARN", file = data_rel, row_key = "",
+        message = sprintf(
+          "SURVEYS.csv has a survey for %s %s, but %s %s missing.",
+          pairs$ref_area[i], pairs$time_period[i], paste(missing, collapse = " and "),
+          if (length(missing) == 1) "is" else "are"
+        ),
+        stringsAsFactors = FALSE
+      )
+    }
   }
   .vc_bind(out)
+}
+
+#' The estimation methods a country's data files are expected for: the
+#' union of the `estimation` tokens of its effective SERIES_PLAN rows
+#' ([effective_series_plan()]) whose `status` is not NOT_PRODUCED, in
+#' sorted order. A plan with no `estimation`
+#' column or only empty cells (which apply to every estimation) gives
+#' `SURVEY`, the survey-based default of [required_rows()].
+#'
+#' @param meta A named list from [load_metadata()].
+#' @param ref_area A country code.
+#' @return A character vector of estimation codes.
+.vc_plan_estimations <- function(meta, ref_area) {
+  sp <- if (is.null(meta$SERIES_PLAN)) NULL else effective_series_plan(meta, ref_area)
+  if (is.null(sp) || nrow(sp) == 0 || !"estimation" %in% names(sp)) return("SURVEY")
+  if ("status" %in% names(sp)) sp <- sp[!(sp$status %in% "NOT_PRODUCED"), , drop = FALSE]
+  toks <- unlist(lapply(sp$estimation, .plan_tokens), use.names = FALSE)
+  toks <- sort(unique(toks[!is.na(toks) & toks != ""]), method = "radix")
+  if (length(toks) == 0) "SURVEY" else toks
 }
 
 #' COVER.MISSING: an expected row is absent from the data file.
@@ -347,7 +372,9 @@ vc_cover_withheld_present <- function(ctx) {
 }
 
 #' COVER.MANIFEST: the manifest is missing, incomplete, or disagrees with
-#' the file it describes.
+#' the file it describes (including `structure_id`, which must equal
+#' `WB.AFW360:AFW360_HH(<metadata/VERSION>)`, and `sdmx_csv_version`, which
+#' must be [SDMX_CSV_VERSION], `2.1.0`, from pipeline/R/manifest.R).
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -373,6 +400,34 @@ vc_cover_manifest <- function(ctx) {
         check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
         row_key = paste0("key=", missing_keys),
         message = "Manifest is missing this key.",
+        stringsAsFactors = FALSE
+      )
+    }
+
+    if (!("structure_id" %in% missing_keys) && !is.na(ctx$version)) {
+      expected_sid <- structure_id(ctx$version)
+      if (!identical(trimws(unname(man[["structure_id"]])), expected_sid)) {
+        out[[length(out) + 1]] <- data.frame(
+          check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
+          row_key = "key=structure_id",
+          message = sprintf(
+            "Manifest structure_id (%s) is not %s (metadata/VERSION).",
+            man[["structure_id"]], expected_sid
+          ),
+          stringsAsFactors = FALSE
+        )
+      }
+    }
+
+    if (!("sdmx_csv_version" %in% missing_keys) && exists("SDMX_CSV_VERSION") &&
+      !identical(trimws(unname(man[["sdmx_csv_version"]])), SDMX_CSV_VERSION)) {
+      out[[length(out) + 1]] <- data.frame(
+        check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
+        row_key = "key=sdmx_csv_version",
+        message = sprintf(
+          "Manifest sdmx_csv_version (%s) is not %s.",
+          man[["sdmx_csv_version"]], SDMX_CSV_VERSION
+        ),
         stringsAsFactors = FALSE
       )
     }

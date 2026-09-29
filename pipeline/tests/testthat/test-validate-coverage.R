@@ -161,6 +161,13 @@ test_that("withheld_rows returns the same columns as required_rows, zero rows wi
   withheld_sen <- withheld_rows(meta, "SEN", "2021")
   expect_equal(names(withheld_sen), names(required_sen))
   expect_equal(nrow(withheld_sen), 0L)
+  # The generator's column set is the DSD's 19-column key (FREQ first, no
+  # DATAFLOW) plus the three provenance columns, and every row has FREQ = A.
+  expect_equal(names(required_sen), c(dsd_key_columns(meta), "series_id", "cut_id", "defining_breakdown"))
+  expect_equal(names(required_sen)[1], "FREQ")
+  expect_true(all(required_sen$FREQ == "A"))
+  withheld_gnb <- withheld_rows(meta, "GNB", "2021")
+  expect_true(all(withheld_gnb$FREQ == "A"))
 })
 
 # ---- WP12.A1: clean fixture, zero ERROR findings ---------------------------
@@ -465,6 +472,26 @@ test_that("the manifest's estimation and sources are checked against the file", 
   expect_match(res$message[res$row_key == "key=sources"], "SEN_EHCVM2021_LEGACY_v1", fixed = TRUE)
 })
 
+test_that("the manifest's structure_id and sdmx_csv_version are checked (SDMX-CSV 2.1)", {
+  s <- build_clean_gnb_fixture()
+  ctx <- build_ctx(s$tmp, data_files = s$data_path)
+  expect_equal(nrow(vc_cover_manifest(ctx)), 0L)
+  set_manifest(s$data_path, "structure_id", "WB.AFW360:AFW360_HH(0.2.0)")
+  set_manifest(s$data_path, "sdmx_csv_version", "2.0.0")
+  res <- vc_cover_manifest(build_ctx(s$tmp, data_files = s$data_path))
+  expect_setequal(res$row_key, c("key=structure_id", "key=sdmx_csv_version"))
+  expect_true(all(res$check_id == "COVER.MANIFEST" & res$severity == "ERROR"))
+  expect_match(res$message[res$row_key == "key=structure_id"], structure_id(ctx$version), fixed = TRUE)
+  expect_match(res$message[res$row_key == "key=sdmx_csv_version"], "is not 2.1.0", fixed = TRUE)
+})
+
+test_that("a manifest missing a 0.3.0 key gives COVER.MANIFEST key=<name>", {
+  s <- build_clean_gnb_fixture()
+  edit_csv(manifest_path_for(s$data_path), function(m) m[m$key != "structure_id", ])
+  res <- vc_cover_manifest(build_ctx(s$tmp, data_files = s$data_path))
+  expect_equal(res$row_key, "key=structure_id")
+})
+
 test_that("a manifest missing a 0.2.0 key gives COVER.MANIFEST key=<name>", {
   s <- build_clean_gnb_fixture()
   man_path <- manifest_path_for(s$data_path)
@@ -670,4 +697,36 @@ test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for 
   # --metadata-only and an explicit --data selection skip the check.
   expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(metadata_only = TRUE)))), 0L)
   expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(data_selected = TRUE)))), 0L)
+})
+
+test_that("COVER.FILE_MISSING expects a file per estimation of SERIES_PLAN.estimation, not only SURVEY", {
+  tmp <- make_temp_root(root)
+  plan_path <- file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
+  sid <- read_std_csv(plan_path)$series_id[1]
+  edit_csv(plan_path, function(df) {
+    df$estimation[df$series_id == sid & df$ref_area == "ALL"] <- "SURVEY MODEL"
+    df
+  })
+  res <- vc_cover_file_missing(build_ctx(tmp))
+  expect_setequal(res$file, c("data/AFW360_HH_GNB_2021_MODEL.csv", "data/AFW360_HH_SEN_2021_MODEL.csv"))
+  expect_true(all(res$check_id == "COVER.FILE_MISSING" & res$severity == "WARN"))
+
+  # A NOT_PRODUCED country row drops that country's MODEL file.
+  edit_csv(plan_path, function(df) {
+    row <- df[df$series_id == sid & df$ref_area == "ALL", , drop = FALSE]
+    row$ref_area <- "SEN"
+    row$status <- "NOT_PRODUCED"
+    rbind(df, row)
+  })
+  res2 <- vc_cover_file_missing(build_ctx(tmp))
+  expect_equal(res2$file, "data/AFW360_HH_GNB_2021_MODEL.csv")
+})
+
+test_that(".vc_plan_estimations falls back to SURVEY when the plan names no estimation", {
+  meta <- load_metadata(root)
+  expect_equal(.vc_plan_estimations(meta, "SEN"), "SURVEY")
+  meta$SERIES_PLAN$estimation <- ""
+  expect_equal(.vc_plan_estimations(meta, "SEN"), "SURVEY")
+  meta$SERIES_PLAN$estimation[1] <- "MODEL"
+  expect_equal(.vc_plan_estimations(meta, "GNB"), "MODEL")
 })
