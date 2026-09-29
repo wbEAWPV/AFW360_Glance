@@ -18,7 +18,7 @@ SDMX 3.1 alignment (standard v0.6); migrated from 0.2.0 by `pipeline/migrations/
 - D40: every SDMX artefact carries the version in `metadata/VERSION`; a released version is immutable; edits between releases happen on a `-draft` copy.
 - D41: codelist CSV columns map to SDMX by convention: `code`, `name_en`, `definition_en`, `parent`, `global_urn` (annotation `GLOBAL_CODE`), every other column an annotation `AFW_<COLUMN>`.
 - D42: sentinels `_T` and `_Z` are added by the generator as real codes and stripped by the importer; they never appear in the CSV codelists.
-- D43: registries become codelists plus metadatasets: `CL_SERIES`, `CL_SOURCE`, `CL_SURVEY`, `CL_FIGURE`, with descriptive columns as metadata attributes of `MSD_AFW360`.
+- D43: registries become codelists plus metadatasets: `CL_SOURCE`, `CL_SURVEY`, `CL_FIGURE`, with descriptive columns as metadata attributes of `MSD_AFW360`; `SERIES_PLAN.csv` derives no codelist, and `SERIES_ID` is an uncoded mandatory `String` attribute (series ids contain dots, which the SDMX `IDType` forbids) whose values the project validator checks against `SERIES_PLAN.csv`.
 - D44: new `structure/ARTEFACTS.csv` lists every SDMX artefact to generate, with its name and description.
 - D45: project-only metadata stays CSV, documented as tooling metadata outside SDMX; no VTL and no DataConstraint in this release.
 - D46: data file column order follows the DSD: fixed columns, dimensions, `TIME_PERIOD`, measures, attributes; 37 columns, 19-column key.

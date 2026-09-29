@@ -28,7 +28,6 @@ CL_THEME,Codelist,WB.AFW360,metadata/codelists/CL_THEME.csv,Theme,Themes that gr
 CL_UNIT_MEASURE,Codelist,WB.AFW360,metadata/codelists/CL_UNIT_MEASURE.csv,Unit of measure,Units in which observation values are expressed; includes ISO 4217 currency codes of the covered countries.,DRAFT,0.3.0,Renamed in 0.3.0 to match the id of the IAEG-SDGs unit list; the 0.2.0 file was the project unit list.
 CL_URBANISATION,Codelist,WB.AFW360,metadata/codelists/CL_URBANISATION.csv,Degree of urbanisation,"Urban and rural areas of residence, with the capital city and other urban areas as children of urban.",DRAFT,0.3.0,
 CL_WEIGHT,Codelist,WB.AFW360,metadata/codelists/CL_WEIGHT.csv,Weight,Survey weights used to compute the indicators.,DRAFT,0.3.0,
-CL_SERIES,Codelist,WB.AFW360,metadata/plans/SERIES_PLAN.csv,Series,"Series of the database: one code per series identifier of the series plan, combining an indicator with its breakdowns and qualifiers.",DRAFT,0.3.0,Derived codelist (D43).
 CL_SOURCE,Codelist,WB.AFW360,metadata/registries/SOURCES.csv,Source,Sources of the data: one code per program run that produced observations.,DRAFT,0.3.0,Derived codelist (D43).
 CL_SURVEY,Codelist,WB.AFW360,metadata/surveys/SURVEYS.csv,Survey,Household surveys from which the indicators are computed.,DRAFT,0.3.0,Derived codelist (D43).
 CL_FIGURE,Codelist,WB.AFW360,metadata/registries/FIGURES.csv,Figure,Static figures shown on the dashboard.,DRAFT,0.3.0,Derived codelist (D43).

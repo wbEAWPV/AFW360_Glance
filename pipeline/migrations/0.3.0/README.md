@@ -45,7 +45,7 @@ names, descriptions or code values of its own.
 
 New files:
 
-- `structure/ARTEFACTS.csv`: the 33 SDMX artefacts to generate (D44).
+- `structure/ARTEFACTS.csv`: the 32 SDMX artefacts to generate (D44).
 - `codelists/CL_FREQ.csv`: code `A` (D34).
 
 Changed files:
