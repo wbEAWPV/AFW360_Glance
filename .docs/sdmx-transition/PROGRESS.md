@@ -44,9 +44,9 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP8a | FMR spike (no install) | WP5b | in progress | sonnet | | | 2026-09-29 |
 | WP5d | Validator: SDMX checks | WP5c, WP4b | in progress | opus | | | 2026-09-29 |
 | Gate 2 | FMR install decision | WP8a | pending | | | | |
-| WP8b | FMR install, load, validate, round trip | Gate 2 (install), WP6 | todo | | | | |
+| WP8b | FMR install, load, validate, round trip | Gate 2 (install), WP6 | in progress | opus | | | 2026-09-29 |
 | WP8b2 | SDMX-ML 3.0 output profile (only if FMR rejects v3_1) | WP8b | todo | | | | |
-| WP8c | FMR deferred (only if Gate 2 defers) | Gate 2 (defer), WP6 | todo | | | | |
+| WP8c | FMR deferred (only if Gate 2 defers) | Gate 2 (defer), WP6 | skipped (Gate 2: install now) | | | | 2026-09-29 |
 | WP10a | Standard final and conformance page | every WP that ran (WP8b or WP8c, not both) | todo | | | | |
 | WP10b | Project documentation | every WP that ran (WP8b or WP8c, not both) | todo | | | | |
 | WP10c | Inventory inconsistencies | every WP that ran (WP8b or WP8c, not both) | todo | | | | |
@@ -98,6 +98,8 @@ Questions raised during WP1 and WP2a:
 **Also for the data lead at this gate (veto or accept):** (1) the orchestrator's plan amendments since Gate 1: WP9b check 2 (legacy display rule in the before/after comparison; one derived cell accepted), WP7-fix and WP7-fix2 (verification tools fixed for pysdmx's `AnnotationValue` gap and fixed-version organisation schemes), WP4b check 3c and WP5d checks 2 and 3 (scratch roots include `pipeline` and `content`), the wave-baseline convention and the tmp out-root fallback after a classifier denial; (2) content and metadata points that need a decision, not code: surfaced point 28 (legacy column label "29+" mapped to `HHH_AGE_GE35`), points 38 and 28 (`CL_GEO` names still carrying "(TBD: legacy header truncated ...)" for `SN_ZONES06`, `GW_AEZ01`, `GW_AEZ03`, and two zone scheme names `ZONES` versus `AEZ`), point 39 (GNB messages and About text are "TBD" in `content/TEXT.csv`; no GNB fiscal figure), point 32 (`CL_FIGURE` without `AFW_STATUS`), point 46 (42 `CODES.DRAFT` warnings from DRAFT manifests now visible). None of these blocks WP8b or WP8c; they are routed to WP10a/WP10c unless the data lead decides otherwise.
 
 **State:** waiting for the data lead. WP5d, then the wave commit (WP5c, WP5d, WP6, WP8a), continue meanwhile; WP8b or WP8c starts on the answer.
+
+**Data lead, 2026-09-29 ("All good. continue"):** G2-Q1 install now: WP8b runs, WP8c skipped (WP8b2 only if FMR rejects the `v3_1` namespaces). All amendments since Gate 1 accepted. Content and metadata points (28, 32, 38, 39, 46) stay routed to WP10a and WP10c. Gate 2 `approved`.
 
 ### Gate 3
 
@@ -195,3 +197,4 @@ Questions raised during WP1 and WP2a:
 | 2026-09-29 | WP3b (1932439), WP7 (442c061), WP9a (066bd10) verified and committed in plan order; surfaced points 18 to 25 recorded. WP4a, WP5a and WP9b started in parallel (disjoint file lists). |
 | 2026-09-29 | WP4a (6d3b28c), WP5a (79d7f1b), WP7-fix (2ab1808), WP9b (05794d5) verified and committed in plan order. WP9b check 2 amended (legacy display rule); WP7-fix opened and closed for the pysdmx `AnnotationValue` limitation; the WP5a verifier was denied `build_sdmx.R` by the auto-mode classifier and verified through the tmp out-root path; surfaced points 26 to 37; wave-baseline convention recorded. WP4b, WP5b and WP9c started in parallel. |
 | 2026-09-29 | WP4b (9206ed5), WP5b (94c8d58), WP7-fix2 (0b6da83), WP9c (0956fe3) verified, wave baseline green (1352 tests, validator 0 errors, docs and SDMX builds current, reader 0 failures), committed in plan order (the four commits were redone once, same tree, to carry the plan's exact messages). WP7-fix2 opened and closed for the URN checker; WP4b check 3c amended; surfaced points 38 to 47. WP5c, WP6 and WP8a started in parallel. |
+| 2026-09-29 | Gate 2 approved by the data lead: WP8b runs, WP8c skipped, amendments accepted. WP8b started in parallel with WP5d. |
