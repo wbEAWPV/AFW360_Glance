@@ -25,7 +25,7 @@ For each WP, in this order:
 1. **Check dependencies** in `PROGRESS.md`: every WP it depends on must be `committed` (or `skipped`, for the WP8b/WP8c alternative). Gates must be `approved`. Section 4 of the plan is the graph.
 2. **Compose the implementer prompt.** It must be self-contained, because the implementer starts with no context. Include, verbatim:
    - the WP section from `plan.md` (goal, dependencies, context list, deliverables, constraints, verification list, commit message);
-   - the plan sections the WP text says to paste (for example "sections 2.3, 2.4, 2.11"), copied in full, including any `> REVIEW QUESTION` note inside them and the answer the data lead gave;
+   - the plan sections the WP text says to paste (for example "sections 2.3, 2.4, 2.11"), copied in full;
    - the "Conventions for every work package" list at the top of plan section 3;
    - the repository root path, the branch name, and the rule that the implementer must not commit, must not edit `PROGRESS.md`, and must not read files outside its context list;
    - the context-budget rules below;
@@ -58,7 +58,7 @@ Run two agents at once only when the plan marks them parallel and their file lis
 
 At Gate 1, Gate 2 and Gate 3 stop and write a short gate report in `PROGRESS.md` (the materials the plan's gate section lists, what the data lead must decide, the diff summary), then tell the data lead and wait. Do not start work that depends on the gate. When the data lead answers, record the decision under the gate in `PROGRESS.md`. Each veto or correction becomes a follow-up work package named `<WP>-fix` with its own row in the table (depends on the vetoed WP; the fix text goes under "Plan amendments"), run through the normal implementer and verifier cycle; the gate is `approved` only when those rows are `committed`. At Gate 2, mark the alternative that will not run (`WP8b` or `WP8c`) as `skipped`.
 
-The plan carries five `> REVIEW QUESTION` notes (Q1 to Q4 after the decisions table in section 1, Q5 after the table in 2.9). Put them to the data lead at Gate 1 together with the D38 to D46 confirmation, record the answers under Gate 1, and paste the answers with the sections whenever a WP prompt includes those sections.
+The five review questions (Q1 to Q5) were answered by the data lead on 2026-09-29 and are folded into the plan (D38, D39, D32 wording; 2.1; 2.9); `PROGRESS.md` records the answers under Gate 1. Gate 1 still confirms the results of WP1 and WP2 as the plan's Gate 1 section says.
 
 ## Merging
 
