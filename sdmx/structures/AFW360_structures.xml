@@ -21,6 +21,30 @@
         </str:Agency>
       </str:AgencyScheme>
     </str:AgencySchemes>
+    <str:DataProviderSchemes>
+      <str:DataProviderScheme agencyID="WB.AFW360" id="DATA_PROVIDERS">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 data providers</com:Name>
+        <com:Description xml:lang="en">Data providers of the AFW 360 household indicators: the AFW DIP/POV team.</com:Description>
+        <str:DataProvider id="AFW_POV">
+          <com:Name xml:lang="en">AFW DIP/POV team</com:Name>
+        </str:DataProvider>
+      </str:DataProviderScheme>
+    </str:DataProviderSchemes>
+    <str:MetadataProviderSchemes>
+      <str:MetadataProviderScheme agencyID="WB.AFW360" id="METADATA_PROVIDERS">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 metadata providers</com:Name>
+        <com:Description xml:lang="en">Providers of the AFW 360 reference metadata: the AFW DIP/POV team.</com:Description>
+        <str:MetadataProvider id="AFW_POV">
+          <com:Name xml:lang="en">AFW DIP/POV team</com:Name>
+        </str:MetadataProvider>
+      </str:MetadataProviderScheme>
+    </str:MetadataProviderSchemes>
     <str:ConceptSchemes>
       <str:ConceptScheme agencyID="WB.AFW360" id="CS_AFW360" version="0.3.0">
         <com:Annotations>
@@ -4894,5 +4918,673 @@
         </str:Code>
       </str:Codelist>
     </str:Codelists>
+    <str:DataStructures>
+      <str:DataStructure agencyID="WB.AFW360" id="DSD_AFW360_HH" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_SOURCE_FILE"><com:AnnotationType>AFW_SOURCE_FILE</com:AnnotationType><com:AnnotationValue>metadata/structure/DSD_AFW360_HH.csv</com:AnnotationValue></com:Annotation>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 household indicators data structure</com:Name>
+        <com:Description xml:lang="en">Structure of the household welfare indicator data: 18 dimensions, a time dimension, 9 measures and 6 attributes.</com:Description>
+        <str:DataStructureComponents>
+          <str:DimensionList id="DimensionDescriptor">
+            <str:Dimension id="FREQ">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).FREQ</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_FREQ(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="REF_AREA">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REF_AREA</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_AREA(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="GEO">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).GEO</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_GEO(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="ESTIMATION">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).ESTIMATION</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_ESTIMATION(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="INDICATOR">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).INDICATOR</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_INDICATOR(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="SEX">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SEX</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SEX(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="AGE">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).AGE</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_AGE(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="URBANISATION">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).URBANISATION</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_URBANISATION(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="COMP_BREAKDOWN_1">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMP_BREAKDOWN_1</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_COMP_BREAKDOWN(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="COMP_BREAKDOWN_2">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMP_BREAKDOWN_2</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_COMP_BREAKDOWN(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="COMP_BREAKDOWN_3">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMP_BREAKDOWN_3</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_COMP_BREAKDOWN(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="COMP_BREAKDOWN_4">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMP_BREAKDOWN_4</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_COMP_BREAKDOWN(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="COMP_BREAKDOWN_5">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMP_BREAKDOWN_5</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_COMP_BREAKDOWN(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="MEASURE_QUAL_1">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MEASURE_QUAL_1</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_QUALIFIER(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="MEASURE_QUAL_2">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MEASURE_QUAL_2</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_QUALIFIER(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="MEASURE_QUAL_3">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MEASURE_QUAL_3</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_QUALIFIER(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="MEASURE_QUAL_4">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MEASURE_QUAL_4</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_QUALIFIER(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:Dimension id="MEASURE_QUAL_5">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MEASURE_QUAL_5</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_QUALIFIER(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+            </str:Dimension>
+            <str:TimeDimension id="TIME_PERIOD">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TIME_PERIOD</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="GregorianYear"/>
+              </str:LocalRepresentation>
+            </str:TimeDimension>
+          </str:DimensionList>
+          <str:AttributeList id="AttributeDescriptor">
+            <str:Attribute id="SERIES_ID" usage="mandatory">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SERIES_ID</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="String"/>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Dimension>INDICATOR</str:Dimension>
+                <str:Dimension>COMP_BREAKDOWN_1</str:Dimension>
+                <str:Dimension>COMP_BREAKDOWN_2</str:Dimension>
+                <str:Dimension>COMP_BREAKDOWN_3</str:Dimension>
+                <str:Dimension>COMP_BREAKDOWN_4</str:Dimension>
+                <str:Dimension>COMP_BREAKDOWN_5</str:Dimension>
+                <str:Dimension>MEASURE_QUAL_1</str:Dimension>
+                <str:Dimension>MEASURE_QUAL_2</str:Dimension>
+                <str:Dimension>MEASURE_QUAL_3</str:Dimension>
+                <str:Dimension>MEASURE_QUAL_4</str:Dimension>
+                <str:Dimension>MEASURE_QUAL_5</str:Dimension>
+              </str:AttributeRelationship>
+            </str:Attribute>
+            <str:Attribute id="UNIT_MEASURE" usage="mandatory">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).UNIT_MEASURE</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_UNIT_MEASURE(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Dimension>REF_AREA</str:Dimension>
+                <str:Dimension>INDICATOR</str:Dimension>
+              </str:AttributeRelationship>
+            </str:Attribute>
+            <str:Attribute id="PRECISION" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PRECISION</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double" minValue="0"/>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Observation/>
+              </str:AttributeRelationship>
+            </str:Attribute>
+            <str:Attribute id="OBS_STATUS" usage="mandatory">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).OBS_STATUS</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_OBS_STATUS(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Observation/>
+              </str:AttributeRelationship>
+              <str:MeasureRelationship>
+                <str:Measure>OBS_VALUE</str:Measure>
+              </str:MeasureRelationship>
+            </str:Attribute>
+            <str:Attribute id="SOURCE_ID" usage="mandatory">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SOURCE_ID</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:Enumeration>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SOURCE(0.3.0)</str:Enumeration>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Observation/>
+              </str:AttributeRelationship>
+            </str:Attribute>
+            <str:Attribute id="OBS_COMMENT" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).OBS_COMMENT</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="String"/>
+              </str:LocalRepresentation>
+              <str:AttributeRelationship>
+                <str:Observation/>
+              </str:AttributeRelationship>
+            </str:Attribute>
+          </str:AttributeList>
+          <str:MeasureList id="MeasureDescriptor">
+            <str:Measure id="OBS_VALUE" usage="mandatory">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).OBS_VALUE</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="STD_ERR" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).STD_ERR</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="CI_LOWER" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).CI_LOWER</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="CI_UPPER" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).CI_UPPER</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="N_OBS" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).N_OBS</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Integer" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="N_POP" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).N_POP</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="N_OBS_NUM" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).N_OBS_NUM</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Integer" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="DEFF" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).DEFF</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Double" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+            <str:Measure id="DF" usage="optional">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).DF</str:ConceptIdentity>
+              <str:LocalRepresentation>
+                <str:TextFormat textType="Integer" minValue="0"/>
+              </str:LocalRepresentation>
+            </str:Measure>
+          </str:MeasureList>
+        </str:DataStructureComponents>
+      </str:DataStructure>
+    </str:DataStructures>
+    <str:Dataflows>
+      <str:Dataflow agencyID="WB.AFW360" id="AFW360_HH" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 household indicators</com:Name>
+        <com:Description xml:lang="en">Poverty and welfare indicators from household surveys and models for West and Central African countries, by area, sex, age, urbanisation and other breakdowns.</com:Description>
+        <str:Structure>urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=WB.AFW360:DSD_AFW360_HH(0.3.0)</str:Structure>
+      </str:Dataflow>
+    </str:Dataflows>
+    <str:MetadataStructures>
+      <str:MetadataStructure agencyID="WB.AFW360" id="MSD_AFW360" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_SOURCE_FILE"><com:AnnotationType>AFW_SOURCE_FILE</com:AnnotationType><com:AnnotationValue>metadata/structure/COLUMNS.csv</com:AnnotationValue></com:Annotation>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 reference metadata structure</com:Name>
+        <com:Description xml:lang="en">Reference metadata attributes describing surveys, sources, texts and figures.</com:Description>
+        <str:MetadataStructureComponents>
+          <str:MetadataAttributeList id="MetadataAttributeDescriptor">
+            <str:MetadataAttribute id="SURVEY" minOccurs="0" maxOccurs="1" isPresentational="true">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SURVEY</str:ConceptIdentity>
+              <str:MetadataAttribute id="REF_AREA" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REF_AREA</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="TIME_PERIOD" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TIME_PERIOD</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SURVEY_NAME" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SURVEY_NAME</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SURVEY_ACRONYM" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SURVEY_ACRONYM</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PRODUCER_AGENCY" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PRODUCER_AGENCY</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="FIELDWORK_START" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).FIELDWORK_START</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="FIELDWORK_END" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).FIELDWORK_END</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SAMPLE_HH" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SAMPLE_HH</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SAMPLE_IND" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SAMPLE_IND</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="DESIGN" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).DESIGN</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="REPRESENTATIVE_LEVELS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REPRESENTATIVE_LEVELS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="ANALYSIS_UNITS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).ANALYSIS_UNITS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="WELFARE_AGGREGATE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).WELFARE_AGGREGATE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="WELFARE_ADJUSTMENTS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).WELFARE_ADJUSTMENTS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NPL_VALUE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NPL_VALUE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NPL_CURRENCY" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NPL_CURRENCY</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NPL_UNIT" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NPL_UNIT</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NPL_REF_YEAR" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NPL_REF_YEAR</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PPP_ROUNDS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PPP_ROUNDS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="MICRODATA_REF" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).MICRODATA_REF</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="COMPARABLE_WITH" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).COMPARABLE_WITH</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="CONTACT" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).CONTACT</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NOTES" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NOTES</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+            </str:MetadataAttribute>
+            <str:MetadataAttribute id="SOURCE" minOccurs="0" maxOccurs="1" isPresentational="true">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SOURCE</str:ConceptIdentity>
+              <str:MetadataAttribute id="KIND" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).KIND</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="REF_AREA" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REF_AREA</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SURVEY_ID" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SURVEY_ID</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PROGRAM" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PROGRAM</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PROGRAM_VERSION" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PROGRAM_VERSION</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PRODUCER" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PRODUCER</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SOFTWARE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SOFTWARE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="RUN_DATE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).RUN_DATE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="INPUTS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).INPUTS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="INPUTS_SHA256" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).INPUTS_SHA256</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="VERSION_ADDED" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).VERSION_ADDED</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NOTES" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NOTES</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+            </str:MetadataAttribute>
+            <str:MetadataAttribute id="TEXT" minOccurs="0" maxOccurs="1" isPresentational="true">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TEXT</str:ConceptIdentity>
+              <str:MetadataAttribute id="SLOT" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SLOT</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="REF_AREA" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REF_AREA</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="TIME_PERIOD" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TIME_PERIOD</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="ORDER" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).ORDER</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="TITLE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TITLE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="BODY" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).BODY</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="UPDATED_ON" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).UPDATED_ON</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+            </str:MetadataAttribute>
+            <str:MetadataAttribute id="FIGURE" minOccurs="0" maxOccurs="1" isPresentational="true">
+              <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).FIGURE</str:ConceptIdentity>
+              <str:MetadataAttribute id="REF_AREA" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).REF_AREA</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="TIME_PERIOD" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TIME_PERIOD</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="THEME" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).THEME</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="TITLE_EN" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).TITLE_EN</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="CAPTION_EN" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).CAPTION_EN</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="ALT_TEXT_EN" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).ALT_TEXT_EN</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="INDICATORS" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).INDICATORS</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SOURCE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SOURCE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PRODUCER" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PRODUCER</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="PROGRAM" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).PROGRAM</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="LICENCE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).LICENCE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="FILE" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).FILE</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="SHA256" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).SHA256</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="VERSION_ADDED" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).VERSION_ADDED</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+              <str:MetadataAttribute id="NOTES" minOccurs="0" maxOccurs="1">
+                <str:ConceptIdentity>urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=WB.AFW360:CS_AFW360(0.3.0).NOTES</str:ConceptIdentity>
+                <str:LocalRepresentation>
+                  <str:TextFormat textType="String"/>
+                </str:LocalRepresentation>
+              </str:MetadataAttribute>
+            </str:MetadataAttribute>
+          </str:MetadataAttributeList>
+        </str:MetadataStructureComponents>
+      </str:MetadataStructure>
+    </str:MetadataStructures>
+    <str:Metadataflows>
+      <str:Metadataflow agencyID="WB.AFW360" id="MDF_AFW360" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 reference metadata</com:Name>
+        <com:Description xml:lang="en">Reference metadata for the survey, source and figure codelists and for the household indicators dataflow.</com:Description>
+        <str:Structure>urn:sdmx:org.sdmx.infomodel.metadatastructure.MetadataStructure=WB.AFW360:MSD_AFW360(0.3.0)</str:Structure>
+        <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SURVEY(0.3.0)</str:Target>
+        <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SOURCE(0.3.0)</str:Target>
+        <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_FIGURE(0.3.0)</str:Target>
+        <str:Target>urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=WB.AFW360:AFW360_HH(0.3.0)</str:Target>
+      </str:Metadataflow>
+    </str:Metadataflows>
+    <str:ProvisionAgreements>
+      <str:ProvisionAgreement agencyID="WB.AFW360" id="PA_AFW360_HH" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 household indicators provision agreement</com:Name>
+        <com:Description xml:lang="en">Links the household indicators dataflow to its data provider AFW_POV.</com:Description>
+        <str:Dataflow>urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=WB.AFW360:AFW360_HH(0.3.0)</str:Dataflow>
+        <str:DataProvider>urn:sdmx:org.sdmx.infomodel.base.DataProvider=WB.AFW360:DATA_PROVIDERS(1.0).AFW_POV</str:DataProvider>
+      </str:ProvisionAgreement>
+    </str:ProvisionAgreements>
+    <str:MetadataProvisionAgreements>
+      <str:MetadataProvisionAgreement agencyID="WB.AFW360" id="MPA_AFW360" version="0.3.0">
+        <com:Annotations>
+          <com:Annotation id="AFW_METADATA_VERSION"><com:AnnotationType>AFW_METADATA_VERSION</com:AnnotationType><com:AnnotationValue>0.3.0</com:AnnotationValue></com:Annotation>
+        </com:Annotations>
+        <com:Name xml:lang="en">AFW 360 reference metadata provision agreement</com:Name>
+        <com:Description xml:lang="en">Links the reference metadataflow to its metadata provider AFW_POV.</com:Description>
+        <str:Metadataflow>urn:sdmx:org.sdmx.infomodel.metadatastructure.Metadataflow=WB.AFW360:MDF_AFW360(0.3.0)</str:Metadataflow>
+        <str:MetadataProvider>urn:sdmx:org.sdmx.infomodel.base.MetadataProvider=WB.AFW360:METADATA_PROVIDERS(1.0).AFW_POV</str:MetadataProvider>
+      </str:MetadataProvisionAgreement>
+    </str:MetadataProvisionAgreements>
   </mes:Structures>
 </mes:Structure>

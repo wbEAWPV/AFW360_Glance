@@ -1,8 +1,11 @@
 # pipeline/build_sdmx.R
 #
 # Writes the SDMX-ML 3.1 structure message sdmx/structures/AFW360_structures.xml
-# from metadata/ (plan 2.5, 2.6): the WB:AGENCIES agency scheme, the concept
-# scheme CS_AFW360 and every codelist of ARTEFACTS.csv. The message is
+# from metadata/ (plan 2.4 to 2.8): the WB:AGENCIES agency scheme, the data
+# and metadata provider schemes, the concept scheme CS_AFW360, every codelist
+# of ARTEFACTS.csv, the data structure DSD_AFW360_HH and dataflow AFW360_HH,
+# the metadata structure MSD_AFW360 and metadataflow MDF_AFW360, and the
+# provision agreements PA_AFW360_HH and MPA_AFW360. The message is
 # validated against pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd before it is
 # written. Output is deterministic: the same input gives the same bytes.
 #
@@ -58,5 +61,10 @@ if (cli_flag(args, "--check")) {
 }
 
 sdmx_write(doc, target)
-n_cl <- length(xml2::xml_find_all(doc, "//str:Codelist", xml2::xml_ns(doc)))
-cat(sprintf("wrote %s (1 agency scheme, 1 concept scheme, %d codelists)\n", rel_path, n_cl))
+n_of <- function(tag) length(xml2::xml_find_all(doc, paste0("//mes:Structures/*/", tag), xml2::xml_ns(doc)))
+cat(sprintf(paste("wrote %s (1 agency scheme, 1 concept scheme, %d codelists,",
+  "%d data structure, %d dataflow, %d metadata structure, %d metadataflow,",
+  "2 provider schemes, %d provision agreement, %d metadata provision agreement)\n"),
+  rel_path, n_of("str:Codelist"), n_of("str:DataStructure"), n_of("str:Dataflow"),
+  n_of("str:MetadataStructure"), n_of("str:Metadataflow"),
+  n_of("str:ProvisionAgreement"), n_of("str:MetadataProvisionAgreement")))

@@ -1,8 +1,12 @@
 # pipeline/R/sdmx_structures.R
 #
-# SDMX-ML 3.1 structures generated from metadata/ (plan 2.1, 2.5, 2.6),
-# part 1: the WB:AGENCIES agency scheme, the concept scheme CS_AFW360 and
-# the codelists, all driven by metadata/structure/ARTEFACTS.csv.
+# SDMX-ML 3.1 structures generated from metadata/ (plan 2.1, 2.4 to 2.8),
+# all driven by metadata/structure/ARTEFACTS.csv. Part 1: the WB:AGENCIES
+# agency scheme, the concept scheme CS_AFW360 and the codelists. Part 2:
+# the data structure DSD_AFW360_HH, the dataflow AFW360_HH, the data
+# provider scheme and provision agreement, the metadata structure
+# MSD_AFW360, the metadataflow MDF_AFW360, the metadata provider scheme and
+# metadata provision agreement.
 # Needs pipeline/R/io.R and pipeline/R/sdmx_xml.R.
 
 # Global counterparts of the sentinel codes (plan 2.5, D42, Gate 1 G1-Q4).
@@ -252,8 +256,210 @@ sdmx_codelist <- function(parent, id, root, artefacts, version, dsd) {
   node
 }
 
-#' Build the structure message with what exists so far: the agency scheme,
-#' the concept scheme and every codelist of ARTEFACTS.csv.
+# ---------------------------------------------------------------------------
+# Part 2: data structure, dataflow, providers, metadata structure,
+# metadataflow (plan 2.4, 2.7, 2.8; sdmx-ml-cheatsheet.md sections 5, 8 to 10)
+# ---------------------------------------------------------------------------
+
+# Provider of the data and the reference metadata (plan 2.8).
+SDMX_PROVIDER_ID <- "AFW_POV"
+SDMX_PROVIDER_NAME <- "AFW DIP/POV team"
+
+# Fixed version of the organisation schemes in URNs (XSD patterns
+# DataProviderUrnType and MetadataProviderUrnType; plan 2.8).
+SDMX_FIXED_VERSION <- "1.0"
+
+# Explicit targets of the metadataflow MDF_AFW360 (plan 2.7): the three
+# derived codelists and the dataflow.
+SDMX_MDF_TARGETS <- list(
+  list(package = "codelist", class = "Codelist", id = "CL_SURVEY"),
+  list(package = "codelist", class = "Codelist", id = "CL_SOURCE"),
+  list(package = "codelist", class = "Codelist", id = "CL_FIGURE"),
+  list(package = "datastructure", class = "Dataflow", id = "AFW360_HH")
+)
+
+#' URN of a concept of CS_AFW360.
+.sdmx_concept_urn <- function(id, version) {
+  sdmx_item_urn("conceptscheme", "Concept", "CS_AFW360", version, id)
+}
+
+#' Add `str:ConceptIdentity` and `str:LocalRepresentation` of a DSD
+#' component from its DSD CSV row: a codelist enumeration when `codelist` is
+#' set, otherwise a `TextFormat` with `data_type`, `min_value`, `max_value`.
+.sdmx_add_component_body <- function(node, r, version) {
+  xml2::xml_add_child(node, "str:ConceptIdentity", .sdmx_concept_urn(r$id, version))
+  lr <- xml2::xml_add_child(node, "str:LocalRepresentation")
+  if (nzchar(r$codelist)) {
+    xml2::xml_add_child(lr, "str:Enumeration", sdmx_codelist_urn(r$codelist, version))
+  } else {
+    tf <- xml2::xml_add_child(lr, "str:TextFormat", textType = r$data_type)
+    if (nzchar(r$min_value)) xml2::xml_set_attr(tf, "minValue", r$min_value)
+    if (nzchar(r$max_value)) xml2::xml_set_attr(tf, "maxValue", r$max_value)
+  }
+  node
+}
+
+#' Add the data structure DSD_AFW360_HH (plan 2.4) from the DSD CSV:
+#' `DimensionList` (dimensions without `position`, then the time dimension),
+#' `AttributeList` (relationships from the `relationship` column:
+#' `observation` or a space-separated dimension list; `MeasureRelationship`
+#' from `measure_relationship`), then `MeasureList` (with `usage`). No MSD
+#' link.
+#'
+#' @param parent The `str:DataStructures` node.
+#' @param root Repo root.
+#' @param artefacts ARTEFACTS.csv as a tibble.
+#' @param version The metadata version.
+#' @return The `str:DataStructure` node.
+sdmx_data_structure <- function(parent, root, artefacts, version) {
+  art <- .sdmx_artefact(artefacts, "DSD_AFW360_HH")
+  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  dsd <- dsd[order(as.integer(dsd$position)), , drop = FALSE]
+  node <- .sdmx_add_maintainable(parent, "str:DataStructure", art, version)
+  comps <- xml2::xml_add_child(node, "str:DataStructureComponents")
+
+  dl <- xml2::xml_add_child(comps, "str:DimensionList", id = "DimensionDescriptor")
+  for (i in which(dsd$component == "dimension")) {
+    .sdmx_add_component_body(xml2::xml_add_child(dl, "str:Dimension", id = dsd$id[i]), dsd[i, ], version)
+  }
+  for (i in which(dsd$component == "time_dimension")) {
+    .sdmx_add_component_body(xml2::xml_add_child(dl, "str:TimeDimension", id = dsd$id[i]), dsd[i, ], version)
+  }
+
+  al <- xml2::xml_add_child(comps, "str:AttributeList", id = "AttributeDescriptor")
+  for (i in which(dsd$component == "attribute")) {
+    r <- dsd[i, ]
+    a <- xml2::xml_add_child(al, "str:Attribute", id = r$id, usage = r$usage)
+    .sdmx_add_component_body(a, r, version)
+    rel <- xml2::xml_add_child(a, "str:AttributeRelationship")
+    if (identical(r$relationship, "observation")) {
+      xml2::xml_add_child(rel, "str:Observation")
+    } else {
+      for (d in strsplit(r$relationship, " ", fixed = TRUE)[[1]]) {
+        xml2::xml_add_child(rel, "str:Dimension", d)
+      }
+    }
+    if (nzchar(r$measure_relationship)) {
+      mr <- xml2::xml_add_child(a, "str:MeasureRelationship")
+      for (m in strsplit(r$measure_relationship, " ", fixed = TRUE)[[1]]) {
+        xml2::xml_add_child(mr, "str:Measure", m)
+      }
+    }
+  }
+
+  ml <- xml2::xml_add_child(comps, "str:MeasureList", id = "MeasureDescriptor")
+  for (i in which(dsd$component == "measure")) {
+    r <- dsd[i, ]
+    .sdmx_add_component_body(xml2::xml_add_child(ml, "str:Measure", id = r$id, usage = r$usage), r, version)
+  }
+  node
+}
+
+#' Add the dataflow AFW360_HH over DSD_AFW360_HH (plan 2.4).
+sdmx_dataflow <- function(parent, artefacts, version) {
+  node <- .sdmx_add_maintainable(parent, "str:Dataflow", .sdmx_artefact(artefacts, "AFW360_HH"), version)
+  xml2::xml_add_child(node, "str:Structure",
+    sdmx_urn("datastructure", "DataStructure", "DSD_AFW360_HH", version))
+  node
+}
+
+#' Add a fixed-version provider scheme holding the provider AFW_POV.
+.sdmx_provider_scheme <- function(parent, artefacts, version, scheme_id, tag, item_tag) {
+  node <- .sdmx_add_maintainable(parent, tag, .sdmx_artefact(artefacts, scheme_id), version,
+                                 fixed_version = TRUE)
+  prov <- xml2::xml_add_child(node, item_tag, id = SDMX_PROVIDER_ID)
+  sdmx_add_name(prov, SDMX_PROVIDER_NAME)
+  node
+}
+
+#' Add the data provider scheme DATA_PROVIDERS (plan 2.8; no version).
+sdmx_data_provider_scheme <- function(parent, artefacts, version) {
+  .sdmx_provider_scheme(parent, artefacts, version, "DATA_PROVIDERS",
+                        "str:DataProviderScheme", "str:DataProvider")
+}
+
+#' Add the metadata provider scheme METADATA_PROVIDERS (plan 2.7; no version).
+sdmx_metadata_provider_scheme <- function(parent, artefacts, version) {
+  .sdmx_provider_scheme(parent, artefacts, version, "METADATA_PROVIDERS",
+                        "str:MetadataProviderScheme", "str:MetadataProvider")
+}
+
+#' Add the provision agreement PA_AFW360_HH: dataflow plus data provider,
+#' referenced as DATA_PROVIDERS(1.0).AFW_POV (plan 2.8).
+sdmx_provision_agreement <- function(parent, artefacts, version) {
+  node <- .sdmx_add_maintainable(parent, "str:ProvisionAgreement",
+                                 .sdmx_artefact(artefacts, "PA_AFW360_HH"), version)
+  xml2::xml_add_child(node, "str:Dataflow",
+    sdmx_urn("datastructure", "Dataflow", "AFW360_HH", version))
+  xml2::xml_add_child(node, "str:DataProvider",
+    sdmx_item_urn("base", "DataProvider", "DATA_PROVIDERS", SDMX_FIXED_VERSION, SDMX_PROVIDER_ID))
+  node
+}
+
+#' Add the metadata provision agreement MPA_AFW360: metadataflow plus
+#' metadata provider, referenced as METADATA_PROVIDERS(1.0).AFW_POV.
+sdmx_metadata_provision_agreement <- function(parent, artefacts, version) {
+  node <- .sdmx_add_maintainable(parent, "str:MetadataProvisionAgreement",
+                                 .sdmx_artefact(artefacts, "MPA_AFW360"), version)
+  xml2::xml_add_child(node, "str:Metadataflow",
+    sdmx_urn("metadatastructure", "Metadataflow", "MDF_AFW360", version))
+  xml2::xml_add_child(node, "str:MetadataProvider",
+    sdmx_item_urn("base", "MetadataProvider", "METADATA_PROVIDERS", SDMX_FIXED_VERSION, SDMX_PROVIDER_ID))
+  node
+}
+
+#' Add the metadata structure MSD_AFW360 (plan 2.7): four presentational
+#' parents (SURVEY, SOURCE, TEXT, FIGURE; `minOccurs="0"`, `maxOccurs="1"`,
+#' no representation), each with one `String` child per source column minus
+#' the id and status columns (`minOccurs="0"`, `maxOccurs="1"`). Every
+#' attribute's concept is the CS_AFW360 concept of the same id (part 1).
+#'
+#' @param parent The `str:MetadataStructures` node.
+#' @param root Repo root.
+#' @param artefacts ARTEFACTS.csv as a tibble.
+#' @param version The metadata version.
+#' @return The `str:MetadataStructure` node.
+sdmx_metadata_structure <- function(parent, root, artefacts, version) {
+  node <- .sdmx_add_maintainable(parent, "str:MetadataStructure",
+                                 .sdmx_artefact(artefacts, "MSD_AFW360"), version)
+  comps <- xml2::xml_add_child(node, "str:MetadataStructureComponents")
+  mal <- xml2::xml_add_child(comps, "str:MetadataAttributeList", id = "MetadataAttributeDescriptor")
+  concepts <- sdmx_msd_concepts(root)
+  current <- NULL
+  for (i in seq_len(nrow(concepts))) {
+    id <- concepts$id[i]
+    if (concepts$parent[i]) {
+      current <- xml2::xml_add_child(mal, "str:MetadataAttribute", id = id,
+        minOccurs = "0", maxOccurs = "1", isPresentational = "true")
+      xml2::xml_add_child(current, "str:ConceptIdentity", .sdmx_concept_urn(id, version))
+    } else {
+      ch <- xml2::xml_add_child(current, "str:MetadataAttribute", id = id,
+        minOccurs = "0", maxOccurs = "1")
+      xml2::xml_add_child(ch, "str:ConceptIdentity", .sdmx_concept_urn(id, version))
+      lr <- xml2::xml_add_child(ch, "str:LocalRepresentation")
+      xml2::xml_add_child(lr, "str:TextFormat", textType = "String")
+    }
+  }
+  node
+}
+
+#' Add the metadataflow MDF_AFW360 over MSD_AFW360 with its four explicit
+#' targets (plan 2.7).
+sdmx_metadataflow <- function(parent, artefacts, version) {
+  node <- .sdmx_add_maintainable(parent, "str:Metadataflow",
+                                 .sdmx_artefact(artefacts, "MDF_AFW360"), version)
+  xml2::xml_add_child(node, "str:Structure",
+    sdmx_urn("metadatastructure", "MetadataStructure", "MSD_AFW360", version))
+  for (t in SDMX_MDF_TARGETS) {
+    xml2::xml_add_child(node, "str:Target", sdmx_urn(t$package, t$class, t$id, version))
+  }
+  node
+}
+
+#' Build the complete structure message: agency, data provider and
+#' metadata provider schemes, the concept scheme, every codelist of
+#' ARTEFACTS.csv, the data structure and dataflow, the metadata structure
+#' and metadataflow, and the two provision agreements.
 #'
 #' @param root Repo root.
 #' @param timestamp Value of the header's `mes:Prepared`.
@@ -263,11 +469,21 @@ sdmx_structures_message <- function(root, timestamp = SDMX_DEFAULT_TIMESTAMP) {
   artefacts <- read_std_csv(file.path(root, "metadata", "structure", "ARTEFACTS.csv"))
   dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   msg <- sdmx_new_message(timestamp)
-  sdmx_agency_scheme(xml2::xml_add_child(msg$structures, "str:AgencySchemes"), artefacts, version)
-  sdmx_concept_scheme(xml2::xml_add_child(msg$structures, "str:ConceptSchemes"), root, artefacts, version)
-  cls <- xml2::xml_add_child(msg$structures, "str:Codelists")
+  s <- msg$structures
+  add <- function(tag) xml2::xml_add_child(s, tag)
+  sdmx_agency_scheme(add("str:AgencySchemes"), artefacts, version)
+  sdmx_data_provider_scheme(add("str:DataProviderSchemes"), artefacts, version)
+  sdmx_metadata_provider_scheme(add("str:MetadataProviderSchemes"), artefacts, version)
+  sdmx_concept_scheme(add("str:ConceptSchemes"), root, artefacts, version)
+  cls <- add("str:Codelists")
   for (id in artefacts$artefact_id[artefacts$artefact_type == "Codelist"]) {
     sdmx_codelist(cls, id, root, artefacts, version, dsd)
   }
+  sdmx_data_structure(add("str:DataStructures"), root, artefacts, version)
+  sdmx_dataflow(add("str:Dataflows"), artefacts, version)
+  sdmx_metadata_structure(add("str:MetadataStructures"), root, artefacts, version)
+  sdmx_metadataflow(add("str:Metadataflows"), artefacts, version)
+  sdmx_provision_agreement(add("str:ProvisionAgreements"), artefacts, version)
+  sdmx_metadata_provision_agreement(add("str:MetadataProvisionAgreements"), artefacts, version)
   msg$doc
 }
