@@ -1,7 +1,7 @@
 ---
 title: "AFW 360 data standard and producer guidelines"
-subtitle: "Draft v0.5 · metadata 0.2.0 · files created by the transition, not yet read by the dashboard"
-date: 2026-09-28
+subtitle: "Draft v0.6 · metadata 0.3.0 · files created by the transition, not yet read by the dashboard"
+date: 2026-09-29
 format:
   html:
     toc: true
@@ -97,14 +97,17 @@ Everything in the last column reduces to three generic rules, and `RULES.csv` sa
 
 ## Where everything lives {#sec-layout}
 
-Everything is plain files in one git repository, in seven top-level folders (@lst-layout):
+Everything is plain files in one git repository, in ten top-level folders (@lst-layout):
 
 - **`data_raw/`** holds the current legacy inputs, byte-frozen: file names and bytes unchanged, proven by `data_raw/CHECKSUMS.sha256` (D2).
-- **`pipeline/`** holds the R code that reads `data_raw/` and the plans and writes every other folder: the metadata bootstrap, the converter and the validator (D1, D11).
+- **`pipeline/`** holds the R code that reads `data_raw/` and the plans and writes every other folder: the metadata bootstrap, the converter, the validator and the SDMX generator and importer (D1, D11, D30).
 - **`metadata/`** is the dictionary. It says what every code means, which rows a data file must contain, which rules the numbers must satisfy, and which surveys and program runs the numbers come from. Every other folder refers to it, and every change to it is reviewed (@sec-change-control).
 - **`data/`** holds the numbers: one CSV per country, reference year and estimation method, each with a manifest recording how it was produced and against which metadata version.
 - **`geo/`** holds the boundaries used for maps.
 - **`content/`** and **`assets/`** hold the prose and images the dashboard shows beside the numbers.
+- **`sdmx/`** holds the SDMX-ML structure message and the SDMX-CSV metadata messages, generated from `metadata/` and `content/`, committed and checked for staleness (D28, @sec-sdmx-generated).
+- **`tools/`** holds tools outside the pipeline: the independent SDMX verification in Python (`tools/verify/`, D30) and the FMR install notes and scripts (`tools/fmr/`, D35).
+- **`afw360/`** is the Python package of the dashboard loader, the one place the dashboard reads data from (D37).
 
 ```{#lst-layout lst-cap="Repository layout"}
 data_raw/                      legacy inputs, byte-frozen (D2)
@@ -118,11 +121,13 @@ pipeline/
   R/                           shared R functions used across the pipeline scripts
   bootstrap/                   generated the first metadata files, from bootstrap/seeds/*.csv (D11, frozen)
   migrations/<version>/        one-off scripts that moved metadata/ and data/ from one version to the next (D12)
+  xsd/sdmx-ml-3.1/               vendored SDMX-ML 3.1 XSDs (tag v3.1.0 of sdmx-twg/sdmx-ml)
   tests/                       testthat tests
-  acceptance/                  acceptance scripts, one per work package
   build_geo.R
   build_content.R
   build_docs.R                 writes the generated tables of this document to .docs/generated/ (D20)
+  build_sdmx.R                 writes sdmx/ from metadata/ and content/; --check for staleness (D28)
+  import_sdmx.R                reads an SDMX-ML structure message back into metadata/ (--diff, --apply)
   convert_legacy.R
   validate.R
   reconcile.R
@@ -133,6 +138,7 @@ metadata/
   structure/
     DSD_AFW360_HH.csv          column list of the data files (data team only)
     COLUMNS.csv                column registry of every metadata/content file (file, position, column, status, description)
+    ARTEFACTS.csv              every SDMX artefact to generate, with its name and description (D44)
     INDICATOR_QUALIFIERS.csv   which qualifier variables each indicator takes, and which categories (D18)
     QUALIFIER_PAIRS.csv        which categories of one qualifier variable may appear with another (D18)
   rules/
@@ -149,7 +155,8 @@ metadata/
     CL_SEX.csv  CL_AGE.csv  CL_URBANISATION.csv
     CL_ESTIMATION.csv          how a value was produced: survey or model (D17)
     CL_OBS_STATUS.csv
-    CL_THEME.csv  CL_UNIT.csv  CL_STAT_UNIT.csv  CL_STATISTIC.csv  CL_WEIGHT.csv
+    CL_THEME.csv  CL_UNIT_MEASURE.csv  CL_STAT_UNIT.csv  CL_STATISTIC.csv  CL_WEIGHT.csv
+    CL_FREQ.csv                frequency, always A (D34)
   surveys/
     SURVEYS.csv                one row per country x survey round
   plans/
@@ -167,12 +174,20 @@ data/
   AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>_manifest.csv
 geo/
   boundaries/<ISO3>_<SOURCE_ID>.gpkg
-  derived/                     generated display layers; never hand-edited
+  derived/                     planned: generated display layers; never hand-edited
 content/
   TEXT.csv                     dashboard prose, one row per slot
   text/<ISO3>/<slot>.md        long-form bodies
 assets/
   figures/<ISO3>/<figure_id>.<ext>
+sdmx/                          generated, committed, staleness-checked (D28)
+  README.md                    what is here, how it is generated, how to load it into FMR
+  structures/AFW360_structures.xml   one SDMX-ML 3.1 structure message with every artefact
+  metadata/MDS_<REGISTRY>.csv  SDMX-CSV 2.1 metadata messages: surveys, sources, text, figures (D43)
+tools/                         outside the pipeline
+  verify/                      independent SDMX checks in Python (pysdmx), verification only (D30)
+  fmr/                         FMR install notes and load, validate and export scripts (D35)
+afw360/                        Python package of the dashboard loader (D37)
 ```
 
 Numbers flow one way. A producer's program computes indicators from the harmonized microdata and writes a data file and its manifest. The validator checks the file against `metadata/` (@sec-validation). The dashboard reads published files through a single loader. Until producers deliver files, the converter does their job: it turns the current Excel tables into data files using `LEGACY_LABELS.csv` ([Annex](#sec-appendix-legacy)).
@@ -181,7 +196,7 @@ Numbers flow one way. A producer's program computes indicators from the harmoniz
 
 **Structural migrations are scripts, run once (D12).** When a release changes the columns of a metadata file or of the data file, the change is made by a script under `pipeline/migrations/<version>/`, committed with the release and run once. The script reads the previous version's files and writes the new ones, so the change is reviewable and reproducible; it never re-runs the bootstrap. After it has run, hand editing resumes.
 
-The metadata, the converter and the validator exist, and the two countries' files have been produced from the legacy workbooks ([transition.qmd](transition.qmd)). The dashboard still reads `data_raw/` directly; the switch to a loader that reads `data/` is the remaining step.
+The metadata, the converter and the validator exist, and the two countries' files have been produced from the legacy workbooks ([transition.qmd](transition.qmd)). The dashboard still reads `data_raw/` directly; the switch to the loader in `afw360/`, which reads `data/` (D37), is the remaining step.
 
 ## How the database grows {#sec-growth}
 
@@ -214,20 +229,38 @@ A separate dataflow is needed only when the statistical unit is not the househol
 
 ## Columns {#sec-columns}
 
-Data files have exactly the 31 columns in @tbl-columns, in that order. The role says which family a column belongs to (@sec-one-row): breakdowns say who is counted, qualifiers say what is measured, the two reference columns say when and how the value was estimated, and attributes describe the value's identity, unit, reliability and origin.
+Data files are SDMX-CSV 2.1 data messages (@sec-sdmx-csv) with exactly 37 columns, in this order (D46): the three fixed SDMX-CSV columns, then the 34 components of @tbl-columns in DSD order, which are 18 dimensions, `TIME_PERIOD`, nine measures and six attributes. The role says which family a component belongs to (@sec-one-row): breakdowns say who is counted, qualifiers say what is measured, the reference columns say how often, when and how the value was estimated, measures carry the value and its reliability, and attributes describe the value's identity, unit, status and origin.
 
 {{< include generated/tbl-columns.md >}}
 
-The first 19 columns, `DATAFLOW` through `MEASURE_QUAL_5`, are the **key**: together they identify one observation, and no two rows of the database share them. The remaining 12 columns describe that observation. Four of them were added in version 0.2.0 so that a row can be read without opening any other file (D13 to D16):
+**Fixed columns.** SDMX-CSV requires them in every message. They are not components of the DSD and are not rows of `DSD_AFW360_HH.csv`.
 
-- `SERIES_ID` names the series the row belongs to (@sec-series-plan). It is redundant with the key, and the validator checks that they agree.
-- `UNIT_MEASURE` is the unit of `OBS_VALUE`, resolved for the country: `SHARE`, `PERSON`, `HA` or, for money, the ISO 4217 currency code such as `XOF` (@sec-values).
+- `STRUCTURE` is always `dataflow`.
+- `STRUCTURE_ID` is `WB.AFW360:AFW360_HH(<VERSION>)`, with the content of `metadata/VERSION`: today `WB.AFW360:AFW360_HH(0.3.0)`.
+- `ACTION` is `R` on every row (D38, @sec-values).
+
+The `DATAFLOW` column of version 0.2.0 is gone: `STRUCTURE_ID` names the dataflow and its version.
+
+**The key** is the 18 dimensions plus `TIME_PERIOD`, 19 columns, `FREQ` through `TIME_PERIOD`. Together they identify one observation, and no two rows of the database share them. `FREQ` is the first dimension and is always `A`, annual, coded by `CL_FREQ` (D34).
+
+**Measures (D33).** An observation carries nine measures. `OBS_VALUE` is the value itself and is mandatory. `STD_ERR`, `CI_LOWER`, `CI_UPPER`, `N_OBS` and `N_POP` were attributes in version 0.2.0 and are now measures; their meaning is unchanged (@sec-values). Three optional measures are new: `N_OBS_NUM`, the unweighted number of records in the numerator of a share; `DEFF`, the design effect; and `DF`, the degrees of freedom of the variance estimate. None of the three can be derived from the others, and all matter for reliability. `N_OBS_NUM` is required where `STD_ERR` is; `DEFF` and `DF` are optional until a producer file defines them. Legacy files leave every measure but `OBS_VALUE` empty.
+
+**Attributes.** Six attributes describe the observation. Each is attached at a stated level:
+
+- `SERIES_ID` is attached to `INDICATOR` and the ten breakdown and qualifier dimensions, and `UNIT_MEASURE` to `REF_AREA` and `INDICATOR`. Both are repeated on every row and have exactly one value per combination of those dimensions across all data files; the validator checks this (`STRUCT.ATTR_LEVEL`, @sec-validation).
+- `PRECISION`, `OBS_STATUS`, `SOURCE_ID` and `OBS_COMMENT` are attached to the observation. `OBS_STATUS` also relates to the measure `OBS_VALUE`.
+- `SERIES_ID`, `UNIT_MEASURE`, `OBS_STATUS` and `SOURCE_ID` are mandatory and never empty (D39). `PRECISION` and `OBS_COMMENT` are optional.
+
+Four of the attributes were added in version 0.2.0 so that a row can be read without opening any other file (D13 to D16):
+
+- `SERIES_ID` names the series the row belongs to (@sec-series-plan). It is redundant with the key, and the validator checks that they agree. Its codelist `CL_SERIES` is derived from `SERIES_PLAN.csv` (D43).
+- `UNIT_MEASURE` is the unit of `OBS_VALUE`, resolved for the country: `SHARE`, `PERSON`, `HA` or, for money, the ISO 4217 currency code such as `XOF` (@sec-values). All of them are codes of `CL_UNIT_MEASURE`, which was called `CL_UNIT` before version 0.3.0 and now lists the currency codes too (@sec-sdmx-global).
 - `PRECISION` is the rounding unit of `OBS_VALUE` in base units, empty when the value is exact. A legacy conversion of a share rounded to two decimals writes `0.01`; a count converted from millions rounded to two decimals writes `10000`.
-- `SOURCE_ID` names the program run that produced the row, in `SOURCES.csv` (@sec-sources).
+- `SOURCE_ID` names the program run that produced the row, in `SOURCES.csv` (@sec-sources). Its codelist `CL_SOURCE` is derived from that file (D43).
 
 ## The two sentinels {#sec-sentinels}
 
-`_T` and `_Z` are reserved codes with fixed meanings. They are never listed in a codelist, and no code in any codelist may start with `_`.
+`_T` and `_Z` are reserved codes with fixed meanings. They are never listed in a codelist CSV, and no code in any codelist CSV may start with `_`. The SDMX generator adds them to the generated codelists, because SDMX validators accept only values that exist in the codelist (D42, @sec-code-rules).
 
 - **`_T`, total.** The value covers every unit and is not split on this dimension. Valid in `GEO`, `SEX`, `AGE`, `URBANISATION` and the breakdown slots.
 - **`_Z`, not applicable.** Valid in every unused qualifier slot, and in `SEX` or `AGE` when the indicator is not about individuals. A household-level indicator writes `SEX=_Z`, not `SEX=_T`, because "total over both sexes" would be a claim about a dimension that does not apply to households.
@@ -276,9 +309,11 @@ Every row of a `MODEL` file carries `OBS_STATUS=E` unless the cell is empty (`O`
 - **`N_POP`** is the sum of weights over those same records: the population, households or enterprises the value refers to.
 - **On a share row, both counts are the denominator** (D19). "Share of employed persons working in agriculture, poorest quintile" is estimated as a mean over employed persons in the quintile, and `N_OBS` and `N_POP` are the records and weighted population of that universe, not of the agricultural workers. The group is the population cut, quintile; the defining breakdown, sector, is what is measured. The agricultural workers' own population is `OBS_VALUE × N_POP` by definition, so it is not stored. The partition checks of @sec-validation therefore run over population cuts only, never over a series' defining breakdown.
 - **Standard errors and confidence intervals** must reflect the survey design (weights, strata and PSUs, with linearized variance). Intervals are at 95%.
-- **Rows from a legacy conversion** carry `PRECISION` and no reliability attributes, because the workbooks hold neither. The exemption is a property of the source: the reliability columns are required on every row whose source has `kind = PRODUCER`, and may be empty where it has `kind = LEGACY_CONVERSION` (@sec-legacy).
+- **Rows from a legacy conversion** carry `PRECISION` and no reliability measures, because the workbooks hold neither. The exemption is a property of the source: the reliability columns are required on every row whose source has `kind = PRODUCER`, and may be empty where it has `kind = LEGACY_CONVERSION` (@sec-legacy).
+- **Missing values (D39).** `OBS_VALUE` is `NaN` on every row whose `OBS_STATUS` is `O` or `M`, and a number on every other row. `NaN` is the SDMX-CSV value for an intentionally missing float or double; `#N/A`, the value for every other type, is not used. An optional measure or attribute that the source cannot supply is left empty, which SDMX-CSV reads as "not provided". The mandatory attributes `SERIES_ID`, `UNIT_MEASURE`, `OBS_STATUS` and `SOURCE_ID` are never empty.
+- **`ACTION` is `R`** (replace) on every row of a published file (D38). `R` replaces whole observations and merges attributes above observation level; it does not delete observations missing from the file. A consumer that replaces a slice deletes it first, so a published file contains no `D` rows (@sec-sdmx-csv).
 
-**`OBS_STATUS`** takes one of the codes in @tbl-obs-status, which come from the SDMX cross-domain `CL_OBS_STATUS`. A cell that can never exist is normally declared in the indicator's `excluded_breakdowns` (@sec-cl-indicator) and left out of the file. `M` covers such a cell when it has not been declared there: the row stays, with an empty value, so the gap is visible.
+**`OBS_STATUS`** takes one of the codes in @tbl-obs-status, which come from the SDMX cross-domain `CL_OBS_STATUS`. A cell that can never exist is normally declared in the indicator's `excluded_breakdowns` (@sec-cl-indicator) and left out of the file. `M` covers such a cell when it has not been declared there: the row stays, with `OBS_VALUE = NaN`, so the gap is visible.
 
 {{< include generated/tbl-obs-status.md >}}
 
@@ -325,9 +360,233 @@ A cell known to be wrong is different again: it is **withheld**, not published. 
 
 : Example rows of a data file, showing only the columns that vary {#tbl-example-rows}
 
-In every row `DATAFLOW=AFW360_HH`, `REF_AREA=SEN`, `TIME_PERIOD=2021` and `ESTIMATION=SURVEY`. `SEX` and `AGE` are `_T` (total), or `_Z` for an indicator whose `stat_unit` is not `IND` (@sec-sentinels). `COMP_BREAKDOWN_2…5` are `_T`, and `MEASURE_QUAL_4…5` are `_Z` (not applicable). Each row also carries its `SERIES_ID`, for example `POV_HC.POVLINE_PL420.PPP_2021` on the first three rows and `POP_SH.EMP_SECTOR_AGR` on the agriculture row, its `UNIT_MEASURE` (`SHARE`, or `PERSON` for the number of poor) and its `SOURCE_ID`.
+In every row `STRUCTURE=dataflow`, `STRUCTURE_ID=WB.AFW360:AFW360_HH(0.3.0)`, `ACTION=R`, `FREQ=A`, `REF_AREA=SEN`, `TIME_PERIOD=2021` and `ESTIMATION=SURVEY`. `SEX` and `AGE` are `_T` (total), or `_Z` for an indicator whose `stat_unit` is not `IND` (@sec-sentinels). `COMP_BREAKDOWN_2…5` are `_T`, and `MEASURE_QUAL_4…5` are `_Z` (not applicable). Each row also carries its `SERIES_ID`, for example `POV_HC.POVLINE_PL420.PPP_2021` on the first three rows and `POP_SH.EMP_SECTOR_AGR` on the agriculture row, its `UNIT_MEASURE` (`SHARE`, or `PERSON` for the number of poor) and its `SOURCE_ID`.
 
 Qualifiers fill the slots in ascending `slot_order` (@sec-qualifier-rules): welfare concept 10, poverty line 20, PPP 30, COICOP 40, fiscal instrument 50. That is why the COICOP code lands in slot 3 on the "food share among the poor" row but in slot 1 on the "food share, poorest quintile" row.
+
+# SDMX conformance {#sec-sdmx}
+
+This section says how the database maps onto SDMX. The project targets the SDMX 3.1 family: SDMX-CSV 2.1.0 for data and reference metadata, and SDMX-ML 3.1.0 for structures (D27). No SDMX-JSON is produced (D29).
+
+The CSV files under `metadata/`, `content/` and `data/` remain the source of truth. The SDMX-ML structure message and the SDMX-CSV metadata messages are generated from them, committed, and checked for staleness like the generated tables of this document (D28, D20). Nobody edits the XML by hand. The pipeline stays in R: R writes the XML and validates it against the SDMX-ML XSDs. Python is used only by the dashboard loader and by a separate verification tool that is never part of the pipeline (D30).
+
+## Identity and versioning {#sec-sdmx-identity}
+
+- **Agency.** Every artefact is maintained by `WB.AFW360`, a sub-agency of the registered World Bank agency `WB` (D31).
+- **Agency scheme.** The project ships a `WB:AGENCIES` agency scheme (fixed id, no version attribute in XML) that declares one agency, `AFW360`, named "West Africa Micro Data 360 (AFW DIP/POV team)". It is a local placeholder so that `WB.AFW360` resolves in FMR, pysdmx and the XSD and URN checks. It asserts nothing in the World Bank's namespace and is never submitted to any registry. At registration it is replaced by the World Bank's own scheme. Before loading into a World Bank registry, check whether `WB:AGENCIES` already exists there; if it does, have `AFW360` added to it and drop the local copy. Global registration is a later step, taken by the World Bank's SDMX owner.
+- **Version.** Every maintainable artefact carries `agencyID="WB.AFW360"` and `version="0.3.0"`, the content of `metadata/VERSION` (D40).
+- **Semver dependency rule.** A semver artefact references only semver artefacts (IM technical notes, Annex "Semantic Versioning", "Dependency Management"; the XSD does not enforce it). The one exception is a reference to an item of the fixed-version organisation schemes, `AGENCIES`, `DATA_PROVIDERS` and `METADATA_PROVIDERS`, whose URN version is `(1.0)`. The XSD requires those references, and the `SDMX.URN` check exempts them. Annotation values such as `GLOBAL_CODE` and `SDMX_CROSS_DOMAIN_CONCEPT` are not structural references.
+- **URN form.** `urn:sdmx:org.sdmx.infomodel.<package>.<Class>=WB.AFW360:<ID>(0.3.0)`. A code appends `.<CODE>`.
+- **Short reference form**, used in CSV messages: `WB.AFW360:<ID>(0.3.0)`.
+- **Message header sender id**: `WB_AFW360`. Sender ids are plain IDs and cannot contain a dot.
+- **Artefact ids** are NCNames: a letter, then letters, digits, `_` or `-`. The project code rules (@sec-code-rules) are stricter and stay.
+- **Released artefacts are immutable.** A released `X.Y.Z` never changes (SDMX semantic versioning). Edits between releases are made on a `-draft` copy and re-imported into the CSVs; the next release bumps `VERSION` and regenerates every artefact (D40, @sec-change-control).
+
+## The data file as an SDMX-CSV message {#sec-sdmx-csv}
+
+Every data file is an SDMX-CSV 2.1 data message. Here is the header and the first row of `data/AFW360_HH_SEN_2021_SURVEY.csv`. Each is one line in the file; they are shown wrapped here.
+
+```
+STRUCTURE,STRUCTURE_ID,ACTION,FREQ,REF_AREA,GEO,ESTIMATION,INDICATOR,SEX,AGE,URBANISATION,
+COMP_BREAKDOWN_1,COMP_BREAKDOWN_2,COMP_BREAKDOWN_3,COMP_BREAKDOWN_4,COMP_BREAKDOWN_5,
+MEASURE_QUAL_1,MEASURE_QUAL_2,MEASURE_QUAL_3,MEASURE_QUAL_4,MEASURE_QUAL_5,TIME_PERIOD,
+OBS_VALUE,STD_ERR,CI_LOWER,CI_UPPER,N_OBS,N_POP,N_OBS_NUM,DEFF,DF,
+SERIES_ID,UNIT_MEASURE,PRECISION,OBS_STATUS,SOURCE_ID,OBS_COMMENT
+dataflow,WB.AFW360:AFW360_HH(0.3.0),R,A,SEN,SN01,SURVEY,AGR_CULTIVATES,_Z,_Z,_T,
+_T,_T,_T,_T,_T,_Z,_Z,_Z,_Z,_Z,2021,
+0.01,,,,,,,,,
+AGR_CULTIVATES,SHARE,0.01,A,SEN_EHCVM2021_LEGACY_v1,
+```
+
+In this row `GEO = SN01` is the `CL_GEO` code of Dakar (ADM1). National totals use `GEO = _T`.
+
+Rules:
+
+- **37 columns, in DSD order (D46):** the three fixed columns, the 18 dimensions, `TIME_PERIOD`, the nine measures, then the six attributes. The key is the 18 dimensions plus `TIME_PERIOD`, 19 columns (@sec-columns). The header is one physical line.
+- **`STRUCTURE`** is always `dataflow`. **`STRUCTURE_ID`** is `WB.AFW360:AFW360_HH(<VERSION>)`.
+- **`ACTION` is `R`**, replace, in every published file (D38). The SDMX-CSV 2.1 guide recommends `R` for complete query responses; `I` and `A` are deprecated. `R` replaces whole observations and merges attributes above observation level. It does not delete observations missing from the file. A consumer that replaces a slice deletes it first, with a `D` row of the partial key `REF_AREA`, `ESTIMATION`, `TIME_PERIOD`. The published files contain no `D` rows.
+- **`FREQ`** is `A`.
+- **Missing values (D39).** `OBS_VALUE` is `NaN` when `OBS_STATUS` is `O` or `M`, and a number otherwise. `NaN` is the SDMX-CSV intentionally-missing value for float and double components only. `#N/A` is the value for every other type and is not used. Optional measures and optional attributes are left empty when not available; in SDMX-CSV, empty means "not provided". The mandatory attributes `SERIES_ID`, `UNIT_MEASURE`, `OBS_STATUS` and `SOURCE_ID` are never empty.
+- **Attributes on partial keys.** `SERIES_ID` and `UNIT_MEASURE` are attached to partial keys, replicated on every row, and carry exactly one value per partial key across all data files: `SERIES_ID` per `INDICATOR` and the ten breakdown and qualifier dimensions, `UNIT_MEASURE` per `REF_AREA` and `INDICATOR`. The validator check `STRUCT.ATTR_LEVEL` (ERROR) groups all rows of all files by each attribute's relationship dimensions and reports any group with more than one distinct value.
+- **Numbers** use `.` as the decimal separator and no thousands separator.
+- **Encoding.** RFC 4180 quoting, written with `readr::write_csv(..., na = "")`, so readr's default `NA` never appears. UTF-8 without BOM, LF line endings. LF is a project convention and a documented deviation from RFC 4180, which specifies CRLF; the SDMX-CSV 2.1 guide does not address line endings or BOM.
+- **File names** are unchanged: `AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`.
+- **Manifest.** The key `dataflow` becomes `structure_id`, and a new key `sdmx_csv_version` holds `2.1.0` (@sec-manifest). The manifest stays a project-level sidecar; it describes a file, which is not an SDMX artefact.
+
+## Data structure definition `DSD_AFW360_HH` {#sec-sdmx-dsd}
+
+The dataflow `WB.AFW360:AFW360_HH(0.3.0)` references the data structure definition `WB.AFW360:DSD_AFW360_HH(0.3.0)`. Its components are the rows of `metadata/structure/DSD_AFW360_HH.csv`, listed in @tbl-columns, which is generated from that file and is authoritative. @tbl-sdmx-dsd summarises them in data-file order. The three fixed SDMX-CSV columns are not components and are not rows of the DSD file.
+
+| Pos | Id | Component | Project role | Codelist | Data type | Usage | Relationship | Sentinel |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `FREQ` | dimension | reference | `CL_FREQ` | | | | |
+| 2 | `REF_AREA` | dimension | breakdown | `CL_AREA` | | | | |
+| 3 | `GEO` | dimension | breakdown | `CL_GEO` | | | | `_T` |
+| 4 | `ESTIMATION` | dimension | reference | `CL_ESTIMATION` | | | | |
+| 5 | `INDICATOR` | dimension | qualifier | `CL_INDICATOR` | | | | |
+| 6 | `SEX` | dimension | breakdown | `CL_SEX` | | | | `_T` `_Z` |
+| 7 | `AGE` | dimension | breakdown | `CL_AGE` | | | | `_T` `_Z` |
+| 8 | `URBANISATION` | dimension | breakdown | `CL_URBANISATION` | | | | `_T` |
+| 9 to 13 | `COMP_BREAKDOWN_1..5` | dimension | breakdown | `CL_COMP_BREAKDOWN` | | | | `_T` |
+| 14 to 18 | `MEASURE_QUAL_1..5` | dimension | qualifier | `CL_QUALIFIER` | | | | `_Z` |
+| 19 | `TIME_PERIOD` | time_dimension | reference | | GregorianYear | | | |
+| 20 | `OBS_VALUE` | measure | measure | | Double | mandatory | | |
+| 21 | `STD_ERR` | measure | measure | | Double, min 0 | optional | | |
+| 22 | `CI_LOWER` | measure | measure | | Double | optional | | |
+| 23 | `CI_UPPER` | measure | measure | | Double | optional | | |
+| 24 | `N_OBS` | measure | measure | | Integer, min 0 | optional | | |
+| 25 | `N_POP` | measure | measure | | Double, min 0 | optional | | |
+| 26 | `N_OBS_NUM` | measure | measure | | Integer, min 0 | optional | | |
+| 27 | `DEFF` | measure | measure | | Double, min 0 | optional | | |
+| 28 | `DF` | measure | measure | | Integer, min 0 | optional | | |
+| 29 | `SERIES_ID` | attribute | attribute | `CL_SERIES` (derived) | | mandatory | dimensions: `INDICATOR` `COMP_BREAKDOWN_1..5` `MEASURE_QUAL_1..5` | |
+| 30 | `UNIT_MEASURE` | attribute | attribute | `CL_UNIT_MEASURE` | | mandatory | dimensions: `REF_AREA` `INDICATOR` | |
+| 31 | `PRECISION` | attribute | attribute | | Double, min 0 | optional | observation | |
+| 32 | `OBS_STATUS` | attribute | attribute | `CL_OBS_STATUS` | | mandatory | observation; measure relationship `OBS_VALUE` | |
+| 33 | `SOURCE_ID` | attribute | attribute | `CL_SOURCE` (derived) | | mandatory | observation | |
+| 34 | `OBS_COMMENT` | attribute | attribute | | String | optional | observation | |
+
+: Components of `DSD_AFW360_HH`, in data-file order {#tbl-sdmx-dsd}
+
+- **`Pos` is the CSV column order only.** In SDMX-ML the writer emits `DimensionList` (rows 1 to 19), then `AttributeList` (rows 29 to 34), then `MeasureList` (rows 20 to 28), as the XSD requires.
+- **Usage and requiredness.** The project's requiredness (R, C, O) and its conditions are unchanged. For example, `STD_ERR` is required on rows of a `PRODUCER` source where the statistic admits it. They stay in the DSD file's `required` column and in the validator. SDMX `usage` is the weaker, structural statement. Of the three new measures, `N_OBS_NUM` is C with the same condition as `STD_ERR`, and `DEFF` and `DF` are O until a producer file defines them.
+- **Concept identity.** Every component has a concept of the same id in `CS_AFW360` (@sec-sdmx-concepts).
+- **Time.** The time dimension's representation is written explicitly, `TextFormat textType="GregorianYear"`.
+- **No MSD link.** The DSD does not reference the metadata structure, because data-related reference metadata is not used.
+
+## Codelists and the CSV-to-SDMX mapping {#sec-sdmx-mapping}
+
+Every `metadata/codelists/CL_*.csv` becomes a codelist `WB.AFW360:CL_*(0.3.0)`. Columns map to SDMX by convention, with no mapping file to maintain (D41). The mapping is mechanical and reversible, which the FMR round-trip needs.
+
+| CSV column | SDMX |
+|---|---|
+| `code` | `Code/@id` |
+| `name_en` | `Name xml:lang="en"` |
+| `definition_en` | `Description xml:lang="en"`, omitted when empty |
+| `parent` | `Parent`, in the same codelist |
+| `global_urn` | annotation type `GLOBAL_CODE`, value the URN |
+| `status`, `version_added`, `replaced_by`, `notes` | annotations `AFW_STATUS`, `AFW_VERSION_ADDED`, `AFW_REPLACED_BY`, `AFW_NOTES` |
+| any other column | annotation `AFW_<COLUMN>` (column name upper-cased), value the cell text as is; space-separated lists stay space-separated |
+
+: How a codelist CSV maps to SDMX (D41) {#tbl-sdmx-mapping}
+
+**The annotation registry.** An annotation is written as `Annotation id="<type>"`, with `AnnotationType` the type and `AnnotationValue` the value. Annotations are the first child of the code. An empty cell produces no annotation. The annotation types in use are:
+
+- `GLOBAL_CODE`: the full code URN of the matching code in a global list (@sec-sdmx-global).
+- `AFW_<COLUMN>`: one per codelist column that has no SDMX slot, including `AFW_STATUS`, `AFW_VERSION_ADDED`, `AFW_REPLACED_BY` and `AFW_NOTES`.
+- `AFW_SENTINEL`: `Y` on a sentinel code added by the generator.
+- `AFW_SOURCE_FILE` and `AFW_METADATA_VERSION`: on every maintainable artefact, the repository path of the CSV it was generated from and the metadata version.
+- `SDMX_CROSS_DOMAIN_CONCEPT`: on a concept that matches an SDMX cross-domain concept (@sec-sdmx-concepts).
+
+Special cases:
+
+- **`CL_GEO_SCHEME.csv`** is keyed by `ref_area` and `code`. Its SDMX code id is `<ref_area>_<code>`, for example `SEN_ADM1`, and the two parts are also kept as annotations. The importer splits the id on the first underscore.
+- **Sentinels (D42).** The generator appends `_T` ("Total") and `_Z` ("Not applicable") as real codes, reading the DSD file's `sentinel` column: `_T` to `CL_GEO`; `_T` and `_Z` to `CL_SEX` and `CL_AGE`; `_T` to `CL_URBANISATION` and `CL_COMP_BREAKDOWN`; `_Z` to `CL_QUALIFIER`. That is eight sentinel codes in all. Each carries `AFW_SENTINEL` = `Y`, which the importer uses to drop it again, and one `GLOBAL_CODE`. The `GLOBAL_CODE` is the matching code in the list's own global counterpart where one exists: `CL_SEX` `_T` and `_Z` point to `SDMX:CL_SEX(2.1)._T` and `._Z`, `CL_AGE._T` to `IAEG-SDGs:CL_AGE(1.25)._T`, `CL_URBANISATION._T` to `IAEG-SDGs:CL_URBANISATION(1.10)._T`, and `CL_COMP_BREAKDOWN._T` to `IAEG-SDGs:CL_QUANTILE(1.1)._T`. Where the own list has no such code (`CL_AGE._Z`, `CL_GEO._T`, `CL_QUALIFIER._Z`), the value is `SDMX:CL_SEX(2.1)._T` or `._Z`. All of these are written as full code URNs. The sentinels still never appear in the codelist CSVs (@sec-code-rules).
+- **Full URNs.** `GLOBAL_CODE` and `global_urn` values are always full code URNs, `urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>`, never the short form.
+- **Derived codelists (D43).** Four registries become codelists. `CL_SERIES` comes from `plans/SERIES_PLAN.csv`, one code per distinct `series_id`, named by the `name_en` of the `ALL` row, with `AFW_STATUS` from the `ALL` row. `CL_SOURCE` comes from `registries/SOURCES.csv`, named by `source_id`, described by `notes`. `CL_SURVEY` comes from `surveys/SURVEYS.csv`, named by `survey_name`. `CL_FIGURE` comes from `registries/FIGURES.csv`, named by `title_en`. Derived codelists carry only id, name, description and `AFW_STATUS`; every other column goes to a metadataset (@sec-sdmx-refmeta). This gives `SERIES_ID` and `SOURCE_ID` real codelists.
+- **Names and descriptions of artefacts** come from `metadata/structure/ARTEFACTS.csv` (D44). It lists every SDMX artefact to generate, one row each, with `artefact_id`, `artefact_type` (the SDMX class name), `agency_id`, `source_file`, `name_en`, `description_en`, `status`, `version_added` and `notes`. The generator iterates over it, so the list of what to generate is data, not code.
+
+## Concepts {#sec-sdmx-concepts}
+
+The concept scheme `CS_AFW360` has one concept per component id of @tbl-sdmx-dsd, from `FREQ` to `OBS_COMMENT`. The five `COMP_BREAKDOWN_n` and the five `MEASURE_QUAL_n` are separate concepts. It also has one concept per metadata attribute of the MSD (@sec-sdmx-refmeta).
+
+- A component's concept takes its name and description from the DSD file (`name_en`, `description`). A metadata attribute's concept takes them from `COLUMNS.csv`: the `column` humanised as the name, and `description` as the description.
+- A concept that matches an SDMX cross-domain concept carries the annotation `SDMX_CROSS_DOMAIN_CONCEPT`, with the concept id in `SDMX:CROSS_DOMAIN_CONCEPTS(2.0)`: `FREQ`, `REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`, `SEX`, `AGE`, `INDICATOR`, `OBS_COMMENT` (to `COMMENT`) and `SOURCE_ID` (to `DATA_SOURCE`).
+- Core representation: a coded concept references its codelist; a numeric one carries the `TextFormat` of @tbl-sdmx-dsd; a text one is `String`. `TIME_PERIOD` carries `TextFormat textType="GregorianYear"`, the same as its time-dimension local representation.
+
+## Reference metadata {#sec-sdmx-refmeta}
+
+Documentary metadata goes where SDMX puts it: in metadatasets of a metadata structure (D43).
+
+- **MSD `WB.AFW360:MSD_AFW360(0.3.0)`** has four presentational parent attributes, `SURVEY`, `SOURCE`, `TEXT` and `FIGURE`. Each parent is `isPresentational="true"`, `minOccurs="0"`, `maxOccurs="1"`, with no `LocalRepresentation`, because the XSD default for `minOccurs` is 1 and each metadataset fills only one parent. Each parent has one child per source column, minus the id and `status` columns, with ids equal to the column names upper-cased. Children have `TextFormat textType="String"`, `minOccurs="0"` and `maxOccurs="1"`.
+  - `SURVEY`: `SURVEYS.csv` columns 2 to 24 (`REF_AREA`, `TIME_PERIOD`, `SURVEY_NAME`, ... `NOTES`).
+  - `SOURCE`: `SOURCES.csv` columns 2 to 13.
+  - `TEXT`: `SLOT`, `REF_AREA`, `TIME_PERIOD`, `ORDER`, `TITLE`, `BODY`, `UPDATED_ON`. `BODY` holds the Markdown source: the `body` cell, or the content of the `file` when set.
+  - `FIGURE`: `FIGURES.csv` columns 2 to 16 (`REF_AREA` ... `NOTES`, excluding `figure_id` and `status`).
+- **Metadataflow `MDF_AFW360`** has the structure `MSD_AFW360` and four explicit `Target` elements, one per targeted artefact: the codelists `CL_SURVEY`, `CL_SOURCE` and `CL_FIGURE`, and the dataflow `AFW360_HH`, each as a full URN with version `0.3.0`. Wildcard targets are schema-valid but not used. The generator rewrites the versions at each release, like every other reference.
+- **Metadatasets**, one per registry row, are written as SDMX-CSV 2.1 metadata messages under `sdmx/metadata/`. The header is `MDSTRUCTURE,MDSTRUCTURE_ID,METADATASET_ID,TARGET_TYPES,TARGET_IDS`, then the attribute columns. `MDSTRUCTURE` is `metadataflow` and `MDSTRUCTURE_ID` is `WB.AFW360:MDF_AFW360(0.3.0)`. Presentational parents have no column; each child appears as `<PARENT>.<CHILD>`, for example `SURVEY.SURVEY_NAME`. Metadatasets are not versioned.
+- **Targets are whole artefacts**, as the SDMX-CSV 2.1 metadata guide defines them: `TARGET_TYPES` is a REST structure resource name and `TARGET_IDS` is `AGENCY:ID(VERSION)`. The guide has no form that targets a single code. The item a metadataset describes is identified by its `METADATASET_ID` and by the key attributes inside it, such as `SURVEY.REF_AREA` and `SURVEY.TIME_PERIOD`. `TEXT.csv` rows are metadatasets about a country; they target the dataflow and name the country in `TEXT.REF_AREA`.
+
+| File | `METADATASET_ID` | `TARGET_TYPES` | `TARGET_IDS` |
+|---|---|---|---|
+| `MDS_SURVEYS.csv` | `WB.AFW360:MDS_SURVEY_<survey_id>` | `codelist` | `WB.AFW360:CL_SURVEY(0.3.0)` |
+| `MDS_SOURCES.csv` | `WB.AFW360:MDS_SOURCE_<source_id>` | `codelist` | `WB.AFW360:CL_SOURCE(0.3.0)` |
+| `MDS_TEXT.csv` | `WB.AFW360:MDS_TEXT_<slot>_<ref_area>_<time_period>_<order>` | `dataflow` | `WB.AFW360:AFW360_HH(0.3.0)` |
+| `MDS_FIGURES.csv` | `WB.AFW360:MDS_FIGURE_<figure_id>` | `codelist` | `WB.AFW360:CL_FIGURE(0.3.0)` |
+
+: SDMX-CSV metadata messages (D43) {#tbl-sdmx-metadatasets}
+
+The metadata files are written with `readr::write_csv(quote = "all", na = "")`, because the guide recommends quoting every textual value and every MSD attribute is `String`. pysdmx 1.20.0 has no SDMX-CSV metadata reader, so the independent check of these files is a header check in `tools/verify/`; FMR is the second reader when installed.
+
+## Providers {#sec-sdmx-providers}
+
+- `DataProviderScheme` `DATA_PROVIDERS` (agency `WB.AFW360`, fixed version) has one provider, `AFW_POV` ("AFW DIP/POV team"). The `ProvisionAgreement` `PA_AFW360_HH` links the dataflow and the provider.
+- `MetadataProviderScheme` `METADATA_PROVIDERS` (agency `WB.AFW360`) has the provider `AFW_POV`. The `MetadataProvisionAgreement` `MPA_AFW360` links the metadataflow and the provider.
+- The agreements reference `DATA_PROVIDERS(1.0)` and `METADATA_PROVIDERS(1.0)`, the fixed versions the XSD patterns require. The `SDMX.URN` check exempts these references (@sec-sdmx-identity). Both agreements are cheap and let FMR validate data under a provision agreement later.
+
+## Global alignment {#sec-sdmx-global}
+
+Project codes are aligned to global code values where a global list exists (D32). Alignment is by value where the project code rule allows, and otherwise by the `global_urn` column, which becomes the `GLOBAL_CODE` annotation. The global lists cannot be referenced or extended: they carry legacy, non-semver versions, and a semver artefact may not reference a legacy-versioned one (@sec-sdmx-identity).
+
+| Project list | Global list (version) | Alignment |
+|---|---|---|
+| `CL_FREQ` | `SDMX:CL_FREQ(2.1)` | `A`; `global_urn` |
+| `CL_SEX` | `SDMX:CL_SEX(2.1)` | `F` and `M` already match; `global_urn` |
+| `CL_AGE` | `IAEG-SDGs:CL_AGE(1.25)` | `Y_LT15` is renamed `Y0T14`; `Y15T24`, `Y25T64` and `Y_GE65` already match. All four get a `global_urn`. No data row uses an age band today, so no data changes. |
+| `CL_URBANISATION` | `IAEG-SDGs:CL_URBANISATION(1.10)` | `U` and `R` match and get a `global_urn`. `CAP` and `OU` stay as project children of `U`, with `global_urn` empty; `CAP` is not the global `CITY`. `SDMX:CL_DEG_URB(1.0)` is not used, because its codes `URB` and `RUR` would force renames. |
+| `CL_OBS_STATUS` | `SDMX:CL_OBS_STATUS(2.3)` | `A`, `E`, `M`, `O`, `U`, `D` and `Q` all exist. `name_en` takes the global names exactly; the project's more specific wording stays in `definition_en`. `global_urn` on all seven. |
+| `CL_UNIT_MEASURE` (renamed from `CL_UNIT`) | `IAEG-SDGs:CL_UNIT_MEASURE(1.20)` | `HA` to `HA`, `INDEX` to `IX`, `LCU` to `CUR_LCU`, `COUNT` to `NUMBER`. `PPP_USD` stays unaligned. `SHARE` (0 to 1), `PERSON`, `HH`, `HE`, `TLU`, `DAY` and `YEAR` have no equivalent. The global list has no ISO 4217 codes, so every code in `CL_AREA.currency` (today `XOF`) is added with `global_urn` empty; `LCU` stays as the currency-neutral unit. |
+| `CL_AREA` | `WB:CL_REF_AREA_WDI(1.0)` | ISO3 ids already match; `global_urn` for `SEN` and `GNB`. This list is published by the World Bank DDP service, not by the Global Registry. |
+| `CL_COMP_BREAKDOWN`, `QUINT_*` | `IAEG-SDGs:CL_QUANTILE(1.1)` | Ids keep the project prefix (@sec-code-rules); `global_urn` to `Q1` to `Q5`. |
+| all others | none found | `global_urn` empty |
+
+: Alignment of project codelists to global lists (D32) {#tbl-sdmx-global}
+
+Every `global_urn` is a full code URN. The alignment was fetched once and committed as `pipeline/migrations/0.3.0/inputs/ALIGNMENT.csv`; the migration reads that table and makes no network call.
+
+## What stays outside SDMX {#sec-sdmx-outside}
+
+Project-only metadata stays CSV and is documented as tooling metadata outside SDMX (D45): `TAB_PLAN.csv`, `SERIES_PLAN.csv` (beyond what `CL_SERIES` carries), `RULES.csv`, `INDICATOR_QUALIFIERS.csv`, `QUALIFIER_PAIRS.csv`, the `LEGACY_*` files, `COLUMNS.csv`, `DSD_AFW360_HH.csv` itself and the manifests. SDMX cannot express required coverage or arithmetic rules, so the project validator keeps that job. This release has no VTL and no DataConstraint. A DataConstraint for allowed content is a later option.
+
+## The generated `sdmx/` folder {#sec-sdmx-generated}
+
+`pipeline/build_sdmx.R` reads `metadata/` and `content/` and writes `sdmx/`:
+
+```
+sdmx/
+  README.md                            what is here, how it is generated, how to load it into FMR
+  structures/AFW360_structures.xml     one SDMX-ML 3.1 structure message with every artefact
+  metadata/MDS_SURVEYS.csv             SDMX-CSV 2.1 metadata messages (D43)
+  metadata/MDS_SOURCES.csv
+  metadata/MDS_TEXT.csv
+  metadata/MDS_FIGURES.csv
+```
+
+```
+Rscript pipeline/build_sdmx.R --root .           # rewrite sdmx/
+Rscript pipeline/build_sdmx.R --root . --check   # exit 1 if any file under sdmx/ is stale
+```
+
+**Staleness rule.** The files under `sdmx/` are committed with the metadata that produced them. A pull request that changes `metadata/` or `content/` without regenerating `sdmx/` fails the check, in the same way as a stale table of this document (D28, D20). Nobody edits `sdmx/` by hand.
+
+Three validator checks cover the structure message:
+
+- `SDMX.XSD`: the message is valid against the SDMX-ML 3.1 XSDs vendored in `pipeline/xsd/sdmx-ml-3.1/`.
+- `SDMX.URN`: every URN referenced inside the message resolves to an artefact in the same message, every `Parent` exists, every sub-agency is declared, and every reference from a semver artefact points at a semver artefact, except the `(1.0)` organisation-scheme items.
+- `SDMX.IDENT`: every maintainable has `agencyID` `WB.AFW360` (`WB` for `AGENCIES`), a version of the form `MAJOR.MINOR.PATCH` (absent on the three fixed-version schemes), an id valid for the XSD, and an English name.
+
+`tools/verify/` is an independent reader in Python (pysdmx), used by reviewers and never by the pipeline (D30). `pipeline/import_sdmx.R` does the reverse of the generator: it reads an SDMX-ML structure message and shows (`--diff`) or writes (`--apply`) the changes to the CSVs under `metadata/`.
+
+## Editing and validating with FMR {#sec-sdmx-fmr}
+
+The Fusion Metadata Registry (FMR) can load the structure message, validate data files against it, and edit artefacts. It is optional: everything is published as plain files in the repository, and no live registry or REST service is run for the dashboard (D36). FMR is installed without Docker, as Apache Tomcat 10.1 with the FMR 12 WAR on Java 21 and a database. If the install is blocked, FMR is a later step and the files are kept FMR-loadable (D35). A planned page, `fmr-guide.qmd`, will give the exact steps. The workflow is:
+
+1. `Rscript pipeline/build_sdmx.R --root .` generates `sdmx/`.
+2. Load `sdmx/structures/AFW360_structures.xml` into FMR.
+3. Validate each data file in FMR and keep the report. Steps 1 to 3 are all that validation-only use needs.
+4. To edit, work in FMR on a copy versioned `<next>-draft` and export the structure message. Run `Rscript pipeline/import_sdmx.R --diff <export.xml>` to see the changes against the CSVs, then `--apply`, and commit through a pull request. At release, bump `VERSION`, regenerate `sdmx/` and reload (@sec-change-control).
+
+FMR 12.4 documents SDMX-ML up to 3.0 and SDMX-CSV up to 2.0. If FMR rejects the 3.1 namespaces, the generator can write the same artefacts as SDMX-ML 3.0 into `tmp/` for loading, without the MSD, the metadataflow and the metadata provision agreement. The 3.1 file stays the canonical committed output. The data files need no change, because they use no feature new in SDMX-CSV 2.1.
 
 # Breakdowns {#sec-breakdowns}
 
@@ -398,13 +657,15 @@ Rules for every CSV under `metadata/` and `content/`:
 ## Code rules {#sec-code-rules}
 
 - Uppercase ASCII letters, digits and `_`; start with a letter; at most **32 characters**, the Stata variable-name limit. P-codes are used as issued and already comply.
-- `_T` and `_Z` are reserved sentinels and never appear as codes.
+- `_T` and `_Z` are reserved sentinels and never appear as codes in a codelist CSV. The SDMX generator adds them as real codes, "Total" and "Not applicable", to every codelist whose dimension admits them, as the `sentinel` column of `DSD_AFW360_HH.csv` says, each with the annotation `AFW_SENTINEL` = `Y`. The importer strips them again (D42, @sec-sdmx-mapping).
 - **A code never changes meaning, and is never reused or deleted.** A changed definition means a new code, with the old one `DEPRECATED` and `replaced_by` filled. Rewording a label is free.
 - Breakdown and qualifier categories are `<var_code>_<category>`. The whole code must still fit in 32 characters, so keep `var_code` short.
 - Indicator codes are `<THEME>_<SUBJECT>[_<DETAIL>]` and contain no poverty line, PPP round, welfare concept, COICOP division, unit or breakdown, because all of those are dimensions. Use `POV_HC`, never `POV_HC_PL420`.
 - **Series ids** are the indicator code, then its qualifier categories in slot order, then its defining category, joined by `.`: `POV_HC.POVLINE_PL420.PPP_2021`, `CONS_SH.COICOP_CP01`, `POP_SH.EMP_SECTOR_AGR`. The `.` is the only place a dot appears in any code. A series id is immutable once the series is `ACTIVE` (D13).
 - **Source ids** follow the code rules and are unique in `SOURCES.csv`, with one exception: they end in a run-version suffix `_v<N>`, whose lowercase `v` is the only lowercase letter allowed in any code. The recommended pattern is `<ISO3>_<SURVEY>_<PROGRAM>_v<N>`, for example `SEN_EHCVM2021_LEGACY_v1`.
 - In Stata, name the variable holding an indicator after its code in lower case, so no lookup table is needed.
+- **Codes are also SDMX ids.** Every code becomes an SDMX code id, which may hold only letters, digits, `_`, `-`, `@` and `$`. The rules above are stricter, except for the `.` in series ids (open decision 12). Artefact ids such as `CL_SEX` or `DSD_AFW360_HH` are NCNames: a letter, then letters, digits, `_` or `-` (@sec-sdmx-identity).
+- **Codes follow global lists where one exists** (D32). A code that matches a global code keeps or takes that code's value where these rules allow, and records the global code's full URN in `global_urn` (@sec-sdmx-global).
 
 ## `CL_INDICATOR.csv`: the indicator dictionary {#sec-cl-indicator}
 
@@ -478,11 +739,13 @@ One row per country and survey round (@tbl-surveys). `status` is `DRAFT` until a
 
 `AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>_manifest.csv` has two columns, `key` and `value`. The keys are:
 
-`dataflow`, `dsd_version`, `metadata_version`, `ref_area`, `time_period`, `estimation` (`CL_ESTIMATION`; equals every row's `ESTIMATION`), `survey_id` (the base survey, also for a model-based file), `sources` (the `SOURCE_ID` values that appear in the file, space-separated), `file_name`, `n_rows`, `producer`, `program`, `software`, `run_timestamp` (ISO 8601), `status` (`DRAFT`, `SUBMITTED`, `VALIDATED`, `PUBLISHED`), `notes`.
+`structure_id` (`WB.AFW360:AFW360_HH(0.3.0)`; equals every row's `STRUCTURE_ID`), `sdmx_csv_version` (`2.1.0`), `dsd_version`, `metadata_version`, `ref_area`, `time_period`, `estimation` (`CL_ESTIMATION`; equals every row's `ESTIMATION`), `survey_id` (the base survey, also for a model-based file), `sources` (the `SOURCE_ID` values that appear in the file, space-separated), `file_name`, `n_rows`, `producer`, `program`, `software`, `run_timestamp` (ISO 8601), `status` (`DRAFT`, `SUBMITTED`, `VALIDATED`, `PUBLISHED`), `notes`.
 
 The manifest summarises the file; it holds nothing that a row needs. Precision is on each row (`PRECISION`), and the program run that produced each row is its `SOURCE_ID`, whose registry row carries the program version and inputs (@sec-sources). The `source_type` and `precision` keys of version 0.1.0 are gone (D15, D16, D17).
 
 `dsd_version` is not chosen independently: the DSD is versioned with the metadata package, so it equals `metadata/VERSION`.
+
+In version 0.3.0 the key `dataflow` became `structure_id`, the SDMX short reference to the dataflow and its version, and `sdmx_csv_version` was added (D46). The other 15 keys are unchanged. The manifest is a project-level sidecar, not an SDMX artefact: it describes a file (D43, D45).
 
 `TIME_PERIOD` is the year the estimate refers to, which is **not** always a survey year. A microsimulated 2026 poverty rate has `TIME_PERIOD=2026`, `ESTIMATION=MODEL`, a source whose `survey_id` is `SEN_EHCVM_2021`, and `OBS_STATUS=E` on every row (@sec-estimation-method).
 
@@ -571,8 +834,8 @@ Three files under `plans/` drive the converter from the current Excel tables ([A
 
 This is the checklist for handing in a file. For each country and reference year, deliver:
 
-1. **`AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`**, UTF-8, with the 31 columns of @tbl-columns in that order.
-2. **Every required row** (@sec-required-rows), including cells with no observations, each carrying its `SERIES_ID`, `UNIT_MEASURE`, `SOURCE_ID` and reliability attributes.
+1. **`AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`**, an SDMX-CSV 2.1 data message in UTF-8, with the 37 columns of @sec-columns in that order: `STRUCTURE`, `STRUCTURE_ID` and `ACTION`, then the 34 components of @tbl-columns (18 dimensions, `TIME_PERIOD`, nine measures, six attributes). The key is the 19 columns `FREQ` through `TIME_PERIOD`. `ACTION` is `R`, `FREQ` is `A`, and `OBS_VALUE` is `NaN` on `O` and `M` rows (@sec-values).
+2. **Every required row** (@sec-required-rows), including cells with no observations, each carrying its `SERIES_ID`, `UNIT_MEASURE`, `OBS_STATUS`, `SOURCE_ID` and reliability measures.
 3. **A `SOURCES.csv` row** for the program run, with its version and inputs (@sec-sources).
 4. **The manifest** (@sec-manifest).
 5. **Any metadata changes** the data need, in the same pull request (@sec-change-control).
@@ -692,7 +955,7 @@ Rules:
 - **CRS:** EPSG:4326 in storage. Reproject only for display or area computation.
 - **Hygiene:** valid geometries, one feature per code, units covering the country exactly once. Geometry is built and checked with GEOS (`sf::sf_use_s2(FALSE)`), invalid rings repaired with `st_make_valid()`, from the plain (non-`_em`) shapefiles as the source — SN01 and SN13 fail s2/GEOS validity as issued.
 - **Vintages are explicit.** `valid_from` and `valid_to` in `CL_GEO` describe the boundary release a code belongs to, not the period the data cover. SEN's COD-AB v02 dates from 2024 while the data are for 2021, and that is not an error.
-- **Derived layers are generated**, never hand-edited. Simplified display copies live in `geo/derived/` and may be rebuilt at any time; the simplification tolerance is kept in the build script.
+- **Derived layers are generated**, never hand-edited. Simplified display copies are planned for `geo/derived/`, which does not exist yet; once built, they may be rebuilt at any time, and the simplification tolerance is kept in the build script.
 - **Size:** keep files in git while they are small. Beyond a few MB, use Git LFS or an external store, with the URL and checksum in the registry.
 
 `GEO_SOURCES.csv` columns: `source_id`, `ref_area`, `provider`, `version`, `valid_on`, `url`, `download_date`, `licence`, `attribution` (the credit line the map must show), `crs`, `file`, `layers`, `sha256`, `status`, `version_added`, `notes`.
@@ -767,11 +1030,13 @@ This section says how a change gets into the database.
 - Rows are **append-only**: no deletions, and no changing an existing code or its meaning. Deprecate instead.
 - Every merged change bumps `metadata/VERSION` (`MAJOR.MINOR.PATCH`, as shown in @tbl-extend) and adds a line to `metadata/CHANGELOG.md`.
 - **Version 0.x is pre-release (D24).** While the major version is 0, a structural change is a minor bump, and all structural changes of a release are batched into one bump. Version 1.0.0 is declared when the first producer-delivered file passes the validator; from then on the "major" rule of @tbl-extend applies and a structural change needs a migration script and a major version.
+- **A release** bumps `metadata/VERSION`, runs the migration script under `pipeline/migrations/<version>/` if the release is structural, and regenerates `sdmx/` with `pipeline/build_sdmx.R` (@sec-sdmx-generated). Every SDMX artefact carries that version. Once released, an `X.Y.Z` artefact is immutable; later edits go into the next version, never into a released one (D40).
+- **Editing in FMR.** Between releases, an artefact may be edited in FMR on a copy versioned `<next>-draft`. The export is re-imported into the CSVs with `pipeline/import_sdmx.R` and goes through a pull request like any other change (@sec-sdmx-fmr).
 - Every data file's manifest records the `metadata_version` it was produced against.
 - The validator must pass before a pull request is merged or a file is published.
 - Editing a CSV in Excel is fine if you save as "CSV UTF-8" and check that codes have not been turned into numbers or dates. The byte-order mark that Excel writes is expected and is stripped on read.
 
-**Structural changes**, meaning adding, removing or reordering a column of the data file or of a metadata file, are made by the data team only. They need a new `DSD_AFW360_HH.csv` or `COLUMNS.csv`, a migration script under `pipeline/migrations/<version>/` that rewrites the existing files (D12), and the version bump of @tbl-extend. `DSD_AFW360_HH.csv` itself has the columns `position`, `id`, `role` (`constant`, `breakdown`, `reference`, `qualifier`, `measure`, `attribute`, as in @tbl-columns), `codelist`, `required`, `sentinel` and `description`, and the data-file header must match it exactly.
+**Structural changes**, meaning adding, removing or reordering a column of the data file or of a metadata file, are made by the data team only. They need a new `DSD_AFW360_HH.csv` or `COLUMNS.csv`, a migration script under `pipeline/migrations/<version>/` that rewrites the existing files (D12), and the version bump of @tbl-extend. `DSD_AFW360_HH.csv` itself has the columns `position`, `id`, `component` (`dimension`, `time_dimension`, `measure`, `attribute`), `role` (`breakdown`, `reference`, `qualifier`, `measure`, `attribute`, as in @tbl-columns), `name_en`, `codelist`, `data_type`, `usage`, `relationship`, `measure_relationship`, `required`, `sentinel`, `min_value`, `max_value` and `description`. It has one row per component; the three fixed SDMX-CSV columns are not rows. The data-file header must equal the fixed columns followed by its `id` column, in order.
 
 ## Generated tables {#sec-generated-tables}
 
@@ -792,10 +1057,12 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 
 **Structure**
 
-- The header matches the DSD exactly: same names, same order (after stripping a BOM).
+- The header is the three fixed columns followed by the DSD components, exactly: same names, same order (after stripping a BOM).
 - The file name is `AFW360_HH_<REF_AREA>_<TIME_PERIOD>_<ESTIMATION>.csv`, and every row's `REF_AREA`, `TIME_PERIOD` and `ESTIMATION` equal the name's and the manifest's.
 - No dimension or qualifier cell is empty.
-- The key, meaning the 19 dimension and qualifier columns together, is unique.
+- The key, meaning the 18 dimensions and `TIME_PERIOD` together, is unique.
+- `STRUCTURE` is `dataflow`, `STRUCTURE_ID` is `WB.AFW360:AFW360_HH(<VERSION>)` with the version in `metadata/VERSION`, `ACTION` is `R` and `FREQ` is `A` on every row.
+- `STRUCT.ATTR_LEVEL` (ERROR): across all data files, `SERIES_ID` has one value per combination of `INDICATOR` and the ten breakdown and qualifier dimensions, and `UNIT_MEASURE` one value per `REF_AREA` and `INDICATOR` (@sec-sdmx-csv).
 
 **Codes**
 
@@ -822,7 +1089,9 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 **Values**
 
 - `OBS_VALUE` is numeric and within `valid_min` / `valid_max`.
-- `OBS_VALUE` is empty exactly when `OBS_STATUS` is `O` or `M`.
+- `OBS_VALUE` is `NaN` exactly when `OBS_STATUS` is `O` or `M`, and never empty (D39).
+- The mandatory attributes `SERIES_ID`, `UNIT_MEASURE`, `OBS_STATUS` and `SOURCE_ID` are never empty.
+- `N_OBS_NUM`, `DEFF` and `DF` are empty or non-negative, and `N_OBS_NUM` and `DF` are integers.
 - `STD_ERR ≥ 0` and `CI_LOWER ≤ OBS_VALUE ≤ CI_UPPER`.
 - `N_OBS` is a non-negative integer and `N_POP` is non-negative. Both are present, and `STD_ERR` with its interval where the statistic admits one, on every row whose source has `kind = PRODUCER`; they may be empty on rows of a `LEGACY_CONVERSION` source (@sec-legacy).
 - `N_OBS = 0` implies `OBS_STATUS = O`.
@@ -842,11 +1111,16 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 - **The parent of a row** is the same series' row for the cut with that breakdown set to `_T`, found through the row's provenance — the `series_id`, `cut_id` and defining breakdown kept from `SERIES_PLAN`/`TAB_PLAN` generation (@sec-required-rows) — not guessed from the codes in general. Where the breakdown required a qualifier the series does not declare (`POOR` requires `POVLINE`), that qualifier is therefore `_Z` in the parent.
 - Children's `N_POP` sums to the parent's for any `partition = Y` breakdown that is a population cut of the row, within floating-point noise only (`1e-9 × |parent| + 1e-9`), since population counts are never rounded. The check never runs over a series' defining breakdown, where every child's `N_POP` is the same denominator (D19).
 
+**SDMX**
+
+- `SDMX.XSD`, `SDMX.URN` and `SDMX.IDENT` check the generated structure message (@sec-sdmx-generated).
+- The files under `sdmx/` are not stale: `pipeline/build_sdmx.R --check` exits 0 (D28).
+
 **Deterministic output**
 
-- Every file the pipeline writes is byte-identical across runs on the same inputs: rows sorted by the 19 key columns (@tbl-columns, `DATAFLOW` through `MEASURE_QUAL_5`) in DSD order.
+- Every file the pipeline writes is byte-identical across runs on the same inputs: rows sorted by the 19 key columns (@tbl-columns, `FREQ` through `TIME_PERIOD`) in DSD order.
 - UTF-8 with no byte-order mark, LF line endings.
-- A missing value is written as an empty string, never `NA`.
+- A missing value is written as an empty string, never `NA`. The one exception is `OBS_VALUE` on an `O` or `M` row, which is `NaN` (@sec-values).
 - Numbers are written in fixed notation, never scientific, rounded with `round(x * scale, 10)` and a fixed formatter, with no trailing zeros.
 - `run_timestamp` is an injectable parameter, so a test run can reproduce a fixed manifest.
 
@@ -905,6 +1179,24 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 | Series a country cannot match | Country rows in `SERIES_PLAN` with `NOT_PRODUCED` or `DEVIATES`; deviating rows carry `OBS_STATUS=D` (D23) |
 | Versioning | 0.x is pre-release: structural changes are batched into minor releases until 1.0.0, declared at the first validated producer file (D24) |
 | Documentation | Every table that lists a metadata file is generated from it and checked for staleness (D20) |
+| SDMX version | SDMX 3.1 family: SDMX-CSV 2.1.0 for data and reference metadata, SDMX-ML 3.1.0 for structures, no SDMX-JSON (D27, D29) |
+| Source of truth | The CSVs; SDMX-ML is generated into `sdmx/`, committed and checked for staleness (D28) |
+| SDMX tooling | R writes and XSD-validates the XML; Python only in the dashboard loader and in `tools/verify/`, outside the pipeline (D30) |
+| Agency | `WB.AFW360`, a sub-agency of `WB`, declared by a local `WB:AGENCIES` scheme until the World Bank registers it (D31) |
+| Global code lists | Codes aligned to SDMX, IAEG-SDGs and World Bank lists by value or by a `GLOBAL_CODE` annotation; global lists are not referenced (D32) |
+| Measures | Nine: `OBS_VALUE`, `STD_ERR`, `CI_LOWER`, `CI_UPPER`, `N_OBS`, `N_POP`, `N_OBS_NUM`, `DEFF`, `DF` (D33) |
+| Frequency | `FREQ` is the first dimension, always `A` (D34) |
+| Registry | FMR without Docker where it can be installed, otherwise later; files stay FMR-loadable (D35). No live registry or REST service; everything is plain files (D36) |
+| Dashboard data access | One loader, `afw360/`, reads `data/`, `metadata/`, `content/`, `geo/` and `assets/`; no chunk reads `data_raw/` (D37) |
+| Action | `ACTION=R` in every published file; no `D` rows (D38) |
+| Missing values | `OBS_VALUE` is `NaN` when `OBS_STATUS` is `O` or `M`; optional cells empty; mandatory attributes never empty (D39) |
+| Artefact versions | Every artefact carries `metadata/VERSION`; a released version is immutable; edits go through a `-draft` copy (D40) |
+| CSV-to-SDMX mapping | By convention, with an `AFW_<COLUMN>` annotation for every column that has no SDMX slot (D41) |
+| Sentinels in SDMX | `_T` and `_Z` added as codes by the generator, stripped by the importer, never in the CSVs (D42) |
+| Registries in SDMX | Derived codelists `CL_SERIES`, `CL_SOURCE`, `CL_SURVEY`, `CL_FIGURE`; descriptive columns and `TEXT.csv` as metadatasets of `MSD_AFW360` (D43) |
+| Artefact list | `metadata/structure/ARTEFACTS.csv` lists every artefact to generate (D44) |
+| Outside SDMX | Plans, rules, relations, legacy maps, `COLUMNS.csv`, the DSD CSV and manifests stay project CSV; no VTL, no DataConstraint (D45) |
+| Column order | Fixed columns, dimensions, `TIME_PERIOD`, measures, attributes: 37 columns, 19-column key (D46) |
 
 : Design decisions taken {#tbl-decisions}
 
@@ -921,6 +1213,7 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 9. **The `Departement` sheet — closed by D3.** The sheet is skipped entirely: all 82 of its labels are marked `SKIP` in `LEGACY_LABELS.csv` (see [Annex 2](#sec-legacy-departement)).
 10. **Reference syntax for live numbers.** @sec-live-numbers is a sketch. It does not yet say how a reference names several qualifiers, or confirm that `PL420` is shorthand for `POVLINE_PL420`. Since D13, a `series_id` such as `POV_HC.POVLINE_PL420.PPP_2021` names a series unambiguously and is the natural reference key; the syntax is settled at the dashboard switch-over.
 11. **A model-based value that also fails the reliability rule.** One row carries one status code, and `E` takes precedence over `U` (D22), so the reliability flag is lost on such a row and only the standard error shows it. If nowcasts with small-cell uncertainty become common, a separate reliability attribute may be warranted.
+12. **Series ids as SDMX code ids.** `CL_SERIES` takes one code per `series_id` (D43), but series ids contain `.`, and the SDMX-ML id type for codes allows only letters, digits, `_`, `-`, `@` and `$`. Before `CL_SERIES` is generated, decide how a series id is written as a code id (for example with the dots replaced) while the data files keep the dotted form, or whether `SERIES_ID` stays uncoded.
 
 # Annex. Mapping the current tables {#sec-appendix-legacy .unnumbered}
 
@@ -965,6 +1258,37 @@ The mapping from current Excel columns to new dimensions no longer lives in this
 
 : Superseded by `LEGACY_COLUMNS.csv` {#tbl-legacy-columns}
 
+# Changes since v0.5 {#sec-changes-v06}
+
+Version 0.6 of the standard and version 0.3.0 of the metadata make the database conform to SDMX 3.1. The data lead took D27 to D37 on 2026-09-29; D38 to D46 are the design decisions that carry them out. The data file becomes an SDMX-CSV 2.1 message, every metadata CSV maps to an SDMX artefact, and the SDMX-ML structure message is generated from the CSVs, which stay the source of truth. The structural changes are batched into one minor release (D24).
+
+| ID | Change | Section |
+|---|---|---|
+| D27 | The project targets the SDMX 3.1 family: SDMX-CSV 2.1.0 for data and reference metadata, SDMX-ML 3.1.0 for structures. | @sec-sdmx |
+| D28 | The CSVs under `metadata/`, `content/` and `data/` are the source of truth. SDMX-ML is generated into `sdmx/`, committed, and checked for staleness like the generated tables (D20). | @sec-sdmx-generated, @sec-layout |
+| D29 | Only SDMX-ML 3.1 is generated for structures. No SDMX-JSON. | @sec-sdmx |
+| D30 | The pipeline stays R: it writes the XML and validates it against the XSDs. Python is used only in the dashboard loader and in the separate verification tool `tools/verify/`, which is never part of the pipeline. | @sec-sdmx, @sec-sdmx-generated, @sec-layout |
+| D31 | Agency id `WB.AFW360`, a sub-agency of the registered World Bank agency `WB`, declared by a local `WB:AGENCIES` scheme. Global registration is a later step by the World Bank's SDMX owner. | @sec-sdmx-identity |
+| D32 | Project codes are aligned to global code values where a global list exists, by value where the code rule allows, otherwise by a `global_urn` column that becomes a `GLOBAL_CODE` annotation. `CL_UNIT.csv` is renamed `CL_UNIT_MEASURE.csv`; `CL_AGE` code `Y_LT15` becomes `Y0T14`; `CL_OBS_STATUS` takes the global names. | @sec-sdmx-global, @sec-metadata |
+| D33 | Nine measures: `OBS_VALUE`, `STD_ERR`, `CI_LOWER`, `CI_UPPER`, `N_OBS`, `N_POP`, `N_OBS_NUM`, `DEFF`, `DF`. The five former reliability attributes become measures; three optional measures are new. Legacy files leave all but `OBS_VALUE` empty. | @sec-columns, @sec-sdmx-dsd |
+| D34 | A `FREQ` dimension is added first, always `A`, coded by a new `CL_FREQ.csv` aligned to SDMX `CL_FREQ`. | @sec-columns, @sec-sdmx-dsd |
+| D35 | FMR is installed without Docker (Tomcat 10.1, the FMR 12 WAR, Java 21, a database). If the install is blocked, FMR is a later step and the files stay FMR-loadable. | @sec-sdmx-fmr |
+| D36 | Everything is published as plain files in the repository. No live registry or REST service is run for the dashboard. | @sec-sdmx-fmr |
+| D37 | The dashboard switches to a single loader, the Python package `afw360/`, which reads `data/`, `metadata/`, `content/`, `geo/` and `assets/`; `index.qmd` stops reading `data_raw/`. | @sec-layout |
+| D38 | `ACTION` is `R` in every published data file. `R` replaces whole observations and does not delete observations missing from the file; the published files contain no `D` rows. | @sec-sdmx-csv, @sec-columns, @sec-values |
+| D39 | `OBS_VALUE` is `NaN` on rows whose `OBS_STATUS` is `O` or `M`. An optional measure or attribute a source cannot supply is left empty. The mandatory attributes are never empty. | @sec-values, @sec-sdmx-csv, @sec-validation |
+| D40 | Every SDMX artefact carries the version in `metadata/VERSION`. A released version is immutable; edits between releases happen on a `-draft` copy and are re-imported into the CSVs; a release bumps `VERSION` and regenerates `sdmx/`. | @sec-sdmx-identity, @sec-change-control |
+| D41 | Codelist CSV columns map to SDMX by convention: id, name, description, parent, `GLOBAL_CODE`, and an `AFW_<COLUMN>` annotation for every other column. No mapping file. | @sec-sdmx-mapping |
+| D42 | The sentinels `_T` and `_Z` are added by the generator as real codes to every codelist whose dimension admits them, and stripped again by the importer. They still never appear in the codelist CSVs. | @sec-sentinels, @sec-code-rules, @sec-sdmx-mapping |
+| D43 | `SERIES_PLAN.csv`, `SOURCES.csv`, `SURVEYS.csv` and `FIGURES.csv` derive the codelists `CL_SERIES`, `CL_SOURCE`, `CL_SURVEY` and `CL_FIGURE`; their descriptive columns and `TEXT.csv` rows become metadatasets of the MSD `MSD_AFW360`. Manifests stay a project-level sidecar. | @sec-sdmx-mapping, @sec-sdmx-refmeta, @sec-manifest |
+| D44 | `metadata/structure/ARTEFACTS.csv` lists every SDMX artefact to generate, with its name and description. | @sec-sdmx-mapping, @sec-layout |
+| D45 | Project-only metadata stays CSV and is documented as tooling metadata outside SDMX. No VTL and no DataConstraint in this release. | @sec-sdmx-outside |
+| D46 | The data file follows the DSD order: fixed columns, dimensions, `TIME_PERIOD`, measures, attributes. 37 columns, 19-column key. The `DATAFLOW` column is removed; `STRUCTURE`, `STRUCTURE_ID` and `ACTION` replace it. The manifest key `dataflow` becomes `structure_id`, and `sdmx_csv_version` is added. | @sec-columns, @sec-deliver, @sec-manifest, @sec-validation |
+
+: Changes made to the standard since v0.5 {#tbl-changes-v06}
+
+Older text was corrected at the same time. The layout no longer lists `pipeline/acceptance/`, which was never created, and marks `geo/derived/` as planned. Change (s) of v0.4 now says what @sec-manifest says: `dsd_version` equals `metadata/VERSION`. Change (r) and the D9 row are reworded so they no longer contradict the current key and source kinds. The historical rows are otherwise unchanged; the D26 row still describes the v0.5 layout.
+
 # Changes since v0.4 {#sec-changes-v05}
 
 Version 0.5 of the standard and version 0.2.0 of the metadata follow a review of v0.4 against the SDMX information model. The review found the model sound and three kinds of gap: a data row could not be read from its key and the DSD alone, unit and provenance metadata sat at the file level rather than the row, and the population count on share rows was defined twice. The changes below close them. They were made at once, under the 0.x rule that batches structural changes into one minor release (D24).
@@ -999,8 +1323,8 @@ Version 0.5 of the standard and version 0.2.0 of the metadata follow a review of
 | D4 | Population shares split into three codes, chosen by what the breakdown counts: `POP_SH` (individuals), `POP_HH_SH` (households), `POP_HE_SH` (enterprises). | @sec-one-row, @tbl-compositions, @sec-universe, @sec-add-indicator, @tbl-decisions, [Annex 1](#sec-legacy-indicators) |
 | D5 | A defective cell is withheld: its row is absent, the exclusion is registered in `LEGACY_OVERRIDES.csv` (action `WITHHOLD`) and subtracted from the required rows. Action `COMMENT` keeps the value and sets `OBS_COMMENT`. | @sec-required-rows, @sec-legacy |
 | D6 | Open decision 4 closed: the GNB survey is EHCVM 2021/22, `TIME_PERIOD` 2021, `survey_id` `GNB_EHCVM_2021`. | @sec-open-decisions |
-| D9 | `OBS_STATUS=O` widened to "no value available" generally. Every `O` row of a `ROUNDED_2DP` legacy file requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | @tbl-obs-status, @sec-legacy |
-| D11 | Repository layout gains `pipeline/` (`R/`, `bootstrap/`, `tests/`, `acceptance/` and the entry points) and `plans/SERIES_PLAN.csv`, `plans/LEGACY_COLUMNS.csv`, `plans/LEGACY_OVERRIDES.csv`. Metadata files are generated once by `pipeline/bootstrap/`; from version 0.1.0 the CSVs are the source of truth, edited by hand through pull requests. The Annex introduction and Annex 3 now point to `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv` and `LEGACY_OVERRIDES.csv`, seeded from `label_triage.csv`. | @sec-layout, [Annex](#sec-appendix-legacy), [Annex 3](#sec-legacy-columns) |
+| D9 | `OBS_STATUS=O` widened to "no value available" generally. Every `O` row of a legacy conversion (a `LEGACY_CONVERSION` source since D16) requires an `OBS_COMMENT` prefixed `LEGACY_EMPTY:`. | @tbl-obs-status, @sec-legacy |
+| D11 | Repository layout gains `pipeline/` (`R/`, `bootstrap/`, `tests/`, `acceptance/`, which was planned and never created, and the entry points) and `plans/SERIES_PLAN.csv`, `plans/LEGACY_COLUMNS.csv`, `plans/LEGACY_OVERRIDES.csv`. Metadata files are generated once by `pipeline/bootstrap/`; from version 0.1.0 the CSVs are the source of truth, edited by hand through pull requests. The Annex introduction and Annex 3 now point to `LEGACY_LABELS.csv`, `LEGACY_COLUMNS.csv` and `LEGACY_OVERRIDES.csv`, seeded from `label_triage.csv`. | @sec-layout, [Annex](#sec-appendix-legacy), [Annex 3](#sec-legacy-columns) |
 | (a) | `LEGACY_LABELS.csv` gets the columns a converter can act on: `legacy_label, sheet, action, series_id, duplicate_of, scale, assert_rule, notes`. | @sec-legacy-maps |
 | (b) | Added `plans/SERIES_PLAN.csv`, the explicit list of series to produce, and rewrote @sec-required-rows's formula around it. | @sec-series-plan, @sec-required-rows |
 | (c) | Confirmed already covered by D9 (`OBS_STATUS=O` widened, `LEGACY_EMPTY:` comment rule); nothing added beyond it. | @tbl-obs-status, @sec-legacy |
@@ -1018,8 +1342,8 @@ Version 0.5 of the standard and version 0.2.0 of the metadata follow a review of
 | (o) | Added `admits_se` to `CL_STATISTIC`, saying whether a statistic can carry a standard error and confidence interval. | @sec-small-codelists |
 | (p) | Described `content/SLOTS.csv` (planned) as the registry of slots the dashboard requests; the file and its validator check are deferred to the dashboard switch-over. | @sec-text-csv |
 | (q) | Defined the validator's findings CSV: `check_id, severity, file, row_key, message`, with a non-zero exit on any `ERROR`. | @sec-validation |
-| (r) | Added a deterministic-output rule: sort by the 18 key columns, UTF-8/LF, `NA` as `""`, fixed-notation numbers, an injectable `run_timestamp`. | @sec-validation |
-| (s) | Stated that `dsd_version` is read from `DSD_AFW360_HH.csv`'s own `VERSION`, not chosen independently. | @sec-manifest |
+| (r) | Added a deterministic-output rule: sort by the key columns (19 since D17; see @sec-validation), UTF-8/LF, `NA` as `""`, fixed-notation numbers, an injectable `run_timestamp`. | @sec-validation |
+| (s) | Stated that `dsd_version` is not chosen independently: the DSD is versioned with the metadata package, so it equals `metadata/VERSION`. | @sec-manifest |
 | (t) | Stated that a category's variable is found only through `CL_COMP_BREAKDOWN.var_code`, never by parsing the code's prefix. | @sec-cl-comp-breakdown |
 | (u) | Specified the geometry build/validity engine: GEOS with `sf_use_s2(FALSE)`, `st_make_valid()`, source from the plain (non-`_em`) shapefiles. | @sec-geo-storage |
 | (v) | Stated that zone/AEZ `name_en` is `TBD` pending producer confirmation, since the boundary-sourced-name rule does not fit them. | @sec-cl-geo |
