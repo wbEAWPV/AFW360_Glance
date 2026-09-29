@@ -121,6 +121,8 @@ Questions raised during WP1 and WP2a:
 
 **State:** waiting for the data lead.
 
+**Data lead, 2026-09-29 ("Commit results merge to the eb branch and clear temporary and intermediary files"):** G3-Q1 approved: merge into `dev/eb` with the plan's message, no push. G3-Q2 to G3-Q5: no change requested; the GeoPackage finding stays documented, the "(unreleased)" headings stay, the content items stay routed as recorded, CLAUDE.md stands. G3-Q6: no merge into `master` and no branch deletion requested; scratch and render folders (`tmp/`, `_site/`, `.docs/_site/`, `.docs/*_files/`) cleared; the FMR runtime under `tools/fmr/runtime/` and the Python environments are kept. Gate 3 `approved`.
+
 ## Surfaced points (facts found during implementation that the standard or the plan must reflect)
 
 | # | WP | Point | Resolved in |
@@ -238,3 +240,4 @@ Questions raised during WP1 and WP2a:
 | 2026-09-29 | WP8b2 (2db9f23) and WP8b (a2dfe67) verified and committed: FMR 12.4.2 loads the SDMX-ML 3.0 profile after the WB agency is registered, validates both SDMX-CSV 2.1 data files unchanged, exports 3.0 and round-trips with an empty diff. Surfaced points 58 to 60. WP10a, WP10b, WP10c started in parallel. |
 | 2026-09-29 | WP10a (0869abf), WP10b (2ad7336), WP10c (3d156bb) verified and committed. WP10b needed a second round (migration input mirrors the changelog); WP10c needed a comment-only cap exemption and WP10c-fix (the content builder re-extracted message bodies from index.qmd, obsolete since WP9c). Two environment notes: the WP10c verifier removed an untracked .posit/assistant/ cache folder that an Rscript run had created (outside its remit; untracked, no tracked file touched) and used PowerShell for read-only git diff calls after the auto-mode classifier blocked plain grep pipelines. WP11 acceptance run started; it doubles as the wave baseline. |
 | 2026-09-29 | WP11 acceptance run: 8 of 10 steps pass; steps 1 and 2 fail on the pre-existing GeoPackage non-determinism (point 64). WP10a-fix (f3da32c) documents it. Gate 3 report written; waiting for the data lead. |
+| 2026-09-29 | Gate 3 approved by the data lead. Scratch cleared; `standard/v0.6-sdmx` merged into `dev/eb` with `--no-ff` (no push). Orchestration complete. |
