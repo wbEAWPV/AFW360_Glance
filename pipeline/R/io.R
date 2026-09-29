@@ -211,3 +211,102 @@ dsd_key_columns <- function(meta) {
   kind_of <- stats::setNames(dsd$component, dsd$id)
   cols[kind_of[cols] %in% c("dimension", "time_dimension")]
 }
+
+#' The DSD component ids, in data-file order.
+#'
+#' The same as [dsd_columns()]: the 34 components of DSD 0.3.0, from `FREQ`
+#' to `OBS_COMMENT`, without the three fixed SDMX-CSV columns.
+#'
+#' @param meta A named list from [load_metadata()].
+#' @return A character vector of component ids.
+dsd_components <- function(meta) {
+  dsd_columns(meta)
+}
+
+#' The columns of an SDMX-CSV 2.1 data file, in order.
+#'
+#' The three fixed columns ([SDMX_CSV_FIXED], from `constants.R`) followed
+#' by [dsd_components()]: 37 columns in DSD 0.3.0.
+#'
+#' @param meta A named list from [load_metadata()].
+#' @return A character vector of column names.
+data_columns <- function(meta) {
+  c(SDMX_CSV_FIXED, dsd_components(meta))
+}
+
+#' Write an SDMX-CSV 2.1 data file.
+#'
+#' Prepends the fixed columns `STRUCTURE = dataflow`,
+#' `STRUCTURE_ID = structure_id(version)` and `ACTION` (default
+#' [ACTION_PUBLISHED]) to the component columns of `df` (any fixed columns
+#' already in `df` are replaced), then writes with [write_std_csv()]: UTF-8
+#' without BOM, LF line endings, RFC 4180 quoting, `NA` as an empty cell.
+#' A numeric `NaN` and the string `"NaN"` are both written literally as
+#' `NaN`. `constants.R` must already be sourced.
+#'
+#' @param df A data frame with the DSD component columns, in order.
+#' @param path Destination path.
+#' @param version The metadata version (content of `metadata/VERSION`).
+#' @param action The `ACTION` of every row. Default [ACTION_PUBLISHED].
+#' @return `path`, invisibly.
+write_sdmx_csv <- function(df, path, version, action = ACTION_PUBLISHED) {
+  if (missing(version) || length(version) != 1 || is.na(version) || version == "") {
+    stop("write_sdmx_csv: `version` must be a single non-empty string", call. = FALSE)
+  }
+  comp <- as.data.frame(df, stringsAsFactors = FALSE, check.names = FALSE)
+  comp <- comp[setdiff(names(comp), SDMX_CSV_FIXED)]
+  for (nm in names(comp)) {
+    col <- comp[[nm]]
+    if (is.numeric(col)) {
+      s <- fmt_num(col)
+      s[is.nan(col)] <- "NaN"
+      comp[[nm]] <- s
+    }
+  }
+  n <- nrow(comp)
+  fixed <- data.frame(
+    STRUCTURE = rep("dataflow", n),
+    STRUCTURE_ID = rep(structure_id(version), n),
+    ACTION = rep(action, n),
+    stringsAsFactors = FALSE
+  )
+  out <- cbind(fixed, comp, stringsAsFactors = FALSE)
+  write_std_csv(out, path)
+}
+
+#' Read an SDMX-CSV 2.1 data file.
+#'
+#' Reads with [read_std_csv()] (every column character, empty cells as
+#' `""`, `NaN` kept as the string `"NaN"`), checks that the first three
+#' columns are [SDMX_CSV_FIXED], that every `STRUCTURE` is `dataflow` and
+#' every `STRUCTURE_ID` is `structure_id(version)`, and returns the
+#' component columns only. `constants.R` must already be sourced.
+#'
+#' @param path Path to the data file.
+#' @param version The expected metadata version (content of
+#'   `metadata/VERSION`).
+#' @return A tibble of the component columns, every column character.
+read_sdmx_csv <- function(path, version) {
+  df <- read_std_csv(path)
+  nm <- names(df)
+  if (length(nm) < 3 || !identical(nm[1:3], SDMX_CSV_FIXED)) {
+    stop(
+      "read_sdmx_csv: ", basename(path), " does not start with the columns ",
+      paste(SDMX_CSV_FIXED, collapse = ","),
+      call. = FALSE
+    )
+  }
+  if (any(df$STRUCTURE != "dataflow")) {
+    stop("read_sdmx_csv: ", basename(path), " has a STRUCTURE other than 'dataflow'", call. = FALSE)
+  }
+  expected <- structure_id(version)
+  bad <- unique(df$STRUCTURE_ID[df$STRUCTURE_ID != expected])
+  if (length(bad) > 0) {
+    stop(
+      "read_sdmx_csv: ", basename(path), " has STRUCTURE_ID '", bad[1],
+      "', expected '", expected, "' (metadata/VERSION)",
+      call. = FALSE
+    )
+  }
+  df[setdiff(nm, SDMX_CSV_FIXED)]
+}

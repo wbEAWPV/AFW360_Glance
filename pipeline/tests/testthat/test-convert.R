@@ -2,8 +2,8 @@
 #
 # Tests for pipeline/R/convert_tables.R (card WP15) and pipeline/R/manifest.R.
 # Covers the slot order, the SEX/AGE sentinel rule, an empty cell, WITHHOLD,
-# COMMENT, a failing assertion and an unknown label, the DSD 0.2.0 columns
-# (ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION, SOURCE_ID), the file names
+# COMMENT, a failing assertion and an unknown label, the DSD 0.3.0 components
+# and the SDMX-CSV 2.1 data files (FREQ, ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION, SOURCE_ID), the file names
 # and the manifest keys, plus the small pure helpers.
 
 root <- find_root()
@@ -239,7 +239,7 @@ test_that("build_country_rows applies the slot order, the SEX/AGE sentinel rule,
   # Indicator One / ColB: empty cell -> O status and LEGACY_EMPTY comment
   one_o <- rows[rows$INDICATOR == "IND_ONE" & rows$OBS_STATUS == "O", ]
   expect_equal(nrow(one_o), 1)
-  expect_equal(one_o$OBS_VALUE, "")
+  expect_equal(one_o$OBS_VALUE, "NaN")
   expect_equal(one_o$OBS_COMMENT, "LEGACY_EMPTY: empty cell in sheet 'National', column 'ColB'")
   expect_equal(one_o$COMP_BREAKDOWN_1, "BRKX_HI")
   expect_equal(as.character(one_o[, c("COMP_BREAKDOWN_2", "COMP_BREAKDOWN_3", "COMP_BREAKDOWN_4", "COMP_BREAKDOWN_5")]), rep("_T", 4))
@@ -275,7 +275,7 @@ test_that("finalize_rows sorts by the 19-column key and stays byte-identical on 
   fx <- make_fixture()
   key_cols <- dsd_key_columns(fx$meta)
   expect_length(key_cols, 19)
-  expect_equal(key_cols[c(1, 5, 19)], c("DATAFLOW", "ESTIMATION", "MEASURE_QUAL_5"))
+  expect_equal(key_cols[c(1, 4, 18, 19)], c("FREQ", "ESTIMATION", "MEASURE_QUAL_5", "TIME_PERIOD"))
 
   rows <- build_country_rows("ZZ", fx$wb, fx$meta)
   sorted1 <- finalize_rows(rows[rev(seq_len(nrow(rows))), ], key_cols)
@@ -294,21 +294,23 @@ test_that("finalize_rows stops on a duplicate key", {
   )
 })
 
-# ---- DSD 0.2.0 columns ------------------------------------------------
+# ---- DSD 0.3.0 components ------------------------------------------------
 
-test_that("build_country_rows writes the 31 DSD columns in DSD order", {
+test_that("build_country_rows writes the 34 DSD components in DSD order", {
   fx <- make_fixture()
   rows <- build_country_rows("ZZ", fx$wb, fx$meta)
   dsd <- fx$meta$DSD_AFW360_HH
   expected <- dsd$id[order(as.integer(dsd$position))]
-  expect_length(expected, 31)
+  expect_length(expected, 34)
   expect_equal(names(rows), expected)
-  expect_equal(dsd_columns(fx$meta), expected)
+  expect_equal(dsd_components(fx$meta), expected)
   expect_equal(
-    names(rows)[c(1, 5, 20, 21, 22, 23, 24, 30, 31)],
-    c("DATAFLOW", "ESTIMATION", "SERIES_ID", "OBS_VALUE", "UNIT_MEASURE", "PRECISION",
-      "OBS_STATUS", "SOURCE_ID", "OBS_COMMENT")
+    names(rows)[c(1, 4, 19, 20, 29, 30, 31, 32, 33, 34)],
+    c("FREQ", "ESTIMATION", "TIME_PERIOD", "OBS_VALUE", "SERIES_ID", "UNIT_MEASURE",
+      "PRECISION", "OBS_STATUS", "SOURCE_ID", "OBS_COMMENT")
   )
+  expect_true(all(rows$FREQ == "A"))
+  expect_true(all(rows$N_OBS_NUM == "" & rows$DEFF == "" & rows$DF == ""))
 })
 
 test_that("build_country_rows fills ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION and SOURCE_ID", {
@@ -377,18 +379,18 @@ test_that("data and manifest file names follow AFW360_HH_<ISO3>_<YEAR>_<ESTIMATI
   expect_equal(manifest_file_name(fn), "AFW360_HH_SEN_2021_SURVEY_manifest.csv")
 })
 
-test_that("build_manifest writes the 16 keys in order, with sorted distinct sources", {
+test_that("build_manifest writes the 17 keys in order, with sorted distinct sources", {
   man <- build_manifest(
     country = "ZZ", time_period = "2099", estimation = "SURVEY",
     survey_id = "ZZ_TEST_2099",
     source_ids = c("ZZ_B_v1", "ZZ_A_v1", "ZZ_B_v1", ""),
     file_name = "AFW360_HH_ZZ_2099_SURVEY.csv", n_rows = 5,
-    metadata_version = "0.2.0", run_timestamp = "2026-01-01T00:00:00Z"
+    metadata_version = "0.3.0", run_timestamp = "2026-01-01T00:00:00Z"
   )
   expect_equal(names(man), c("key", "value"))
   expect_equal(
     man$key,
-    c("dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+    c("structure_id", "sdmx_csv_version", "dsd_version", "metadata_version", "ref_area", "time_period",
       "estimation", "survey_id", "sources", "file_name", "n_rows", "producer",
       "program", "software", "run_timestamp", "status", "notes")
   )
@@ -397,19 +399,28 @@ test_that("build_manifest writes the 16 keys in order, with sorted distinct sour
   expect_equal(v[["sources"]], "ZZ_A_v1 ZZ_B_v1")
   expect_equal(v[["file_name"]], "AFW360_HH_ZZ_2099_SURVEY.csv")
   expect_equal(v[["n_rows"]], "5")
-  expect_equal(v[["dsd_version"]], "0.2.0")
+  expect_equal(v[["dsd_version"]], "0.3.0")
+  expect_equal(v[["structure_id"]], "WB.AFW360:AFW360_HH(0.3.0)")
+  expect_equal(v[["sdmx_csv_version"]], "2.1.0")
+  expect_false("dataflow" %in% man$key)
   expect_false(any(c("source_type", "precision") %in% man$key))
 })
 
-test_that("the committed data files match the 0.2.0 contract", {
+test_that("the committed data files match the 0.3.0 SDMX-CSV 2.1 contract", {
   meta <- load_metadata(root)
-  cols <- dsd_columns(meta)
+  version <- trimws(readLines(file.path(root, "metadata", "VERSION"), warn = FALSE)[1])
+  cols <- dsd_components(meta)
   files <- list.files(file.path(root, "data"), pattern = "^AFW360_HH_.*[.]csv$")
   data_files <- files[!grepl("_manifest[.]csv$", files)]
   expect_setequal(data_files, c("AFW360_HH_GNB_2021_SURVEY.csv", "AFW360_HH_SEN_2021_SURVEY.csv"))
   for (f in data_files) {
-    d <- read_std_csv(file.path(root, "data", f))
+    full <- read_std_csv(file.path(root, "data", f))
+    expect_equal(names(full), data_columns(meta), info = f)
+    expect_true(all(full$ACTION == ACTION_PUBLISHED), info = f)
+    d <- read_sdmx_csv(file.path(root, "data", f), version)
     expect_equal(names(d), cols, info = f)
+    expect_true(all(d$FREQ == "A"), info = f)
+    expect_equal(d$OBS_VALUE == "NaN", d$OBS_STATUS %in% c("O", "M"), info = f)
     for (col in c("SERIES_ID", "UNIT_MEASURE", "PRECISION", "SOURCE_ID")) {
       expect_true(all(d[[col]] != ""), info = paste(f, col))
     }
@@ -417,6 +428,7 @@ test_that("the committed data files match the 0.2.0 contract", {
     v <- stats::setNames(man$value, man$key)
     expect_equal(man$key, MANIFEST_KEYS, info = f)
     expect_equal(v[["file_name"]], f)
+    expect_equal(v[["structure_id"]], structure_id(version))
     expect_equal(v[["n_rows"]], as.character(nrow(d)))
     expect_equal(v[["sources"]], paste(sort(unique(d$SOURCE_ID)), collapse = " "))
   }

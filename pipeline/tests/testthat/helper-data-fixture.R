@@ -5,12 +5,13 @@
 # and manifest for a country from required_rows() (pipeline/R/plan.R), so
 # every validator test can run against realistic data without re-deriving
 # the required rows themselves. Needs read_std_csv()/write_std_csv()/
-# load_metadata()/dsd_columns() (pipeline/R/io.R), edit_csv()
-# (helper-temp-root.R), required_rows() (pipeline/R/plan.R) and
-# DSD_COLUMNS/DATAFLOW_ID (pipeline/R/constants.R) to already be sourced by
-# the time it is called.
+# write_sdmx_csv()/load_metadata()/dsd_components() (pipeline/R/io.R),
+# edit_csv() (helper-temp-root.R), required_rows() (pipeline/R/plan.R) and
+# DATAFLOW_ID/SDMX_CSV_FIXED/structure_id() (pipeline/R/constants.R) to
+# already be sourced by the time it is called.
 #
-# The fixture follows DSD 0.2.0: 31 columns, a file named
+# The fixture follows DSD 0.3.0 as SDMX-CSV 2.1: 37 columns (STRUCTURE,
+# STRUCTURE_ID, ACTION = R, then the 34 components, FREQ = A), a file named
 # AFW360_HH_<REF_AREA>_<TIME_PERIOD>_<ESTIMATION>.csv, and by default it
 # looks like a legacy conversion - every row's SOURCE_ID is the country's
 # LEGACY_CONVERSION source in SOURCES.csv and its PRECISION is 0.01 x the
@@ -19,7 +20,7 @@
 # The manifest keys (pipeline/R/manifest.R's MANIFEST_KEYS, repeated here
 # for a test that has not sourced manifest.R).
 .FIXTURE_MANIFEST_KEYS <- c(
-  "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+  "structure_id", "sdmx_csv_version", "dsd_version", "metadata_version", "ref_area", "time_period",
   "estimation", "survey_id", "sources", "file_name", "n_rows",
   "producer", "program", "software", "run_timestamp", "status", "notes"
 )
@@ -88,9 +89,13 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
     unit[is.na(unit)] <- ""
   }
 
-  columns <- if (!is.null(meta$DSD_AFW360_HH)) dsd_columns(meta) else DSD_COLUMNS
-  key_cols <- setdiff(names(rows), c("series_id", "cut_id", "defining_breakdown"))
+  if (is.null(meta$DSD_AFW360_HH)) {
+    stop("make_data_fixture: metadata/structure/DSD_AFW360_HH.csv is missing", call. = FALSE)
+  }
+  columns <- dsd_components(meta)
+  key_cols <- setdiff(names(rows), c("series_id", "cut_id", "defining_breakdown", "DATAFLOW"))
   data <- rows[key_cols]
+  data$FREQ <- "A"
   data$SERIES_ID <- rows$series_id
   data$OBS_VALUE <- value
   data$UNIT_MEASURE <- unit
@@ -101,6 +106,9 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   data$CI_UPPER <- ""
   data$N_OBS <- ""
   data$N_POP <- ""
+  data$N_OBS_NUM <- ""
+  data$DEFF <- ""
+  data$DF <- ""
   data$SOURCE_ID <- source_id
   data$OBS_COMMENT <- ""
   data <- data[columns]
@@ -108,8 +116,6 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   stem <- paste0(DATAFLOW_ID, "_", ref_area, "_", time_period, "_", estimation)
   data_path <- file.path(tmp_root, "data", paste0(stem, ".csv"))
   manifest_path <- file.path(tmp_root, "data", paste0(stem, "_manifest.csv"))
-
-  write_std_csv(data, data_path)
 
   # The manifest in its long form (one `key`, `value` row per key), as
   # build_ctx() (pipeline/R/ctx.R) reads it. Descriptive fields the helper
@@ -123,8 +129,11 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   version <- "TBD"
   vf <- file.path(tmp_root, "metadata", "VERSION")
   if (file.exists(vf)) version <- trimws(readLines(vf, warn = FALSE)[1])
+  write_sdmx_csv(data, data_path, version)
+
   values <- c(
-    dataflow = DATAFLOW_ID, dsd_version = version, metadata_version = version,
+    structure_id = structure_id(version), sdmx_csv_version = "2.1.0",
+    dsd_version = version, metadata_version = version,
     ref_area = ref_area, time_period = time_period, estimation = estimation,
     survey_id = survey_id, sources = source_id, file_name = basename(data_path),
     n_rows = as.character(nrow(data)), producer = "TBD", program = "TBD",

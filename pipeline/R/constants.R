@@ -1,17 +1,33 @@
 # pipeline/R/constants.R
 #
-# Fixed identifiers shared by every pipeline script: the dataflow id, the
-# reserved sentinel and TBD codes, and the AFW360_HH data structure's
-# column list.
+# Fixed identifiers shared by every pipeline script: the maintenance agency
+# and dataflow ids, the SDMX-CSV 2.1 fixed columns and action, and the
+# reserved sentinel and TBD codes.
 #
-# The column list is authoritative in metadata/structure/DSD_AFW360_HH.csv;
-# code that has the metadata at hand reads it through dsd_columns() and
-# dsd_key_columns() (pipeline/R/io.R). DSD_COLUMNS and KEY_COLUMNS below
-# mirror DSD 0.2.0 for callers that have no metadata loaded (for example a
-# hand-made test `meta`); test-plan.R checks that they still equal
-# the DSD.
+# The component list is authoritative in metadata/structure/DSD_AFW360_HH.csv;
+# code reads it through dsd_components(), data_columns() and
+# dsd_key_columns() (pipeline/R/io.R). No column list is hard-coded here.
+
+#' The SDMX maintenance agency of the dataflow and its structures.
+AGENCY_ID <- "WB.AFW360"
+
 #' The dataflow identifier used throughout the pipeline and its outputs.
 DATAFLOW_ID <- "AFW360_HH"
+
+#' The three fixed leading columns of an SDMX-CSV 2.1 data file, in order.
+#' They are not DSD components.
+SDMX_CSV_FIXED <- c("STRUCTURE", "STRUCTURE_ID", "ACTION")
+
+#' The `ACTION` of every published row (SDMX-CSV 2.1 "replace"; D38).
+ACTION_PUBLISHED <- "R"
+
+#' The SDMX-CSV `STRUCTURE_ID` of the dataflow at a metadata version.
+#'
+#' @param version The content of `metadata/VERSION`, e.g. `"0.3.0"`.
+#' @return `WB.AFW360:AFW360_HH(<version>)`.
+structure_id <- function(version) {
+  sprintf("%s:%s(%s)", AGENCY_ID, DATAFLOW_ID, version)
+}
 
 #' The reserved "total" sentinel code.
 SENTINEL_TOTAL <- "_T"
@@ -26,42 +42,3 @@ SENTINELS <- c("_T", "_Z", "_U", "_O", "_X")
 #' The placeholder used in a required text column when a value cannot be
 #' known from the inputs (COMMON.md section 4).
 TBD <- "TBD"
-
-#' The 31 columns of the AFW360_HH data structure (DSD 0.2.0), in order.
-DSD_COLUMNS <- c(
-  "DATAFLOW",
-  "REF_AREA",
-  "GEO",
-  "TIME_PERIOD",
-  "ESTIMATION",
-  "INDICATOR",
-  "SEX",
-  "AGE",
-  "URBANISATION",
-  "COMP_BREAKDOWN_1",
-  "COMP_BREAKDOWN_2",
-  "COMP_BREAKDOWN_3",
-  "COMP_BREAKDOWN_4",
-  "COMP_BREAKDOWN_5",
-  "MEASURE_QUAL_1",
-  "MEASURE_QUAL_2",
-  "MEASURE_QUAL_3",
-  "MEASURE_QUAL_4",
-  "MEASURE_QUAL_5",
-  "SERIES_ID",
-  "OBS_VALUE",
-  "UNIT_MEASURE",
-  "PRECISION",
-  "OBS_STATUS",
-  "STD_ERR",
-  "CI_LOWER",
-  "CI_UPPER",
-  "N_OBS",
-  "N_POP",
-  "SOURCE_ID",
-  "OBS_COMMENT"
-)
-
-#' The key columns of the AFW360_HH data structure: the first 19 of
-#' [DSD_COLUMNS], from `DATAFLOW` to `MEASURE_QUAL_5`.
-KEY_COLUMNS <- DSD_COLUMNS[1:19]
