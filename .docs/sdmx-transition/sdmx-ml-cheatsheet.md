@@ -1,6 +1,6 @@
 # SDMX-ML 3.1 serialisation cheat-sheet
 
-Distilled from the official XSDs of `sdmx-twg/sdmx-ml` tag `v3.1.0` and the SDMX-CSV 2.1.0 field guides, with the line citations in `research/R1_sdmx31_structures.md`. Where prose documentation and schemas disagree, the schemas win. Everything here was validated against the XSDs on 2026-09-29 unless marked UNCERTAIN.
+Distilled from the official XSDs of `sdmx-twg/sdmx-ml` tag `v3.1.0` and the SDMX-CSV 2.1.0 field guides, with the line citations in `research/R1_sdmx31_structures.md`. Where prose documentation and schemas disagree, the schemas win. Everything here was validated against the XSDs on 2026-09-29 and re-checked clause by clause at review round 1 (2026-09-29); nothing is marked UNCERTAIN any more.
 
 ## 1. Namespaces (3.1)
 
@@ -45,7 +45,7 @@ Header child order: `ID`, `Test`, `Prepared`, `Sender`, `Receiver`*, `Name`*, `S
 | Codelist, concept scheme, concept, agency, component, metadata attribute id | NCName: `[A-Za-z][A-Za-z0-9_\-]*` (no dot) |
 | `agencyID` | dotted NCNames allowed: `WB.AFW360`; each segment starts with a letter |
 | Header `ID`, Sender `id` | plain IDType, no dot |
-| Version | semver `X.Y.Z` (`0.3.0` ok, no leading zeros); extension `-draft`; a released `X.Y.Z` is immutable; a semver artefact may reference only semver artefacts |
+| Version | semver `X.Y.Z` (`0.3.0` ok, no leading zeros); extension `-draft`; a released `X.Y.Z` is immutable; a semver artefact may reference only semver artefacts (IM technical notes, Annex "Semantic Versioning", "Dependency Management"; not enforced by the XSD). Exception applied by this project: references to items of the fixed-version organisation schemes (`AGENCIES`, `DATA_PROVIDERS`, `METADATA_PROVIDERS`, URN version `(1.0)`) are allowed, because the XSD patterns `DataProviderUrnType` and `MetadataProviderUrnType` require exactly that version |
 | Fixed-version artefacts | `AgencyScheme` (id `AGENCIES`), `DataProviderScheme` (`DATA_PROVIDERS`), `MetadataProviderScheme` (`METADATA_PROVIDERS`): **omit the `version` attribute in XML**; `Categorisation` likewise (not used) |
 | URN | `urn:sdmx:org.sdmx.infomodel.<package>.<Class>=<agency>:<id>(<version>)[.<item>]` |
 | Packages and classes | `base.AgencyScheme|Agency|DataProviderScheme|DataProvider|MetadataProviderScheme|MetadataProvider`; `codelist.Codelist|Code`; `conceptscheme.ConceptScheme|Concept`; `datastructure.DataStructure|Dataflow|Dimension|TimeDimension|Measure|DataAttribute`; `metadatastructure.MetadataStructure|Metadataflow|MetadataAttribute|MetadataSet`; `registry.ProvisionAgreement|MetadataProvisionAgreement|DataConstraint` |
@@ -208,7 +208,11 @@ No `DimensionConstraint` and no `evolvingStructure` (both 3.1 features, not used
 <str:Metadataflow agencyID="WB.AFW360" id="MDF_AFW360" version="0.3.0">
   <com:Name xml:lang="en">AFW 360 reference metadata flow</com:Name>
   <str:Structure>urn:...MetadataStructure=WB.AFW360:MSD_AFW360(0.3.0)</str:Structure>
-  <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:*(*)</str:Target>   <!-- at least one Target; wildcard syntax: confirm against WildcardUrnType (UNCERTAIN) -->
+  <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SURVEY(0.3.0)</str:Target>
+  <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_SOURCE(0.3.0)</str:Target>
+  <str:Target>urn:sdmx:org.sdmx.infomodel.codelist.Codelist=WB.AFW360:CL_FIGURE(0.3.0)</str:Target>
+  <str:Target>urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=WB.AFW360:AFW360_HH(0.3.0)</str:Target>
+  <!-- Target: common:WildcardUrnType, 1..n (SDMXStructureMetadataflow.xsd). Wildcards such as Codelist=WB.AFW360:*(*) are also schema-valid but not used. -->
 </str:Metadataflow>
 <str:MetadataProvisionAgreement agencyID="WB.AFW360" id="MPA_AFW360" version="0.3.0">
   <com:Name xml:lang="en">AFW 360 metadata provision</com:Name>
@@ -217,14 +221,14 @@ No `DimensionConstraint` and no `evolvingStructure` (both 3.1 features, not used
 </str:MetadataProvisionAgreement>
 ```
 
-MetadataAttribute: attributes `id`, `minOccurs` (default 1), `maxOccurs` (default 1 or `unbounded`), `isPresentational`; children Annotations, Link, `ConceptIdentity`, `LocalRepresentation`? (Codelist enumeration or `TextFormat`; no min/maxOccurs inside), nested `MetadataAttribute`*. An MSD has no targets in 3.x; targets live on the Metadataflow and the MPA.
+MetadataAttribute: attributes `id`, `minOccurs` (default 1), `maxOccurs` (default 1 or `unbounded`), `isPresentational` (default false); children Annotations, Link, `ConceptIdentity`, `LocalRepresentation`? (Codelist enumeration or `TextFormat`; no min/maxOccurs inside), nested `MetadataAttribute`*. Presentational parents need `minOccurs="0"` explicitly (the default is 1). An MSD has no targets in 3.x; targets live on the Metadataflow and the MPA.
 
 ## 11. Validation
 
 - XSDs: `sdmx-twg/sdmx-ml` tag `v3.1.0`, folder `schemas/`, entry `SDMXMessage.xsd` (imports the rest; keep the whole folder together, including `xml.xsd`).
 - R: `xml2::xml_validate(doc, xml2::read_xml("pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd"))`.
 - Python: `lxml.etree.XMLSchema(etree.parse(".../SDMXMessage.xsd")).assertValid(doc)`.
-- Schemas do not check: URN resolution, `Parent` existence, sub-agency declaration, component-id uniqueness across inherited concept ids, the semver dependency rule. The project's `SDMX.URN` check covers these.
+- Schemas do not check: URN resolution, `Parent` existence, sub-agency declaration, component-id uniqueness across inherited concept ids, the semver dependency rule. The project's `SDMX.URN` check covers these (exempting the `(1.0)` organisation-scheme items, section 3), and `SDMX.IDENT` checks agency, semver version, `IDType` id and English name on every maintainable.
 
 ## 12. Pitfalls verified against the XSDs
 
@@ -239,7 +243,7 @@ MetadataAttribute: attributes `id`, `minOccurs` (default 1), `maxOccurs` (defaul
 
 ## 13. SDMX-CSV 2.1 data message (for the writer and the validator)
 
-- Header: `STRUCTURE,STRUCTURE_ID,ACTION,<component ids in DSD order>`; `STRUCTURE[;]` only when multi-valued components exist (none here).
+- Header: `STRUCTURE,STRUCTURE_ID,ACTION,<dimensions in DSD order, TIME_PERIOD last>,<measures in DSD order>,<attributes in DSD order>` (the guide's recommended order for responses; any order is valid on upload; the XML order AttributeList-before-MeasureList is not the CSV order). `STRUCTURE[;]` is required only when multi-valued or multi-language measure or attribute values occur (none here).
 - Row: `dataflow,WB.AFW360:AFW360_HH(0.3.0),R,...`.
 - Actions: `M` merge, `R` replace, `D` delete; `I` and `A` deprecated (treated as merge). Project: `R`.
 - Intentionally missing: `NaN` for float or double measures, `#N/A` for other types. Empty cell means omitted.
@@ -249,7 +253,7 @@ MetadataAttribute: attributes `id`, `minOccurs` (default 1), `maxOccurs` (defaul
 ## 14. SDMX-CSV 2.1 metadata message
 
 - Header: `MDSTRUCTURE,MDSTRUCTURE_ID,METADATASET_ID,[IS_PARTIAL_LANGUAGE,]TARGET_TYPES,TARGET_IDS,<attribute columns>`; nested attribute columns are dotted: `SURVEY.SURVEY_NAME`; multi-instance attributes get `[]`; multilingual ones `[en;fr]` (none here); `MDSTRUCTURE[;]` only when sub-fields are needed.
-- Row: `metadataflow,WB.AFW360:MDF_AFW360(0.3.0),WB.AFW360:MDS_SURVEY_SEN_EHCVM_2021,codelist,WB.AFW360:CL_SURVEY(0.3.0).SEN_EHCVM_2021,...`.
+- Row: `"metadataflow","WB.AFW360:MDF_AFW360(0.3.0)","WB.AFW360:MDS_SURVEY_SEN_EHCVM_2021","codelist","WB.AFW360:CL_SURVEY(0.3.0)",...` (every textual value quoted).
 - The `ACTION` column is deprecated (omit). Metadataset ids without a version are non-versioned.
-- `TARGET_TYPES` uses REST resource names (`dataflow`, `codelist`, ...); multiple targets separated by the sub-field separator. Item-level short form is UNCERTAIN (see plan 2.7).
-- Textual values should be quoted; quotes doubled; line breaks allowed inside quoted fields.
+- `TARGET_TYPES` uses REST resource names (`dataflow`, `codelist`, ...); `TARGET_IDS` is `AGENCY:ID(VERSION)`; multiple targets separated by the sub-field separator. Targets are whole artefacts only; SDMX-CSV 2.1 has no item-level (single code) target form. Presentational parent attributes have no column; only `PARENT.CHILD` columns appear.
+- Textual values should always be quoted (the guide's recommendation; the writer uses `readr::write_csv(quote = "all", na = "")`); quotes doubled; line breaks allowed inside quoted fields.
