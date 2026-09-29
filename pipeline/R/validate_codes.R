@@ -4,8 +4,9 @@
 # GEO/REF_AREA agreement, ADM0-in-GEO, breakdown/qualifier slot packing and
 # ordering, SEX/AGE-vs-stat_unit, breakdown applicability, qualifier
 # declaration (INDICATOR_QUALIFIERS.csv) and pairings (QUALIFIER_PAIRS.csv),
-# SERIES_ID against SERIES_PLAN.csv, UNIT_MEASURE against the dictionary,
-# SOURCE_ID against SOURCES.csv and the manifest, and DRAFT-code usage).
+# SERIES_ID against SERIES_PLAN.csv, UNIT_MEASURE against the dictionary and
+# CL_UNIT_MEASURE, SOURCE_ID against CL_SOURCE (derived from SOURCES.csv)
+# and the manifest, and DRAFT-code usage).
 # Depends on pipeline/R/io.R, constants.R, codes.R (slot_sort(),
 # fill_slots()) and ctx.R (the ctx_*() accessors).
 #
@@ -34,13 +35,15 @@
   strsplit(field, "\\s+")[[1]]
 }
 
-#' The data files a CODES check looks at: header matching the DSD, with the
-#' indices of the rows whose key cells are all filled and their row keys.
+#' The data files a CODES check looks at: header matching the SDMX-CSV
+#' layout (ctx_data_columns(): the fixed STRUCTURE, STRUCTURE_ID and ACTION
+#' columns, then the DSD components), with the indices of the rows whose
+#' key cells are all filled and their row keys.
 #'
 #' @return A list of lists with `key`, `file`, `df`, `ok` (row indices) and
 #'   `row_keys` (every row's key string).
 .codes_files <- function(ctx) {
-  expected <- ctx_dsd_columns(ctx)
+  expected <- ctx_data_columns(ctx)
   key_cols <- ctx_key_columns(ctx)
   res <- list()
   for (key in names(ctx$data)) {
@@ -56,15 +59,39 @@
   res
 }
 
-#' The codes of the table a DSD `codelist` cell names: its `code` column,
-#' or `series_id` for SERIES_PLAN, `source_id` for SOURCES.
-.codes_codelist_codes <- function(ctx, cl) {
+# Derived codelists (D43, amended at Gate 1): a DSD `codelist` cell that
+# names one of these resolves to a registry table and its id column rather
+# than to a metadata/codelists CSV. SERIES_ID is an uncoded String
+# attribute; CODES.SERIES_ID checks it against SERIES_PLAN.csv.
+.CODES_DERIVED <- list(
+  CL_SOURCE = c("SOURCES", "source_id"),
+  CL_SURVEY = c("SURVEYS", "survey_id"),
+  CL_FIGURE = c("FIGURES", "figure_id"),
+  SOURCES = c("SOURCES", "source_id"),
+  SERIES_PLAN = c("SERIES_PLAN", "series_id")
+)
+
+#' The table a DSD `codelist` cell resolves to, with the name of its id
+#' column: the codelist CSV and `code`, or a derived codelist's registry.
+.codes_codelist_table <- function(ctx, cl) {
+  d <- .CODES_DERIVED[[cl]]
+  if (!is.null(d)) {
+    tab <- ctx$meta[[d[1]]]
+    if (is.null(tab) || !(d[2] %in% names(tab))) return(NULL)
+    return(list(tab = tab, id = d[2]))
+  }
   tab <- ctx$meta[[cl]]
-  if (is.null(tab)) return(NULL)
-  if ("code" %in% names(tab)) return(tab$code)
-  if (cl == "SERIES_PLAN") return(tab$series_id)
-  if (cl == "SOURCES") return(tab$source_id)
-  NULL
+  if (is.null(tab) || !("code" %in% names(tab))) return(NULL)
+  list(tab = tab, id = "code")
+}
+
+#' The codes of the table a DSD `codelist` cell names: its `code` column,
+#' or the id column of a derived codelist's registry (CL_SOURCE:
+#' SOURCES.source_id).
+.codes_codelist_codes <- function(ctx, cl) {
+  t <- .codes_codelist_table(ctx, cl)
+  if (is.null(t)) return(NULL)
+  t$tab[[t$id]]
 }
 
 #' The coded DSD columns: id, codelist and sentinel.
@@ -465,7 +492,8 @@ vc_codes_series_id <- function(ctx) {
 }
 
 #' CODES.UNIT: UNIT_MEASURE equals the indicator's unit_measure or, where
-#' that is LCU, the currency of the row's REF_AREA in CL_AREA (D14).
+#' that is LCU, the currency of the row's REF_AREA in CL_AREA (D14), and is
+#' a CL_UNIT_MEASURE code.
 vc_codes_unit <- function(ctx) {
   out <- list()
   ind <- ctx$meta$CL_INDICATOR
@@ -473,6 +501,7 @@ vc_codes_unit <- function(ctx) {
   if (is.null(ind) || !("unit_measure" %in% names(ind))) return(.vc_empty())
   unit_of <- stats::setNames(ind$unit_measure, ind$code)
   currency_of <- if (is.null(area)) character(0) else stats::setNames(area$currency, area$code)
+  unit_codes <- .codes_codelist_codes(ctx, "CL_UNIT_MEASURE")
   for (f in .codes_files(ctx)) {
     df <- f$df
     expected <- unname(unit_of[df$INDICATOR])
@@ -480,11 +509,19 @@ vc_codes_unit <- function(ctx) {
     expected[lcu] <- unname(currency_of[df$REF_AREA[lcu]])
     actual <- as.character(df$UNIT_MEASURE)
     known_ind <- df$INDICATOR %in% ind$code
-    bad <- seq_len(nrow(df)) %in% f$ok & known_ind & (is.na(expected) | actual != expected)
+    in_ok <- seq_len(nrow(df)) %in% f$ok
+    bad <- in_ok & known_ind & (is.na(expected) | actual != expected)
+    # A unit outside CL_UNIT_MEASURE is a finding even where it equals the
+    # expected unit (META.UNIT_CLOSURE reports the dictionary side).
+    not_listed <- in_ok & !is.null(unit_codes) & !(actual %in% unit_codes)
+    bad <- bad | not_listed
     hit <- which(bad)
     if (length(hit) == 0) next
     out[[length(out) + 1]] <- .vc_finding(
       "CODES.UNIT", "ERROR", f$file, f$row_keys[hit],
+      ifelse(
+        not_listed[hit] & !is.na(expected[hit]) & actual[hit] == expected[hit],
+        paste0("UNIT_MEASURE '", actual[hit], "' is not a CL_UNIT_MEASURE code"),
       ifelse(
         is.na(expected[hit]),
         paste0(
@@ -495,13 +532,14 @@ vc_codes_unit <- function(ctx) {
           "UNIT_MEASURE '", actual[hit], "' differs from '", expected[hit], "' (INDICATOR ",
           df$INDICATOR[hit], ", unit_measure ", unname(unit_of[df$INDICATOR[hit]]), ")"
         )
-      )
+      ))
     )
   }
   .vc_bind(out)
 }
 
-#' CODES.SOURCE_ID: SOURCE_ID is filled, exists in SOURCES.csv with the
+#' CODES.SOURCE_ID: SOURCE_ID is filled, exists in CL_SOURCE (derived from
+#' SOURCES.csv, D43) with the
 #' row's REF_AREA, and is listed in the manifest's `sources` (D16). An
 #' unknown or wrong-country id is reported per row; an id missing from the
 #' manifest once per file (row_key `SOURCE_ID=<id>`).
@@ -549,16 +587,21 @@ vc_codes_source_id <- function(ctx) {
 vc_codes_draft <- function(ctx) {
   out <- list()
   coded <- .codes_coded_columns(ctx)
+  # SERIES_ID is uncoded in the DSD (String) but its values are
+  # SERIES_PLAN series ids, whose status counts here too.
+  if ("SERIES_ID" %in% ctx_dsd_columns(ctx) && !("SERIES_ID" %in% coded$id)) {
+    coded <- rbind(coded, data.frame(id = "SERIES_ID", codelist = "SERIES_PLAN", sentinel = ""))
+  }
   for (f in .codes_files(ctx)) {
     df <- f$df
     manifest_status <- unname(ctx$manifests[[f$key]]["status"])
     sev <- if (!is.na(manifest_status) && manifest_status == "DRAFT") "WARN" else "ERROR"
     draft_codes <- character(0)
     for (r in seq_len(nrow(coded))) {
-      cl <- coded$codelist[r]
-      cltab <- ctx$meta[[cl]]
-      codes <- .codes_codelist_codes(ctx, cl)
-      if (is.null(cltab) || is.null(codes) || !("status" %in% names(cltab))) next
+      t <- .codes_codelist_table(ctx, coded$codelist[r])
+      if (is.null(t) || !("status" %in% names(t$tab))) next
+      cltab <- t$tab
+      codes <- t$tab[[t$id]]
       vals <- unique(as.character(df[[coded$id[r]]][f$ok]))
       vals <- setdiff(vals, SENTINELS)
       st <- cltab$status[match(vals, codes)]

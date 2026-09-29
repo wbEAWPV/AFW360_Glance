@@ -327,7 +327,7 @@ test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
 
 test_that("a renamed column header gives META.HEADER", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT.csv"), function(df) {
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT_MEASURE.csv"), function(df) {
     names(df)[names(df) == "notes"] <- "note"
     df
   })
@@ -588,7 +588,10 @@ test_that("CODES.SERIES_ID passes on the fixture and flags an unknown or mismatc
   })
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   findings <- .run_all_checks(ctx)
-  expect_equal(.error_ids(findings), "CODES.SERIES_ID")
+  # Both rows share their INDICATOR/breakdown/qualifier group with the
+  # unchanged SEN/GNB rows, so SERIES_ID also varies within its attachment
+  # group (STRUCT.ATTR_LEVEL, WP4a).
+  expect_equal(.error_ids(findings), c("CODES.SERIES_ID", "STRUCT.ATTR_LEVEL"))
   res <- findings[findings$check_id == "CODES.SERIES_ID", ]
   expect_equal(nrow(res), 2L)
   expect_true(any(grepl("NOT_A_SERIES is not in SERIES_PLAN.csv", res$message, fixed = TRUE)))
@@ -844,6 +847,116 @@ test_that("the DOCS module gives one INFO when the root has no standard", {
   res <- vc_docs_fragments(build_ctx(tmp))
   expect_equal(res$check_id, "DOCS.SKIPPED")
   expect_equal(res$severity, "INFO")
+})
+
+# ---- WP4b: SDMX-CSV values, derived codelists, ARTEFACTS, global_urn -----------
+
+#' The VALUE checks, sourced into their own environment so that
+#' .run_all_checks() above keeps its module set.
+.values_env <- function() {
+  ve <- new.env(parent = globalenv())
+  sys.source(file.path(.root, "pipeline", "R", "validate_values.R"), envir = ve)
+  ve
+}
+
+test_that("NaN is the missing OBS_VALUE on O and M rows only (D39)", {
+  # Row 3 (M, empty cell) is accepted: an empty cell still counts as missing.
+  ve <- .values_env()
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$OBS_VALUE[1] <- "NaN"
+    df$OBS_STATUS[1] <- "O"
+    df$OBS_COMMENT[1] <- "LEGACY_EMPTY: test"
+    df$OBS_VALUE[2] <- "NaN" # status stays A
+    df$OBS_VALUE[3] <- ""
+    df$OBS_STATUS[3] <- "M"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(nrow(ve$vc_value_numeric(ctx)), 0L)
+  res <- ve$vc_value_status_empty(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$message, "OBS_STATUS 'A' requires OBS_VALUE, but it is NaN.")
+})
+
+test_that("N_OBS_NUM, DEFF and DF are checked, and N_OBS_NUM <= N_OBS", {
+  ve <- .values_env()
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$N_OBS[1] <- "10"
+    df$N_POP[1] <- "100"
+    df$N_OBS_NUM[1] <- "12"
+    df$DEFF[2] <- "-1"
+    df$DF[3] <- "2.5"
+    df$N_OBS_NUM[4] <- "1e3"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  num <- ve$vc_value_numeric(ctx)
+  expect_equal(num$message, "N_OBS_NUM '1e3' is not a plain decimal number.")
+  res <- ve$vc_value_n(ctx)
+  res <- res[res$severity == "ERROR", ]
+  expect_equal(nrow(res), 3L)
+  expect_true(any(grepl("N_OBS_NUM exceeds N_OBS", res$message)))
+  expect_true(any(grepl("DEFF is negative", res$message)))
+  expect_true(any(grepl("DF is not a non-negative integer", res$message)))
+})
+
+test_that("CODES read the SDMX-CSV header and resolve CL_SOURCE from SOURCES.csv", {
+  fx <- .small_fixture()
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(length(.codes_files(ctx)), 1L)
+  expect_identical(.codes_codelist_codes(ctx, "CL_SOURCE"), ctx$meta$SOURCES$source_id)
+  expect_identical(.codes_codelist_codes(ctx, "CL_UNIT_MEASURE"), ctx$meta$CL_UNIT_MEASURE$code)
+  expect_null(.codes_codelist_codes(ctx, "CL_SERIES"))
+})
+
+test_that("a UNIT_MEASURE outside CL_UNIT_MEASURE gives CODES.UNIT", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$UNIT_MEASURE[1] <- "XXX"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_unit(ctx)
+  expect_equal(nrow(res), 1L)
+})
+
+test_that("a CL_AREA currency outside CL_UNIT_MEASURE gives META.REFERENCE", {
+  tmp <- make_temp_root(.root)
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_AREA.csv"), function(df) {
+    df$currency[df$code == "SEN"] <- "EUR"
+    df
+  })
+  res <- vc_meta_reference(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_match(res$message, "currency references unknown CL_UNIT_MEASURE[.]code: EUR")
+})
+
+test_that("ARTEFACTS.csv passes, and an unlisted codelist or a missing source file gives META.ARTEFACTS", {
+  tmp <- make_temp_root(.root)
+  expect_equal(nrow(vc_meta_artefacts(build_ctx(tmp))), 0L)
+  edit_csv(file.path(tmp, "metadata", "structure", "ARTEFACTS.csv"), function(df) {
+    df$source_file[df$artefact_id == "CL_SOURCE"] <- "metadata/registries/NOPE.csv"
+    df[df$artefact_id != "CL_THEME", , drop = FALSE]
+  })
+  res <- vc_meta_artefacts(build_ctx(tmp))
+  expect_equal(unique(res$check_id), "META.ARTEFACTS")
+  expect_equal(sort(res$row_key), c("", "artefact_id=CL_SOURCE", "artefact_id=CL_THEME"))
+  expect_true(any(grepl("has 31 rows; expected 32", res$message)))
+})
+
+test_that("a global_urn that is not a full code URN gives META.GLOBAL_URN", {
+  tmp <- make_temp_root(.root)
+  expect_equal(nrow(vc_meta_global_urn(build_ctx(tmp))), 0L)
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_SEX.csv"), function(df) {
+    df$global_urn[df$code == "F"] <- "SDMX:CL_SEX(2.1).F"
+    df
+  })
+  res <- vc_meta_global_urn(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$row_key, "code=F")
+  expect_equal(res$file, "metadata/codelists/CL_SEX.csv")
 })
 
 # ---- determinism of the findings file ------------------------------------------

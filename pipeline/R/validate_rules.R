@@ -226,6 +226,7 @@
         ifelse(is.na(m), NA_character_, df[[col]][m])
       }
       value <- num(pick("OBS_VALUE"))
+      value[is.nan(value)] <- NA_real_ # NaN: intentionally missing (D39)
       obs_status <- pick("OBS_STATUS")
       precision <- num(pick("PRECISION"))
 

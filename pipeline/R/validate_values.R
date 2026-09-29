@@ -6,7 +6,9 @@
 # OBS_STATUS, carrying the D9 LEGACY_EMPTY comment where required, with a
 # sane PRECISION, STD_ERR / CI / N_OBS / N_POP, the reliability attributes
 # present on every row of a PRODUCER source, and an OBS_STATUS that follows
-# the rules and precedence M O E D U A (D22).
+# the rules and precedence M O E D U A (D22). An intentionally missing
+# OBS_VALUE is written NaN (SDMX-CSV, D39); N_OBS_NUM, DEFF and DF (D33)
+# are checked like N_OBS and N_POP.
 #
 # The legacy exemptions are a property of a row's source (D16): a row
 # whose SOURCE_ID has kind LEGACY_CONVERSION in SOURCES.csv may leave the
@@ -30,7 +32,14 @@
 .VC_NUMERIC_RE <- "^-?[0-9]+(\\.[0-9]+)?$"
 
 # The numeric columns of a data file, checked for plain-decimal form.
-.VC_NUMERIC_COLS <- c("OBS_VALUE", "PRECISION", "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP")
+.VC_NUMERIC_COLS <- c(
+  "OBS_VALUE", "PRECISION", "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP",
+  "N_OBS_NUM", "DEFF", "DF"
+)
+
+# The SDMX-CSV spelling of an intentionally missing OBS_VALUE (D39): the
+# mandatory measure carries NaN exactly when OBS_STATUS is O or M.
+.VC_MISSING <- "NaN"
 
 #' A column as trimmed character ("" for an absent column).
 .vc_col <- function(df, nm) {
@@ -76,7 +85,9 @@
 }
 
 #' VALUE.NUMERIC: a filled numeric cell (OBS_VALUE, PRECISION, STD_ERR,
-#' CI_LOWER, CI_UPPER, N_OBS, N_POP) is not a plain decimal number.
+#' CI_LOWER, CI_UPPER, N_OBS, N_POP, N_OBS_NUM, DEFF, DF) is not a plain
+#' decimal number. `NaN` in OBS_VALUE is the intentionally missing value
+#' (D39) and is not a finding here; VALUE.STATUS_EMPTY ties it to O and M.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -87,7 +98,7 @@ vc_value_numeric <- function(ctx) {
     if (nrow(df) == 0) next
     for (nm in intersect(.VC_NUMERIC_COLS, names(df))) {
       raw <- .vc_col(df, nm)
-      bad <- which(raw != "" & !grepl(.VC_NUMERIC_RE, raw))
+      bad <- which(raw != "" & !grepl(.VC_NUMERIC_RE, raw) & !(nm == "OBS_VALUE" & raw == .VC_MISSING))
       if (length(bad) > 0) {
         out[[length(out) + 1]] <- .vc_rows_finding(
           ctx, key, df, bad, "VALUE.NUMERIC", "ERROR",
@@ -140,8 +151,10 @@ vc_value_range <- function(ctx) {
   .vc_bind(out)
 }
 
-#' VALUE.STATUS_EMPTY: OBS_VALUE is empty exactly when OBS_STATUS is O or
-#' M: empty under any other status, or filled under O or M, is a finding.
+#' VALUE.STATUS_EMPTY: OBS_VALUE is missing exactly when OBS_STATUS is O
+#' or M: NaN or an empty cell under any other status, or a number under O
+#' or M, is a finding. Missing is written NaN in SDMX-CSV (D39); an empty
+#' cell on an O or M row is still accepted as missing.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -151,7 +164,9 @@ vc_value_status_empty <- function(ctx) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0 || !all(c("OBS_VALUE", "OBS_STATUS") %in% names(df))) next
 
-    filled <- .vc_col(df, "OBS_VALUE") != ""
+    raw <- .vc_col(df, "OBS_VALUE")
+    nan <- raw == .VC_MISSING
+    filled <- raw != "" & !nan
     status <- .vc_col(df, "OBS_STATUS")
     empty_status <- status %in% c("O", "M")
 
@@ -161,8 +176,11 @@ vc_value_status_empty <- function(ctx) {
     if (length(bad) > 0) {
       msg <- ifelse(
         bad_empty[bad],
-        paste0("OBS_STATUS '", status[bad], "' requires OBS_VALUE, but it is empty."),
-        paste0("OBS_STATUS '", status[bad], "' requires OBS_VALUE to be empty, but it is filled.")
+        paste0(
+          "OBS_STATUS '", status[bad], "' requires OBS_VALUE, but it is ",
+          ifelse(nan[bad], "NaN.", "empty.")
+        ),
+        paste0("OBS_STATUS '", status[bad], "' requires OBS_VALUE to be NaN, but it is filled.")
       )
       out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, "VALUE.STATUS_EMPTY", "ERROR", msg)
     }
@@ -231,8 +249,9 @@ vc_value_se_ci <- function(ctx) {
   .vc_bind(out)
 }
 
-#' VALUE.N: N_OBS is a non-negative integer and N_POP non-negative where
-#' filled; both are present on every row of a PRODUCER source; N_OBS = 0
+#' VALUE.N: N_OBS, N_OBS_NUM and DF are non-negative integers and N_POP and
+#' DEFF non-negative where filled; N_OBS_NUM <= N_OBS where both are filled;
+#' N_OBS and N_POP are present on every row of a PRODUCER source; N_OBS = 0
 #' implies OBS_STATUS = O. A file with rows of a LEGACY_CONVERSION source
 #' that leave them empty gets one INFO finding noting the exemption.
 #'
@@ -260,6 +279,25 @@ vc_value_n <- function(ctx) {
     )
     bad_pop <- which((producer & n_pop_raw == "") | (!is.na(n_pop) & n_pop < 0))
     zero_not_o <- which(!is.na(n_obs) & n_obs == 0 & .vc_col(df, "OBS_STATUS") != "O")
+
+    # The three measures of D33: N_OBS_NUM and DF non-negative integers,
+    # DEFF non-negative, and N_OBS_NUM <= N_OBS where both are filled.
+    n_num <- .vc_num(df, "N_OBS_NUM")
+    deff <- .vc_num(df, "DEFF")
+    dfree <- .vc_num(df, "DF")
+    not_int <- function(x) !is.na(x) & (x < 0 | x != floor(x))
+    new_msgs <- rep("", nrow(df))
+    addm <- function(hit, m) {
+      new_msgs[hit] <<- paste0(new_msgs[hit], ifelse(new_msgs[hit] == "", "", " "), m)
+    }
+    addm(not_int(n_num), "N_OBS_NUM is not a non-negative integer.")
+    addm(!is.na(deff) & deff < 0, "DEFF is negative.")
+    addm(not_int(dfree), "DF is not a non-negative integer.")
+    addm(!is.na(n_num) & !is.na(n_obs) & n_num > n_obs, "N_OBS_NUM exceeds N_OBS.")
+    bad_new <- which(new_msgs != "")
+    if (length(bad_new) > 0) {
+      out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad_new, "VALUE.N", "ERROR", new_msgs[bad_new])
+    }
 
     if (length(bad_obs) > 0) {
       out[[length(out) + 1]] <- .vc_rows_finding(
@@ -316,7 +354,7 @@ vc_value_se_required <- function(ctx) {
     if (nrow(df) == 0 || !all(c("STD_ERR", "CI_LOWER", "CI_UPPER", "OBS_VALUE") %in% names(df))) next
     producer <- .vc_kind(ctx, df) %in% "PRODUCER"
     admits <- .vc_admits_se(ctx, df)
-    filled <- .vc_col(df, "OBS_VALUE") != ""
+    filled <- !(.vc_col(df, "OBS_VALUE") %in% c("", .VC_MISSING))
     se <- .vc_col(df, "STD_ERR") != ""
     lo <- .vc_col(df, "CI_LOWER") != ""
     hi <- .vc_col(df, "CI_UPPER") != ""

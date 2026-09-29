@@ -598,3 +598,26 @@ test_that("the retired EQUALS_NPOP_RATIO rule is unknown to META.RULES", {
   expect_equal(nrow(res), 1L)
   expect_match(res$message, "unknown rule 'EQUALS_NPOP_RATIO'", fixed = TRUE)
 })
+
+# ---------------------------------------------------------------------------
+# WP4b: NaN is the SDMX-CSV spelling of an intentionally missing OBS_VALUE
+# ---------------------------------------------------------------------------
+
+test_that("a NaN OBS_VALUE on an O row is absent, not a number, to the rules", {
+  fx <- make_rules_root()
+  on.exit(unlink(fx$root, recursive = TRUE))
+  edit_csv(fx$data_path, function(df) {
+    df <- set_consistent_values(df, k = 3)
+    df$OBS_VALUE[1] <- "NaN"
+    df$OBS_STATUS[1] <- "O"
+    df
+  })
+  ctx <- build_ctx(fx$root, data_files = fx$data_path)
+  rows <- .vc_build_rows(ctx)
+  hit <- rows[rows$.obs_status %in% "O", , drop = FALSE]
+  expect_equal(nrow(hit), 1L)
+  expect_true(is.na(hit$.value) && !is.nan(hit$.value))
+  expect_false(hit$.present)
+  res <- run_all_rules(ctx)
+  expect_false(any(grepl("NaN", res$message)))
+})
