@@ -1,11 +1,11 @@
 # pipeline/tests/testthat/test-validate-coverage.R
 #
 # Tests for pipeline/R/validate_coverage.R and pipeline/R/validate_values.R
-# (WP12: coverage and value checks).
+# (coverage and value checks, standard v0.5).
 #
 # helper-data-fixture.R's make_data_fixture() writes a data file's manifest
-# as a LONG 2-column CSV (`key`, `value`, one row per key), matching
-# seeds/csv_headers.csv and ctx.R's build_ctx(). This file's tests use
+# as a LONG 2-column CSV (`key`, `value`, one row per key), as ctx.R's
+# build_ctx() reads it. This file's tests use
 # that manifest as written; set_manifest() below only edits one key of an
 # already long-form manifest.
 
@@ -15,6 +15,7 @@ source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "constants.R"))
 source(file.path(root, "pipeline", "R", "plan.R"))
 source(file.path(root, "pipeline", "R", "ctx.R"))
+source(file.path(root, "pipeline", "R", "manifest.R"))
 source(file.path(root, "pipeline", "R", "validate_coverage.R"))
 source(file.path(root, "pipeline", "R", "validate_values.R"))
 
@@ -46,14 +47,14 @@ set_manifest <- function(data_path, key, value) {
 #'
 #' @return A list with `tmp` (the temp root), `data_path`, `withheld`
 #'   (the withheld_rows() result for this fixture) and `key_cols` (the
-#'   18 key column names, as they appear on `withheld`/`required_rows()`).
+#'   19 key column names, as they appear on `withheld`/`required_rows()`).
 build_clean_gnb_fixture <- function() {
   tmp <- make_temp_root(root)
   data_path <- make_data_fixture(tmp, "GNB", series_ids = c("AGR_CULT_AREA", "CONS_SH.COICOP_CP01"))
 
   meta <- load_metadata(tmp)
   withheld <- withheld_rows(meta, "GNB", "2021")
-  key_cols <- names(withheld)[!(names(withheld) %in% c("series_id", "cut_id"))]
+  key_cols <- names(withheld)[!(names(withheld) %in% c("series_id", "cut_id", "defining_breakdown"))]
 
   df <- read_std_csv(data_path)
   withheld_key <- do.call(paste, c(withheld[key_cols], sep = " "))
@@ -69,8 +70,10 @@ build_clean_gnb_fixture <- function() {
 
 ALL_CHECK_FNS <- list(
   vc_cover_missing, vc_cover_extra, vc_cover_withheld_present,
-  vc_cover_manifest, vc_cover_survey, vc_value_numeric, vc_value_range,
-  vc_value_status_empty, vc_value_legacy_empty, vc_value_se_ci, vc_value_n
+  vc_cover_manifest, vc_cover_survey, vc_cover_file_missing, vc_value_numeric, vc_value_range,
+  vc_value_status_empty, vc_value_legacy_empty, vc_value_se_ci, vc_value_n,
+  vc_value_se_required, vc_value_precision, vc_value_status_model,
+  vc_value_status_deviates, vc_value_status_reliability, vc_value_status_q
 )
 
 #' Bind every vc_* function's findings for one ctx into one data frame.
@@ -78,10 +81,65 @@ run_all_checks <- function(ctx) {
   do.call(rbind, lapply(ALL_CHECK_FNS, function(fn) as.data.frame(fn(ctx))))
 }
 
-#' Drop non-ERROR findings (vc_value_n's per-file INFO row on a
-#' ROUNDED_2DP fixture is expected background noise, not a mutation's
+#' Drop non-ERROR findings (vc_value_n's per-file INFO row on a legacy
+#' (LEGACY_CONVERSION-source) fixture is expected background noise, not a mutation's
 #' effect - see the WP12.A1 test).
 only_errors <- function(findings) findings[findings$severity == "ERROR", , drop = FALSE]
+
+#' Register a PRODUCER source for `ref_area` in the temp root's SOURCES.csv
+#' and make every row of the data file (and its manifest) use it, with
+#' PRECISION emptied (a producer writes unrounded values).
+#'
+#' @return The new source id, invisibly.
+use_producer_source <- function(tmp, data_path, ref_area, source_id = paste0(ref_area, "_EHCVM2021_PROD_v1")) {
+  edit_csv(file.path(tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
+    extra <- s[s$ref_area == ref_area, , drop = FALSE][1, ]
+    extra$source_id <- source_id
+    extra$kind <- "PRODUCER"
+    extra$program <- "producer/estimate.do"
+    extra$inputs <- "EHCVM 2021 microdata"
+    extra$inputs_sha256 <- ""
+    rbind(s, extra)
+  })
+  edit_csv(data_path, function(df) {
+    df$SOURCE_ID <- source_id
+    df$PRECISION <- ""
+    df
+  })
+  set_manifest(data_path, "sources", source_id)
+  invisible(source_id)
+}
+
+#' Fill the reliability attributes of every row with values that pass: 100
+#' records, a population of 1000, and for a statistic that admits a
+#' standard error, STD_ERR 0.01 with a 95% interval around the value.
+fill_reliability <- function(df, meta) {
+  ind <- meta$CL_INDICATOR
+  st <- meta$CL_STATISTIC
+  admits <- st$admits_se[match(ind$statistic[match(df$INDICATOR, ind$code)], st$code)] %in% "Y"
+  filled <- df$OBS_VALUE != ""
+  df$N_OBS <- "100"
+  df$N_POP <- "1000"
+  val <- suppressWarnings(as.numeric(df$OBS_VALUE))
+  df$STD_ERR <- ifelse(admits & filled, "0.01", "")
+  df$CI_LOWER <- ifelse(admits & filled, fmt_num(val - 0.0196), "")
+  df$CI_UPPER <- ifelse(admits & filled, fmt_num(val + 0.0196), "")
+  df
+}
+
+#' A clean SEN fixture (SEN has no withheld cells) for the given series,
+#' estimation and, optionally, a PRODUCER source with reliability filled.
+build_sen_fixture <- function(series_ids, estimation = "SURVEY", producer = FALSE, plan_edit = NULL) {
+  tmp <- make_temp_root(root)
+  if (!is.null(plan_edit)) edit_csv(file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv"), plan_edit)
+  data_path <- make_data_fixture(tmp, "SEN", series_ids = series_ids, estimation = estimation)
+  if (producer) {
+    use_producer_source(tmp, data_path, "SEN")
+    meta <- load_metadata(tmp)
+    edit_csv(data_path, function(df) fill_reliability(df, meta))
+  }
+  list(tmp = tmp, data_path = data_path)
+}
 
 # ---- withheld_rows() (WP12.A3, and the "Withheld cells" rule) -------------
 
@@ -113,8 +171,9 @@ test_that("clean GNB fixture: every check returns zero ERROR findings (WP12.A1)"
   findings <- run_all_checks(ctx)
 
   expect_equal(sum(findings$severity == "ERROR"), 0L)
-  # The fixture's default precision is ROUNDED_2DP (helper-data-fixture.R),
-  # so VALUE.N still gives its one INFO finding noting the exemption.
+  # The fixture's rows come from a LEGACY_CONVERSION source
+  # (helper-data-fixture.R), so VALUE.N gives its one INFO finding noting
+  # the exemption.
   expect_equal(findings$check_id[findings$severity == "INFO"], "VALUE.N")
 })
 
@@ -156,16 +215,12 @@ test_that("a withheld row added back gives COVER.WITHHELD_PRESENT and nothing el
   expect_true(nrow(s$withheld) > 0)
 
   df <- read_std_csv(s$data_path)
-  withheld_row <- s$withheld[1, s$key_cols, drop = FALSE]
+  # The attributes come from a row of the same series already in the file.
+  template <- df[df$SERIES_ID == s$withheld$series_id[1], , drop = FALSE][1, ]
+  withheld_row <- template
+  withheld_row[s$key_cols] <- s$withheld[1, s$key_cols, drop = FALSE]
   withheld_row$OBS_VALUE <- "0.5"
   withheld_row$OBS_STATUS <- "A"
-  withheld_row$STD_ERR <- ""
-  withheld_row$CI_LOWER <- ""
-  withheld_row$CI_UPPER <- ""
-  withheld_row$N_OBS <- ""
-  withheld_row$N_POP <- ""
-  withheld_row$OBS_COMMENT <- ""
-  withheld_row <- withheld_row[names(df)]
   df2 <- rbind(df, withheld_row)
   write_std_csv(df2, s$data_path)
   set_manifest(s$data_path, "n_rows", as.character(nrow(df2)))
@@ -287,14 +342,14 @@ test_that("an O row with an empty comment gives VALUE.LEGACY_EMPTY and nothing e
   expect_match(findings$message, "LEGACY_EMPTY:", fixed = TRUE)
 })
 
-# ---- VALUE.N on an EXACT-precision file ------------------------------------
+# ---- VALUE.N on the rows of a PRODUCER source --------------------------------
 
-test_that("vc_value_n flags EXACT-file N_OBS/N_POP problems, and gives no INFO row", {
+test_that("vc_value_n flags PRODUCER-source N_OBS/N_POP problems, and gives no INFO row", {
   s <- build_clean_gnb_fixture()
-  set_manifest(s$data_path, "precision", "EXACT")
+  use_producer_source(s$tmp, s$data_path, "GNB")
 
   df <- read_std_csv(s$data_path)
-  df$N_OBS <- "10"
+  df$N_OBS <- "100"
   df$N_POP <- "1000"
   df$N_OBS[1] <- ""    # missing
   df$N_POP[2] <- "-5"  # negative
@@ -309,7 +364,7 @@ test_that("vc_value_n flags EXACT-file N_OBS/N_POP problems, and gives no INFO r
   expect_equal(nrow(res), 3L)
 })
 
-test_that("vc_value_n gives one INFO finding per ROUNDED_2DP file, and no ERROR", {
+test_that("vc_value_n gives one INFO finding per legacy-source file, and no ERROR", {
   s <- build_clean_gnb_fixture()
   ctx <- build_ctx(s$tmp, data_files = s$data_path)
   res <- vc_value_n(ctx)
@@ -353,4 +408,266 @@ test_that("more than 20 findings for one check/file are capped, with one SUMMARY
   expect_equal(res$row_key[1:20], sort(res$row_key[1:20]))
   expect_equal(res$row_key[21], "")
   expect_equal(res$message[21], "SUMMARY: 25 findings in total, 20 shown")
+})
+
+# ---- standard v0.5 (WP-C): coverage ----------------------------------------
+
+SEN_SERIES <- c("POV_HC.POVLINE_PL420.PPP_2021", "POV_NUM.POVLINE_PL420.PPP_2021", "HE_PROFIT")
+
+test_that("a NOT_PRODUCED country row removes the series from the required rows", {
+  add_not_produced <- function(df) {
+    extra <- df[df$series_id == "HE_PROFIT", ]
+    extra$ref_area <- "SEN"
+    extra$status <- "NOT_PRODUCED"
+    extra$notes <- "Test: the survey cannot support the series."
+    rbind(df, extra)
+  }
+  # The fixture is built before the country row exists, so it holds the
+  # HE_PROFIT rows; once the series is NOT_PRODUCED they are extra.
+  s <- build_sen_fixture(SEN_SERIES)
+  edit_csv(file.path(s$tmp, "metadata", "plans", "SERIES_PLAN.csv"), add_not_produced)
+  ctx <- build_ctx(s$tmp, data_files = s$data_path)
+  extra <- vc_cover_extra(ctx)
+  expect_true(nrow(extra) > 0)
+  expect_true(all(grepl(" HE_PROFIT ", extra$row_key[extra$row_key != ""])))
+  expect_equal(nrow(vc_cover_missing(ctx)), 0L)
+
+  # Built with the country row in place, the fixture has no HE_PROFIT rows
+  # and is clean.
+  s2 <- build_sen_fixture(SEN_SERIES, plan_edit = add_not_produced)
+  df <- read_std_csv(s2$data_path)
+  expect_false(any(df$INDICATOR == "HE_PROFIT"))
+  findings <- run_all_checks(build_ctx(s2$tmp, data_files = s2$data_path))
+  expect_equal(nrow(only_errors(findings)), 0L)
+})
+
+test_that("a MODEL file requires only the series whose estimation includes MODEL", {
+  both <- function(df) {
+    df$estimation[df$series_id == "POV_HC.POVLINE_PL420.PPP_2021"] <- "SURVEY MODEL"
+    df
+  }
+  s <- build_sen_fixture(SEN_SERIES, estimation = "MODEL", plan_edit = both)
+  df <- read_std_csv(s$data_path)
+  expect_equal(unique(df$SERIES_ID), "POV_HC.POVLINE_PL420.PPP_2021")
+  expect_true(all(df$ESTIMATION == "MODEL"))
+  expect_true(all(df$OBS_STATUS == "E"))
+  findings <- run_all_checks(build_ctx(s$tmp, data_files = s$data_path))
+  expect_equal(nrow(only_errors(findings)), 0L)
+})
+
+test_that("the manifest's estimation and sources are checked against the file", {
+  s <- build_clean_gnb_fixture()
+  set_manifest(s$data_path, "estimation", "MODEL")
+  set_manifest(s$data_path, "sources", "GNB_EHCVM2021_LEGACY_v1 SEN_EHCVM2021_LEGACY_v1")
+  res <- vc_cover_manifest(build_ctx(s$tmp, data_files = s$data_path))
+  expect_setequal(res$row_key, c("key=estimation", "key=sources"))
+  expect_match(res$message[res$row_key == "key=estimation"], "disagrees with the file name's SURVEY", fixed = TRUE)
+  expect_match(res$message[res$row_key == "key=sources"], "SEN_EHCVM2021_LEGACY_v1", fixed = TRUE)
+})
+
+test_that("a manifest missing a 0.2.0 key gives COVER.MANIFEST key=<name>", {
+  s <- build_clean_gnb_fixture()
+  man_path <- manifest_path_for(s$data_path)
+  edit_csv(man_path, function(m) m[m$key != "sources", ])
+  res <- vc_cover_manifest(build_ctx(s$tmp, data_files = s$data_path))
+  expect_equal(res$row_key, "key=sources")
+})
+
+# ---- standard v0.5 (WP-C): values -------------------------------------------
+
+test_that("VALUE.PRECISION: legacy rows need PRECISION, and it must be positive", {
+  s <- build_clean_gnb_fixture()
+  ctx <- build_ctx(s$tmp, data_files = s$data_path)
+  expect_equal(nrow(vc_value_precision(ctx)), 0L)
+
+  df <- read_std_csv(s$data_path)
+  df$PRECISION[1] <- ""
+  df$PRECISION[2] <- "0"
+  write_std_csv(df, s$data_path)
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.PRECISION")
+  expect_equal(nrow(findings), 2L)
+
+  # An empty PRECISION is fine on a PRODUCER row (an exact value).
+  s2 <- build_sen_fixture(SEN_SERIES, producer = TRUE)
+  expect_equal(nrow(vc_value_precision(build_ctx(s2$tmp, data_files = s2$data_path))), 0L)
+})
+
+test_that("PRODUCER rows need their reliability attributes; legacy rows do not", {
+  s <- build_sen_fixture(SEN_SERIES, producer = TRUE)
+  findings <- run_all_checks(build_ctx(s$tmp, data_files = s$data_path))
+  expect_equal(nrow(only_errors(findings)), 0L)
+  expect_false("VALUE.N" %in% findings$check_id) # no legacy exemption INFO either
+
+  df <- read_std_csv(s$data_path)
+  pov <- which(df$INDICATOR == "POV_HC")
+  df$STD_ERR[pov[1]] <- ""  # POV_HC's statistic admits a standard error
+  df$CI_UPPER[pov[2]] <- ""
+  df$N_POP[pov[3]] <- ""
+  write_std_csv(df, s$data_path)
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_setequal(unique(findings$check_id), c("VALUE.SE_REQUIRED", "VALUE.N"))
+  expect_equal(sum(findings$check_id == "VALUE.SE_REQUIRED"), 2L)
+})
+
+test_that("VALUE.LEGACY_EMPTY applies to O rows of a LEGACY_CONVERSION source only", {
+  s <- build_sen_fixture(SEN_SERIES, producer = TRUE)
+  df <- read_std_csv(s$data_path)
+  df$OBS_STATUS[1] <- "O"
+  df$OBS_VALUE[1] <- ""
+  df$STD_ERR[1] <- ""
+  df$CI_LOWER[1] <- ""
+  df$CI_UPPER[1] <- ""
+  df$N_OBS[1] <- "0"
+  write_std_csv(df, s$data_path)
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(nrow(findings), 0L)
+})
+
+test_that("VALUE.STATUS_MODEL: a MODEL file's filled rows are E, and a SURVEY file has no E", {
+  both <- function(df) {
+    df$estimation[df$series_id == "POV_HC.POVLINE_PL420.PPP_2021"] <- "SURVEY MODEL"
+    df
+  }
+  s <- build_sen_fixture(SEN_SERIES, estimation = "MODEL", plan_edit = both)
+  edit_csv(s$data_path, function(df) {
+    df$OBS_STATUS[1] <- "A"
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.STATUS_MODEL")
+  expect_equal(nrow(findings), 1L)
+  expect_match(findings$message, "MODEL file", fixed = TRUE)
+
+  s2 <- build_clean_gnb_fixture()
+  edit_csv(s2$data_path, function(df) {
+    df$OBS_STATUS[1] <- "E"
+    df
+  })
+  findings2 <- only_errors(run_all_checks(build_ctx(s2$tmp, data_files = s2$data_path)))
+  expect_equal(unique(findings2$check_id), "VALUE.STATUS_MODEL")
+  expect_match(findings2$message, "SURVEY file", fixed = TRUE)
+})
+
+test_that("VALUE.STATUS_DEVIATES: D on every row of a DEVIATES series and on no other", {
+  deviates <- function(df) {
+    extra <- df[df$series_id == "HE_PROFIT", ]
+    extra$ref_area <- "SEN"
+    extra$status <- "DEVIATES"
+    extra$notes <- "Test: profit measured before depreciation."
+    rbind(df, extra)
+  }
+  s <- build_sen_fixture(SEN_SERIES, plan_edit = deviates)
+  edit_csv(s$data_path, function(df) {
+    df$OBS_STATUS[df$INDICATOR == "HE_PROFIT"] <- "D"
+    df
+  })
+  ctx <- build_ctx(s$tmp, data_files = s$data_path)
+  expect_equal(nrow(only_errors(run_all_checks(ctx))), 0L)
+
+  edit_csv(s$data_path, function(df) {
+    df$OBS_STATUS[which(df$INDICATOR == "HE_PROFIT")[1]] <- "A" # D missing
+    df$OBS_STATUS[which(df$INDICATOR == "POV_HC")[1]] <- "D"    # D without DEVIATES
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.STATUS_DEVIATES")
+  expect_equal(nrow(findings), 2L)
+  msg <- paste(findings$message, collapse = "\n")
+  expect_match(msg, "expected D", fixed = TRUE)
+  expect_match(msg, "not DEVIATES", fixed = TRUE)
+})
+
+test_that("VALUE.STATUS_RELIABILITY: U is required below 30 records or above CV 0.3, and forbidden otherwise", {
+  s <- build_sen_fixture(SEN_SERIES, producer = TRUE)
+  edit_csv(s$data_path, function(df) {
+    pov <- which(df$INDICATOR == "POV_HC")
+    df$N_OBS[pov[1]] <- "29"; df$OBS_STATUS[pov[1]] <- "U"   # correct U (few records)
+    df$STD_ERR[pov[2]] <- "0.2"                              # CV 0.4 > 0.3
+    df$CI_LOWER[pov[2]] <- "0.1"; df$CI_UPPER[pov[2]] <- "0.9"
+    df$OBS_STATUS[pov[2]] <- "U"                             # correct U (high CV)
+    df
+  })
+  findings <- run_all_checks(build_ctx(s$tmp, data_files = s$data_path))
+  expect_equal(nrow(only_errors(findings)), 0L)
+
+  edit_csv(s$data_path, function(df) {
+    pov <- which(df$INDICATOR == "POV_HC")
+    df$OBS_STATUS[pov[1]] <- "A" # U required, missing
+    df$OBS_STATUS[pov[3]] <- "U" # 100 records, CV 0.02: U forbidden
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.STATUS_RELIABILITY")
+  expect_equal(nrow(findings), 2L)
+  msg <- paste(findings$message, collapse = "\n")
+  expect_match(msg, "N_OBS below 30", fixed = TRUE)
+  expect_match(msg, "breaches neither", fixed = TRUE)
+})
+
+test_that("VALUE.STATUS_RELIABILITY: a row with neither N_OBS nor STD_ERR is never U", {
+  s <- build_clean_gnb_fixture()
+  edit_csv(s$data_path, function(df) {
+    df$OBS_STATUS[1] <- "U"
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.STATUS_RELIABILITY")
+  expect_equal(nrow(findings), 1L)
+})
+
+test_that("a model-based row that would be U is E (precedence M O E D U A)", {
+  both <- function(df) {
+    df$estimation[df$series_id == "POV_HC.POVLINE_PL420.PPP_2021"] <- "SURVEY MODEL"
+    df
+  }
+  s <- build_sen_fixture(SEN_SERIES, estimation = "MODEL", producer = TRUE, plan_edit = both)
+  edit_csv(s$data_path, function(df) {
+    df$N_OBS[1] <- "5" # breaches RELIABILITY_MIN_NOBS, but E takes precedence
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(nrow(findings), 0L)
+})
+
+test_that("VALUE.STATUS_Q: Q is used nowhere", {
+  s <- build_clean_gnb_fixture()
+  edit_csv(s$data_path, function(df) {
+    df$OBS_STATUS[1] <- "Q"
+    df
+  })
+  findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
+  expect_equal(unique(findings$check_id), "VALUE.STATUS_Q")
+  expect_equal(nrow(findings), 1L)
+})
+
+# ---- COVER.FILE_MISSING -------------------------------------------------------
+
+test_that("COVER.FILE_MISSING is silent when every SURVEYS row has its SURVEY file and manifest", {
+  tmp <- make_temp_root(root)
+  ctx <- build_ctx(tmp)
+  expect_equal(nrow(vc_cover_file_missing(ctx)), 0L)
+})
+
+test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for that country", {
+  tmp <- make_temp_root(root)
+  file.remove(file.path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv"))
+  res <- vc_cover_file_missing(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$check_id, "COVER.FILE_MISSING")
+  expect_equal(res$severity, "WARN")
+  expect_equal(res$file, "data/AFW360_HH_SEN_2021_SURVEY.csv")
+  expect_equal(res$row_key, "")
+  expect_false(any(grepl("GNB", res$file)))
+
+  # A missing manifest alone is reported the same way.
+  tmp2 <- make_temp_root(root)
+  file.remove(file.path(tmp2, "data", "AFW360_HH_GNB_2021_SURVEY_manifest.csv"))
+  res2 <- vc_cover_file_missing(build_ctx(tmp2))
+  expect_equal(res2$file, "data/AFW360_HH_GNB_2021_SURVEY.csv")
+  expect_match(res2$message, "_manifest.csv is missing", fixed = TRUE)
+
+  # --metadata-only and an explicit --data selection skip the check.
+  expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(metadata_only = TRUE)))), 0L)
+  expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(data_selected = TRUE)))), 0L)
 })

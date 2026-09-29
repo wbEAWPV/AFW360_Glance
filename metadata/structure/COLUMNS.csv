@@ -1,5 +1,5 @@
 file,position,column,status,description
-DSD_AFW360_HH.csv,1,position,R,"1-26, the data file's column order."
+DSD_AFW360_HH.csv,1,position,R,"1-31, the data file's column order."
 DSD_AFW360_HH.csv,2,id,R,"Column name, exactly as it appears in the data file header."
 DSD_AFW360_HH.csv,3,role,R,"constant, breakdown, reference, qualifier, measure, or attribute."
 DSD_AFW360_HH.csv,4,codelist,C,"The CL_* file that constrains this column, where the column is coded."
@@ -40,6 +40,13 @@ CL_OBS_STATUS.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_OBS_STATUS.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_OBS_STATUS.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_OBS_STATUS.csv,7,notes,O,Free text.
+CL_ESTIMATION.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_ESTIMATION.csv,2,name_en,R,Short English name.
+CL_ESTIMATION.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_ESTIMATION.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_ESTIMATION.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_ESTIMATION.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_ESTIMATION.csv,7,notes,O,Free text.
 CL_THEME.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_THEME.csv,2,name_en,R,Short English name.
 CL_THEME.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -157,8 +164,7 @@ CL_QUALIFIER.csv,7,notes,O,Free text.
 CL_QUALIFIER.csv,8,var_code,R,The CL_QUAL_VAR code this category belongs to.
 CL_QUALIFIER.csv,9,value,C,"The numeric parameter, e.g. 3.00 for POVLINE_PL300."
 CL_QUALIFIER.csv,10,basis,C,What that value is expressed in.
-CL_QUALIFIER.csv,11,valid_with,C,Allowed categories of other qualifier variables; overrides requires (gap n).
-CL_QUALIFIER.csv,12,order,R,Display order.
+CL_QUALIFIER.csv,11,order,R,Display order.
 CL_INDICATOR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_INDICATOR.csv,2,name_en,R,Short English name.
 CL_INDICATOR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -175,27 +181,47 @@ CL_INDICATOR.csv,13,numerator,C,For shares and ratios: the units in the breakdow
 CL_INDICATOR.csv,14,statistic,R,CL_STATISTIC.
 CL_INDICATOR.csv,15,weight,R,CL_WEIGHT.
 CL_INDICATOR.csv,16,ref_period,R,"ISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW; always P12M, never P1Y."
-CL_INDICATOR.csv,17,qualifiers,R,"_Z if none; otherwise space-separated VAR:CODE,CODE entries in qualifier slot_order, e.g. 'POVLINE:POVLINE_PL300,POVLINE_PL420 PPP:PPP_2021'; VAR:* allows every category."
-CL_INDICATOR.csv,18,excluded_breakdowns,O,Breakdown variables or categories outside its universe; must not be produced.
-CL_INDICATOR.csv,19,unit_measure,R,CL_UNIT.
-CL_INDICATOR.csv,20,unit_denom,C,"What the value is per, for levels."
-CL_INDICATOR.csv,21,unit_time,C,"DAY, MONTH, YEAR, for flows."
-CL_INDICATOR.csv,22,price_basis,C,"NOMINAL or DEFLATED, for money."
-CL_INDICATOR.csv,23,price_ref_year,C,Required when price_basis=DEFLATED.
-CL_INDICATOR.csv,24,display_as,R,"PERCENT, NUMBER, THOUSANDS, MILLIONS, CURRENCY."
-CL_INDICATOR.csv,25,decimals,R,Decimals to display.
-CL_INDICATOR.csv,26,valid_min,C,Plausible minimum; empty means unbounded (gap i).
-CL_INDICATOR.csv,27,valid_max,C,Plausible maximum; empty means unbounded (gap i).
-CL_INDICATOR.csv,28,checks,R,"Space-separated tokens from the checks vocabulary in contract.qmd (RANGE_0_1, RANGE_NONNEG, AGG_SUM, AGG_BRACKET, AGG_NPOP_MEAN, SUM_TO_1_OVER:<QUAL_VAR>, SUM_TO_1_OVER_BRK, EQUALS_NPOP_RATIO, MONOTONE_IN:POVLINE, NONE)."
-CL_INDICATOR.csv,29,higher_is,R,"BETTER, WORSE or NEUTRAL: colour direction on maps."
-CL_INDICATOR.csv,30,sdg_indicator,O,"SDG indicator code, if any."
-CL_INDICATOR.csv,31,classification,O,"COICOP2018, ISIC4:A, etc."
-CL_INDICATOR.csv,32,related,O,"Codes of close indicators, space-separated."
-CL_INDICATOR.csv,33,related_note,O,How this indicator differs from the related ones.
-CL_INDICATOR.csv,34,source_questionnaire,R,Survey module or section.
-CL_INDICATOR.csv,35,source_vars,R,Harmonized microdata variables used.
-CL_INDICATOR.csv,36,program,R,Program that computes it.
-CL_INDICATOR.csv,37,owner,R,Team or person responsible.
+CL_INDICATOR.csv,17,excluded_breakdowns,O,Breakdown variables or categories outside its universe; must not be produced.
+CL_INDICATOR.csv,18,unit_measure,R,CL_UNIT.
+CL_INDICATOR.csv,19,unit_denom,C,"What the value is per, for levels."
+CL_INDICATOR.csv,20,unit_time,C,"DAY, MONTH, YEAR, for flows."
+CL_INDICATOR.csv,21,price_basis,C,"NOMINAL or DEFLATED, for money."
+CL_INDICATOR.csv,22,price_ref_year,C,Required when price_basis=DEFLATED.
+CL_INDICATOR.csv,23,display_as,R,"PERCENT, NUMBER, THOUSANDS, MILLIONS, CURRENCY."
+CL_INDICATOR.csv,24,decimals,R,Decimals to display.
+CL_INDICATOR.csv,25,valid_min,C,Plausible minimum; empty means unbounded (gap i).
+CL_INDICATOR.csv,26,valid_max,C,Plausible maximum; empty means unbounded (gap i).
+CL_INDICATOR.csv,27,higher_is,R,"BETTER, WORSE or NEUTRAL: colour direction on maps."
+CL_INDICATOR.csv,28,sdg_indicator,O,"SDG indicator code, if any."
+CL_INDICATOR.csv,29,classification,O,"COICOP2018, ISIC4:A, etc."
+CL_INDICATOR.csv,30,related,O,"Codes of close indicators, space-separated."
+CL_INDICATOR.csv,31,related_note,O,How this indicator differs from the related ones.
+CL_INDICATOR.csv,32,source_questionnaire,R,Survey module or section.
+CL_INDICATOR.csv,33,source_vars,R,Harmonized microdata variables used.
+CL_INDICATOR.csv,34,program,R,Program that computes it.
+CL_INDICATOR.csv,35,owner,R,Team or person responsible.
+RULES.csv,1,rule_id,R,"Unique id of the rule: <scope_code or AFW360_HH>.<rule>[.<param>], e.g. POV_HC.MONOTONE_IN.POVLINE."
+RULES.csv,2,scope,R,"What the rule applies to: DATAFLOW (every row), INDICATOR (every series of one indicator) or SERIES (one series)."
+RULES.csv,3,scope_code,C,The indicator code or series_id the rule applies to; empty when scope is DATAFLOW.
+RULES.csv,4,rule,R,"The rule from the vocabulary: RANGE_0_1, RANGE_NONNEG, AGG_SUM, AGG_NPOP_MEAN, AGG_BRACKET, SUM_TO_1_OVER, SUM_TO_1_OVER_BRK, MONOTONE_IN, RELIABILITY_MIN_NOBS or RELIABILITY_MAX_CV."
+RULES.csv,5,param,C,"The rule's argument: the qualifier variable for SUM_TO_1_OVER and MONOTONE_IN, the threshold for the two RELIABILITY rules; empty otherwise."
+RULES.csv,6,tolerance,O,"Absolute tolerance that overrides the validator's default, computed from each row's PRECISION; empty to use the default."
+RULES.csv,7,severity,R,ERROR (the file fails validation) or WARN (reported only).
+RULES.csv,8,status,R,"DRAFT, ACTIVE or DEPRECATED."
+RULES.csv,9,version_added,R,metadata/VERSION value at which the row was added.
+RULES.csv,10,notes,O,Free text.
+INDICATOR_QUALIFIERS.csv,1,indicator,R,CL_INDICATOR code of the indicator that takes the qualifier variable.
+INDICATOR_QUALIFIERS.csv,2,qual_var,R,CL_QUAL_VAR code of the qualifier variable the indicator takes; one row per indicator and variable.
+INDICATOR_QUALIFIERS.csv,3,allowed,R,"* for any category of the variable, or the space-separated CL_QUALIFIER categories the indicator may use."
+INDICATOR_QUALIFIERS.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+INDICATOR_QUALIFIERS.csv,5,version_added,R,metadata/VERSION value at which the row was added.
+INDICATOR_QUALIFIERS.csv,6,notes,O,Free text.
+QUALIFIER_PAIRS.csv,1,qualifier,R,"CL_QUALIFIER category whose partners are restricted, e.g. POVLINE_PL300."
+QUALIFIER_PAIRS.csv,2,with_var,R,"CL_QUAL_VAR code of the partner qualifier variable, e.g. PPP."
+QUALIFIER_PAIRS.csv,3,allowed,R,"Space-separated categories of with_var that may appear with the qualifier, or _Z when it takes none, which overrides with_var being required."
+QUALIFIER_PAIRS.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+QUALIFIER_PAIRS.csv,5,version_added,R,metadata/VERSION value at which the row was added.
+QUALIFIER_PAIRS.csv,6,notes,O,Free text.
 SURVEYS.csv,1,survey_id,R,e.g. SEN_EHCVM_2021.
 SURVEYS.csv,2,ref_area,R,ISO3.
 SURVEYS.csv,3,time_period,R,4-digit year.
@@ -221,6 +247,20 @@ SURVEYS.csv,22,comparable_with,O,e.g. SEN_EHCVM_2018.
 SURVEYS.csv,23,contact,O,Contact person/team.
 SURVEYS.csv,24,notes,O,Free text.
 SURVEYS.csv,25,status,R,Added per gap resolution g; e.g. DRAFT for GNB_EHCVM_2021 pending producer confirmation of the survey round (D6).
+SOURCES.csv,1,source_id,R,"Unique id of the program run, following the code rules, e.g. SEN_EHCVM2021_LEGACY_v1; a new run gets a higher _v<N>."
+SOURCES.csv,2,kind,R,"LEGACY_CONVERSION for a converter run over a legacy workbook, PRODUCER for a producer's own estimation program."
+SOURCES.csv,3,ref_area,R,CL_AREA code of the country whose rows the run produced.
+SOURCES.csv,4,survey_id,R,"SURVEYS.survey_id of the survey the run is based on, also for a model-based run."
+SOURCES.csv,5,program,R,The program that produced the rows: a repository path or the producer's program name.
+SOURCES.csv,6,program_version,R,Git commit or release of the program at the run.
+SOURCES.csv,7,producer,R,Team or agency that ran the program.
+SOURCES.csv,8,software,R,"Software and version the program ran on, e.g. R 4.5.3 or Stata 18."
+SOURCES.csv,9,run_date,R,ISO 8601 date the program ran.
+SOURCES.csv,10,inputs,R,Space-separated files or datasets the run read.
+SOURCES.csv,11,inputs_sha256,C,"Space-separated SHA-256 checksums of the inputs, in the same order, where they are files in this repository."
+SOURCES.csv,12,status,R,"DRAFT, ACTIVE or DEPRECATED."
+SOURCES.csv,13,version_added,R,metadata/VERSION value at which the row was added.
+SOURCES.csv,14,notes,O,Free text.
 GEO_SOURCES.csv,1,source_id,R,e.g. SEN_CODAB_v02.
 GEO_SOURCES.csv,2,ref_area,R,Country.
 GEO_SOURCES.csv,3,provider,R,Boundary data provider.
@@ -276,9 +316,11 @@ SERIES_PLAN.csv,1,series_id,R,Stable identifier for one indicator x qualifier-se
 SERIES_PLAN.csv,2,ref_area,R,"ISO3, or ALL."
 SERIES_PLAN.csv,3,INDICATOR,R,CL_INDICATOR code.
 SERIES_PLAN.csv,4,MEASURE_QUALS,C,Space-separated CL_QUALIFIER codes for this series; empty if none.
-SERIES_PLAN.csv,5,DEFINING_BREAKDOWN,C,The CL_BRK_VAR category this series is implicitly about (e.g. HE_COUNT_0 for row 53); empty if none.
-SERIES_PLAN.csv,6,status,R,DRAFT or ACTIVE.
-SERIES_PLAN.csv,7,notes,O,"Free text, e.g. provenance of a hard-case decision (H-number)."
+SERIES_PLAN.csv,5,DEFINING_BREAKDOWN,C,"For a share series, the CL_COMP_BREAKDOWN category it is a share of (e.g. EMP_SECTOR_AGR for POP_SH.EMP_SECTOR_AGR); empty otherwise."
+SERIES_PLAN.csv,6,name_en,R,"Display name of the series for charts and reports, composed from the indicator's short_name_en and the qualifier and category names; a human may overwrite it."
+SERIES_PLAN.csv,7,estimation,R,"File kinds in which the series is expected: SURVEY, MODEL, or both, space-separated (CL_ESTIMATION)."
+SERIES_PLAN.csv,8,status,R,"DRAFT, ACTIVE, NOT_PRODUCED or DEVIATES; the last two only on a row for a specific ref_area, with notes, overriding the ALL row for the same series_id."
+SERIES_PLAN.csv,9,notes,O,"Free text, e.g. provenance of a hard-case decision (H-number)."
 LEGACY_LABELS.csv,1,legacy_label,R,Free-text indicator label exactly as it appears in the workbook's indicator column.
 LEGACY_LABELS.csv,2,sheet,R,"National, ADM 1, ZAE, Departement, or * for National+ADM 1+ZAE."
 LEGACY_LABELS.csv,3,action,R,"MAP, DUPLICATE_OF, DERIVED, or SKIP."

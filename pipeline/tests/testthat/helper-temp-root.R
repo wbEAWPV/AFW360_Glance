@@ -29,6 +29,10 @@ find_root <- function() {
 # write_std_csv().
 source(file.path(find_root(), "pipeline", "R", "io.R"))
 
+# The validator modules' shared findings helpers (.vc_finding, .vc_bind, ...),
+# which every test that sources a validate_*.R module on its own needs.
+source(file.path(find_root(), "pipeline", "R", "validate_common.R"))
+
 #' Copy an existing root's top-level folders into a fresh temp directory.
 #'
 #' @param root Source repo root.

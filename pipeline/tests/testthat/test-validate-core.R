@@ -18,9 +18,12 @@ source(file.path(.root, "pipeline", "R", "constants.R"))
 source(file.path(.root, "pipeline", "R", "codes.R"))
 source(file.path(.root, "pipeline", "R", "ctx.R"))
 source(file.path(.root, "pipeline", "R", "plan.R"))
+source(file.path(.root, "pipeline", "R", "manifest.R"))
+source(file.path(.root, "pipeline", "R", "docs.R"))
 source(file.path(.root, "pipeline", "R", "validate_structure.R"))
 source(file.path(.root, "pipeline", "R", "validate_codes.R"))
 source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
+source(file.path(.root, "pipeline", "R", "validate_docs.R"))
 
 # ---- local test helpers -----------------------------------------------
 
@@ -48,6 +51,13 @@ source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
   tmp <- if (is.null(include)) make_temp_root(.root) else make_temp_root(.root, include = include)
   keep_ids <- c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0", "CONS_SH.COICOP_CP01")
   dp <- make_data_fixture(tmp, "GNB", series_ids = keep_ids)
+  # A copied data/ folder also holds the real SEN file, which the trimmed
+  # SERIES_PLAN no longer describes; keep only the fixture and its manifest.
+  others <- setdiff(
+    list.files(file.path(tmp, "data"), full.names = TRUE),
+    c(dp, sub("\\.csv$", "_manifest.csv", dp))
+  )
+  unlink(others)
   edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
     df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
   })
@@ -208,11 +218,11 @@ test_that("SEX = _T on a row of an HH indicator gives CODES.SEX_AGE_UNIT", {
   expect_equal(.error_ids(findings), "CODES.SEX_AGE_UNIT")
 })
 
-test_that("MEASURE_QUAL_2 of a POVLINE_PL420 row set to PPP_2017 gives CODES.VALID_WITH", {
+test_that("MEASURE_QUAL_2 of a POVLINE_PL420 row set to PPP_2017 gives CODES.QUAL_PAIRS", {
   fx <- .small_fixture()
   # Also set COMP_BREAKDOWN_1 to POOR_Y so the row is granted PPP/POVLINE
-  # via CL_BRK_VAR.requires_qual, isolating VALID_WITH from QUAL_DECLARED
-  # (POV_HC's own `qualifiers` field declares only PPP_2021).
+  # via CL_BRK_VAR.requires_qual, isolating QUAL_PAIRS from QUAL_DECLARED
+  # (INDICATOR_QUALIFIERS.csv declares only PPP_2021 for POV_HC).
   edit_csv(fx$data_path, function(df) {
     idx <- which(
       df$INDICATOR == "POV_HC" & df$MEASURE_QUAL_1 == "POVLINE_PL420" &
@@ -224,7 +234,9 @@ test_that("MEASURE_QUAL_2 of a POVLINE_PL420 row set to PPP_2017 gives CODES.VAL
   })
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   findings <- .run_all_checks(ctx)
-  expect_equal(.error_ids(findings), "CODES.VALID_WITH")
+  # The row no longer matches its SERIES_ID's qualifiers either, which
+  # CODES.SERIES_ID reports on its own.
+  expect_equal(.error_ids(findings), c("CODES.QUAL_PAIRS", "CODES.SERIES_ID"))
 })
 
 test_that("COICOP_CP01 added to a POV_HC row gives CODES.QUAL_DECLARED", {
@@ -239,7 +251,9 @@ test_that("COICOP_CP01 added to a POV_HC row gives CODES.QUAL_DECLARED", {
   })
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   findings <- .run_all_checks(ctx)
-  expect_equal(.error_ids(findings), "CODES.QUAL_DECLARED")
+  # The row no longer matches its SERIES_ID's qualifiers either, which
+  # CODES.SERIES_ID reports on its own.
+  expect_equal(.error_ids(findings), c("CODES.QUAL_DECLARED", "CODES.SERIES_ID"))
 })
 
 # ---- extra coverage for the checks not in the WP11.A2 table ------------
@@ -414,4 +428,349 @@ test_that("validate.R --metadata-only on the real metadata has no unexplained ER
   unexplained <- errors[!(errors$check_id == "META.REQUIRED" &
     errors$file == "metadata/plans/LEGACY_LABELS.csv"), ]
   expect_equal(nrow(unexplained), 0)
+})
+
+# ---- standard v0.5 (WP-C): structure ---------------------------------------
+
+test_that("the fixture has the 31 DSD columns and a 19-column key", {
+  fx <- .small_fixture()
+  df <- read_std_csv(fx$data_path)
+  expect_equal(ncol(df), 31L)
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(length(ctx_key_columns(ctx)), 19L)
+  expect_equal(nrow(vc_struct_header(ctx)), 0L)
+  expect_equal(nrow(vc_struct_file_name(ctx)), 0L)
+})
+
+test_that("a row whose ESTIMATION differs from the file name gives STRUCT.FILE_NAME", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$ESTIMATION[1] <- "MODEL" # a valid CL_ESTIMATION code, but not the file's
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_struct_file_name(ctx)
+  expect_true(nrow(res) >= 1)
+  expect_true(all(res$check_id == "STRUCT.FILE_NAME"))
+  expect_true(any(grepl("ESTIMATION 'MODEL' differs from the file name's 'SURVEY'", res$message)))
+  expect_true(any(grepl("differs from the manifest's 'SURVEY'", res$message)))
+})
+
+test_that("a data file named without its ESTIMATION gives STRUCT.FILE_NAME", {
+  fx <- .small_fixture()
+  old_stem <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2021_SURVEY")
+  new_stem <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2021")
+  file.rename(paste0(old_stem, ".csv"), paste0(new_stem, ".csv"))
+  file.rename(paste0(old_stem, "_manifest.csv"), paste0(new_stem, "_manifest.csv"))
+  ctx <- build_ctx(fx$tmp, data_files = paste0(new_stem, ".csv"))
+  res <- vc_struct_file_name(ctx)
+  expect_true(any(res$check_id == "STRUCT.FILE_NAME" & res$row_key == ""))
+})
+
+test_that("an ESTIMATION that is not in CL_ESTIMATION gives CODES.UNKNOWN", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$ESTIMATION[1] <- "NOWCAST"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_unknown(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_match(res$message, "ESTIMATION=NOWCAST", fixed = TRUE)
+})
+
+# ---- codes: SERIES_ID, UNIT_MEASURE, SOURCE_ID, pairs ------------------------
+
+test_that("CODES.SERIES_ID passes on the fixture and flags an unknown or mismatched SERIES_ID", {
+  fx <- .small_fixture()
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(nrow(vc_codes_series_id(ctx)), 0L)
+
+  edit_csv(fx$data_path, function(df) {
+    pov <- which(df$INDICATOR == "POV_HC")
+    df$SERIES_ID[pov[1]] <- "NOT_A_SERIES"
+    df$SERIES_ID[pov[2]] <- "CONS_SH.COICOP_CP01" # exists, but a different indicator and qualifiers
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  findings <- .run_all_checks(ctx)
+  expect_equal(.error_ids(findings), "CODES.SERIES_ID")
+  res <- findings[findings$check_id == "CODES.SERIES_ID", ]
+  expect_equal(nrow(res), 2L)
+  expect_true(any(grepl("NOT_A_SERIES is not in SERIES_PLAN.csv", res$message, fixed = TRUE)))
+  expect_true(any(grepl("INDICATOR POV_HC but the plan says CONS_SH", res$message, fixed = TRUE)))
+})
+
+test_that("CODES.SERIES_ID flags a share row whose defining category is missing", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$SERIES_ID == "POP_HH_SH.HE_COUNT_0" & df$COMP_BREAKDOWN_1 == "HE_COUNT_0")[1]
+    df$COMP_BREAKDOWN_1[idx] <- "HE_COUNT_1" # the row now claims another category
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_series_id(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_match(res$message, "defining category HE_COUNT_0", fixed = TRUE)
+})
+
+test_that("UNIT_MEASURE of an LCU indicator is the country's currency; LCU or another unit gives CODES.UNIT", {
+  tmp <- make_temp_root(.root)
+  dp <- make_data_fixture(tmp, "GNB", series_ids = c("HE_PROFIT", "POV_HC.POVLINE_PL420.PPP_2021"))
+  df <- read_std_csv(dp)
+  expect_true(all(df$UNIT_MEASURE[df$INDICATOR == "HE_PROFIT"] == "XOF"))
+  expect_true(all(df$UNIT_MEASURE[df$INDICATOR == "POV_HC"] == "SHARE"))
+  ctx <- build_ctx(tmp, data_files = dp)
+  expect_equal(nrow(vc_codes_unit(ctx)), 0L)
+
+  edit_csv(dp, function(df) {
+    hp <- which(df$INDICATOR == "HE_PROFIT")
+    df$UNIT_MEASURE[hp[1]] <- "LCU"   # the dictionary's placeholder, not resolved
+    df$UNIT_MEASURE[hp[2]] <- "XAF"   # a currency, but not GNB's
+    df$UNIT_MEASURE[which(df$INDICATOR == "POV_HC")[1]] <- "PERSON"
+    df
+  })
+  ctx <- build_ctx(tmp, data_files = dp)
+  res <- vc_codes_unit(ctx)
+  expect_equal(nrow(res), 3L)
+  expect_true(all(res$check_id == "CODES.UNIT"))
+  expect_true(any(grepl("'LCU' differs from 'XOF'", res$message, fixed = TRUE)))
+  expect_true(any(grepl("'PERSON' differs from 'SHARE'", res$message, fixed = TRUE)))
+})
+
+test_that("CODES.SOURCE_ID flags an unknown source, a source of another country and one missing from the manifest", {
+  fx <- .small_fixture()
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(nrow(vc_codes_source_id(ctx)), 0L)
+
+  # A second GNB source, registered in SOURCES.csv but not in the manifest.
+  edit_csv(file.path(fx$tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
+    extra <- s[s$source_id == "GNB_EHCVM2021_LEGACY_v1", ]
+    extra$source_id <- "GNB_EHCVM2021_LEGACY_v2"
+    rbind(s, extra)
+  })
+  edit_csv(fx$data_path, function(df) {
+    df$SOURCE_ID[1] <- "NO_SUCH_SOURCE_v1"
+    df$SOURCE_ID[2] <- "SEN_EHCVM2021_LEGACY_v1"
+    df$SOURCE_ID[3] <- "GNB_EHCVM2021_LEGACY_v2"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_source_id(ctx)
+  expect_true(all(res$check_id == "CODES.SOURCE_ID"))
+  expect_true(any(grepl("NO_SUCH_SOURCE_v1 is not in SOURCES.csv", res$message, fixed = TRUE)))
+  expect_true(any(grepl("SEN_EHCVM2021_LEGACY_v1 belongs to ref_area SEN, not GNB", res$message, fixed = TRUE)))
+  expect_true(any(res$row_key == "SOURCE_ID=GNB_EHCVM2021_LEGACY_v2"))
+
+  # Listing the new sources in the manifest clears the manifest finding.
+  man_path <- sub("\\.csv$", "_manifest.csv", fx$data_path)
+  edit_csv(man_path, function(m) {
+    m$value[m$key == "sources"] <- paste(
+      "GNB_EHCVM2021_LEGACY_v1 GNB_EHCVM2021_LEGACY_v2 NO_SUCH_SOURCE_v1 SEN_EHCVM2021_LEGACY_v1"
+    )
+    m
+  })
+  res2 <- vc_codes_source_id(build_ctx(fx$tmp, data_files = fx$data_path))
+  expect_false(any(grepl("^SOURCE_ID=", res2$row_key)))
+})
+
+test_that("QUALIFIER_PAIRS' _Z overrides CL_QUAL_VAR.requires: POVLINE_NPL passes without PPP and fails with it", {
+  fx <- .small_fixture()
+  # POOR_Y requires POVLINE and PPP (CL_BRK_VAR.requires_qual), so the row is
+  # granted both variables and QUAL_DECLARED stays quiet.
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$INDICATOR == "POV_HC" & df$COMP_BREAKDOWN_1 == "_T")[1:2]
+    df$COMP_BREAKDOWN_1[idx] <- "POOR_Y"
+    df$MEASURE_QUAL_1[idx] <- "POVLINE_NPL"
+    df$MEASURE_QUAL_2[idx[1]] <- "_Z"      # NPL takes no PPP: passes
+    df$MEASURE_QUAL_2[idx[2]] <- "PPP_2021" # NPL with a PPP round: fails
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_qual_pairs(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_match(res$row_key, "POVLINE_NPL PPP_2021", fixed = TRUE)
+  expect_match(res$message, "POVLINE_NPL takes no PPP", fixed = TRUE)
+})
+
+test_that("a qualifier declared nowhere and dropped from INDICATOR_QUALIFIERS.csv gives CODES.QUAL_DECLARED", {
+  fx <- .small_fixture()
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(nrow(vc_codes_qual_declared(ctx)), 0L)
+  edit_csv(file.path(fx$tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
+    df[!(df$indicator == "POV_HC" & df$qual_var == "PPP"), ]
+  })
+  res <- vc_codes_qual_declared(build_ctx(fx$tmp, data_files = fx$data_path))
+  expect_true(nrow(res) > 0)
+  # The module caps its findings (validate_common.R), so skip a SUMMARY row.
+  real <- res[!grepl("^SUMMARY: ", res$message), ]
+  expect_true(all(grepl("PPP_2021", real$message)))
+})
+
+# ---- metadata: code syntax, RULES, relations, SERIES_PLAN, SOURCES ---------
+
+test_that("a codelist code starting with '_' gives META.CODE_SYNTAX", {
+  tmp <- make_temp_root(.root)
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
+    df$code[df$code == "INEQ"] <- "_X"
+    df
+  })
+  findings <- .run_all_checks(build_ctx(tmp))
+  expect_equal(.error_ids(findings), "META.CODE_SYNTAX")
+  hit <- findings[findings$check_id == "META.CODE_SYNTAX", ]
+  expect_match(hit$message, "starts with '_'", fixed = TRUE)
+})
+
+test_that("the real RULES.csv passes META.RULES, and each malformed row fails it", {
+  tmp <- make_temp_root(.root)
+  expect_equal(nrow(vc_meta_rules(build_ctx(tmp))), 0L)
+
+  path <- file.path(tmp, "metadata", "rules", "RULES.csv")
+  edit_csv(path, function(df) {
+    df$rule[df$rule_id == "POV_HC.RANGE_0_1"] <- "RANGE_0_2"           # unknown rule
+    df$scope_code[df$rule_id == "CONS_SH.RANGE_0_1"] <- "NO_SUCH_IND"  # unresolved scope_code
+    df$param[df$rule_id == "POV_HC.MONOTONE_IN.POVLINE"] <- ""         # a missing param
+    df$severity[df$rule_id == "POV_NUM.AGG_SUM"] <- "FATAL"            # unknown severity
+    df[df$rule != "RELIABILITY_MAX_CV", ]                              # a missing threshold
+  })
+  res <- vc_meta_rules(build_ctx(tmp))
+  expect_true(all(res$check_id == "META.RULES"))
+  expect_true(any(res$row_key == "rule_id=POV_HC.RANGE_0_1" & grepl("unknown rule", res$message)))
+  expect_true(any(res$row_key == "rule_id=CONS_SH.RANGE_0_1" & grepl("not a CL_INDICATOR code", res$message)))
+  expect_true(any(res$row_key == "rule_id=POV_HC.MONOTONE_IN.POVLINE" & grepl("param", res$message)))
+  expect_true(any(res$row_key == "rule_id=POV_NUM.AGG_SUM" & grepl("severity", res$message)))
+  expect_true(any(grepl("RELIABILITY_MAX_CV must exist exactly once", res$message)))
+})
+
+test_that("INDICATOR_QUALIFIERS.csv and QUALIFIER_PAIRS.csv rows with foreign categories fail their META checks", {
+  tmp <- make_temp_root(.root)
+  ctx <- build_ctx(tmp)
+  expect_equal(nrow(vc_meta_indicator_qualifiers(ctx)), 0L)
+  expect_equal(nrow(vc_meta_qualifier_pairs(ctx)), 0L)
+
+  edit_csv(file.path(tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
+    df$allowed[df$indicator == "POV_HC" & df$qual_var == "POVLINE"] <- "POVLINE_PL300 PPP_2021"
+    df
+  })
+  edit_csv(file.path(tmp, "metadata", "structure", "QUALIFIER_PAIRS.csv"), function(df) {
+    df$allowed[df$qualifier == "POVLINE_PL300"] <- "POVLINE_PL420"
+    df
+  })
+  ctx <- build_ctx(tmp)
+  iq <- vc_meta_indicator_qualifiers(ctx)
+  expect_equal(nrow(iq), 1L)
+  expect_match(iq$message, "PPP_2021", fixed = TRUE)
+  qp <- vc_meta_qualifier_pairs(ctx)
+  expect_equal(nrow(qp), 1L)
+  expect_match(qp$message, "not PPP categories: POVLINE_PL420", fixed = TRUE)
+})
+
+test_that("META.SERIES_PLAN accepts a NOT_PRODUCED country row with notes and rejects the malformed ones", {
+  tmp <- make_temp_root(.root)
+  path <- file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
+  expect_equal(nrow(vc_meta_series_plan(build_ctx(tmp))), 0L)
+
+  edit_csv(path, function(df) {
+    ok <- df[df$series_id == "AGR_TLU", ]
+    ok$ref_area <- "GNB"
+    ok$status <- "NOT_PRODUCED"
+    ok$notes <- "No livestock module."
+    rbind(df, ok)
+  })
+  expect_equal(nrow(vc_meta_series_plan(build_ctx(tmp))), 0L)
+
+  edit_csv(path, function(df) {
+    no_notes <- df[df$series_id == "AGR_CULTIVATES" & df$ref_area == "ALL", ]
+    no_notes$ref_area <- "SEN"
+    no_notes$status <- "DEVIATES"
+    orphan <- df[df$series_id == "AGR_CULTIVATES" & df$ref_area == "ALL", ]
+    orphan$series_id <- "AGR_CULTIVATES.X"
+    orphan$ref_area <- "SEN"
+    df$status[df$series_id == "HE_AGE"] <- "DEVIATES"          # on the ALL row
+    df$estimation[df$series_id == "HE_ELEC"] <- "NOWCAST"      # unknown estimation
+    df$series_id[df$series_id == "HE_RENT"] <- "HE_RENT_X"     # id != composition
+    rbind(df, no_notes, orphan)
+  })
+  res <- vc_meta_series_plan(build_ctx(tmp))
+  expect_true(all(res$check_id == "META.SERIES_PLAN"))
+  msg <- paste(res$message, collapse = "\n")
+  expect_match(msg, "status DEVIATES requires notes", fixed = TRUE)
+  expect_match(msg, "country row has no ALL row", fixed = TRUE)
+  expect_match(msg, "allowed only on a row for a specific ref_area", fixed = TRUE)
+  expect_match(msg, "estimation has unknown code(s): NOWCAST", fixed = TRUE)
+  expect_match(msg, "series_id should be 'HE_RENT'", fixed = TRUE)
+})
+
+test_that("META.SOURCES checks kind and the checksum of an input file under the root", {
+  tmp <- make_temp_root(.root)
+  path <- file.path(tmp, "metadata", "registries", "SOURCES.csv")
+  version_sha <- sha256_file(file.path(tmp, "metadata", "VERSION"))
+  edit_csv(path, function(df) {
+    df$inputs[1] <- "metadata/VERSION"
+    df$inputs_sha256[1] <- version_sha
+    df
+  })
+  expect_equal(nrow(vc_meta_sources(build_ctx(tmp))), 0L)
+
+  edit_csv(path, function(df) {
+    df$inputs_sha256[1] <- paste(rep("0", 64), collapse = "")
+    df$kind[2] <- "SCRAPER"
+    df
+  })
+  res <- vc_meta_sources(build_ctx(tmp))
+  expect_equal(nrow(res), 2L)
+  msg <- paste(res$message, collapse = "\n")
+  expect_match(msg, "inputs_sha256 of metadata/VERSION does not match", fixed = TRUE)
+  expect_match(msg, "kind 'SCRAPER'", fixed = TRUE)
+})
+
+test_that("the real SOURCES.csv inputs_sha256 match data_raw/", {
+  ctx <- build_ctx(.root)
+  expect_equal(nrow(vc_meta_sources(ctx)), 0L)
+})
+
+# ---- documentation module ---------------------------------------------------
+
+test_that("the DOCS module passes on current fragments and reports a stale one", {
+  tmp <- make_temp_root(.root, include = c("metadata", "content", ".docs"))
+  expect_equal(nrow(vc_docs_fragments(build_ctx(tmp))), 0L)
+
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_OBS_STATUS.csv"), function(df) {
+    df$name_en[df$code == "U"] <- "Unreliable"
+    df
+  })
+  res <- vc_docs_fragments(build_ctx(tmp))
+  expect_true(nrow(res) >= 1)
+  expect_true(all(res$severity == "ERROR"))
+  expect_true(any(res$check_id == "DOCS.FRAGMENT_STALE" & res$file == ".docs/generated/tbl-obs-status.md"))
+})
+
+test_that("the DOCS module gives one INFO when the root has no standard", {
+  tmp <- make_temp_root(.root, include = "metadata")
+  res <- vc_docs_fragments(build_ctx(tmp))
+  expect_equal(res$check_id, "DOCS.SKIPPED")
+  expect_equal(res$severity, "INFO")
+})
+
+# ---- determinism of the findings file ------------------------------------------
+
+test_that("two validator runs on the same fixture give identical findings", {
+  fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
+  run <- function(out) {
+    suppressWarnings(system2(
+      "Rscript",
+      c(shQuote(file.path(fx$tmp, "pipeline", "validate.R")), "--root", shQuote(fx$tmp), "--out", shQuote(out)),
+      stdout = TRUE, stderr = TRUE
+    ))
+    read_std_csv(out)
+  }
+  a <- run(file.path(fx$tmp, "findings-a.csv"))
+  b <- run(file.path(fx$tmp, "findings-b.csv"))
+  expect_true(nrow(a) > 0)
+  expect_identical(as.data.frame(a), as.data.frame(b))
+  bytes <- function(p) readBin(p, "raw", file.info(p)$size)
+  expect_identical(bytes(file.path(fx$tmp, "findings-a.csv")), bytes(file.path(fx$tmp, "findings-b.csv")))
+  # The rows are in radix (C-locale) order of check_id, file, row_key.
+  ord <- order(a$check_id, a$file, a$row_key, method = "radix")
+  expect_equal(ord, seq_len(nrow(a)))
 })

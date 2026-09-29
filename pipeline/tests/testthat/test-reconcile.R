@@ -1,6 +1,6 @@
 # pipeline/tests/testthat/test-reconcile.R
 #
-# WP16 - Independent reconciliation tool. Builds data files straight from
+# WP16 - Independent reconciliation tool (DSD 0.2.0). Builds data files straight from
 # expected_rows() (never from the converter), checks the tool reports
 # PASS, then mutates one thing at a time to check the comparison logic.
 # The verifier checks expected_rows() itself against the raw workbook by
@@ -12,15 +12,27 @@ source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "reconcile.R"))
 
 .key_cols <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",
-  "URBANISATION", paste0("COMP_BREAKDOWN_", 1:5), paste0("MEASURE_QUAL_", 1:5)
+  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "ESTIMATION", "INDICATOR",
+  "SEX", "AGE", "URBANISATION", paste0("COMP_BREAKDOWN_", 1:5),
+  paste0("MEASURE_QUAL_", 1:5)
 )
+# The 31 DSD 0.2.0 columns, in order (metadata/structure/DSD_AFW360_HH.csv).
 .dsd_cols <- c(
-  .key_cols, "OBS_VALUE", "OBS_STATUS", "STD_ERR", "CI_LOWER", "CI_UPPER",
-  "N_OBS", "N_POP", "OBS_COMMENT"
+  .key_cols, "SERIES_ID", "OBS_VALUE", "UNIT_MEASURE", "PRECISION", "OBS_STATUS",
+  "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP", "SOURCE_ID", "OBS_COMMENT"
 )
 
-#' Write data/AFW360_HH_<ref_area>_<time_period>.csv under `tmp`, straight
+test_that("the fixture column list is the DSD", {
+  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  expect_equal(.dsd_cols, dsd$id[order(as.integer(dsd$position))])
+})
+
+#' The fixture data file path for a country.
+.data_path <- function(tmp, ra, tp) {
+  file.path(tmp, "data", paste0("AFW360_HH_", ra, "_", tp, "_SURVEY.csv"))
+}
+
+#' Write data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv under `tmp`, straight
 #' from `erows` (the output of expected_rows()), one file per country,
 #' one row per *converted* cell (withheld cells are correctly absent).
 #'
@@ -32,17 +44,21 @@ source(file.path(root, "pipeline", "R", "reconcile.R"))
   for (ra in sort(unique(erows$ref_area))) {
     sub <- erows[erows$ref_area == ra & erows$class == "converted", ]
     data <- sub[.key_cols]
+    data$SERIES_ID <- sub$SERIES_ID
     data$OBS_VALUE <- sub$OBS_VALUE
+    data$UNIT_MEASURE <- "SHARE"
+    data$PRECISION <- sub$PRECISION
     data$OBS_STATUS <- sub$OBS_STATUS
     data$STD_ERR <- ""
     data$CI_LOWER <- ""
     data$CI_UPPER <- ""
     data$N_OBS <- ""
     data$N_POP <- ""
+    data$SOURCE_ID <- paste0(ra, "_TEST_LEGACY_v1")
     data$OBS_COMMENT <- sub$OBS_COMMENT_EXPECTED
     data <- data[.dsd_cols]
     tp <- surveys$time_period[surveys$ref_area == ra]
-    path <- file.path(tmp, "data", paste0("AFW360_HH_", ra, "_", tp, ".csv"))
+    path <- .data_path(tmp, ra, tp)
     write_std_csv(data, path)
     paths[[ra]] <- path
   }
@@ -119,6 +135,42 @@ test_that("a changed value gives MISMATCH", {
   expect_false(all(res$report_rows$result == "OK"))
 })
 
+test_that("expected_rows() carries ESTIMATION, SERIES_ID and PRECISION", {
+  erows <- expected_rows(root)
+  expect_true(all(erows$ESTIMATION == "SURVEY"))
+  expect_true(all(erows$SERIES_ID != ""))
+  expect_setequal(unique(erows$PRECISION), c("0.01", "10000"))
+  expect_true(all(erows$PRECISION[erows$scale == "1000000"] == "10000"))
+  expect_equal(lengths(strsplit(erows$row_key[1], "|", fixed = TRUE)), 19L)
+})
+
+test_that("a wrong SERIES_ID gives MISMATCH", {
+  fx <- .new_fixture()
+  on.exit(unlink(fx$tmp, recursive = TRUE), add = TRUE)
+
+  edit_csv(fx$paths[["SEN"]], function(df) {
+    df$SERIES_ID[1] <- "NOT_THE_SERIES"
+    df
+  })
+
+  res <- reconcile(fx$tmp)
+  expect_equal(sum(res$report_rows$result == "MISMATCH"), 1)
+})
+
+test_that("a wrong PRECISION gives MISMATCH, also on an O row", {
+  fx <- .new_fixture()
+  on.exit(unlink(fx$tmp, recursive = TRUE), add = TRUE)
+
+  edit_csv(fx$paths[["GNB"]], function(df) {
+    i <- which(df$OBS_STATUS == "O")[1]
+    df$PRECISION[i] <- ""
+    df
+  })
+
+  res <- reconcile(fx$tmp)
+  expect_equal(sum(res$report_rows$result == "MISMATCH"), 1)
+})
+
 test_that("a deleted row gives MISSING_ROW", {
   fx <- .new_fixture()
   on.exit(unlink(fx$tmp, recursive = TRUE), add = TRUE)
@@ -149,13 +201,17 @@ test_that("a row added for a withheld cell gives WITHHELD_PRESENT", {
   new_row <- data.frame(as.list(stats::setNames(
     strsplit(withheld$row_key, "|", fixed = TRUE)[[1]], .key_cols
   )), stringsAsFactors = FALSE)
+  new_row$SERIES_ID <- withheld$SERIES_ID
   new_row$OBS_VALUE <- "0.5"
+  new_row$UNIT_MEASURE <- "SHARE"
+  new_row$PRECISION <- withheld$PRECISION
   new_row$OBS_STATUS <- "A"
   new_row$STD_ERR <- ""
   new_row$CI_LOWER <- ""
   new_row$CI_UPPER <- ""
   new_row$N_OBS <- ""
   new_row$N_POP <- ""
+  new_row$SOURCE_ID <- "GNB_TEST_LEGACY_v1"
   new_row$OBS_COMMENT <- ""
   new_row <- new_row[.dsd_cols]
 
@@ -213,6 +269,13 @@ test_that("neither pipeline/reconcile.R nor pipeline/R/reconcile.R refers to the
   for (pattern in forbidden) {
     expect_false(any(grepl(pattern, code, fixed = TRUE)), info = pattern)
   }
+})
+
+test_that("reconcile() passes on the committed data files", {
+  res <- reconcile(root)
+  expect_length(res$missing_files, 0)
+  expect_true(all(res$report_rows$result == "OK"))
+  expect_equal(nrow(res$orphans), 0)
 })
 
 test_that("the CLI exits 0 and writes a PASS report on matching fixture data", {

@@ -35,7 +35,7 @@ website:
         aria-label: "Source repository on GitHub"
   page-footer:
     left: "© 2026 World Bank Group"
-    center: "AFW 360 data standard · draft v0.4"
+    center: "AFW 360 data standard · draft v0.5"
     right: "[Source](https://github.com/wbEAWPV/AFW360_Glance)"
 
 format:

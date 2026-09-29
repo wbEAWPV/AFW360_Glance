@@ -48,7 +48,7 @@
     return(df)
   }
   capped <- lapply(split(df, df$file), function(sub) {
-    sub <- sub[order(sub$row_key), , drop = FALSE]
+    sub <- sub[order(sub$row_key, method = "radix"), , drop = FALSE]
     if (nrow(sub) > 20) {
       kept <- sub[seq_len(20), , drop = FALSE]
       summary_row <- .tf_finding(
@@ -61,7 +61,7 @@
     }
   })
   out <- dplyr::bind_rows(capped)
-  out[order(out$file, out$row_key), , drop = FALSE]
+  out[order(out$file, out$row_key, method = "radix"), , drop = FALSE]
 }
 
 #' The row_key for a content/TEXT.csv row: its four identifying columns.

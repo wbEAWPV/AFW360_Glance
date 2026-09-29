@@ -2,9 +2,11 @@
 # pipeline/convert_legacy.R
 #
 # WP15 (Legacy converter): turns data_raw/tables/Tables_<ISO3>.xlsx into
-# data/AFW360_HH_<ISO3>_<YEAR>.csv and its manifest, driven entirely by the
-# LEGACY_LABELS, LEGACY_COLUMNS, LEGACY_OVERRIDES and SERIES_PLAN metadata
-# plans. See .docs/transition.qmd.
+# data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv and its manifest, driven entirely by
+# the LEGACY_LABELS, LEGACY_COLUMNS, LEGACY_OVERRIDES and SERIES_PLAN metadata
+# plans, with the columns read from DSD_AFW360_HH.csv (DSD 0.2.0). Every row
+# carries ESTIMATION = SURVEY and the country's LEGACY_CONVERSION source from
+# SOURCES.csv. See .docs/transition.qmd and .docs/data-standard.qmd.
 #
 # Usage: Rscript pipeline/convert_legacy.R --root <dir> --country SEN|GNB|ALL [--timestamp <ISO8601>] [--out-root <dir>]
 
@@ -46,9 +48,9 @@ run_timestamp <- if (is.null(timestamp_arg)) {
 
 meta <- load_metadata(root)
 required_tables <- c(
-  "LEGACY_LABELS", "LEGACY_COLUMNS", "LEGACY_OVERRIDES", "SERIES_PLAN",
-  "SURVEYS", "CL_INDICATOR", "CL_BRK_VAR", "CL_QUAL_VAR", "CL_COMP_BREAKDOWN",
-  "CL_QUALIFIER"
+  "DSD_AFW360_HH", "LEGACY_LABELS", "LEGACY_COLUMNS", "LEGACY_OVERRIDES",
+  "SERIES_PLAN", "SURVEYS", "SOURCES", "CL_AREA", "CL_INDICATOR", "CL_BRK_VAR",
+  "CL_QUAL_VAR", "CL_COMP_BREAKDOWN", "CL_QUALIFIER"
 )
 missing_tables <- setdiff(required_tables, names(meta))
 if (length(missing_tables) > 0) {
@@ -68,12 +70,17 @@ if (identical(country_arg, "ALL")) {
 }
 
 metadata_version <- trimws(readLines(repo_path(root, "metadata", "VERSION"), warn = FALSE)[1])
+estimation <- "SURVEY"
+key_cols <- dsd_key_columns(meta)
 
 for (country in countries) {
   workbook_path <- repo_path(root, "data_raw", "tables", sprintf("Tables_%s.xlsx", country))
   wb <- read_legacy_workbook(workbook_path)
-  rows <- build_country_rows(country, wb, meta)
-  rows <- finalize_rows(rows)
+  rows <- build_country_rows(country, wb, meta, estimation = estimation)
+  rows <- finalize_rows(rows, key_cols)
+  if (!identical(names(rows), dsd_columns(meta))) {
+    stop("convert_legacy: the rows' columns differ from DSD_AFW360_HH", call. = FALSE)
+  }
 
   sv <- meta$SURVEYS[meta$SURVEYS$ref_area == country, ]
   if (nrow(sv) != 1) {
@@ -86,20 +93,22 @@ for (country in countries) {
   time_period <- sv$time_period[1]
   survey_id <- sv$survey_id[1]
 
-  file_name <- sprintf("AFW360_HH_%s_%s.csv", country, time_period)
+  file_name <- data_file_name(country, time_period, estimation)
   data_path <- repo_path(out_root, "data", file_name)
   write_std_csv(rows, data_path)
 
   manifest <- build_manifest(
     country = country,
     time_period = time_period,
+    estimation = estimation,
     survey_id = survey_id,
+    source_ids = rows$SOURCE_ID,
     file_name = file_name,
     n_rows = nrow(rows),
     metadata_version = metadata_version,
     run_timestamp = run_timestamp
   )
-  manifest_name <- sub("\\.csv$", "_manifest.csv", file_name)
+  manifest_name <- manifest_file_name(file_name)
   manifest_path <- repo_path(out_root, "data", manifest_name)
   write_std_csv(manifest, manifest_path)
 

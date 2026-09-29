@@ -1,118 +1,82 @@
 # pipeline/R/validate_values.R
 #
-# Value checks (WP12): that OBS_VALUE and its attributes on every row of a
-# data file are well formed - plain-decimal, in the indicator's plausible
-# range, consistent with OBS_STATUS, carrying the D9 LEGACY_EMPTY comment
-# where required, and (where filled) a sane STD_ERR / CI / N_OBS / N_POP.
+# Value checks (standard v0.5, "Validation checks" > "Values"): that
+# OBS_VALUE and its attributes on every row of a data file are well formed
+# - plain-decimal, in the indicator's plausible range, consistent with
+# OBS_STATUS, carrying the D9 LEGACY_EMPTY comment where required, with a
+# sane PRECISION, STD_ERR / CI / N_OBS / N_POP, the reliability attributes
+# present on every row of a PRODUCER source, and an OBS_STATUS that follows
+# the rules and precedence M O E D U A (D22).
 #
-# Depends on `ctx` built by build_ctx() (pipeline/R/ctx.R), which needs
-# pipeline/R/io.R, and on ctx$meta$CL_INDICATOR for valid_min/valid_max.
-# Callers source those before this file; this file does not source
-# anything itself (.docs/transition.qmd).
+# The legacy exemptions are a property of a row's source (D16): a row
+# whose SOURCE_ID has kind LEGACY_CONVERSION in SOURCES.csv may leave the
+# reliability attributes empty and must carry PRECISION; a row of a
+# PRODUCER source must carry them. A row whose SOURCE_ID is unknown is
+# CODES.SOURCE_ID's finding and is exempt from neither rule here.
 #
-# Findings format is the same as pipeline/R/validate_coverage.R's checks
-# (word for word the same on WP11-WP14); see that file's header for the
-# column and row_key conventions, and .vc_apply_cap() for the 20-finding
-# cap. The small private helpers below are duplicated there on purpose,
-# so this file stays independently sourceable.
-
-# The 18 KEY_COLUMNS, in their contract order (seeds/csv_headers.csv,
-# AFW360_HH_<ISO3>_<YEAR>.csv, positions 1-18).
-.VC_KEY_COLS <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",
-  "URBANISATION", "COMP_BREAKDOWN_1", "COMP_BREAKDOWN_2", "COMP_BREAKDOWN_3",
-  "COMP_BREAKDOWN_4", "COMP_BREAKDOWN_5", "MEASURE_QUAL_1", "MEASURE_QUAL_2",
-  "MEASURE_QUAL_3", "MEASURE_QUAL_4", "MEASURE_QUAL_5"
-)
-
-#' Build the findings row_key for each row of a data frame.
-#'
-#' @param df A data frame holding (a subset of) `cols`.
-#' @param cols The key columns to join, in order.
-#' @return A character vector, one entry per row of `df`.
-.vc_row_key <- function(df, cols) {
-  cols <- cols[cols %in% names(df)]
-  if (length(cols) == 0 || nrow(df) == 0) {
-    return(character(0))
-  }
-  do.call(paste, c(df[cols], sep = " "))
-}
-
-#' The findings `file` value for a data key.
-#'
-#' @param key A `ctx$data` / `ctx$manifests` list name (the file's stem).
-#' @return `"data/<key>.csv"`.
-.vc_file_path <- function(key) paste0("data/", key, ".csv")
-
-#' An empty findings frame, with the right columns and types.
-.vc_empty <- function() {
-  data.frame(
-    check_id = character(0), severity = character(0), file = character(0),
-    row_key = character(0), message = character(0),
-    stringsAsFactors = FALSE
-  )
-}
-
-#' Cap findings at 20 per check_id/file pair (WP12.md "Findings format").
-#'
-#' @param findings A findings data frame, any number of rows.
-#' @return `findings`, with each check_id/file group cut to its first 20
-#'   rows in row_key order plus one SUMMARY row when it had more.
-.vc_apply_cap <- function(findings) {
-  if (nrow(findings) == 0) {
-    return(findings)
-  }
-  group_key <- paste(findings$check_id, findings$file, sep = "")
-  groups <- split(seq_len(nrow(findings)), group_key)
-  groups <- groups[order(names(groups), method = "radix")]
-  parts <- vector("list", length(groups))
-  for (i in seq_along(groups)) {
-    grp <- findings[groups[[i]], , drop = FALSE]
-    grp <- grp[order(grp$row_key, method = "radix"), , drop = FALSE]
-    n <- nrow(grp)
-    if (n > 20) {
-      kept <- grp[seq_len(20), , drop = FALSE]
-      summary_row <- kept[1, , drop = FALSE]
-      summary_row$row_key <- ""
-      summary_row$message <- sprintf("SUMMARY: %d findings in total, 20 shown", n)
-      grp <- rbind(kept, summary_row)
-    }
-    parts[[i]] <- grp
-  }
-  result <- do.call(rbind, parts)
-  rownames(result) <- NULL
-  result
-}
-
-#' Bind a list of findings frames into one findings tibble.
-#'
-#' @param parts A list of data frames (as built by the `vc_*` functions),
-#'   possibly empty or with empty members.
-#' @return A tibble with zero or more findings, capped (`.vc_apply_cap()`).
-.vc_bind <- function(parts) {
-  parts <- parts[vapply(parts, function(x) !is.null(x) && nrow(x) > 0, logical(1))]
-  if (length(parts) == 0) {
-    return(dplyr::as_tibble(.vc_empty()))
-  }
-  result <- do.call(rbind, parts)
-  rownames(result) <- NULL
-  dplyr::as_tibble(.vc_apply_cap(result))
-}
+# Depends on `ctx` built by build_ctx() (pipeline/R/ctx.R, with its ctx_*()
+# accessors), which needs pipeline/R/io.R, on pipeline/R/plan.R for
+# effective_series_plan(), and on ctx$meta (CL_INDICATOR, CL_STATISTIC,
+# SOURCES, SERIES_PLAN, RULES). Callers source those before this file;
+# this file does not source anything itself.
+#
+# Findings format is the same as pipeline/R/validate_coverage.R's checks;
+# see that file's header for the column and row_key conventions, and
+# .vc_apply_cap() (pipeline/R/validate_common.R, which callers source
+# first) for the 20-finding cap.
 
 # A plain decimal number: optional leading '-', digits, optional '.digits'.
 # No scientific notation, no leading '+', no thousands separator.
 .VC_NUMERIC_RE <- "^-?[0-9]+(\\.[0-9]+)?$"
 
-#' The precision (`"EXACT"` or `"ROUNDED_2DP"`) recorded for a data key.
-#'
-#' @param ctx The list from [build_ctx()].
-#' @param key A `ctx$data` list name.
-#' @return A single string; `"EXACT"` when unrecorded.
-.vc_precision <- function(ctx, key) {
-  if (key %in% names(ctx$precision)) ctx$precision[[key]] else "EXACT"
+# The numeric columns of a data file, checked for plain-decimal form.
+.VC_NUMERIC_COLS <- c("OBS_VALUE", "PRECISION", "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP")
+
+#' A column as trimmed character ("" for an absent column).
+.vc_col <- function(df, nm) {
+  if (!(nm %in% names(df))) return(rep("", nrow(df)))
+  x <- as.character(df[[nm]])
+  x[is.na(x)] <- ""
+  trimws(x)
 }
 
-#' VALUE.NUMERIC: a filled OBS_VALUE is not a plain decimal number.
+#' A column as numeric: `NA` where empty or not a plain decimal.
+.vc_num <- function(df, nm) {
+  x <- .vc_col(df, nm)
+  out <- rep(NA_real_, length(x))
+  ok <- grepl(.VC_NUMERIC_RE, x)
+  out[ok] <- as.numeric(x[ok])
+  out
+}
+
+#' One findings frame for rows `idx` of `df`.
+.vc_rows_finding <- function(ctx, key, df, idx, check_id, severity, message) {
+  data.frame(
+    check_id = check_id, severity = severity, file = .vc_file_path(key),
+    row_key = ctx_row_keys(ctx, df[idx, , drop = FALSE]),
+    message = message,
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Each row's source kind (LEGACY_CONVERSION, PRODUCER, or NA).
+.vc_kind <- function(ctx, df) {
+  ctx_source_kind(ctx, .vc_col(df, "SOURCE_ID"))
+}
+
+#' Whether each row's indicator has a statistic that admits a standard
+#' error (CL_STATISTIC.admits_se = Y).
+.vc_admits_se <- function(ctx, df) {
+  ind <- ctx$meta$CL_INDICATOR
+  st <- ctx$meta$CL_STATISTIC
+  if (is.null(ind) || is.null(st) || !("admits_se" %in% names(st))) return(rep(FALSE, nrow(df)))
+  stat <- ind$statistic[match(.vc_col(df, "INDICATOR"), ind$code)]
+  adm <- st$admits_se[match(stat, st$code)]
+  !is.na(adm) & adm == "Y"
+}
+
+#' VALUE.NUMERIC: a filled numeric cell (OBS_VALUE, PRECISION, STD_ERR,
+#' CI_LOWER, CI_UPPER, N_OBS, N_POP) is not a plain decimal number.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -120,18 +84,16 @@ vc_value_numeric <- function(ctx) {
   out <- list()
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
-    if (nrow(df) == 0 || !("OBS_VALUE" %in% names(df))) next
-
-    raw <- trimws(df$OBS_VALUE)
-    filled <- raw != ""
-    bad <- which(filled & !grepl(.VC_NUMERIC_RE, raw))
-    if (length(bad) > 0) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.NUMERIC", severity = "ERROR", file = .vc_file_path(key),
-        row_key = .vc_row_key(df[bad, , drop = FALSE], .VC_KEY_COLS),
-        message = paste0("OBS_VALUE '", raw[bad], "' is not a plain decimal number."),
-        stringsAsFactors = FALSE
-      )
+    if (nrow(df) == 0) next
+    for (nm in intersect(.VC_NUMERIC_COLS, names(df))) {
+      raw <- .vc_col(df, nm)
+      bad <- which(raw != "" & !grepl(.VC_NUMERIC_RE, raw))
+      if (length(bad) > 0) {
+        out[[length(out) + 1]] <- .vc_rows_finding(
+          ctx, key, df, bad, "VALUE.NUMERIC", "ERROR",
+          paste0(nm, " '", raw[bad], "' is not a plain decimal number.")
+        )
+      }
     }
   }
   .vc_bind(out)
@@ -152,8 +114,8 @@ vc_value_range <- function(ctx) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0 || !all(c("OBS_VALUE", "INDICATOR") %in% names(df))) next
 
-    val <- suppressWarnings(as.numeric(trimws(df$OBS_VALUE)))
-    has_val <- trimws(df$OBS_VALUE) != "" & !is.na(val)
+    val <- .vc_num(df, "OBS_VALUE")
+    has_val <- !is.na(val)
     if (!any(has_val)) next
 
     bounds <- cl_indicator[match(df$INDICATOR, cl_indicator$code), c("valid_min", "valid_max")]
@@ -164,24 +126,22 @@ vc_value_range <- function(ctx) {
     above <- has_val & !is.na(max_v) & val > max_v
     bad <- which(below | above)
     if (length(bad) > 0) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.RANGE", severity = "ERROR", file = .vc_file_path(key),
-        row_key = .vc_row_key(df[bad, , drop = FALSE], .VC_KEY_COLS),
-        message = sprintf(
+      out[[length(out) + 1]] <- .vc_rows_finding(
+        ctx, key, df, bad, "VALUE.RANGE", "ERROR",
+        sprintf(
           "OBS_VALUE %s lies outside the indicator's valid range [%s, %s].",
           trimws(df$OBS_VALUE[bad]),
           ifelse(is.na(min_v[bad]), "", as.character(min_v[bad])),
           ifelse(is.na(max_v[bad]), "", as.character(max_v[bad]))
-        ),
-        stringsAsFactors = FALSE
+        )
       )
     }
   }
   .vc_bind(out)
 }
 
-#' VALUE.STATUS_EMPTY: OBS_VALUE is empty although OBS_STATUS is A or E,
-#' or filled although it is O or M.
+#' VALUE.STATUS_EMPTY: OBS_VALUE is empty exactly when OBS_STATUS is O or
+#' M: empty under any other status, or filled under O or M, is a finding.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -191,11 +151,12 @@ vc_value_status_empty <- function(ctx) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0 || !all(c("OBS_VALUE", "OBS_STATUS") %in% names(df))) next
 
-    filled <- trimws(df$OBS_VALUE) != ""
-    status <- trimws(df$OBS_STATUS)
+    filled <- .vc_col(df, "OBS_VALUE") != ""
+    status <- .vc_col(df, "OBS_STATUS")
+    empty_status <- status %in% c("O", "M")
 
-    bad_empty <- status %in% c("A", "E") & !filled
-    bad_filled <- status %in% c("O", "M") & filled
+    bad_empty <- !empty_status & status != "" & !filled
+    bad_filled <- empty_status & filled
     bad <- which(bad_empty | bad_filled)
     if (length(bad) > 0) {
       msg <- ifelse(
@@ -203,19 +164,14 @@ vc_value_status_empty <- function(ctx) {
         paste0("OBS_STATUS '", status[bad], "' requires OBS_VALUE, but it is empty."),
         paste0("OBS_STATUS '", status[bad], "' requires OBS_VALUE to be empty, but it is filled.")
       )
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.STATUS_EMPTY", severity = "ERROR", file = .vc_file_path(key),
-        row_key = .vc_row_key(df[bad, , drop = FALSE], .VC_KEY_COLS),
-        message = msg,
-        stringsAsFactors = FALSE
-      )
+      out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, "VALUE.STATUS_EMPTY", "ERROR", msg)
     }
   }
   .vc_bind(out)
 }
 
-#' VALUE.LEGACY_EMPTY: in a ROUNDED_2DP file, an O row whose OBS_COMMENT
-#' does not start with `"LEGACY_EMPTY:"` (decision D9).
+#' VALUE.LEGACY_EMPTY: an O row of a LEGACY_CONVERSION source whose
+#' OBS_COMMENT does not start with `"LEGACY_EMPTY:"` (decision D9).
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -224,71 +180,61 @@ vc_value_legacy_empty <- function(ctx) {
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next
-    if (!identical(.vc_precision(ctx, key), "ROUNDED_2DP")) next
     if (!all(c("OBS_STATUS", "OBS_COMMENT") %in% names(df))) next
 
-    is_o <- trimws(df$OBS_STATUS) == "O"
+    legacy <- .vc_kind(ctx, df) %in% "LEGACY_CONVERSION"
+    is_o <- .vc_col(df, "OBS_STATUS") == "O"
     comment <- ifelse(is.na(df$OBS_COMMENT), "", df$OBS_COMMENT)
     has_prefix <- substr(comment, 1, 13) == "LEGACY_EMPTY:"
-    bad <- which(is_o & !has_prefix)
+    bad <- which(legacy & is_o & !has_prefix)
     if (length(bad) > 0) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.LEGACY_EMPTY", severity = "ERROR", file = .vc_file_path(key),
-        row_key = .vc_row_key(df[bad, , drop = FALSE], .VC_KEY_COLS),
-        message = "OBS_COMMENT on an O row in a ROUNDED_2DP file does not start with 'LEGACY_EMPTY:' (D9).",
-        stringsAsFactors = FALSE
+      out[[length(out) + 1]] <- .vc_rows_finding(
+        ctx, key, df, bad, "VALUE.LEGACY_EMPTY", "ERROR",
+        "OBS_COMMENT on an O row of a LEGACY_CONVERSION source does not start with 'LEGACY_EMPTY:' (D9)."
       )
     }
   }
   .vc_bind(out)
 }
 
-#' VALUE.SE_CI: STD_ERR < 0, or OBS_VALUE lies outside CI_LOWER to
-#' CI_UPPER, where these are filled.
+#' VALUE.SE_CI: STD_ERR < 0, CI_LOWER > CI_UPPER, or OBS_VALUE outside
+#' CI_LOWER to CI_UPPER, where these are filled.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
 vc_value_se_ci <- function(ctx) {
   out <- list()
-  needed <- c("OBS_VALUE", "STD_ERR", "CI_LOWER", "CI_UPPER")
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
-    if (nrow(df) == 0 || !all(needed %in% names(df))) next
+    if (nrow(df) == 0 || !all(c("OBS_VALUE", "STD_ERR", "CI_LOWER", "CI_UPPER") %in% names(df))) next
 
-    se_raw <- trimws(df$STD_ERR)
-    se <- suppressWarnings(as.numeric(se_raw))
-    bad_se <- which(se_raw != "" & !is.na(se) & se < 0)
+    se <- .vc_num(df, "STD_ERR")
+    val <- .vc_num(df, "OBS_VALUE")
+    lo <- .vc_num(df, "CI_LOWER")
+    hi <- .vc_num(df, "CI_UPPER")
 
-    val <- suppressWarnings(as.numeric(trimws(df$OBS_VALUE)))
-    lo <- suppressWarnings(as.numeric(trimws(df$CI_LOWER)))
-    hi <- suppressWarnings(as.numeric(trimws(df$CI_UPPER)))
-    ci_filled <- trimws(df$CI_LOWER) != "" & trimws(df$CI_UPPER) != "" & trimws(df$OBS_VALUE) != ""
-    bad_ci <- which(ci_filled & !is.na(val) & !is.na(lo) & !is.na(hi) & (val < lo | val > hi))
-
-    bad <- sort(union(bad_se, bad_ci))
+    bad_se <- !is.na(se) & se < 0
+    bad_order <- !is.na(lo) & !is.na(hi) & lo > hi
+    bad_ci <- !is.na(val) & !is.na(lo) & !is.na(hi) & (val < lo | val > hi)
+    bad <- which(bad_se | bad_order | bad_ci)
     if (length(bad) > 0) {
-      msg <- ifelse(
-        bad %in% bad_se & bad %in% bad_ci,
-        "STD_ERR is negative and OBS_VALUE lies outside CI_LOWER to CI_UPPER.",
-        ifelse(
-          bad %in% bad_se,
-          "STD_ERR is negative.",
-          "OBS_VALUE lies outside CI_LOWER to CI_UPPER."
-        )
-      )
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.SE_CI", severity = "ERROR", file = .vc_file_path(key),
-        row_key = .vc_row_key(df[bad, , drop = FALSE], .VC_KEY_COLS),
-        message = msg,
-        stringsAsFactors = FALSE
-      )
+      msg <- vapply(bad, function(i) {
+        p <- character(0)
+        if (bad_se[i]) p <- c(p, "STD_ERR is negative")
+        if (bad_order[i]) p <- c(p, "CI_LOWER exceeds CI_UPPER")
+        if (bad_ci[i]) p <- c(p, "OBS_VALUE lies outside CI_LOWER to CI_UPPER")
+        paste0(paste(p, collapse = " and "), ".")
+      }, character(1))
+      out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, "VALUE.SE_CI", "ERROR", msg)
     }
   }
   .vc_bind(out)
 }
 
-#' VALUE.N: in an EXACT file, N_OBS/N_POP well-formedness; in a
-#' ROUNDED_2DP file, one INFO finding per file noting the exemption.
+#' VALUE.N: N_OBS is a non-negative integer and N_POP non-negative where
+#' filled; both are present on every row of a PRODUCER source; N_OBS = 0
+#' implies OBS_STATUS = O. A file with rows of a LEGACY_CONVERSION source
+#' that leave them empty gets one INFO finding noting the exemption.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
@@ -297,53 +243,281 @@ vc_value_n <- function(ctx) {
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next
-    file <- .vc_file_path(key)
-
-    if (identical(.vc_precision(ctx, key), "ROUNDED_2DP")) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.N", severity = "INFO", file = file, row_key = "",
-        message = "N_OBS and N_POP are exempt in ROUNDED_2DP files.",
-        stringsAsFactors = FALSE
-      )
-      next
-    }
-
     if (!all(c("N_OBS", "N_POP", "OBS_STATUS") %in% names(df))) next
 
-    n_obs_raw <- trimws(df$N_OBS)
-    n_obs <- suppressWarnings(as.numeric(n_obs_raw))
-    bad_obs <- which(n_obs_raw == "" | is.na(n_obs) | n_obs < 0 | n_obs != floor(n_obs))
+    kind <- .vc_kind(ctx, df)
+    producer <- kind %in% "PRODUCER"
+    legacy <- kind %in% "LEGACY_CONVERSION"
 
-    n_pop_raw <- trimws(df$N_POP)
-    n_pop <- suppressWarnings(as.numeric(n_pop_raw))
-    bad_pop <- which(n_pop_raw == "" | is.na(n_pop) | n_pop < 0)
+    n_obs_raw <- .vc_col(df, "N_OBS")
+    n_obs <- .vc_num(df, "N_OBS")
+    n_pop_raw <- .vc_col(df, "N_POP")
+    n_pop <- .vc_num(df, "N_POP")
 
-    zero_not_o <- which(!is.na(n_obs) & n_obs == 0 & trimws(df$OBS_STATUS) != "O")
+    bad_obs <- which(
+      (producer & n_obs_raw == "") |
+        (!is.na(n_obs) & (n_obs < 0 | n_obs != floor(n_obs)))
+    )
+    bad_pop <- which((producer & n_pop_raw == "") | (!is.na(n_pop) & n_pop < 0))
+    zero_not_o <- which(!is.na(n_obs) & n_obs == 0 & .vc_col(df, "OBS_STATUS") != "O")
 
     if (length(bad_obs) > 0) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.N", severity = "ERROR", file = file,
-        row_key = .vc_row_key(df[bad_obs, , drop = FALSE], .VC_KEY_COLS),
-        message = "N_OBS is missing or not a non-negative integer.",
-        stringsAsFactors = FALSE
+      out[[length(out) + 1]] <- .vc_rows_finding(
+        ctx, key, df, bad_obs, "VALUE.N", "ERROR",
+        ifelse(
+          n_obs_raw[bad_obs] == "",
+          "N_OBS is missing on a row of a PRODUCER source.",
+          "N_OBS is not a non-negative integer."
+        )
       )
     }
     if (length(bad_pop) > 0) {
-      out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.N", severity = "ERROR", file = file,
-        row_key = .vc_row_key(df[bad_pop, , drop = FALSE], .VC_KEY_COLS),
-        message = "N_POP is missing or negative.",
-        stringsAsFactors = FALSE
+      out[[length(out) + 1]] <- .vc_rows_finding(
+        ctx, key, df, bad_pop, "VALUE.N", "ERROR",
+        ifelse(
+          n_pop_raw[bad_pop] == "",
+          "N_POP is missing on a row of a PRODUCER source.",
+          "N_POP is negative."
+        )
       )
     }
     if (length(zero_not_o) > 0) {
+      out[[length(out) + 1]] <- .vc_rows_finding(
+        ctx, key, df, zero_not_o, "VALUE.N", "ERROR", "N_OBS = 0 requires OBS_STATUS = O."
+      )
+    }
+
+    exempt <- sum(legacy & (n_obs_raw == "" | n_pop_raw == ""))
+    if (exempt > 0) {
       out[[length(out) + 1]] <- data.frame(
-        check_id = "VALUE.N", severity = "ERROR", file = file,
-        row_key = .vc_row_key(df[zero_not_o, , drop = FALSE], .VC_KEY_COLS),
-        message = "N_OBS = 0 requires OBS_STATUS = O.",
+        check_id = "VALUE.N", severity = "INFO", file = .vc_file_path(key), row_key = "",
+        message = sprintf(
+          "N_OBS, N_POP, STD_ERR and CI are exempt on the %d row(s) of a LEGACY_CONVERSION source that leave them empty.",
+          exempt
+        ),
         stringsAsFactors = FALSE
       )
     }
   }
   .vc_bind(out)
+}
+
+#' VALUE.SE_REQUIRED: on a row of a PRODUCER source whose indicator's
+#' statistic admits a standard error (CL_STATISTIC.admits_se = Y) and whose
+#' OBS_VALUE is filled, STD_ERR, CI_LOWER and CI_UPPER are filled; and on
+#' any row, the interval is filled wherever STD_ERR is.
+#'
+#' @param ctx The list from [build_ctx()].
+#' @return A findings tibble.
+vc_value_se_required <- function(ctx) {
+  out <- list()
+  for (key in names(ctx$data)) {
+    df <- ctx$data[[key]]
+    if (nrow(df) == 0 || !all(c("STD_ERR", "CI_LOWER", "CI_UPPER", "OBS_VALUE") %in% names(df))) next
+    producer <- .vc_kind(ctx, df) %in% "PRODUCER"
+    admits <- .vc_admits_se(ctx, df)
+    filled <- .vc_col(df, "OBS_VALUE") != ""
+    se <- .vc_col(df, "STD_ERR") != ""
+    lo <- .vc_col(df, "CI_LOWER") != ""
+    hi <- .vc_col(df, "CI_UPPER") != ""
+
+    need_se <- producer & admits & filled
+    miss_se <- need_se & !(se & lo & hi)
+    miss_ci <- !miss_se & se & !(lo & hi)
+    bad <- which(miss_se | miss_ci)
+    if (length(bad) > 0) {
+      msg <- ifelse(
+        miss_se[bad],
+        paste0(
+          "STD_ERR, CI_LOWER and CI_UPPER are required on a PRODUCER-source row whose statistic admits a ",
+          "standard error; missing: ",
+          vapply(bad, function(i) paste(c("STD_ERR", "CI_LOWER", "CI_UPPER")[!c(se[i], lo[i], hi[i])], collapse = ", "), character(1))
+        ),
+        "CI_LOWER and CI_UPPER are required where STD_ERR is filled."
+      )
+      out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, "VALUE.SE_REQUIRED", "ERROR", msg)
+    }
+  }
+  .vc_bind(out)
+}
+
+#' VALUE.PRECISION: PRECISION is empty or a positive number, and is filled
+#' on every row of a LEGACY_CONVERSION source (D15). (A PRECISION that is
+#' not a plain decimal is VALUE.NUMERIC's finding.)
+#'
+#' @param ctx The list from [build_ctx()].
+#' @return A findings tibble.
+vc_value_precision <- function(ctx) {
+  out <- list()
+  for (key in names(ctx$data)) {
+    df <- ctx$data[[key]]
+    if (nrow(df) == 0 || !("PRECISION" %in% names(df))) next
+    raw <- .vc_col(df, "PRECISION")
+    p <- .vc_num(df, "PRECISION")
+    legacy <- .vc_kind(ctx, df) %in% "LEGACY_CONVERSION"
+    not_pos <- !is.na(p) & p <= 0
+    missing <- legacy & raw == ""
+    bad <- which(not_pos | missing)
+    if (length(bad) > 0) {
+      msg <- ifelse(
+        not_pos[bad],
+        paste0("PRECISION ", raw[bad], " is not a positive number."),
+        "PRECISION is required on a row of a LEGACY_CONVERSION source (D15)."
+      )
+      out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, "VALUE.PRECISION", "ERROR", msg)
+    }
+  }
+  .vc_bind(out)
+}
+
+# ---- OBS_STATUS rules (D22, D23) -------------------------------------------
+
+#' The OBS_STATUS every row should carry, and why.
+#'
+#' For a row whose OBS_STATUS is not O or M (those are about the value
+#' being empty, VALUE.STATUS_EMPTY's concern), the expected code is the
+#' first that applies of: E (a MODEL row), D (a series whose status for
+#' the row's country is DEVIATES in SERIES_PLAN.csv), U (N_OBS below
+#' RELIABILITY_MIN_NOBS, or STD_ERR / |OBS_VALUE| above RELIABILITY_MAX_CV
+#' for a statistic that admits a standard error and a non-zero value; never
+#' on a row with neither N_OBS nor STD_ERR), A.
+#'
+#' @return A data frame per row: `actual`, `expected` (`NA` where the row
+#'   is not evaluated: O, M, empty or an unknown ESTIMATION), `u_nobs`,
+#'   `u_cv`, `model`, `deviates`.
+.vc_status_eval <- function(ctx, df) {
+  actual <- .vc_col(df, "OBS_STATUS")
+  est <- .vc_col(df, "ESTIMATION")
+  model <- est == "MODEL"
+
+  deviates <- rep(FALSE, nrow(df))
+  sid <- .vc_col(df, "SERIES_ID")
+  ra <- .vc_col(df, "REF_AREA")
+  if (!is.null(ctx$meta$SERIES_PLAN) && "status" %in% names(ctx$meta$SERIES_PLAN)) {
+    for (a in unique(ra)) {
+      plan <- effective_series_plan(ctx$meta, a)
+      dev_ids <- plan$series_id[plan$status %in% "DEVIATES"]
+      idx <- ra == a
+      deviates[idx] <- sid[idx] %in% dev_ids
+    }
+  }
+
+  min_nobs <- ctx_dataflow_threshold(ctx, "RELIABILITY_MIN_NOBS")$value
+  max_cv <- ctx_dataflow_threshold(ctx, "RELIABILITY_MAX_CV")$value
+  n_obs <- .vc_num(df, "N_OBS")
+  se <- .vc_num(df, "STD_ERR")
+  val <- .vc_num(df, "OBS_VALUE")
+  admits <- .vc_admits_se(ctx, df)
+  u_nobs <- !is.na(min_nobs) & !is.na(n_obs) & n_obs < min_nobs
+  u_cv <- !is.na(max_cv) & admits & !is.na(se) & !is.na(val) & val != 0 & se / abs(val) > max_cv
+
+  expected <- ifelse(model, "E", ifelse(deviates, "D", ifelse(u_nobs | u_cv, "U", "A")))
+  evaluated <- !(actual %in% c("O", "M", "")) & est %in% c("SURVEY", "MODEL")
+  expected[!evaluated] <- NA_character_
+  data.frame(
+    actual = actual, expected = expected, u_nobs = u_nobs, u_cv = u_cv,
+    model = model, deviates = deviates, stringsAsFactors = FALSE
+  )
+}
+
+#' Shared walk for the four OBS_STATUS checks: `select(ev)` picks the rows
+#' of one check, `message(ev, idx)` words them, `severity` is a string or a
+#' function of (ev, idx).
+.vc_status_check <- function(ctx, check_id, select, message, severity = "ERROR") {
+  out <- list()
+  for (key in names(ctx$data)) {
+    df <- ctx$data[[key]]
+    if (nrow(df) == 0 || !("OBS_STATUS" %in% names(df))) next
+    ev <- .vc_status_eval(ctx, df)
+    bad <- which(select(ev))
+    if (length(bad) == 0) next
+    sev <- if (is.function(severity)) severity(ev, bad) else severity
+    out[[length(out) + 1]] <- .vc_rows_finding(ctx, key, df, bad, check_id, sev, message(ev, bad))
+  }
+  .vc_bind(out)
+}
+
+#' VALUE.STATUS_MODEL: every filled row of a MODEL file carries OBS_STATUS
+#' E, and no row of a SURVEY file does (precedence M O E D U A).
+vc_value_status_model <- function(ctx) {
+  .vc_status_check(
+    ctx, "VALUE.STATUS_MODEL",
+    function(ev) !is.na(ev$expected) & ev$actual != "Q" & ((ev$expected == "E") != (ev$actual == "E")),
+    function(ev, i) ifelse(
+      ev$model[i],
+      paste0("OBS_STATUS '", ev$actual[i], "' on a filled row of a MODEL file; expected E."),
+      "OBS_STATUS E on a row of a SURVEY file; E is reserved for model-based values."
+    )
+  )
+}
+
+#' VALUE.STATUS_DEVIATES: OBS_STATUS D is on every filled row of a series
+#' whose status for the row's country is DEVIATES in SERIES_PLAN.csv, and
+#' on no other row, unless a higher code (E) applies (D23).
+vc_value_status_deviates <- function(ctx) {
+  .vc_status_check(
+    ctx, "VALUE.STATUS_DEVIATES",
+    function(ev) {
+      !is.na(ev$expected) & ev$actual != "Q" & ((ev$expected == "E") == (ev$actual == "E")) &
+        ((ev$expected == "D") != (ev$actual == "D"))
+    },
+    function(ev, i) ifelse(
+      ev$expected[i] == "D",
+      paste0("OBS_STATUS '", ev$actual[i], "' on a row of a series the country produces with status DEVIATES; expected D."),
+      "OBS_STATUS D on a row of a series that is not DEVIATES for this country in SERIES_PLAN.csv."
+    )
+  )
+}
+
+#' VALUE.STATUS_RELIABILITY: OBS_STATUS U is on exactly the rows that
+#' breach RELIABILITY_MIN_NOBS or RELIABILITY_MAX_CV (RULES.csv) and to
+#' which no higher code (E, D) applies; never on a row with neither N_OBS
+#' nor STD_ERR. The severity is the breached (or, for a U that should not
+#' be there, the stricter) threshold rule's.
+vc_value_status_reliability <- function(ctx) {
+  sev_nobs <- ctx_dataflow_threshold(ctx, "RELIABILITY_MIN_NOBS")$severity
+  sev_cv <- ctx_dataflow_threshold(ctx, "RELIABILITY_MAX_CV")$severity
+  min_nobs <- ctx_dataflow_threshold(ctx, "RELIABILITY_MIN_NOBS")$value
+  max_cv <- ctx_dataflow_threshold(ctx, "RELIABILITY_MAX_CV")$value
+  .vc_status_check(
+    ctx, "VALUE.STATUS_RELIABILITY",
+    function(ev) {
+      !is.na(ev$expected) & ev$actual != "Q" &
+        ((ev$expected == "E") == (ev$actual == "E")) &
+        ((ev$expected == "D") == (ev$actual == "D")) &
+        ((ev$expected == "U") != (ev$actual == "U"))
+    },
+    function(ev, i) ifelse(
+      ev$expected[i] == "U",
+      paste0(
+        "OBS_STATUS '", ev$actual[i], "' but the row is of low reliability (",
+        ifelse(ev$u_nobs[i], paste0("N_OBS below ", min_nobs), ""),
+        ifelse(ev$u_nobs[i] & ev$u_cv[i], " and ", ""),
+        ifelse(ev$u_cv[i], paste0("CV above ", max_cv), ""),
+        "); expected U."
+      ),
+      paste0(
+        "OBS_STATUS U but the row breaches neither RELIABILITY_MIN_NOBS (", min_nobs,
+        ") nor RELIABILITY_MAX_CV (", max_cv, ")."
+      )
+    ),
+    severity = function(ev, i) {
+      sev <- ifelse(
+        ev$expected[i] == "U",
+        ifelse((ev$u_nobs[i] & sev_nobs == "ERROR") | (ev$u_cv[i] & sev_cv == "ERROR"), "ERROR", "WARN"),
+        if (sev_nobs == "ERROR" || sev_cv == "ERROR") "ERROR" else "WARN"
+      )
+      sev
+    }
+  )
+}
+
+#' VALUE.STATUS_Q: OBS_STATUS Q (suppressed) is used nowhere; the database
+#' publishes every estimate.
+vc_value_status_q <- function(ctx) {
+  .vc_status_check(
+    ctx, "VALUE.STATUS_Q",
+    function(ev) ev$actual == "Q",
+    function(ev, i) rep("OBS_STATUS Q is reserved and not used: every estimate is published.", length(i))
+  )
 }

@@ -3,12 +3,26 @@
 # testthat auto-sources every helper-*.R file before running any test file
 # (see helper-temp-root.R). make_data_fixture() builds a synthetic data file
 # and manifest for a country from required_rows() (pipeline/R/plan.R), so
-# every wave-3 package can test against realistic data without re-deriving
+# every validator test can run against realistic data without re-deriving
 # the required rows themselves. Needs read_std_csv()/write_std_csv()/
-# load_metadata()/repo_path() (pipeline/R/io.R), edit_csv()
+# load_metadata()/dsd_columns() (pipeline/R/io.R), edit_csv()
 # (helper-temp-root.R), required_rows() (pipeline/R/plan.R) and
-# KEY_COLUMNS/DSD_COLUMNS/DATAFLOW_ID (pipeline/R/constants.R) to already be
-# sourced by the time it is called.
+# DSD_COLUMNS/DATAFLOW_ID (pipeline/R/constants.R) to already be sourced by
+# the time it is called.
+#
+# The fixture follows DSD 0.2.0: 31 columns, a file named
+# AFW360_HH_<REF_AREA>_<TIME_PERIOD>_<ESTIMATION>.csv, and by default it
+# looks like a legacy conversion - every row's SOURCE_ID is the country's
+# LEGACY_CONVERSION source in SOURCES.csv and its PRECISION is 0.01 x the
+# series' LEGACY_LABELS scale, with no reliability attributes.
+
+# The manifest keys (pipeline/R/manifest.R's MANIFEST_KEYS, repeated here
+# for a test that has not sourced manifest.R).
+.FIXTURE_MANIFEST_KEYS <- c(
+  "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+  "estimation", "survey_id", "sources", "file_name", "n_rows",
+  "producer", "program", "software", "run_timestamp", "status", "notes"
+)
 
 #' Build a synthetic data file and manifest for a country.
 #'
@@ -19,9 +33,17 @@
 #' @param series_ids If given, `metadata/plans/SERIES_PLAN.csv` under
 #'   `tmp_root` is first reduced to these `series_id` values.
 #' @param value The `OBS_VALUE` written on every row. Default `"0.5"`.
+#' @param estimation The file's `ESTIMATION`. Default `"SURVEY"`; a
+#'   `"MODEL"` file gets `OBS_STATUS = E` on every row.
+#' @param source_id The `SOURCE_ID` of every row. Default: the country's
+#'   LEGACY_CONVERSION source in SOURCES.csv (`""` when there is none).
+#' @param precision The `PRECISION` of every row. Default: `0.01 x scale`
+#'   (LEGACY_LABELS) when the source is a LEGACY_CONVERSION, else empty.
 #' @return The path of the data file written under `tmp_root/data/`.
 make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
-                               series_ids = NULL, value = "0.5") {
+                               series_ids = NULL, value = "0.5",
+                               estimation = "SURVEY", source_id = NULL,
+                               precision = NULL) {
   series_plan_path <- file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv")
 
   if (!is.null(series_ids)) {
@@ -31,44 +53,86 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   }
 
   meta <- load_metadata(tmp_root)
-  rows <- required_rows(meta, ref_area, time_period)
+  rows <- required_rows(meta, ref_area, time_period, estimation)
 
-  data <- rows[KEY_COLUMNS]
+  sources <- meta$SOURCES
+  if (is.null(source_id)) {
+    hit <- if (is.null(sources)) integer(0) else
+      which(sources$kind == "LEGACY_CONVERSION" & sources$ref_area == ref_area)
+    source_id <- if (length(hit) > 0) sources$source_id[hit[1]] else ""
+  }
+  kind <- if (is.null(sources)) NA_character_ else sources$kind[match(source_id, sources$source_id)]
+
+  if (is.null(precision)) {
+    if (identical(kind, "LEGACY_CONVERSION")) {
+      ll <- meta$LEGACY_LABELS
+      scale <- rep(1, nrow(rows))
+      if (!is.null(ll)) {
+        ll <- ll[!is.na(ll$series_id) & ll$series_id != "" & !is.na(suppressWarnings(as.numeric(ll$scale))), ]
+        s <- suppressWarnings(as.numeric(ll$scale[match(rows$series_id, ll$series_id)]))
+        scale[!is.na(s)] <- s[!is.na(s)]
+      }
+      precision <- fmt_num(0.01 * scale)
+    } else {
+      precision <- ""
+    }
+  }
+
+  unit <- rep("", nrow(rows))
+  ind <- meta$CL_INDICATOR
+  if (!is.null(ind) && "unit_measure" %in% names(ind)) {
+    unit <- ind$unit_measure[match(rows$INDICATOR, ind$code)]
+    area <- meta$CL_AREA
+    lcu <- !is.na(unit) & unit == "LCU"
+    if (!is.null(area)) unit[lcu] <- area$currency[match(ref_area, area$code)]
+    unit[is.na(unit)] <- ""
+  }
+
+  columns <- if (!is.null(meta$DSD_AFW360_HH)) dsd_columns(meta) else DSD_COLUMNS
+  key_cols <- setdiff(names(rows), c("series_id", "cut_id", "defining_breakdown"))
+  data <- rows[key_cols]
+  data$SERIES_ID <- rows$series_id
   data$OBS_VALUE <- value
-  data$OBS_STATUS <- "A"
+  data$UNIT_MEASURE <- unit
+  data$PRECISION <- precision
+  data$OBS_STATUS <- if (identical(estimation, "MODEL")) "E" else "A"
   data$STD_ERR <- ""
   data$CI_LOWER <- ""
   data$CI_UPPER <- ""
   data$N_OBS <- ""
   data$N_POP <- ""
+  data$SOURCE_ID <- source_id
   data$OBS_COMMENT <- ""
-  data <- data[DSD_COLUMNS]
+  data <- data[columns]
 
-  stem <- paste0(DATAFLOW_ID, "_", ref_area, "_", time_period)
+  stem <- paste0(DATAFLOW_ID, "_", ref_area, "_", time_period, "_", estimation)
   data_path <- file.path(tmp_root, "data", paste0(stem, ".csv"))
   manifest_path <- file.path(tmp_root, "data", paste0(stem, "_manifest.csv"))
 
   write_std_csv(data, data_path)
 
-  # The 16 manifest keys (WP08.md step 4), written long form (one `key`,
-  # `value` row per key) per seeds/csv_headers.csv for
-  # AFW360_HH_<ISO3>_<YEAR>_manifest.csv and read that way by build_ctx()
-  # (pipeline/R/ctx.R), which zips column 1 (key) against column 2 (value)
-  # into a named vector. Descriptive fields this helper cannot know from its
-  # inputs are TBD (COMMON.md section 4); the three fields the card fixes
-  # are set as specified.
+  # The manifest in its long form (one `key`, `value` row per key), as
+  # build_ctx() (pipeline/R/ctx.R) reads it. Descriptive fields the helper
+  # cannot know are TBD.
+  surveys <- meta$SURVEYS
+  survey_id <- "TBD"
+  if (!is.null(surveys)) {
+    hit <- which(surveys$ref_area == ref_area)
+    if (length(hit) > 0) survey_id <- surveys$survey_id[hit[1]]
+  }
+  version <- "TBD"
+  vf <- file.path(tmp_root, "metadata", "VERSION")
+  if (file.exists(vf)) version <- trimws(readLines(vf, warn = FALSE)[1])
+  values <- c(
+    dataflow = DATAFLOW_ID, dsd_version = version, metadata_version = version,
+    ref_area = ref_area, time_period = time_period, estimation = estimation,
+    survey_id = survey_id, sources = source_id, file_name = basename(data_path),
+    n_rows = as.character(nrow(data)), producer = "TBD", program = "TBD",
+    software = "TBD", run_timestamp = "TBD", status = "DRAFT", notes = ""
+  )
   manifest <- data.frame(
-    key = c(
-      "dataflow", "dsd_version", "metadata_version", "ref_area",
-      "time_period", "source_type", "survey_id", "precision", "file_name",
-      "n_rows", "producer", "program", "software", "run_timestamp",
-      "status", "notes"
-    ),
-    value = c(
-      DATAFLOW_ID, "TBD", "TBD", ref_area, time_period, "SURVEY", "TBD",
-      "ROUNDED_2DP", basename(data_path), as.character(nrow(data)), "TBD",
-      "TBD", "TBD", "TBD", "DRAFT", ""
-    ),
+    key = .FIXTURE_MANIFEST_KEYS,
+    value = unname(values[.FIXTURE_MANIFEST_KEYS]),
     stringsAsFactors = FALSE
   )
   write_std_csv(manifest, manifest_path)
