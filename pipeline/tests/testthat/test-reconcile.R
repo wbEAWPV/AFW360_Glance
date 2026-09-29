@@ -1,6 +1,6 @@
 # pipeline/tests/testthat/test-reconcile.R
 #
-# WP16 - Independent reconciliation tool (DSD 0.2.0). Builds data files straight from
+# WP16 - Independent reconciliation tool (DSD 0.3.0, SDMX-CSV 2.1). Builds data files straight from
 # expected_rows() (never from the converter), checks the tool reports
 # PASS, then mutates one thing at a time to check the comparison logic.
 # The verifier checks expected_rows() itself against the raw workbook by
@@ -11,20 +11,28 @@ source(file.path(root, "pipeline", "R", "io.R"))
 source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "reconcile.R"))
 
+# The 19 key columns: the 18 dimensions, then TIME_PERIOD.
 .key_cols <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "ESTIMATION", "INDICATOR",
+  "FREQ", "REF_AREA", "GEO", "ESTIMATION", "INDICATOR",
   "SEX", "AGE", "URBANISATION", paste0("COMP_BREAKDOWN_", 1:5),
-  paste0("MEASURE_QUAL_", 1:5)
+  paste0("MEASURE_QUAL_", 1:5), "TIME_PERIOD"
 )
-# The 31 DSD 0.2.0 columns, in order (metadata/structure/DSD_AFW360_HH.csv).
+# The 37 SDMX-CSV 2.1 columns, in order: three fixed columns, the key
+# (TIME_PERIOD last), 9 measures, 6 attributes.
 .dsd_cols <- c(
-  .key_cols, "SERIES_ID", "OBS_VALUE", "UNIT_MEASURE", "PRECISION", "OBS_STATUS",
-  "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP", "SOURCE_ID", "OBS_COMMENT"
+  "STRUCTURE", "STRUCTURE_ID", "ACTION", .key_cols,
+  "OBS_VALUE", "STD_ERR", "CI_LOWER", "CI_UPPER", "N_OBS", "N_POP",
+  "N_OBS_NUM", "DEFF", "DF",
+  "SERIES_ID", "UNIT_MEASURE", "PRECISION", "OBS_STATUS", "SOURCE_ID", "OBS_COMMENT"
 )
 
-test_that("the fixture column list is the DSD", {
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
-  expect_equal(.dsd_cols, dsd$id[order(as.integer(dsd$position))])
+test_that("the fixture column list is the header of the published data files", {
+  for (p in Sys.glob(file.path(root, "data", "AFW360_HH_*_SURVEY.csv"))) {
+    header <- strsplit(readLines(p, n = 1, warn = FALSE), ",", fixed = TRUE)[[1]]
+    expect_equal(header, .dsd_cols, info = basename(p))
+  }
+  expect_length(.key_cols, 19L)
+  expect_equal(.key_cols[1], "FREQ")
 })
 
 #' The fixture data file path for a country.
@@ -44,6 +52,12 @@ test_that("the fixture column list is the DSD", {
   for (ra in sort(unique(erows$ref_area))) {
     sub <- erows[erows$ref_area == ra & erows$class == "converted", ]
     data <- sub[.key_cols]
+    data$STRUCTURE <- "dataflow"
+    data$STRUCTURE_ID <- "WB.AFW360:AFW360_HH(0.3.0)"
+    data$ACTION <- "R"
+    data$N_OBS_NUM <- ""
+    data$DEFF <- ""
+    data$DF <- ""
     data$SERIES_ID <- sub$SERIES_ID
     data$OBS_VALUE <- sub$OBS_VALUE
     data$UNIT_MEASURE <- "SHARE"
@@ -211,6 +225,12 @@ test_that("a row added for a withheld cell gives WITHHELD_PRESENT", {
   new_row$CI_UPPER <- ""
   new_row$N_OBS <- ""
   new_row$N_POP <- ""
+  new_row$N_OBS_NUM <- ""
+  new_row$DEFF <- ""
+  new_row$DF <- ""
+  new_row$STRUCTURE <- "dataflow"
+  new_row$STRUCTURE_ID <- "WB.AFW360:AFW360_HH(0.3.0)"
+  new_row$ACTION <- "R"
   new_row$SOURCE_ID <- "GNB_TEST_LEGACY_v1"
   new_row$OBS_COMMENT <- ""
   new_row <- new_row[.dsd_cols]

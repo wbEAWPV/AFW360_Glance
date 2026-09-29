@@ -17,12 +17,74 @@
 #   reconcile(root)      -- compares expected_rows() against the data
 #                            files on disk and returns the full result.
 
+# The 19 key columns of an SDMX-CSV 2.1 data file (DSD 0.3.0): the 18
+# dimensions in DSD order, then TIME_PERIOD. A deliberately independent copy;
+# the three fixed columns (STRUCTURE, STRUCTURE_ID, ACTION) are not part of
+# the key and are skipped.
 .reconcile_key_cols <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "ESTIMATION", "INDICATOR",
+  "FREQ", "REF_AREA", "GEO", "ESTIMATION", "INDICATOR",
   "SEX", "AGE", "URBANISATION",
   paste0("COMP_BREAKDOWN_", 1:5),
-  paste0("MEASURE_QUAL_", 1:5)
+  paste0("MEASURE_QUAL_", 1:5),
+  "TIME_PERIOD"
 )
+
+# Every legacy conversion is annual.
+.reconcile_freq <- "A"
+
+# SDMX-CSV 2.1 value of an intentionally missing float (OBS_STATUS O or M).
+.reconcile_nan <- "NaN"
+
+# Private I/O helpers. Kept here, not shared with the pipeline, so the
+# reconciliation path stays independent of the converter's helpers.
+
+#' Read a CSV with every column as character and empty cells kept as "".
+#'
+#' @param path Path to the CSV file.
+#' @return A tibble of character columns.
+.reconcile_read_csv <- function(path) {
+  readr::read_csv(
+    path,
+    col_types = readr::cols(.default = readr::col_character()),
+    na = character(0), trim_ws = FALSE, progress = FALSE,
+    show_col_types = FALSE
+  )
+}
+
+#' Every metadata and content CSV under a root, keyed by file stem.
+#'
+#' @param root Repo root.
+#' @return A named list of tibbles.
+.reconcile_load_metadata <- function(root) {
+  dirs <- file.path(root, c("metadata", "content"))
+  dirs <- dirs[dir.exists(dirs)]
+  files <- unlist(lapply(
+    dirs, list.files, pattern = "[.]csv$", recursive = TRUE, full.names = TRUE
+  ))
+  meta <- list()
+  for (f in files) {
+    meta[[tools::file_path_sans_ext(basename(f))]] <- .reconcile_read_csv(f)
+  }
+  meta
+}
+
+#' Format numbers in fixed notation (at most 10 decimals, no trailing
+#' zeros); NA becomes "".
+#'
+#' @param x A numeric vector.
+#' @return A character vector.
+.reconcile_fmt_num <- function(x) {
+  out <- rep("", length(x))
+  keep <- !is.na(x)
+  if (any(keep)) {
+    s <- sprintf("%.10f", x[keep])
+    s <- sub("0+$", "", s)
+    s <- sub("[.]$", "", s)
+    s[s == "-0"] <- "0"
+    out[keep] <- s
+  }
+  out
+}
 
 .reconcile_sheets_star <- c("National", "ADM 1", "ZAE")
 
@@ -35,7 +97,7 @@
 #' @param ref_area,time_period The country and year.
 #' @return `<root>/data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv`.
 .reconcile_data_path <- function(root, ref_area, time_period) {
-  repo_path(
+  file.path(
     root, "data",
     paste0("AFW360_HH_", ref_area, "_", time_period, "_", .reconcile_estimation, ".csv")
   )
@@ -72,7 +134,7 @@
 #'   (from LEGACY_COLUMNS), comment_override (LEGACY_OVERRIDES obs_comment
 #'   when a COMMENT override matches, else NA).
 source_cells <- function(root) {
-  meta <- load_metadata(root)
+  meta <- .reconcile_load_metadata(root)
   legacy_columns <- meta$LEGACY_COLUMNS
   legacy_labels <- meta$LEGACY_LABELS
   legacy_overrides <- meta$LEGACY_OVERRIDES
@@ -81,7 +143,7 @@ source_cells <- function(root) {
 
   cell_frames <- list()
   for (ra in ref_areas) {
-    path <- repo_path(root, "data_raw", "tables", paste0("Tables_", ra, ".xlsx"))
+    path <- file.path(root, "data_raw", "tables", paste0("Tables_", ra, ".xlsx"))
     sheets <- readxl::excel_sheets(path)
     for (sh in sheets) {
       df <- readxl::read_excel(path, sheet = sh, col_types = "text")
@@ -199,7 +261,7 @@ source_cells <- function(root) {
 #'   `OBS_STATUS`, and `comment_mode` / `OBS_COMMENT_EXPECTED` (comment_mode
 #'   is "OVERRIDE", "LEGACY_EMPTY" or "NONE").
 expected_rows <- function(root) {
-  meta <- load_metadata(root)
+  meta <- .reconcile_load_metadata(root)
   cells <- source_cells(root)
   rows <- cells[cells$class %in% c("converted", "withheld"), , drop = FALSE]
   rows <- rows[order(rows$ref_area, rows$sheet, rows$column, rows$legacy_label), ]
@@ -219,7 +281,7 @@ expected_rows <- function(root) {
     return(tibble::tibble(
       ref_area = character(0), sheet = character(0), legacy_label = character(0),
       column = character(0), class = character(0), raw_value = character(0),
-      scale = character(0), DATAFLOW = character(0), REF_AREA = character(0),
+      scale = character(0), FREQ = character(0), REF_AREA = character(0),
       GEO = character(0), URBANISATION = character(0), SEX = character(0),
       AGE = character(0), TIME_PERIOD = character(0), ESTIMATION = character(0),
       INDICATOR = character(0),
@@ -281,9 +343,9 @@ expected_rows <- function(root) {
   scale_num <- suppressWarnings(as.numeric(rows$scale))
   obs_value_num <- ifelse(is_empty, NA_real_, raw_num * scale_num)
 
-  OBS_VALUE <- ifelse(is_empty, "", fmt_num(obs_value_num))
+  OBS_VALUE <- ifelse(is_empty, .reconcile_nan, .reconcile_fmt_num(obs_value_num))
   scale_or_one <- ifelse(is.na(rows$scale) | trimws(rows$scale) == "", 1, scale_num)
-  PRECISION <- fmt_num(0.01 * scale_or_one)
+  PRECISION <- .reconcile_fmt_num(0.01 * scale_or_one)
   SERIES_ID <- rows$series_id
   OBS_STATUS <- ifelse(is_empty, "O", "A")
 
@@ -301,10 +363,10 @@ expected_rows <- function(root) {
     TRUE ~ ""
   )
 
-  DATAFLOW <- rep("AFW360_HH", n)
+  FREQ <- rep(.reconcile_freq, n)
   key_parts <- cbind(
-    DATAFLOW, REF_AREA, GEO, TIME_PERIOD, ESTIMATION, INDICATOR, SEX, AGE,
-    URBANISATION, brk_mat, qual_mat
+    FREQ, REF_AREA, GEO, ESTIMATION, INDICATOR, SEX, AGE,
+    URBANISATION, brk_mat, qual_mat, TIME_PERIOD
   )
   row_key <- apply(key_parts, 1, paste, collapse = "|")
 
@@ -312,7 +374,7 @@ expected_rows <- function(root) {
     ref_area = rows$ref_area, sheet = rows$sheet, legacy_label = rows$legacy_label,
     column = rows$column, class = rows$class, raw_value = rows$raw_value,
     scale = rows$scale,
-    DATAFLOW = DATAFLOW, REF_AREA = REF_AREA, GEO = GEO, URBANISATION = URBANISATION,
+    FREQ = FREQ, REF_AREA = REF_AREA, GEO = GEO, URBANISATION = URBANISATION,
     SEX = SEX, AGE = AGE, TIME_PERIOD = TIME_PERIOD, ESTIMATION = ESTIMATION,
     INDICATOR = INDICATOR
   )
@@ -336,7 +398,7 @@ expected_rows <- function(root) {
 #'   row_key, obs_value), `missing_files` (paths of data files that do not
 #'   exist), `class_counts` and `result_counts` (per ref_area x sheet).
 reconcile <- function(root) {
-  meta <- load_metadata(root)
+  meta <- .reconcile_load_metadata(root)
   cells <- source_cells(root)
   erows <- expected_rows(root)
   surveys <- meta$SURVEYS
@@ -353,7 +415,7 @@ reconcile <- function(root) {
       missing_files <- c(missing_files, path)
       next
     }
-    d <- read_std_csv(path)
+    d <- .reconcile_read_csv(path)
     missing_cols <- setdiff(
       c(.reconcile_key_cols, "SERIES_ID", "PRECISION", "OBS_VALUE", "OBS_STATUS", "OBS_COMMENT"),
       names(d)
@@ -413,8 +475,8 @@ reconcile <- function(root) {
     ok_prec <- !is.na(drow_prec) &&
       abs(drow_prec - as.numeric(erows$PRECISION[i])) <= 1e-9 * max(1, abs(drow_prec))
     ok <- TRUE
-    if (erows$OBS_VALUE[i] == "") {
-      ok <- identical(trimws(drow$OBS_VALUE), "") &&
+    if (erows$OBS_VALUE[i] == .reconcile_nan) {
+      ok <- identical(trimws(drow$OBS_VALUE), .reconcile_nan) &&
         identical(drow$OBS_STATUS, "O") &&
         grepl("^LEGACY_EMPTY:", drow$OBS_COMMENT)
     } else {
@@ -482,7 +544,7 @@ reconcile <- function(root) {
       next
     }
     implied <- if (op == "EQUALS") ref_val else (1 - ref_val)
-    dd_data_value[i] <- fmt_num(implied)
+    dd_data_value[i] <- .reconcile_fmt_num(implied)
     deviation <- own_num - implied
     if (abs(deviation) > tol + 1e-9) dd_result[i] <- "ASSERT_FAIL"
   }
