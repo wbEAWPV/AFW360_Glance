@@ -119,6 +119,94 @@ def series(df: pd.DataFrame, series_id: str, **dims) -> pd.DataFrame:
     return df.loc[mask].reset_index(drop=True)
 
 
+# --- Table layouts ---------------------------------------------------------
+#
+# A "cut" is the breakdown a row describes: the one non-total code among the
+# breakdown dimensions below, other than the codes that are part of the series
+# itself (``POP_SH.EMP_SECTOR_AGR`` carries ``EMP_SECTOR_AGR`` in
+# COMP_BREAKDOWN_1, or in COMP_BREAKDOWN_2 when COMP_BREAKDOWN_1 holds the
+# cut). The national total is the cut ``_T``. GEO is kept apart: cuts are read
+# at one GEO (``_T`` by default) and ``geo_values`` reads the GEO profile at
+# the total cut.
+
+BREAKDOWN_DIMS = ("SEX", "AGE", "URBANISATION") + tuple(f"COMP_BREAKDOWN_{i}" for i in range(1, 6))
+TOTAL_CODES = ("_T", "_Z")
+
+# Column layouts of the legacy tables (column label -> cut code).
+AREA_COLUMNS = {"Total": "_T", "Capital": "CAP", "Other urban": "OU", "Rural": "R"}
+PROFILE_COLUMNS = {
+    "Total": "_T", "Female": "HHH_SEX_F", "Male": "HHH_SEX_M",
+    "Youth": "HHH_AGE_LT35", "29+": "HHH_AGE_GE35",
+    "Q1": "QUINT_Q1", "Q2": "QUINT_Q2", "Q3": "QUINT_Q3", "Q4": "QUINT_Q4", "Q5": "QUINT_Q5",
+    "Rural": "R", "Capital": "CAP", "Other Urban": "OU",
+}
+
+
+def _cut_codes(df: pd.DataFrame, series_id: str) -> pd.Series:
+    """Cut code of every row of ``df`` (rows of one series)."""
+    own = set(series_id.split(".")[1:])
+    dims = [d for d in BREAKDOWN_DIMS if d in df]
+
+    def cut(row):
+        codes = [row[d] for d in dims if row[d] not in TOTAL_CODES and row[d] not in own]
+        return "+".join(codes) if codes else "_T"
+
+    if df.empty:
+        return pd.Series([], dtype=str, index=df.index)
+    return df[dims].apply(cut, axis=1)
+
+
+def cut_values(df: pd.DataFrame, series_id: str, geo: str = "_T") -> pd.Series:
+    """OBS_VALUE of ``series_id`` at ``geo``, indexed by cut code (``_T`` = total)."""
+    rows = series(df, series_id, GEO=geo)
+    out = pd.Series(rows["OBS_VALUE"].to_numpy(), index=_cut_codes(rows, series_id).to_numpy(), dtype="float64")
+    if out.index.duplicated().any():
+        raise ValueError(f"{series_id}: several rows for cuts {sorted(set(out.index[out.index.duplicated()]))}")
+    return out
+
+
+def geo_values(df: pd.DataFrame, series_id: str) -> pd.Series:
+    """OBS_VALUE of ``series_id`` at the total cut, indexed by GEO code (``_T`` excluded)."""
+    rows = series(df, series_id)
+    rows = rows[(rows["GEO"] != "_T") & (_cut_codes(rows, series_id) == "_T").to_numpy()]
+    return pd.Series(rows["OBS_VALUE"].to_numpy(), index=rows["GEO"].to_numpy(), dtype="float64")
+
+
+def _row_values(df, spec, geo):
+    """Values of one table row. ``spec`` is a series id, ``("ONE_MINUS", series_id)``
+    (a DERIVED row of LEGACY_LABELS), or None (placeholder row, all missing)."""
+    if spec is None:
+        return pd.Series(dtype="float64")
+    if isinstance(spec, tuple):
+        op, sid = spec
+        if op != "ONE_MINUS":
+            raise ValueError(f"unknown row operation {op!r}")
+        return 1.0 - cut_values(df, sid, geo)
+    return cut_values(df, spec, geo)
+
+
+def layout_table(df: pd.DataFrame, rows: dict, columns: dict, geo: str = "_T") -> pd.DataFrame:
+    """Wide table in a legacy layout: row label -> row spec, column label -> cut code.
+
+    Row specs as in ``_row_values``. Cells without an observation are NaN.
+    """
+    data = {}
+    for label, spec in rows.items():
+        vals = _row_values(df, spec, geo)
+        data[label] = [vals.get(code, float("nan")) for code in columns.values()]
+    return pd.DataFrame.from_dict(data, orient="index", columns=list(columns.keys()), dtype="float64")
+
+
+def display_rule(spec, meta: pd.DataFrame | None = None) -> tuple[str, int]:
+    """``(display_as, decimals)`` of a row spec, from CL_INDICATOR (via the series' INDICATOR)."""
+    if spec is None:
+        return ("PERCENT", 1)
+    sid = spec[1] if isinstance(spec, tuple) else spec
+    meta = load_indicator_meta() if meta is None else meta
+    rule = meta.loc[sid.split(".")[0]]
+    return (rule["display_as"], int(rule["decimals"]))
+
+
 def load_codelist(name: str, root=None) -> pd.DataFrame:
     """A codelist from ``metadata/codelists``; ``name`` is ``CL_GEO`` or ``GEO``."""
     name = name.upper()
@@ -171,6 +259,15 @@ def load_figures(iso3: str, root=None) -> pd.DataFrame:
     rows = reg[reg["ref_area"] == iso3.upper()].reset_index(drop=True)
     rows["path"] = [str(root / "assets" / "figures" / f) if f else "" for f in rows["file"]]
     return rows
+
+
+def legacy_table_path(iso3: str, root=None) -> Path:
+    """Legacy Excel tables ``data_raw/tables/Tables_<ISO3>.xlsx``.
+
+    Transitional: only dashboard sections not yet switched to the SDMX-CSV data
+    read it (the Guinea-Bissau section until WP9c); remove it with the last reader.
+    """
+    return _root(root) / "data_raw" / "tables" / f"Tables_{iso3.upper()}.xlsx"
 
 
 def load_boundaries(iso3: str, layer: str = "adm1", root=None):
