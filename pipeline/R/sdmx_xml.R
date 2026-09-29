@@ -3,7 +3,8 @@
 # xml2 helpers for writing SDMX-ML 3.1 structure messages (plan 2.1, 2.5;
 # sdmx-ml-cheatsheet.md sections 1 to 4, 11): namespaces, the message
 # envelope with its header, annotations, localised names and descriptions,
-# URN builders, deterministic serialisation and XSD validation.
+# URN builders, deterministic serialisation, XSD validation and the
+# SDMX-ML 3.0 output profile for FMR (sdmx_as_v30).
 
 SDMX_NS <- c(
   mes = "http://www.sdmx.org/resources/sdmxml/schemas/v3_1/message",
@@ -144,6 +145,51 @@ sdmx_write <- function(doc, path) {
   con <- file(path, open = "wb")
   on.exit(close(con))
   writeBin(charToRaw(txt), con)
+  invisible(path)
+}
+
+#' Convert a 3.1 structure message to the SDMX-ML 3.0 output profile
+#' (plan 2.13 contingency, WP8b2), for registries such as FMR 12.4 that
+#' reject the `v3_1` namespaces.
+#'
+#' The profile rewrites the `v3_1` namespaces and schema location to `v3_0`
+#' and drops the metadata structures, metadataflows and metadata provision
+#' agreements, whose 3.0 XML differs from 3.1. Every other artefact is kept
+#' as is, annotations included (`com:AnnotationValue` exists in 3.0). No XSD
+#' for 3.0 is vendored, so the result is not validated here.
+#'
+#' @param doc An xml2 document built by `sdmx_structures_message()`.
+#' @return A new xml2 document in the 3.0 profile; `doc` is not modified.
+sdmx_as_v30 <- function(doc) {
+  txt <- sdmx_serialise(doc)
+  txt <- gsub("/schemas/v3_1/", "/schemas/v3_0/", txt, fixed = TRUE)
+  txt <- gsub("https://xml.sdmx.org/3.1/", "https://xml.sdmx.org/3.0/", txt, fixed = TRUE)
+  out <- xml2::read_xml(txt)
+  ns <- xml2::xml_ns(out)
+  drop <- c("str:MetadataStructures", "str:Metadataflows", "str:MetadataProvisionAgreements")
+  for (tag in drop) {
+    xml2::xml_remove(xml2::xml_find_all(out, paste0("/mes:Structure/mes:Structures/", tag), ns))
+  }
+  out
+}
+
+#' Write a 3.0-profile message: as `sdmx_write()`, but with each namespace
+#' declaration and the schema location of the root element on its own line,
+#' so the `v3_0` namespaces can be counted with `grep -c`.
+#'
+#' @param doc An xml2 document returned by `sdmx_as_v30()`.
+#' @param path Destination path; parent directories are created.
+#' @return `path`, invisibly.
+sdmx_write_v30 <- function(doc, path) {
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  txt <- sdmx_serialise(doc)
+  root_end <- regexpr("<mes:Structure [^>]*>", txt)
+  head_txt <- substr(txt, 1, root_end + attr(root_end, "match.length") - 1)
+  head_txt <- gsub(" (xmlns:|xsi:schemaLocation=)", "\n    \\1", head_txt)
+  txt <- paste0(head_txt, substr(txt, root_end + attr(root_end, "match.length"), nchar(txt)))
+  con <- file(path, open = "wb")
+  on.exit(close(con))
+  writeBin(charToRaw(enc2utf8(txt)), con)
   invisible(path)
 }
 

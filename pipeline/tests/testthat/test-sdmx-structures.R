@@ -202,3 +202,27 @@ test_that("the metadataflow targets three codelists and the dataflow; agreements
   expect_equal(xml2::xml_text(xml2::xml_find_first(doc, "//str:MetadataProvisionAgreement/str:Metadataflow", ns)),
                sdmx_urn("metadatastructure", "Metadataflow", "MDF_AFW360", v))
 })
+
+test_that("the SDMX-ML 3.0 profile rewrites the namespaces and drops the MSD, MDF and MPA only", {
+  doc31 <- full_doc()
+  doc30 <- sdmx_as_v30(doc31)
+  path <- withr::local_tempfile(fileext = ".xml")
+  sdmx_write_v30(doc30, path)
+  txt <- rawToChar(readBin(path, "raw", file.info(path)$size))
+  expect_false(grepl("v3_1", txt, fixed = TRUE))
+  expect_true(grepl("xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/structure\"", txt, fixed = TRUE))
+  back <- xml2::read_xml(path)
+  ns30 <- c(
+    mes = "http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message",
+    str = "http://www.sdmx.org/resources/sdmxml/schemas/v3_0/structure"
+  )
+  kids <- function(d, n) xml2::xml_name(xml2::xml_children(xml2::xml_find_first(d, "//mes:Structures", n)))
+  dropped <- c("MetadataStructures", "Metadataflows", "MetadataProvisionAgreements")
+  expect_identical(kids(back, ns30), setdiff(kids(doc31, c(mes = SDMX_NS[["mes"]])), dropped))
+  n_of <- function(d, n, tag) length(xml2::xml_find_all(d, paste0("//str:", tag), n))
+  for (tag in c("Codelist", "Code", "Concept", "Dimension", "Attribute", "Dataflow", "ProvisionAgreement")) {
+    expect_identical(n_of(back, ns30, tag), n_of(doc31, ns, tag), info = tag)
+  }
+  # The 3.1 document is untouched.
+  expect_identical(length(xml2::xml_find_all(doc31, "//str:MetadataStructure", ns)), 1L)
+})

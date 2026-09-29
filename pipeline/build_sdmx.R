@@ -19,6 +19,15 @@
 # Options:
 #   --out-root <dir>    where sdmx/ is written or checked (default: --root)
 #   --timestamp <ts>    header mes:Prepared (default 2026-01-01T00:00:00Z)
+#   --sdmx-ml-version <v>  3.1 (default, the canonical committed output) or
+#                       3.0: the output profile for FMR 12.4 (plan 2.13),
+#                       with v3_0 namespaces and without the metadata
+#                       structure, metadataflow and metadata provision
+#                       agreement. 3.0 writes only the structure message,
+#                       only under an --out-root other than --root, and
+#                       cannot be combined with --check.
+#
+#   Rscript pipeline/build_sdmx.R --root . --sdmx-ml-version 3.0 --out-root tmp/v30
 #
 # The work is done in pipeline/R/sdmx_xml.R, pipeline/R/sdmx_structures.R
 # and pipeline/R/sdmx_refmeta.R.
@@ -49,6 +58,29 @@ if (!isTRUE(ok)) {
   cat("SDMX-ML structure message is not valid against SDMXMessage.xsd:\n")
   cat(paste0("  ", utils::head(errs, 20), "\n"), sep = "")
   quit(status = 1)
+}
+
+ml_version <- cli_arg(args, "--sdmx-ml-version", "3.1")
+if (!ml_version %in% c("3.1", "3.0")) {
+  cat(sprintf("--sdmx-ml-version must be 3.1 or 3.0, not %s\n", ml_version))
+  quit(status = 1)
+}
+if (ml_version == "3.0") {
+  out_norm <- normalizePath(out_root, winslash = "/", mustWork = FALSE)
+  if (cli_flag(args, "--check") || identical(out_norm, root)) {
+    cat("--sdmx-ml-version 3.0 needs an --out-root other than --root and no --check;",
+      "the committed message stays SDMX-ML 3.1\n")
+    quit(status = 1)
+  }
+  doc30 <- sdmx_as_v30(doc)
+  sdmx_write_v30(doc30, target)
+  n30 <- function(tag) length(xml2::xml_find_all(doc30, paste0("//mes:Structures/*/", tag), xml2::xml_ns(doc30)))
+  cat(sprintf(paste("wrote %s in the SDMX-ML 3.0 profile (%d codelists, %d data structure,",
+    "%d dataflow, %d provision agreement; no metadata structure, metadataflow",
+    "or metadata provision agreement)\n"),
+    target, n30("str:Codelist"), n30("str:DataStructure"), n30("str:Dataflow"),
+    n30("str:ProvisionAgreement")))
+  quit(status = 0)
 }
 
 msgs <- sdmx_refmeta_messages(root)
