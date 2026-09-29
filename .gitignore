@@ -25,3 +25,4 @@ _shinylive/
 # SDMX transition scratch (logs, findings) and the verification venv
 tmp/
 tools/verify/.venv/
+tools/fmr/runtime/
