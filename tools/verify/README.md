@@ -24,7 +24,7 @@ Below, `V=tools/verify/.venv/Scripts/python` (Windows) or
 
 | Command | What it does | Exit |
 |---|---|---|
-| `$V tools/verify/verify_sdmx.py --root .` | Reads `sdmx/structures/AFW360_structures.xml` with `read_sdmx(validate=True)` and prints artefact counts by type (skipped with a message while absent); reads every `data/*.csv` except `*_manifest.csv` with the pysdmx SDMX-CSV 2.1 reader and prints observations per file; parses every `sdmx/metadata/*.csv` with `csv` and checks the header (`MDSTRUCTURE, MDSTRUCTURE_ID, METADATASET_ID, TARGET_TYPES, TARGET_IDS`, then dotted paths ending in an MSD metadata attribute id), `MDSTRUCTURE = metadataflow` and that `TARGET_IDS` names an artefact of the structure message; prints rows per file. | 1 on any failure |
+| `$V tools/verify/verify_sdmx.py --root .` | Validates `sdmx/structures/AFW360_structures.xml` as is against `pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd` with lxml, reads a pysdmx-compatible in-memory copy with `read_sdmx(validate=True)` (see Notes) and prints artefacts read by class (agency schemes, concept schemes, codelists) and by type (skipped with a message while absent); reads every `data/*.csv` except `*_manifest.csv` with the pysdmx SDMX-CSV 2.1 reader and prints observations per file; parses every `sdmx/metadata/*.csv` with `csv` and checks the header (`MDSTRUCTURE, MDSTRUCTURE_ID, METADATASET_ID, TARGET_TYPES, TARGET_IDS`, then dotted paths ending in an MSD metadata attribute id), `MDSTRUCTURE = metadataflow` and that `TARGET_IDS` names an artefact of the structure message; prints rows per file. | 1 on any failure |
 | `$V tools/verify/xsd_validate.py <xsd> <xml>` | Validates with lxml; prints `valid` or the first error. | 1 if invalid |
 | `$V tools/verify/check_urns.py <xml>` | Finds every `urn:sdmx:...=WB.AFW360:ID(VERSION)` reference and checks that an artefact with that id and version is in the same message; prints unresolved URNs and `unresolved: <n>`. | 1 if n > 0 |
 
@@ -50,3 +50,12 @@ and serves to test `xsd_validate.py` and `check_urns.py`.
   vendored copy.
 - The message header `Sender id` is an XSD `IDType` (`[A-Za-z0-9_@$\-]+`), so
   `WB.AFW360` is not accepted there; the fixture uses `WB`.
+- pysdmx 1.20.0 cannot read `com:AnnotationValue`, which SDMX-ML 3.1 allows
+  in `com:Annotation` and the structure message uses: its reader maps only
+  `AnnotationTitle`, `AnnotationType`, `AnnotationURL` and `AnnotationText`,
+  and raises `TypeError: Unexpected keyword argument 'AnnotationValue'`.
+  `verify_sdmx.py` therefore XSD-validates the original bytes against the
+  vendored schema first, then hands pysdmx an in-memory lxml copy in which
+  each `AnnotationValue` becomes an `AnnotationTitle` placed first in its
+  annotation (dropped if a title exists). The file on disk is not changed and
+  annotation values are not checked here (`check_urns.py` covers URNs).

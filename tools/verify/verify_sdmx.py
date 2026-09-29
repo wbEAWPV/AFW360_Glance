@@ -2,9 +2,11 @@
 
 Usage: python verify_sdmx.py --root <dir>
 
-1. Reads <root>/sdmx/structures/AFW360_structures.xml with pysdmx
-   (validate=True, i.e. XSD validation) and prints artefact counts by type.
-   Skipped with a message while the file does not exist.
+1. Validates <root>/sdmx/structures/AFW360_structures.xml as is against the
+   vendored pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd with lxml, then reads an
+   in-memory copy with pysdmx (validate=True) in which each com:AnnotationValue
+   (unsupported by pysdmx 1.20.0) is rewritten to com:AnnotationTitle, and
+   prints artefact counts by type. Skipped with a message while absent.
 2. Reads every <root>/data/*.csv except *_manifest.csv with the pysdmx
    SDMX-CSV 2.1 reader and prints the observation count per file.
 3. Parses every <root>/sdmx/metadata/*.csv with the csv module (pysdmx 1.20.0
@@ -26,10 +28,15 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from lxml import etree
 from pysdmx.io import read_sdmx
 from pysdmx.io.csv.sdmx21.reader import read as read_csv21
 
 STRUCTURE_REL = Path("sdmx") / "structures" / "AFW360_structures.xml"
+# vendored schema, located from this script (not from --root)
+XSD_PATH = (Path(__file__).resolve().parents[2] / "pipeline" / "xsd"
+            / "sdmx-ml-3.1" / "SDMXMessage.xsd")
+COM_NS = "http://www.sdmx.org/resources/sdmxml/schemas/v3_1/common"
 MD_HEADER = ["MDSTRUCTURE", "MDSTRUCTURE_ID", "METADATASET_ID",
              "TARGET_TYPES", "TARGET_IDS"]
 # id and optional version of a maintainable, from a URN or `AGENCY:ID(VER)`
@@ -46,20 +53,69 @@ class Report:
         print(f"FAIL {msg}")
 
 
+def xsd_error(xml_bytes: bytes) -> str | None:
+    """Validate the original bytes against the vendored SDMX-ML 3.1 XSD.
+
+    Returns None when valid, else the first error as text.
+    """
+    try:
+        schema = etree.XMLSchema(etree.parse(str(XSD_PATH)))
+    except (etree.XMLSchemaParseError, etree.XMLSyntaxError, OSError) as e:
+        return f"cannot load schema {XSD_PATH}: {e}"
+    try:
+        doc = etree.fromstring(xml_bytes)
+    except etree.XMLSyntaxError as e:
+        return f"cannot parse: {e}"
+    if schema.validate(doc):
+        return None
+    err = schema.error_log[0] if len(schema.error_log) else None
+    return "invalid (no message)" if err is None else (
+        f"XSD: line {err.line}:{err.column}: {err.message}")
+
+
+def pysdmx_copy(xml_bytes: bytes) -> str:
+    """In-memory copy that pysdmx 1.20.0 can read.
+
+    pysdmx 1.20.0 maps only AnnotationTitle, Type, URL and Text and raises
+    TypeError on the SDMX-ML 3.1 com:AnnotationValue. Each AnnotationValue
+    becomes an AnnotationTitle placed first in its Annotation (the XSD order),
+    or is dropped when the Annotation already has a title.
+    """
+    doc = etree.fromstring(xml_bytes)
+    for val in list(doc.iter(f"{{{COM_NS}}}AnnotationValue")):
+        ann = val.getparent()
+        ann.remove(val)
+        if ann.find(f"{{{COM_NS}}}AnnotationTitle") is None:
+            title = etree.Element(f"{{{COM_NS}}}AnnotationTitle")
+            title.text = val.text
+            ann.insert(0, title)
+    return etree.tostring(doc, xml_declaration=True,
+                          encoding="UTF-8").decode("utf-8")
+
+
 def check_structures(root: Path, rep: Report):
     path = root / STRUCTURE_REL
+    label = f"structures: {STRUCTURE_REL.as_posix()}"
     if not path.exists():
         print(f"structures: {STRUCTURE_REL.as_posix()} not found, skipped")
         return None
+    raw = path.read_bytes()
+    err = xsd_error(raw)
+    if err is not None:
+        rep.fail(f"{label}: {err}")
+        return None
     try:
-        msg = read_sdmx(str(path), validate=True)
+        msg = read_sdmx(pysdmx_copy(raw), validate=True)
     except Exception as e:  # pysdmx raises Invalid and others
-        rep.fail(f"structures: {STRUCTURE_REL.as_posix()}: "
-                 f"{type(e).__name__}: {e}")
+        rep.fail(f"{label}: {type(e).__name__}: {e}")
         return None
     counts = Counter(type(a).__name__ for a in (msg.structures or []))
-    print(f"structures: {STRUCTURE_REL.as_posix()}: "
-          f"{sum(counts.values())} artefacts")
+    by_class = ", ".join(
+        f"{counts.get(cls, 0)} {noun}{'' if counts.get(cls, 0) == 1 else 's'}"
+        for cls, noun in (("AgencyScheme", "agency scheme"),
+                          ("ConceptScheme", "concept scheme"),
+                          ("Codelist", "codelist")))
+    print(f"{label}: {sum(counts.values())} artefacts read ({by_class})")
     for name, n in sorted(counts.items()):
         print(f"  {name}: {n}")
     return msg
