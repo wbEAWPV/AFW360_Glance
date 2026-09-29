@@ -49,3 +49,4 @@ The whole validator run of row 6 exits 0 with these findings and no `ERROR`: 42 
 - `SERIES_ID` is an uncoded `String` attribute checked against `SERIES_PLAN.csv`, not a codelist (D43, `IDType` forbids the dot in series ids).
 - `WB:AGENCIES` is a local placeholder declaring `AFW360`; nothing is registered in the Global Registry (D31).
 - Sender id `WB_AFW360`: message sender ids are `IDType` and cannot contain the dot of `WB.AFW360`.
+- Byte-identical regeneration of the boundaries: `pipeline/build_geo.R` writes GeoPackages that are not byte-deterministic, so a rebuild changes `geo/boundaries/*.gpkg` and the two `sha256` fields of `metadata/registries/GEO_SOURCES.csv`, and the regenerated tree fails the byte-identity test of `test-migrate-0.3.0.R` (WP11). The committed GeoPackages and hashes are the reference; a deterministic writer needs a metadata patch version and a migration and is left for a later release.

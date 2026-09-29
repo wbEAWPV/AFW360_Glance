@@ -1162,7 +1162,7 @@ The module `pipeline/R/validate_sdmx.R` holds six checks, specified in @sec-sdmx
 
 **Deterministic output**
 
-- Every file the pipeline writes is byte-identical across runs on the same inputs: rows sorted by the 19 key columns (@tbl-columns, `FREQ` through `TIME_PERIOD`) in DSD order.
+- Every file the pipeline writes is byte-identical across runs on the same inputs: rows sorted by the 19 key columns (@tbl-columns, `FREQ` through `TIME_PERIOD`) in DSD order. The exception is `pipeline/build_geo.R`: the GeoPackages it writes under `geo/boundaries/` are not byte-deterministic, so regenerating them changes the files and the `sha256` fields it records in `GEO_SOURCES.csv`; the committed GeoPackages and hashes are the reference (WP11), and a deterministic writer is a later patch release with a migration.
 - UTF-8 with no byte-order mark, LF line endings.
 - A missing value is written as an empty string, never `NA`. The one exception is `OBS_VALUE` on an `O` or `M` row, which is `NaN` (@sec-values).
 - Numbers are written in fixed notation, never scientific, rounded with `round(x * scale, 10)` and a fixed formatter, with no trailing zeros.
