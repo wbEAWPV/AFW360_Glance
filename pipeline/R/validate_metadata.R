@@ -76,7 +76,7 @@ vc_meta_header <- function(ctx) {
     df <- ctx$meta[[stem]]
     if (is.null(df)) next
     spec <- cols[cols$file == f, ]
-    spec <- spec[order(as.integer(spec$position)), ]
+    spec <- spec[order(as.integer(spec$position), method = "radix"), ]
     expected <- spec$column
     actual <- names(df)
     if (!identical(actual, expected)) {

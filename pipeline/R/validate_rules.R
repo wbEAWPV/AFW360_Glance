@@ -66,12 +66,12 @@
   if (nrow(df) == 0) {
     return(df)
   }
-  df <- df[order(df$check_id, df$file, df$row_key), , drop = FALSE]
+  df <- df[order(df$check_id, df$file, df$row_key, method = "radix"), , drop = FALSE]
   groups <- unique(df[c("check_id", "file")])
   parts <- vector("list", nrow(groups))
   for (i in seq_len(nrow(groups))) {
     sub <- df[df$check_id == groups$check_id[i] & df$file == groups$file[i], , drop = FALSE]
-    sub <- sub[order(sub$row_key), , drop = FALSE]
+    sub <- sub[order(sub$row_key, method = "radix"), , drop = FALSE]
     if (nrow(sub) > 20) {
       head20 <- sub[1:20, , drop = FALSE]
       summary_row <- data.frame(
@@ -364,7 +364,7 @@ vc_rule_range_nonneg <- function(ctx) {
     parent_idx <- stats::setNames(seq_len(nrow(parents)), paste(parents$series_id, parents$.file))
 
     grp <- paste(sub$series_id, sub$cut_id, sub$.file)
-    for (g in sort(unique(grp))) {
+    for (g in sort(unique(grp), method = "radix")) {
       children <- sub[grp == g, , drop = FALSE]
       series_id <- children$series_id[1]
       file <- children$.file[1]
@@ -508,7 +508,7 @@ vc_rule_agg_npop_mean <- function(ctx) {
   }
 
   group_key <- paste(target_var, .vc_group_key(sub, key_cols, slot))
-  ord <- order(group_key)
+  ord <- order(group_key, method = "radix")
   sub <- sub[ord, , drop = FALSE]
   target_var <- target_var[ord]
   category <- category[ord]
@@ -529,7 +529,7 @@ vc_rule_agg_npop_mean <- function(ctx) {
     }
     if (!all(grp_rows$.present)) {
       findings[[length(findings) + 1]] <- .vc_rule_finding(
-        "RULE.AGG_SKIPPED", "WARN", grp_rows$.file[1], min(grp_rows$.row_key),
+        "RULE.AGG_SKIPPED", "WARN", grp_rows$.file[1], sort(grp_rows$.row_key, method = "radix")[1],
         sprintf(
           "rule=%s var=%s skipped: %d/%d categories present",
           app$rule_id, var, sum(grp_rows$.present), nrow(grp_rows)
@@ -542,7 +542,7 @@ vc_rule_agg_npop_mean <- function(ctx) {
     dev <- abs(s - 1)
     if (dev > tol + 1e-9) {
       findings[[length(findings) + 1]] <- .vc_rule_finding(
-        check_id, app$severity, grp_rows$.file[1], min(grp_rows$.row_key),
+        check_id, app$severity, grp_rows$.file[1], sort(grp_rows$.row_key, method = "radix")[1],
         sprintf(
           "rule=%s var=%s sum=%s target=1 deviation=%s tolerance=%s",
           app$rule_id, var, fmt_num(s), fmt_num(dev), fmt_num(tol)
@@ -648,13 +648,13 @@ vc_rule_monotone <- function(ctx) {
     group_key <- .vc_group_key(sub, key_cols, hit$slot[keep])
     ord_value <- unname(qual_order_of[hit$category[keep]])
 
-    for (g in sort(unique(group_key))) {
+    for (g in sort(unique(group_key), method = "radix")) {
       idx <- which(group_key == g)
       if (length(idx) < 2) next
       grp <- sub[idx, , drop = FALSE]
       pv <- ord_value[idx]
       if (any(is.na(pv))) next
-      o <- order(pv)
+      o <- order(pv, method = "radix")
       grp <- grp[o, , drop = FALSE]
       pv <- pv[o]
       for (i in 2:nrow(grp)) {
@@ -738,7 +738,7 @@ vc_rule_npop_partition <- function(ctx) {
   partition_memo <- list()
 
   grp <- paste(sub$series_id, sub$cut_id, sub$.file)
-  for (g in sort(unique(grp))) {
+  for (g in sort(unique(grp), method = "radix")) {
     children <- sub[grp == g, , drop = FALSE]
     pi <- unname(parent_idx[paste(children$series_id[1], children$.file[1])])
     if (length(pi) == 0 || is.na(pi)) next

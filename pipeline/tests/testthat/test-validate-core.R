@@ -602,7 +602,9 @@ test_that("a qualifier declared nowhere and dropped from INDICATOR_QUALIFIERS.cs
   })
   res <- vc_codes_qual_declared(build_ctx(fx$tmp, data_files = fx$data_path))
   expect_true(nrow(res) > 0)
-  expect_true(all(grepl("PPP_2021", res$message)))
+  # The module caps its findings (validate_common.R), so skip a SUMMARY row.
+  real <- res[!grepl("^SUMMARY: ", res$message), ]
+  expect_true(all(grepl("PPP_2021", real$message)))
 })
 
 # ---- metadata: code syntax, RULES, relations, SERIES_PLAN, SOURCES ---------
@@ -748,4 +750,27 @@ test_that("the DOCS module gives one INFO when the root has no standard", {
   res <- vc_docs_fragments(build_ctx(tmp))
   expect_equal(res$check_id, "DOCS.SKIPPED")
   expect_equal(res$severity, "INFO")
+})
+
+# ---- determinism of the findings file ------------------------------------------
+
+test_that("two validator runs on the same fixture give identical findings", {
+  fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
+  run <- function(out) {
+    suppressWarnings(system2(
+      "Rscript",
+      c(shQuote(file.path(fx$tmp, "pipeline", "validate.R")), "--root", shQuote(fx$tmp), "--out", shQuote(out)),
+      stdout = TRUE, stderr = TRUE
+    ))
+    read_std_csv(out)
+  }
+  a <- run(file.path(fx$tmp, "findings-a.csv"))
+  b <- run(file.path(fx$tmp, "findings-b.csv"))
+  expect_true(nrow(a) > 0)
+  expect_identical(as.data.frame(a), as.data.frame(b))
+  bytes <- function(p) readBin(p, "raw", file.info(p)$size)
+  expect_identical(bytes(file.path(fx$tmp, "findings-a.csv")), bytes(file.path(fx$tmp, "findings-b.csv")))
+  # The rows are in radix (C-locale) order of check_id, file, row_key.
+  ord <- order(a$check_id, a$file, a$row_key, method = "radix")
+  expect_equal(ord, seq_len(nrow(a)))
 })

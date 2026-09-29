@@ -69,7 +69,8 @@ ERROR, 2 if a check crashed. `--metadata-only` skips the data files; `--data
   `SOURCE_ID` against `SOURCES.csv` and the manifest.
 - `COVER` (`validate_coverage.R`): the required rows of the file's
   `ESTIMATION` (country `SERIES_PLAN` rows over `ALL`, `NOT_PRODUCED` left
-  out, withheld cells subtracted), the manifest and `SURVEYS.csv`.
+  out, withheld cells subtracted), the manifest and `SURVEYS.csv`, and a WARN
+  for a `SURVEYS.csv` survey with no SURVEY data file or manifest.
 - `VALUE` (`validate_values.R`): numbers, ranges, `PRECISION`, the
   reliability attributes (required on `PRODUCER`-source rows), and the
   `OBS_STATUS` rules (`E` in a `MODEL` file, `D` on `DEVIATES` series, `U` by
@@ -84,6 +85,10 @@ ERROR, 2 if a check crashed. `--metadata-only` skips the data files; `--data
   current (`docs_check()` of `R/docs.R`).
 - `ASSET` and `TEXT` (`validate_assets.R`, `validate_text.R`): boundaries,
   figures and dashboard text.
+
+The findings helpers the modules share live once in `R/validate_common.R`,
+which `validate.R` sources first. Findings are sorted with `method = "radix"`,
+so the file is the same in every locale.
 
 ## The bootstrap scripts are frozen
 

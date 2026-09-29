@@ -23,7 +23,8 @@
 # for a whole-file finding, or `key=<name>` / `survey_id=<value>` for a
 # finding about one manifest key or SURVEYS.csv row. More than 20
 # findings for one check_id/file pair are capped to the first 20 in
-# row_key order, plus one SUMMARY finding (see .vc_apply_cap() below).
+# row_key order, plus one SUMMARY finding (.vc_apply_cap() in
+# pipeline/R/validate_common.R, which callers source before this file).
 
 # The key columns come from the DSD (ctx_key_columns(), pipeline/R/ctx.R:
 # the 19 columns DATAFLOW .. MEASURE_QUAL_5 in DSD 0.2.0), and the manifest
@@ -68,80 +69,6 @@
     return(NA_character_)
   }
   unname(man[[k]])
-}
-
-#' Build the findings row_key for each row of a data frame.
-#'
-#' @param df A data frame holding (a subset of) `cols`.
-#' @param cols The key columns to join, in order.
-#' @return A character vector, one entry per row of `df`.
-.vc_row_key <- function(df, cols) {
-  cols <- cols[cols %in% names(df)]
-  if (length(cols) == 0 || nrow(df) == 0) {
-    return(character(0))
-  }
-  do.call(paste, c(df[cols], sep = " "))
-}
-
-#' The findings `file` value for a data key.
-#'
-#' @param key A `ctx$data` / `ctx$manifests` list name (the file's stem).
-#' @return `"data/<key>.csv"`.
-.vc_file_path <- function(key) paste0("data/", key, ".csv")
-
-#' An empty findings frame, with the right columns and types.
-.vc_empty <- function() {
-  data.frame(
-    check_id = character(0), severity = character(0), file = character(0),
-    row_key = character(0), message = character(0),
-    stringsAsFactors = FALSE
-  )
-}
-
-#' Cap findings at 20 per check_id/file pair (WP12.md "Findings format").
-#'
-#' @param findings A findings data frame, any number of rows.
-#' @return `findings`, with each check_id/file group cut to its first 20
-#'   rows in row_key order plus one SUMMARY row when it had more.
-.vc_apply_cap <- function(findings) {
-  if (nrow(findings) == 0) {
-    return(findings)
-  }
-  group_key <- paste(findings$check_id, findings$file, sep = "")
-  groups <- split(seq_len(nrow(findings)), group_key)
-  groups <- groups[order(names(groups), method = "radix")]
-  parts <- vector("list", length(groups))
-  for (i in seq_along(groups)) {
-    grp <- findings[groups[[i]], , drop = FALSE]
-    grp <- grp[order(grp$row_key, method = "radix"), , drop = FALSE]
-    n <- nrow(grp)
-    if (n > 20) {
-      kept <- grp[seq_len(20), , drop = FALSE]
-      summary_row <- kept[1, , drop = FALSE]
-      summary_row$row_key <- ""
-      summary_row$message <- sprintf("SUMMARY: %d findings in total, 20 shown", n)
-      grp <- rbind(kept, summary_row)
-    }
-    parts[[i]] <- grp
-  }
-  result <- do.call(rbind, parts)
-  rownames(result) <- NULL
-  result
-}
-
-#' Bind a list of findings frames into one findings tibble.
-#'
-#' @param parts A list of data frames (as built by the `vc_*` functions),
-#'   possibly empty or with empty members.
-#' @return A tibble with zero or more findings, capped (`.vc_apply_cap()`).
-.vc_bind <- function(parts) {
-  parts <- parts[vapply(parts, function(x) !is.null(x) && nrow(x) > 0, logical(1))]
-  if (length(parts) == 0) {
-    return(dplyr::as_tibble(.vc_empty()))
-  }
-  result <- do.call(rbind, parts)
-  rownames(result) <- NULL
-  dplyr::as_tibble(.vc_apply_cap(result))
 }
 
 #' Compute the withheld rows for a country and time period (decision D5).
@@ -271,6 +198,47 @@ withheld_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
   result <- result[!duplicated(result[names(req)]), , drop = FALSE]
   rownames(result) <- NULL
   result
+}
+
+#' COVER.FILE_MISSING: for every SURVEYS.csv row, a SURVEY data file and
+#' its manifest exist under `data/` for that country and year (standard,
+#' "Validation checks" > "Coverage"). A missing file is a WARN, not an
+#' ERROR, because metadata precedes data. One finding per SURVEYS row, with
+#' `file` the expected data file and an empty `row_key`. The check looks
+#' at the files on disk, whichever files this run loads; it is skipped with
+#' `--metadata-only` and when `--data` names the files to validate.
+#'
+#' @param ctx The list from [build_ctx()].
+#' @return A findings tibble.
+vc_cover_file_missing <- function(ctx) {
+  out <- list()
+  if (isTRUE(ctx$opts$metadata_only) || isTRUE(ctx$opts$data_selected)) {
+    return(.vc_bind(out))
+  }
+  surveys <- ctx$meta$SURVEYS
+  if (is.null(surveys) || nrow(surveys) == 0 || !all(c("ref_area", "time_period") %in% names(surveys))) {
+    return(.vc_bind(out))
+  }
+  pairs <- unique(data.frame(ref_area = surveys$ref_area, time_period = surveys$time_period, stringsAsFactors = FALSE))
+  for (i in seq_len(nrow(pairs))) {
+    stem <- paste0(DATAFLOW_ID, "_", pairs$ref_area[i], "_", pairs$time_period[i], "_SURVEY")
+    data_rel <- paste0("data/", stem, ".csv")
+    man_rel <- paste0("data/", stem, "_manifest.csv")
+    has_data <- file.exists(file.path(ctx$root, data_rel))
+    has_man <- file.exists(file.path(ctx$root, man_rel))
+    if (has_data && has_man) next
+    missing <- c(if (!has_data) data_rel, if (!has_man) man_rel)
+    out[[length(out) + 1]] <- data.frame(
+      check_id = "COVER.FILE_MISSING", severity = "WARN", file = data_rel, row_key = "",
+      message = sprintf(
+        "SURVEYS.csv has a survey for %s %s, but %s %s missing.",
+        pairs$ref_area[i], pairs$time_period[i], paste(missing, collapse = " and "),
+        if (length(missing) == 1) "is" else "are"
+      ),
+      stringsAsFactors = FALSE
+    )
+  }
+  .vc_bind(out)
 }
 
 #' COVER.MISSING: an expected row is absent from the data file.

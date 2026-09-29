@@ -35,7 +35,9 @@ source(file.path(root, "pipeline", "R", "plan.R"))
 source(file.path(root, "pipeline", "R", "manifest.R"))
 source(file.path(root, "pipeline", "R", "docs.R"))
 
-module_files <- sort(Sys.glob(file.path(root, "pipeline", "R", "validate_*.R")))
+source(file.path(root, "pipeline", "R", "validate_common.R"))
+module_files <- sort(Sys.glob(file.path(root, "pipeline", "R", "validate_*.R")), method = "radix")
+module_files <- module_files[basename(module_files) != "validate_common.R"]
 for (f in module_files) source(f)
 
 metadata_only <- cli_flag(args, "--metadata-only")
@@ -59,9 +61,13 @@ if (metadata_only) {
 }
 data_files_abs <- if (length(data_files_rel) == 0) character(0) else file.path(root, data_files_rel)
 
-ctx <- build_ctx(root, data_files = data_files_abs, opts = list())
+ctx <- build_ctx(
+  root,
+  data_files = data_files_abs,
+  opts = list(metadata_only = metadata_only, data_selected = length(data_arg) > 0)
+)
 
-check_names <- sort(ls(pattern = "^vc_", envir = .GlobalEnv))
+check_names <- sort(ls(pattern = "^vc_", envir = .GlobalEnv), method = "radix")
 
 all_findings <- list()
 crashed <- FALSE
@@ -106,12 +112,12 @@ findings <- if (length(all_findings) == 0) empty_findings else dplyr::bind_rows(
   any(!is.na(sub$message) & grepl("^SUMMARY: ", sub$message))
 }
 if (nrow(findings) > 0) {
-  findings <- findings[order(findings$check_id, findings$file, findings$row_key), ]
+  findings <- findings[order(findings$check_id, findings$file, findings$row_key, method = "radix"), ]
   groups <- split(seq_len(nrow(findings)), list(findings$check_id, findings$file), drop = TRUE)
   capped <- list()
   for (g in groups) {
     sub <- findings[g, , drop = FALSE]
-    sub <- sub[order(sub$row_key), ]
+    sub <- sub[order(sub$row_key, method = "radix"), ]
     if (.has_summary_row(sub)) {
       capped[[length(capped) + 1]] <- sub
     } else if (nrow(sub) > 20) {
@@ -127,7 +133,7 @@ if (nrow(findings) > 0) {
   findings <- dplyr::bind_rows(capped)
 }
 
-findings <- findings[order(findings$check_id, findings$file, findings$row_key), ]
+findings <- findings[order(findings$check_id, findings$file, findings$row_key, method = "radix"), ]
 
 write_std_csv(findings, out_path)
 

@@ -8,9 +8,8 @@
 # code that has the metadata at hand reads it through dsd_columns() and
 # dsd_key_columns() (pipeline/R/io.R). DSD_COLUMNS and KEY_COLUMNS below
 # mirror DSD 0.2.0 for callers that have no metadata loaded (for example a
-# hand-made test `meta`); test-validate-core.R checks that they still equal
+# hand-made test `meta`); test-plan.R checks that they still equal
 # the DSD.
-
 #' The dataflow identifier used throughout the pipeline and its outputs.
 DATAFLOW_ID <- "AFW360_HH"
 

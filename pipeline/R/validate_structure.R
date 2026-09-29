@@ -13,34 +13,6 @@
 # once (STRUCT.HEADER.md gap: named columns would otherwise carry the wrong
 # values and cascade into unrelated findings).
 
-#' An empty findings tibble (the shared zero-row shape).
-.vc_empty <- function() {
-  tibble::tibble(
-    check_id = character(0),
-    severity = character(0),
-    file = character(0),
-    row_key = character(0),
-    message = character(0)
-  )
-}
-
-#' One findings row (or several, when the arguments are vectors).
-.vc_finding <- function(check_id, severity, file, row_key, message) {
-  tibble::tibble(
-    check_id = check_id,
-    severity = severity,
-    file = file,
-    row_key = row_key,
-    message = message
-  )
-}
-
-#' Bind a list of findings tibbles, or return the empty shape.
-.vc_bind <- function(out) {
-  if (length(out) == 0) return(.vc_empty())
-  dplyr::bind_rows(out)
-}
-
 #' The data file's path relative to the root, forward slashes.
 .struct_rel_file <- function(key) {
   paste0("data/", key, ".csv")

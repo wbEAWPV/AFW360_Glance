@@ -71,7 +71,7 @@
 .codes_coded_columns <- function(ctx) {
   dsd <- ctx$meta$DSD_AFW360_HH
   if (is.null(dsd)) return(data.frame(id = character(0), codelist = character(0), sentinel = character(0)))
-  dsd <- dsd[order(as.integer(dsd$position)), ]
+  dsd <- dsd[order(as.integer(dsd$position), method = "radix"), ]
   as.data.frame(dsd[nchar(trimws(dsd$codelist)) > 0, c("id", "codelist", "sentinel")])
 }
 
@@ -440,8 +440,8 @@ vc_codes_series_id <- function(ctx) {
         problems <- c(problems, paste0("INDICATOR ", df$INDICATOR[i], " but the plan says ", plan$INDICATOR[p]))
       }
       row_quals <- mq[i, ]
-      row_quals <- sort(row_quals[row_quals != SENTINEL_NA])
-      plan_quals <- sort(.codes_tokens(plan$MEASURE_QUALS[p]))
+      row_quals <- sort(row_quals[row_quals != SENTINEL_NA], method = "radix")
+      plan_quals <- sort(.codes_tokens(plan$MEASURE_QUALS[p]), method = "radix")
       if (!identical(unname(row_quals), plan_quals)) {
         problems <- c(problems, paste0(
           "qualifiers [", paste(row_quals, collapse = " "), "] but the plan says [",
@@ -530,7 +530,7 @@ vc_codes_source_id <- function(ctx) {
     man <- ctx$manifests[[f$key]]
     if (!is.null(man) && "sources" %in% names(man)) {
       listed <- .codes_tokens(man[["sources"]])
-      used <- sort(unique(sid[in_ok & !empty]))
+      used <- sort(unique(sid[in_ok & !empty]), method = "radix")
       for (s in setdiff(used, listed)) {
         out[[length(out) + 1]] <- .vc_finding(
           "CODES.SOURCE_ID", "ERROR", f$file, paste0("SOURCE_ID=", s),

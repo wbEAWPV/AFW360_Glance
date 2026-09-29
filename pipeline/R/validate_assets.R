@@ -44,7 +44,7 @@
     return(df)
   }
   capped <- lapply(split(df, df$file), function(sub) {
-    sub <- sub[order(sub$row_key), , drop = FALSE]
+    sub <- sub[order(sub$row_key, method = "radix"), , drop = FALSE]
     if (nrow(sub) > 20) {
       kept <- sub[seq_len(20), , drop = FALSE]
       summary_row <- .af_finding(
@@ -57,7 +57,7 @@
     }
   })
   out <- dplyr::bind_rows(capped)
-  out[order(out$file, out$row_key), , drop = FALSE]
+  out[order(out$file, out$row_key, method = "radix"), , drop = FALSE]
 }
 
 #' Whether a registered file exists and matches its registered sha256.
@@ -189,8 +189,8 @@ vc_asset_layers <- function(ctx) {
     if (!st$ok) {
       next # ASSET.FILE_MISSING / ASSET.SHA256 already cover this
     }
-    expected <- sort(strsplit(gs$layers[i], " ", fixed = TRUE)[[1]])
-    actual <- sort(tryCatch(sf::st_layers(st$full)$name, error = function(e) character(0)))
+    expected <- sort(strsplit(gs$layers[i], " ", fixed = TRUE)[[1]], method = "radix")
+    actual <- sort(tryCatch(sf::st_layers(st$full)$name, error = function(e) character(0)), method = "radix")
     if (!identical(expected, actual)) {
       rows[[length(rows) + 1]] <- .af_finding(
         "ASSET.LAYERS", "ERROR", st$rel, paste0("source_id=", gs$source_id[i]),

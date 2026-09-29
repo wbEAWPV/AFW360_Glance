@@ -70,7 +70,7 @@ build_clean_gnb_fixture <- function() {
 
 ALL_CHECK_FNS <- list(
   vc_cover_missing, vc_cover_extra, vc_cover_withheld_present,
-  vc_cover_manifest, vc_cover_survey, vc_value_numeric, vc_value_range,
+  vc_cover_manifest, vc_cover_survey, vc_cover_file_missing, vc_value_numeric, vc_value_range,
   vc_value_status_empty, vc_value_legacy_empty, vc_value_se_ci, vc_value_n,
   vc_value_se_required, vc_value_precision, vc_value_status_model,
   vc_value_status_deviates, vc_value_status_reliability, vc_value_status_q
@@ -639,4 +639,35 @@ test_that("VALUE.STATUS_Q: Q is used nowhere", {
   findings <- only_errors(run_all_checks(build_ctx(s$tmp, data_files = s$data_path)))
   expect_equal(unique(findings$check_id), "VALUE.STATUS_Q")
   expect_equal(nrow(findings), 1L)
+})
+
+# ---- COVER.FILE_MISSING -------------------------------------------------------
+
+test_that("COVER.FILE_MISSING is silent when every SURVEYS row has its SURVEY file and manifest", {
+  tmp <- make_temp_root(root)
+  ctx <- build_ctx(tmp)
+  expect_equal(nrow(vc_cover_file_missing(ctx)), 0L)
+})
+
+test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for that country", {
+  tmp <- make_temp_root(root)
+  file.remove(file.path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv"))
+  res <- vc_cover_file_missing(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$check_id, "COVER.FILE_MISSING")
+  expect_equal(res$severity, "WARN")
+  expect_equal(res$file, "data/AFW360_HH_SEN_2021_SURVEY.csv")
+  expect_equal(res$row_key, "")
+  expect_false(any(grepl("GNB", res$file)))
+
+  # A missing manifest alone is reported the same way.
+  tmp2 <- make_temp_root(root)
+  file.remove(file.path(tmp2, "data", "AFW360_HH_GNB_2021_SURVEY_manifest.csv"))
+  res2 <- vc_cover_file_missing(build_ctx(tmp2))
+  expect_equal(res2$file, "data/AFW360_HH_GNB_2021_SURVEY.csv")
+  expect_match(res2$message, "_manifest.csv is missing", fixed = TRUE)
+
+  # --metadata-only and an explicit --data selection skip the check.
+  expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(metadata_only = TRUE)))), 0L)
+  expect_equal(nrow(vc_cover_file_missing(build_ctx(tmp, opts = list(data_selected = TRUE)))), 0L)
 })
