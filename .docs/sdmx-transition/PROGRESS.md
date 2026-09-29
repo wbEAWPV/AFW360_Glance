@@ -48,7 +48,7 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP8b2 | SDMX-ML 3.0 output profile (only if FMR rejects v3_1) | WP8b | committed | opus (73k tokens) | sonnet, PASS 3/3 plus full suite (check 4 carried to WP8b) | 2db9f23 | 2026-09-29 |
 | WP8c | FMR deferred (only if Gate 2 defers) | Gate 2 (defer), WP6 | skipped (Gate 2: install now) | | | | 2026-09-29 |
 | WP10a | Standard final and conformance page | every WP that ran (WP8b or WP8c, not both) | committed | opus (184k tokens, over budget; complete) | sonnet, PASS 8/8 | 0869abf | 2026-09-29 |
-| WP10b | Project documentation | every WP that ran (WP8b or WP8c, not both) | in progress | opus | | | 2026-09-29 |
+| WP10b | Project documentation | every WP that ran (WP8b or WP8c, not both) | committed | opus (117k tokens, over budget; two rounds) | sonnet round 2, PASS 9/9 (its check-5 flag was a WP10c path outside the orchestrator's scope list) | 2ad7336 | 2026-09-29 |
 | WP10c | Inventory inconsistencies | every WP that ran (WP8b or WP8c, not both) | in progress | sonnet | | | 2026-09-29 |
 | WP11 | Final acceptance run | WP10a, WP10b, WP10c | todo | | verifier only | | |
 | Gate 3 | Acceptance and merge | WP11 | pending | | | | |
