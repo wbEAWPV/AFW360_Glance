@@ -403,7 +403,7 @@ Rules for every CSV under `metadata/` and `content/`:
 - Breakdown and qualifier categories are `<var_code>_<category>`. The whole code must still fit in 32 characters, so keep `var_code` short.
 - Indicator codes are `<THEME>_<SUBJECT>[_<DETAIL>]` and contain no poverty line, PPP round, welfare concept, COICOP division, unit or breakdown, because all of those are dimensions. Use `POV_HC`, never `POV_HC_PL420`.
 - **Series ids** are the indicator code, then its qualifier categories in slot order, then its defining category, joined by `.`: `POV_HC.POVLINE_PL420.PPP_2021`, `CONS_SH.COICOP_CP01`, `POP_SH.EMP_SECTOR_AGR`. The `.` is the only place a dot appears in any code. A series id is immutable once the series is `ACTIVE` (D13).
-- **Source ids** follow the code rules and are unique in `SOURCES.csv`; the recommended pattern is `<ISO3>_<SURVEY>_<PROGRAM>_v<N>`, for example `SEN_EHCVM2021_LEGACY_v1`.
+- **Source ids** follow the code rules and are unique in `SOURCES.csv`, with one exception: they end in a run-version suffix `_v<N>`, whose lowercase `v` is the only lowercase letter allowed in any code. The recommended pattern is `<ISO3>_<SURVEY>_<PROGRAM>_v<N>`, for example `SEN_EHCVM2021_LEGACY_v1`.
 - In Stata, name the variable holding an indicator after its code in lower case, so no lookup table is needed.
 
 ## `CL_INDICATOR.csv`: the indicator dictionary {#sec-cl-indicator}
@@ -516,7 +516,7 @@ Every rule that the validator applies to values is a row of `metadata/rules/RULE
 
 {{< include generated/tbl-rules.md >}}
 
-A rule has a **scope**: `DATAFLOW` for a rule that applies to every row (`scope_code` empty), `INDICATOR` for every series of one indicator, or `SERIES` for one series. `rule` is one of the vocabulary below, `param` is its argument where it takes one, `tolerance` overrides the default absolute tolerance of @sec-validation when filled, and `severity` is `ERROR` or `WARN`. The rule's `rule_id` is `<scope_code or AFW360_HH>.<rule>[.<param>]`.
+A rule has a **scope**: `DATAFLOW` for a rule that applies to every row (`scope_code` empty), `INDICATOR` for every series of one indicator, or `SERIES` for one series. `rule` is one of the vocabulary below, `param` is its argument where it takes one, `tolerance` overrides the default absolute tolerance of @sec-validation when filled, and `severity` is `ERROR` or `WARN`. The rule's `rule_id` is `<scope_code or AFW360_HH>.<rule>`, followed by `.<param>` when the parameter is a qualifier variable; a numeric threshold is not part of the id, so `AFW360_HH.RELIABILITY_MAX_CV` keeps its id when the threshold changes.
 
 **Rule vocabulary:**
 
@@ -816,7 +816,7 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 
 - The rows equal the set defined in @sec-required-rows: nothing missing, nothing extra. The set is built from the series whose `estimation` includes the file's `ESTIMATION`, taking a country row of `SERIES_PLAN` over the `ALL` row, and leaving out series with `NOT_PRODUCED` for the country.
 - Nothing listed in `excluded_breakdowns` appears.
-- A `SURVEYS` row and a manifest exist, and the manifest matches the file: `estimation`, `n_rows`, `file_name`, and `sources` equal to the distinct `SOURCE_ID` values in the file.
+- A `SURVEYS` row and a manifest exist, and the manifest matches the file: `estimation`, `n_rows`, `file_name`, and `sources` equal to the distinct `SOURCE_ID` values in the file. For a `SURVEY` file the survey's `time_period` equals the file's; for a `MODEL` file it is the base survey's year and is not compared.
 
 **Values**
 
@@ -831,15 +831,15 @@ The validator writes one findings file, a CSV with the columns `check_id`, `seve
 **Verification rules from `RULES.csv`**
 
 - `AGG_SUM`: children sum to the parent over a partition.
-- `AGG_NPOP_MEAN`: the `N_POP`-weighted average of the children equals the parent. It needs each child's `N_POP`; where a legacy file cannot supply that, `AGG_BRACKET` is used instead — the parent's value falls within [min(children) − h, max(children) + h]. Checked against every mean/share series in both countries, `AGG_BRACKET` holds with zero violations; only `POV_NUM`-style totals fail it, as expected of a total rather than a mean.
+- `AGG_NPOP_MEAN`: the `N_POP`-weighted average of the children equals the parent, within ±2h (the weighted mean of rounded children is off by at most h, and the parent by h). It needs each child's `N_POP`; where a legacy file cannot supply that, `AGG_BRACKET` is used instead — the parent's value falls within [min(children) − h, max(children) + h]. Checked against every mean/share series in both countries, `AGG_BRACKET` holds with zero violations; only `POV_NUM`-style totals fail it, as expected of a total rather than a mean.
 - `SUM_TO_1_OVER:<QUAL_VAR>` and `SUM_TO_1_OVER_BRK`: the categories sum to 1.
 - `MONOTONE_IN` with `param = POVLINE`: the value does not fall as the line rises; no tolerance applies.
 - `RANGE_0_1`, `RANGE_NONNEG`.
 - A rule with scope `INDICATOR` applies to every series of the indicator; with scope `SERIES`, to that series only; with scope `DATAFLOW`, to every row. The rule's `severity` is the finding's severity.
 - **Tolerances.** Let `h = PRECISION / 2` for a row with `PRECISION` filled, and `h = 0` otherwise, so an exact value must match exactly. A single value matches within ±h. A sum of `k` children against a parent (`AGG_SUM`) matches within ±(k+1)h, using the largest `h` among the rows compared. A closure over `k` categories (`SUM_TO_1_OVER…`) matches within ±k·h — for the 13 COICOP divisions of a legacy file, ±0.065, against an observed range of 0.96–1.02. A rule row's `tolerance`, when filled, replaces the computed bound. Every comparison is `abs(dev) <= tol + 1e-9`, so floating-point noise at the boundary never fails a valid value.
 - **Partial category sets.** When a partition's full set of categories is not all present in the file, a closure or sum check is skipped with an `INFO` finding rather than run against a partial set; when a present category is `O` or withheld, the same checks report `WARN` instead of `ERROR`.
-- **The parent of a row** is the same row with one breakdown set to `_T`. If that breakdown required a qualifier (`POOR` requires `POVLINE`), the qualifier is cleared to `_Z` in the parent, unless the indicator itself declares it. The parent is found through the row's provenance — the `cut_id` and defining breakdown kept from `SERIES_PLAN`/`TAB_PLAN` generation (@sec-required-rows) — not guessed from the codes in general.
-- Children's `N_POP` sums to the parent's for any `partition = Y` breakdown that is a population cut of the row. The check never runs over a series' defining breakdown, where every child's `N_POP` is the same denominator (D19).
+- **The parent of a row** is the same series' row for the cut with that breakdown set to `_T`, found through the row's provenance — the `series_id`, `cut_id` and defining breakdown kept from `SERIES_PLAN`/`TAB_PLAN` generation (@sec-required-rows) — not guessed from the codes in general. Where the breakdown required a qualifier the series does not declare (`POOR` requires `POVLINE`), that qualifier is therefore `_Z` in the parent.
+- Children's `N_POP` sums to the parent's for any `partition = Y` breakdown that is a population cut of the row, within floating-point noise only (`1e-9 × |parent| + 1e-9`), since population counts are never rounded. The check never runs over a series' defining breakdown, where every child's `N_POP` is the same denominator (D19).
 
 **Deterministic output**
 
