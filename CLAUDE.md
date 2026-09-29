@@ -27,8 +27,7 @@ Render with `quarto preview` or `quarto render`. Output goes to `_site/`, which 
 
 ## Known issues (as of 2026-09-19)
 
-- The Guinea-Bissau section never sets its own `file_path`, so its tables and charts are built from `Tables_SEN.xlsx`. Its fiscal-equity cards also show the Senegal figure.
-- `style_table` formats every cell as a percentage, so "Number poor (millions)" shows 6.52 as `652%`. Values are also rounded with `.round(1)` before that formatting, so 0.37 displays as `40%`.
+Closed on branch `standard/v0.6-sdmx` (2026-09-29): the Guinea-Bissau section now reads Guinea-Bissau data through `afw360/loader.py` (it used to show Senegal's tables, charts and fiscal-equity figure; it shows no fiscal-equity figure while `metadata/registries/FIGURES.csv` has none for GNB), and every cell follows its indicator's `display_as` and `decimals` (the old `style_table` showed every cell as a percentage, so 6.52 million poor read `652%`).
 - Indicators are matched on free-text labels such as `"Poor at $4.20/day (2021 PPP)"`, so editing a label silently drops its row.
 - Some column names are cut off at 32 characters (for example `estimateZiguinchor_Tamba_Kolda_S`), and the map joins regions by normalized name, not by code.
 - The layout uses Quarto Dashboard syntax (`## Row {height=…}`, `{.tabset}`, `#| title:`), but the format is `html`, so the page is not laid out as a dashboard.
