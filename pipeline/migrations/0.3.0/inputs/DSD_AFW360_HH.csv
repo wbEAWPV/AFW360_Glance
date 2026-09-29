@@ -1,0 +1,35 @@
+position,id,component,role,name_en,codelist,data_type,usage,relationship,measure_relationship,required,sentinel,min_value,max_value,description
+1,FREQ,dimension,reference,Frequency,CL_FREQ,,,,,R,,,,Frequency of the observation; always A (annual) (D34).
+2,REF_AREA,dimension,breakdown,Reference area,CL_AREA,,,,,R,,,,Country the estimate refers to: a CL_AREA code (ISO 3166-1 alpha-3).
+3,GEO,dimension,breakdown,Geographic area,CL_GEO,,,,,R,_T,,,"Subnational area: a CL_GEO code, or _T for the whole country."
+4,ESTIMATION,dimension,reference,Estimation method,CL_ESTIMATION,,,,,R,,,,How the value was produced: SURVEY or MODEL (D17).
+5,INDICATOR,dimension,qualifier,Indicator,CL_INDICATOR,,,,,R,,,,The indicator measured: a CL_INDICATOR code.
+6,SEX,dimension,breakdown,Sex,CL_SEX,,,,,R,_T _Z,,,"Sex of the individual counted: a CL_SEX code, _T, or _Z."
+7,AGE,dimension,breakdown,Age,CL_AGE,,,,,R,_T _Z,,,"Age band of the individual counted: a CL_AGE code, _T, or _Z."
+8,URBANISATION,dimension,breakdown,Degree of urbanisation,CL_URBANISATION,,,,,R,_T,,,Urban or rural area of residence: a CL_URBANISATION code or _T.
+9,COMP_BREAKDOWN_1,dimension,breakdown,Breakdown 1,CL_COMP_BREAKDOWN,,,,,R,_T,,,"Breakdown slot 1 of 5, filled left to right in slot_order; a CL_COMP_BREAKDOWN code or _T."
+10,COMP_BREAKDOWN_2,dimension,breakdown,Breakdown 2,CL_COMP_BREAKDOWN,,,,,R,_T,,,"Breakdown slot 2 of 5, filled left to right in slot_order; a CL_COMP_BREAKDOWN code or _T."
+11,COMP_BREAKDOWN_3,dimension,breakdown,Breakdown 3,CL_COMP_BREAKDOWN,,,,,R,_T,,,"Breakdown slot 3 of 5, filled left to right in slot_order; a CL_COMP_BREAKDOWN code or _T."
+12,COMP_BREAKDOWN_4,dimension,breakdown,Breakdown 4,CL_COMP_BREAKDOWN,,,,,R,_T,,,"Breakdown slot 4 of 5, filled left to right in slot_order; a CL_COMP_BREAKDOWN code or _T."
+13,COMP_BREAKDOWN_5,dimension,breakdown,Breakdown 5,CL_COMP_BREAKDOWN,,,,,R,_T,,,"Breakdown slot 5 of 5, filled left to right in slot_order; a CL_COMP_BREAKDOWN code or _T."
+14,MEASURE_QUAL_1,dimension,qualifier,Measure qualifier 1,CL_QUALIFIER,,,,,R,_Z,,,"Qualifier slot 1 of 5, filled left to right in slot_order; a CL_QUALIFIER code or _Z."
+15,MEASURE_QUAL_2,dimension,qualifier,Measure qualifier 2,CL_QUALIFIER,,,,,R,_Z,,,"Qualifier slot 2 of 5, filled left to right in slot_order; a CL_QUALIFIER code or _Z."
+16,MEASURE_QUAL_3,dimension,qualifier,Measure qualifier 3,CL_QUALIFIER,,,,,R,_Z,,,"Qualifier slot 3 of 5, filled left to right in slot_order; a CL_QUALIFIER code or _Z."
+17,MEASURE_QUAL_4,dimension,qualifier,Measure qualifier 4,CL_QUALIFIER,,,,,R,_Z,,,"Qualifier slot 4 of 5, filled left to right in slot_order; a CL_QUALIFIER code or _Z."
+18,MEASURE_QUAL_5,dimension,qualifier,Measure qualifier 5,CL_QUALIFIER,,,,,R,_Z,,,"Qualifier slot 5 of 5, filled left to right in slot_order; a CL_QUALIFIER code or _Z."
+19,TIME_PERIOD,time_dimension,reference,Time period,,GregorianYear,,,,R,,,,4-digit year the estimate refers to.
+20,OBS_VALUE,measure,measure,Observation value,,Double,mandatory,,,C,,,,"Number, unrounded, in base units; NaN when OBS_STATUS is O or M (D39)."
+21,STD_ERR,measure,measure,Standard error,,Double,optional,,,C,,0,,Standard error of OBS_VALUE; required on PRODUCER-source rows where CL_STATISTIC.admits_se = Y.
+22,CI_LOWER,measure,measure,Lower confidence bound,,Double,optional,,,C,,,,Lower bound of the 95% confidence interval; required where STD_ERR is.
+23,CI_UPPER,measure,measure,Upper confidence bound,,Double,optional,,,C,,,,Upper bound of the 95% confidence interval; required where STD_ERR is.
+24,N_OBS,measure,measure,Number of observations,,Integer,optional,,,C,,0,,"Unweighted number of records; required on PRODUCER-source rows; on a share row, the denominator's records (D19)."
+25,N_POP,measure,measure,Population represented,,Double,optional,,,C,,0,,"Weighted population the estimate represents; required on PRODUCER-source rows; on a share row, the denominator's population (D19)."
+26,N_OBS_NUM,measure,measure,Number of numerator observations,,Integer,optional,,,C,,0,,Unweighted number of records in the numerator of a share; required where STD_ERR is (D33).
+27,DEFF,measure,measure,Design effect,,Double,optional,,,O,,0,,Design effect of the estimate: its sampling variance relative to simple random sampling (D33).
+28,DF,measure,measure,Degrees of freedom,,Integer,optional,,,O,,0,,Degrees of freedom of the variance estimate (D33).
+29,SERIES_ID,attribute,attribute,Series identifier,CL_SERIES,,mandatory,INDICATOR COMP_BREAKDOWN_1 COMP_BREAKDOWN_2 COMP_BREAKDOWN_3 COMP_BREAKDOWN_4 COMP_BREAKDOWN_5 MEASURE_QUAL_1 MEASURE_QUAL_2 MEASURE_QUAL_3 MEASURE_QUAL_4 MEASURE_QUAL_5,,R,,,,"CL_SERIES code (SERIES_PLAN.series_id); agrees with INDICATOR, qualifiers and defining category (D13)."
+30,UNIT_MEASURE,attribute,attribute,Unit of measure,CL_UNIT_MEASURE,,mandatory,REF_AREA INDICATOR,,R,,,,"CL_UNIT_MEASURE code; an ISO 4217 code from CL_AREA.currency where the indicator's unit_measure is LCU (D14)."
+31,PRECISION,attribute,attribute,Precision,,Double,optional,observation,,C,,0,,Rounding unit of OBS_VALUE in base units; empty when exact; required on rows of a LEGACY_CONVERSION source (D15).
+32,OBS_STATUS,attribute,attribute,Observation status,CL_OBS_STATUS,,mandatory,observation,OBS_VALUE,R,,,,"CL_OBS_STATUS code; one code per row, precedence M O E D U A (D22)."
+33,SOURCE_ID,attribute,attribute,Source identifier,CL_SOURCE,,mandatory,observation,,R,,,,"CL_SOURCE code (SOURCES.source_id), the program run that produced the row (D16)."
+34,OBS_COMMENT,attribute,attribute,Observation comment,,String,optional,observation,,O,,,,"Free text, English; LEGACY_EMPTY: prefix required on O rows of a LEGACY_CONVERSION source (D9)."
