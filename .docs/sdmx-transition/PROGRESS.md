@@ -23,8 +23,8 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | committed | opus (91k tokens) | sonnet, PASS 9/9 (check 6 re-run in corrected form by a second verifier, `bad 0` over 27 URNs) | df94270 | 2026-09-29 |
 | WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | committed | opus (113k tokens, slightly over budget; deliverables complete) | sonnet, PASS 10/10 | 16d4170 | 2026-09-29 |
 | WP5a1 | Vendored SDMX-ML 3.1.0 schemas | WP0 | committed | sonnet (61k tokens) | sonnet, PASS 4/4 | 6af721e | 2026-09-29 |
-| WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | in progress | opus | | | 2026-09-29 |
-| Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c | pending | | | | |
+| WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | committed | opus (69k tokens) | sonnet, PASS 6/6 | 5e37861 | 2026-09-29 |
+| Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c | pending (report written, waiting for the data lead) | | | | 2026-09-29 |
 | WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | todo | | | | |
 | WP3b | Reconciliation and 0.2.0 projection test | WP3a | todo | | | | |
 | WP7 | Independent verification tools (pysdmx, lxml) | WP3a, WP5a1 | todo | | | | |
@@ -55,9 +55,22 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 
 Review questions answered by the data lead on 2026-09-29, ahead of the gate: Q1 (D38) rationale corrected, `R` kept; Q2 (D39) wording amended to optional-only, mandatory attributes never empty; Q3 (D32) exception for the `(1.0)` organisation schemes appended; Q4 (D31) `WB:AGENCIES` confirmed as a local placeholder; Q5 (2.9) units `HA`, `INDEX`, `LCU`, `COUNT` mapped, `PPP_USD` left empty, `LCU` and `XOF` both kept. The plan text carries these answers.
 
-(gate materials per plan: diff stat, DSD CSV, ARTEFACTS.csv, ALIGNMENT.csv, the new chapter's line range; decisions D38 to D46 as applied; decision and date)
+**Gate report, 2026-09-29.** WP5a1 (6af721e), WP2a (df94270), WP1 (a9b1b09), WP2b (16d4170) and WP2c (5e37861) are committed and verified. State: `pending`. WP3a and everything after it wait for approval.
 
-Gate 1 questions raised during WP1 and WP2a (draft, completed when WP2c is committed):
+Materials:
+
+- `git diff --stat 883ba6b..HEAD -- metadata .docs`: 32 files changed, 889 insertions, 429 deletions (22 files under `metadata/`, 5 generated tables, the standard).
+- DSD CSV: `metadata/structure/DSD_AFW360_HH.csv` (34 component rows; byte copy of `pipeline/migrations/0.3.0/inputs/DSD_AFW360_HH.csv`).
+- Artefact list: `metadata/structure/ARTEFACTS.csv` (33 rows; the ten descriptions of surfaced point 5 need reading).
+- Alignment table: `pipeline/migrations/0.3.0/inputs/ALIGNMENT.csv` (28 rows, six columns; fetch evidence in `inputs/SOURCES.md`).
+- The standard: `.docs/data-standard.qmd`, new chapter `# SDMX conformance {#sec-sdmx}` at lines 367 to 590; `# Changes since v0.5 {#sec-changes-v06}` at lines 1261 to 1291; the decisions table gained 18 rows citing D27 to D46 and a new open decision 12 (series ids and `IDType`). The regenerated component table is `.docs/generated/tbl-columns.md`.
+- Decisions D38 to D46 as applied: D38 (`ACTION` = `R`) and D39 (`NaN`) are written into the standard, the data itself is regenerated in WP3a; D40 `VERSION` = 0.3.0 and the CHANGELOG entry; D41 the mapping is in the standard, the writer comes in WP5a; D42 sentinels are declared in the DSD CSV `sentinel` column; D43 the four derived codelists are rows of `ARTEFACTS.csv` (see G1-Q1); D44 `ARTEFACTS.csv` exists with 33 rows; D45 stated in the standard; D46 the DSD CSV lists the 34 components in data-file order.
+
+The data lead decides: (1) confirm or veto each of D38 to D46; (2) read the new chapter and list any sentence that contradicts section 2 of the plan; (3) answer G1-Q1 to G1-Q3 below. Each veto or correction becomes a `<WP>-fix` row.
+
+Questions raised during WP1 and WP2a:
+
+
 
 - **G1-Q1 (D43, 2.4 row 29): `CL_SERIES` cannot be XSD-valid.** SDMX-ML 3.1 `Code/@id` is `common:IDType` (letters, digits, underscore, at sign, dollar, hyphen; no dot), and 35 of the 91 `series_id` values contain a dot (surfaced point 6). Options: (A, recommended) keep `series_id` dotted everywhere in the project; in SDMX, `SERIES_ID` becomes an uncoded mandatory attribute (`TextFormat textType="String"`), `CL_SERIES` is not generated, and D43 is amended to "registries except `SERIES_PLAN`"; the validator keeps checking `SERIES_ID` against `SERIES_PLAN` as a project rule. Consequences: one row less in `ARTEFACTS.csv` (32 artefacts, 22 codelists), DSD row 29 without a codelist, the standard's D43 row and open decision 12 updated, and the plan's counts in WP2a check 4, WP4b, WP5a check 3 and WP5b check 5 become 22 and 32 (run as `WP2a-fix`, `WP2b-fix`, `WP1-fix`). (B) keep `CL_SERIES` with code ids that replace the dot by an underscore or hyphen and change the `SERIES_ID` values in the data and in `SERIES_PLAN` to match: touches data values, the projection test, the loader API and the standard's series-id convention; not recommended. (C) generate `CL_SERIES` with transformed ids while the data keeps dotted, uncoded values: a codelist nothing references; not recommended.
 - **G1-Q2 (D43 wording): target of the `TEXT` metadatasets.** D43 says they target "the country code"; section 2.7 (and the standard as written) targets the dataflow `AFW360_HH` and carries the country in `TEXT.REF_AREA`, because the SDMX-CSV 2.1 metadata guide has no item-level target (surfaced point 7). Recommended: amend the D43 wording to match 2.7; no file changes.
@@ -106,3 +119,4 @@ Gate 1 questions raised during WP1 and WP2a (draft, completed when WP2c is commi
 | 2026-09-29 | Review round 1 re-verified by four Sonnet verifiers on the revised documents: 100 accepted findings PASS, 0 FAIL; 11 consistency checks PASS. Audit reports committed in `bcd1816` and removed again; the kick-off prompt is `kickoff-prompt.md`. |
 | 2026-09-29 | Data lead answered Q1 to Q5 (all as recommended); answers folded into `plan.md` and recorded under Gate 1. |
 | 2026-09-29 | Orchestration started (Fable session). WP0 committed (883ba6b): `tmp/`, `.gitignore`, `.gitattributes`; environment table filled. Implementer briefs are extracted verbatim from `plan.md` with `sed` into `tmp/briefs/` (gitignored) and read by each agent as its first step, so the pasted text is byte-exact. |
+| 2026-09-29 | WP5a1, WP2a, WP1, WP2b, WP2c verified and committed (6af721e, df94270, a9b1b09, 16d4170, 5e37861). Three plan amendments and 13 surfaced points recorded. Gate 1 report written; three questions (G1-Q1 series ids versus `IDType`, G1-Q2 D43 wording, G1-Q3 artefact descriptions) put to the data lead. Waiting. |
