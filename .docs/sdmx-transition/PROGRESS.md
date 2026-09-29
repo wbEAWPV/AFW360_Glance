@@ -50,7 +50,7 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP10a | Standard final and conformance page | every WP that ran (WP8b or WP8c, not both) | committed | opus (184k tokens, over budget; complete) | sonnet, PASS 8/8 | 0869abf | 2026-09-29 |
 | WP10b | Project documentation | every WP that ran (WP8b or WP8c, not both) | committed | opus (117k tokens, over budget; two rounds) | sonnet round 2, PASS 9/9 (its check-5 flag was a WP10c path outside the orchestrator's scope list) | 2ad7336 | 2026-09-29 |
 | WP10c | Inventory inconsistencies | every WP that ran (WP8b or WP8c, not both) | committed (with WP10c-fix) | sonnet (136k tokens, over budget; two rounds) + opus fix (54k) | sonnet, PASS 7/7 (amended list) | 3d156bb | 2026-09-29 |
-| WP11 | Final acceptance run | WP10a, WP10b, WP10c | todo | | verifier only | | |
+| WP11 | Final acceptance run | WP10a, WP10b, WP10c | in progress | (verifier only) | sonnet | | 2026-09-29 |
 | Gate 3 | Acceptance and merge | WP11 | pending | | | | |
 
 ## Gate reports
