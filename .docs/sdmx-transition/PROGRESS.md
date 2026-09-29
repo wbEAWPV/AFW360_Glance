@@ -18,7 +18,7 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 
 | WP | Title | Depends on | State | Implementer | Verifier | Commit | Date |
 |---|---|---|---|---|---|---|---|
-| WP0 | Scaffolding | | todo | orchestrator | | | |
+| WP0 | Scaffolding | | committed | orchestrator | orchestrator (WP0 check prints OK) | 883ba6b | 2026-09-29 |
 | WP1 | Standard v0.6 draft | WP0 | todo | | | | |
 | WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | todo | | | | |
 | WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | todo | | | | |
@@ -83,3 +83,4 @@ Review questions answered by the data lead on 2026-09-29, ahead of the gate: Q1 
 | 2026-09-29 | Review round 1: seven reviewers, 103 findings (8 blockers) triaged; plan, cheat-sheet, handover and this file revised; WP2, WP3, WP5a, WP8b and WP10 split; five questions for the data lead recorded in `plan.md` (Q1 to Q5). |
 | 2026-09-29 | Review round 1 re-verified by four Sonnet verifiers on the revised documents: 100 accepted findings PASS, 0 FAIL; 11 consistency checks PASS. Audit reports committed in `bcd1816` and removed again; the kick-off prompt is `kickoff-prompt.md`. |
 | 2026-09-29 | Data lead answered Q1 to Q5 (all as recommended); answers folded into `plan.md` and recorded under Gate 1. |
+| 2026-09-29 | Orchestration started (Fable session). WP0 committed (883ba6b): `tmp/`, `.gitignore`, `.gitattributes`; environment table filled. Implementer briefs are extracted verbatim from `plan.md` with `sed` into `tmp/briefs/` (gitignored) and read by each agent as its first step, so the pasted text is byte-exact. |
