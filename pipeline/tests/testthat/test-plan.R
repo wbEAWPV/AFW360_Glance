@@ -232,36 +232,110 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   )
 
   expect_true(file.exists(path))
-  expect_equal(basename(path), "AFW360_HH_GNB_2021.csv")
+  expect_equal(basename(path), "AFW360_HH_GNB_2021_SURVEY.csv")
 
   data <- read_std_csv(path)
   expect_equal(names(data), DSD_COLUMNS)
   expect_equal(nrow(data), 52L)
   expect_true(all(data$OBS_VALUE == "0.5"))
   expect_true(all(data$OBS_STATUS == "A"))
+  expect_true(all(data$ESTIMATION == "SURVEY"))
+  expect_true(all(data$SERIES_ID %in% c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0")))
 
-  manifest_path <- file.path(dirname(path), "AFW360_HH_GNB_2021_manifest.csv")
+  manifest_path <- file.path(dirname(path), "AFW360_HH_GNB_2021_SURVEY_manifest.csv")
   expect_true(file.exists(manifest_path))
   manifest <- read_std_csv(manifest_path)
-  # Long `key`, `value` form (seeds/csv_headers.csv for
-  # AFW360_HH_<ISO3>_<YEAR>_manifest.csv; read that way by build_ctx() in
-  # pipeline/R/ctx.R), not one wide row.
+  # Long `key`, `value` form (read that way by build_ctx() in
+  # pipeline/R/ctx.R), not one wide row, with the 0.2.0 keys.
   expect_equal(names(manifest), c("key", "value"))
   expect_equal(nrow(manifest), 16L)
   expect_equal(
     sort(manifest$key),
     sort(c(
       "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
-      "source_type", "survey_id", "precision", "file_name", "n_rows",
+      "estimation", "survey_id", "sources", "file_name", "n_rows",
       "producer", "program", "software", "run_timestamp", "status", "notes"
     ))
   )
   man_vec <- stats::setNames(manifest$value, manifest$key)
   expect_equal(man_vec[["n_rows"]], "52")
-  expect_equal(man_vec[["precision"]], "ROUNDED_2DP")
   expect_equal(man_vec[["status"]], "DRAFT")
-  expect_equal(man_vec[["source_type"]], "SURVEY")
+  expect_equal(man_vec[["estimation"]], "SURVEY")
+  expect_equal(man_vec[["file_name"]], "AFW360_HH_GNB_2021_SURVEY.csv")
 
   reduced_series_plan <- read_std_csv(file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
   expect_equal(sort(reduced_series_plan$series_id), sort(c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0")))
+})
+
+# ---- standard v0.5: ESTIMATION, country rows, NOT_PRODUCED, provenance ----
+
+#' The toy plan with the 0.2.0 SERIES_PLAN columns and a DEFINING_BREAKDOWN.
+seed_meta_toy_v05 <- function() {
+  meta <- seed_meta_toy()
+  meta$SERIES_PLAN$name_en <- meta$SERIES_PLAN$series_id
+  meta$SERIES_PLAN$estimation <- c("SURVEY", "SURVEY MODEL", "MODEL")
+  meta$SERIES_PLAN$status <- "DRAFT"
+  meta$SERIES_PLAN$notes <- ""
+  meta
+}
+
+test_that("required_rows carries a 19-column key with the file's ESTIMATION", {
+  meta <- seed_meta_toy_v05()
+  rows <- required_rows(meta, "ZZ", "2099", "SURVEY")
+  expect_equal(names(rows), c(KEY_COLUMNS, "series_id", "cut_id", "defining_breakdown"))
+  expect_equal(length(KEY_COLUMNS), 19L)
+  expect_true(all(rows$ESTIMATION == "SURVEY"))
+  # IND1 (SURVEY) and IND2 (SURVEY MODEL) are required in a SURVEY file;
+  # IND3 (MODEL only) is not.
+  expect_equal(sort(unique(rows$series_id)), c("IND1", "IND2"))
+
+  model <- required_rows(meta, "ZZ", "2099", "MODEL")
+  expect_true(all(model$ESTIMATION == "MODEL"))
+  expect_equal(sort(unique(model$series_id)), c("IND2", "IND3"))
+})
+
+test_that("a country row overrides the ALL row, and NOT_PRODUCED removes the series", {
+  meta <- seed_meta_toy_v05()
+  country <- meta$SERIES_PLAN[meta$SERIES_PLAN$series_id == "IND1", ]
+  country$ref_area <- "ZZ"
+  country$status <- "NOT_PRODUCED"
+  country$notes <- "The survey has no such module."
+  meta$SERIES_PLAN <- rbind(meta$SERIES_PLAN, country)
+
+  zz <- required_rows(meta, "ZZ", "2099", "SURVEY")
+  expect_false("IND1" %in% zz$series_id)
+  # Another country still gets the ALL row.
+  yy <- required_rows(meta, "YY", "2099", "SURVEY")
+  expect_true("IND1" %in% yy$series_id)
+
+  # A DEVIATES country row keeps the rows (they carry OBS_STATUS D).
+  meta$SERIES_PLAN$status[nrow(meta$SERIES_PLAN)] <- "DEVIATES"
+  zz2 <- required_rows(meta, "ZZ", "2099", "SURVEY")
+  expect_true("IND1" %in% zz2$series_id)
+
+  # The country row's own estimation wins over the ALL row's.
+  meta$SERIES_PLAN$estimation[nrow(meta$SERIES_PLAN)] <- "MODEL"
+  zz3 <- required_rows(meta, "ZZ", "2099", "SURVEY")
+  expect_false("IND1" %in% zz3$series_id)
+  expect_true("IND1" %in% required_rows(meta, "ZZ", "2099", "MODEL")$series_id)
+
+  eff <- effective_series_plan(meta, "ZZ")
+  expect_equal(sum(eff$series_id == "IND1"), 1L)
+  expect_equal(eff$ref_area[eff$series_id == "IND1"], "ZZ")
+})
+
+test_that("required_rows keeps each row's provenance: cut_id and defining breakdown", {
+  meta <- seed_meta_real()
+  sen <- required_rows(meta, "SEN", "2021")
+  agr <- sen[sen$series_id == "POP_SH.EMP_SECTOR_AGR", ]
+  expect_true(nrow(agr) > 0)
+  expect_true(all(agr$defining_breakdown == "EMP_SECTOR_AGR"))
+  expect_true(all(sen$defining_breakdown[sen$series_id == "POV_HC.POVLINE_PL420.PPP_2021"] == ""))
+  expect_setequal(unique(agr$cut_id), c("TOTAL", "URB", "HHH_SEX", "HHH_AGE", "QUINT", "ADM1", "ZONES"))
+})
+
+test_that("the KEY_COLUMNS and DSD_COLUMNS constants equal the DSD's", {
+  meta <- load_metadata(root)
+  expect_equal(DSD_COLUMNS, dsd_columns(meta))
+  expect_equal(KEY_COLUMNS, dsd_key_columns(meta))
 })

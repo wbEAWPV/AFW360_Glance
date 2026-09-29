@@ -7,37 +7,56 @@
 #
 # Depends on pipeline/R/plan.R for required_rows() (itself needing
 # pipeline/R/codes.R and pipeline/R/constants.R), and on `ctx` built by
-# build_ctx() (pipeline/R/ctx.R), which needs pipeline/R/io.R. Callers
-# source those before this file; this file does not source anything
-# itself (.docs/transition.qmd).
+# build_ctx() (pipeline/R/ctx.R), which needs pipeline/R/io.R, and on
+# pipeline/R/manifest.R for MANIFEST_KEYS. Callers source those before
+# this file; this file does not source anything itself.
+#
+# Standard v0.5: the required rows are those of the file's ESTIMATION
+# (a SERIES_PLAN country row over the ALL row, NOT_PRODUCED left out; see
+# required_rows()), and the manifest's estimation, n_rows, file_name and
+# sources must agree with the file.
 #
 # Findings format (word for word the same on WP11-WP14): a tibble with
 # columns check_id, severity, file, row_key, message. `file` is the path
 # to the data file relative to the root, with forward slashes. `row_key`
-# is the 18 key-column values joined by one space for a data row, empty
+# is the key-column values (19 in DSD 0.2.0) joined by one space for a data row, empty
 # for a whole-file finding, or `key=<name>` / `survey_id=<value>` for a
 # finding about one manifest key or SURVEYS.csv row. More than 20
 # findings for one check_id/file pair are capped to the first 20 in
 # row_key order, plus one SUMMARY finding (see .vc_apply_cap() below).
 
-# The 18 KEY_COLUMNS, in their contract order (seeds/csv_headers.csv,
-# AFW360_HH_<ISO3>_<YEAR>.csv, positions 1-18). required_rows() returns
-# these plus series_id and cut_id; the standard data file carries these
-# plus OBS_VALUE .. OBS_COMMENT (positions 19-26).
-.VC_KEY_COLS <- c(
-  "DATAFLOW", "REF_AREA", "GEO", "TIME_PERIOD", "INDICATOR", "SEX", "AGE",
-  "URBANISATION", "COMP_BREAKDOWN_1", "COMP_BREAKDOWN_2", "COMP_BREAKDOWN_3",
-  "COMP_BREAKDOWN_4", "COMP_BREAKDOWN_5", "MEASURE_QUAL_1", "MEASURE_QUAL_2",
-  "MEASURE_QUAL_3", "MEASURE_QUAL_4", "MEASURE_QUAL_5"
-)
+# The key columns come from the DSD (ctx_key_columns(), pipeline/R/ctx.R:
+# the 19 columns DATAFLOW .. MEASURE_QUAL_5 in DSD 0.2.0), and the manifest
+# keys from MANIFEST_KEYS (pipeline/R/manifest.R, which the caller sources),
+# so neither list is repeated here.
 
-# The 16 manifest keys (seeds/csv_headers.csv,
-# AFW360_HH_<ISO3>_<YEAR>_manifest.csv; WP08.md step 4).
-.VC_MANIFEST_KEYS <- c(
-  "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
-  "source_type", "survey_id", "precision", "file_name", "n_rows",
-  "producer", "program", "software", "run_timestamp", "status", "notes"
-)
+#' The manifest keys every manifest must carry.
+.vc_manifest_keys <- function() {
+  if (exists("MANIFEST_KEYS")) return(MANIFEST_KEYS)
+  stop("validate_coverage.R: source pipeline/R/manifest.R first (MANIFEST_KEYS)", call. = FALSE)
+}
+
+#' The ref_area, time_period and estimation a data file covers: the
+#' manifest's, falling back to the file name's (NA when neither has it).
+.vc_file_scope <- function(ctx, key) {
+  man <- ctx$manifests[[key]]
+  parsed <- ctx_parse_file_name(key)
+  pick <- function(k) {
+    v <- .vc_manifest_value(man, k)
+    if ((is.na(v) || !nzchar(v)) && !is.null(parsed)) v <- unname(parsed[[k]])
+    v
+  }
+  list(
+    ref_area = pick("ref_area"),
+    time_period = pick("time_period"),
+    estimation = ctx_file_estimation(ctx, key)
+  )
+}
+
+#' Whether a scope from [.vc_file_scope()] is complete.
+.vc_scope_ok <- function(sc) {
+  all(vapply(sc, function(v) !is.na(v) && nzchar(v), logical(1)))
+}
 
 #' One manifest value, or `NA` when the key is absent.
 #'
@@ -142,13 +161,13 @@
 #' @return A data frame with the same columns as [required_rows()]
 #'   (the 18 key columns plus series_id and cut_id), one row per withheld
 #'   required row, deduplicated. Zero rows when nothing is withheld.
-withheld_rows <- function(meta, ref_area, time_period) {
+withheld_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
   comp_cols <- c(
     "COMP_BREAKDOWN_1", "COMP_BREAKDOWN_2", "COMP_BREAKDOWN_3",
     "COMP_BREAKDOWN_4", "COMP_BREAKDOWN_5"
   )
 
-  req <- required_rows(meta, ref_area, time_period)
+  req <- required_rows(meta, ref_area, time_period, estimation)
   overrides <- meta$LEGACY_OVERRIDES
 
   if (is.null(overrides) || nrow(overrides) == 0) {
@@ -262,22 +281,22 @@ vc_cover_missing <- function(ctx) {
   out <- list()
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
-    man <- ctx$manifests[[key]]
-    ref_area <- .vc_manifest_value(man, "ref_area")
-    time_period <- .vc_manifest_value(man, "time_period")
-    if (is.na(ref_area) || is.na(time_period) || !nzchar(ref_area) || !nzchar(time_period)) {
-      next
-    }
+    sc <- .vc_file_scope(ctx, key)
+    if (!.vc_scope_ok(sc)) next
+    ref_area <- sc$ref_area
+    time_period <- sc$time_period
+    estimation <- sc$estimation
+    key_cols <- ctx_key_columns(ctx)
 
-    req <- required_rows(ctx$meta, ref_area, time_period)
+    req <- required_rows(ctx$meta, ref_area, time_period, estimation)
     if (nrow(req) == 0) next
-    withheld <- withheld_rows(ctx$meta, ref_area, time_period)
+    withheld <- withheld_rows(ctx$meta, ref_area, time_period, estimation)
 
-    expected_key <- .vc_row_key(req, .VC_KEY_COLS)
-    withheld_key <- .vc_row_key(withheld, .VC_KEY_COLS)
+    expected_key <- .vc_row_key(req, key_cols)
+    withheld_key <- .vc_row_key(withheld, key_cols)
     expected_key <- setdiff(expected_key, withheld_key)
 
-    actual_key <- .vc_row_key(df, .VC_KEY_COLS)
+    actual_key <- .vc_row_key(df, key_cols)
     missing_key <- setdiff(expected_key, actual_key)
 
     if (length(missing_key) > 0) {
@@ -301,16 +320,16 @@ vc_cover_extra <- function(ctx) {
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next
-    man <- ctx$manifests[[key]]
-    ref_area <- .vc_manifest_value(man, "ref_area")
-    time_period <- .vc_manifest_value(man, "time_period")
-    if (is.na(ref_area) || is.na(time_period) || !nzchar(ref_area) || !nzchar(time_period)) {
-      next
-    }
+    sc <- .vc_file_scope(ctx, key)
+    if (!.vc_scope_ok(sc)) next
+    ref_area <- sc$ref_area
+    time_period <- sc$time_period
+    estimation <- sc$estimation
+    key_cols <- ctx_key_columns(ctx)
 
-    req <- required_rows(ctx$meta, ref_area, time_period)
-    required_key <- .vc_row_key(req, .VC_KEY_COLS)
-    actual_key <- .vc_row_key(df, .VC_KEY_COLS)
+    req <- required_rows(ctx$meta, ref_area, time_period, estimation)
+    required_key <- .vc_row_key(req, key_cols)
+    actual_key <- .vc_row_key(df, key_cols)
 
     extra_idx <- which(!(actual_key %in% required_key))
     if (length(extra_idx) > 0) {
@@ -334,17 +353,17 @@ vc_cover_withheld_present <- function(ctx) {
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next
-    man <- ctx$manifests[[key]]
-    ref_area <- .vc_manifest_value(man, "ref_area")
-    time_period <- .vc_manifest_value(man, "time_period")
-    if (is.na(ref_area) || is.na(time_period) || !nzchar(ref_area) || !nzchar(time_period)) {
-      next
-    }
+    sc <- .vc_file_scope(ctx, key)
+    if (!.vc_scope_ok(sc)) next
+    ref_area <- sc$ref_area
+    time_period <- sc$time_period
+    estimation <- sc$estimation
+    key_cols <- ctx_key_columns(ctx)
 
-    withheld <- withheld_rows(ctx$meta, ref_area, time_period)
+    withheld <- withheld_rows(ctx$meta, ref_area, time_period, estimation)
     if (nrow(withheld) == 0) next
-    withheld_key <- .vc_row_key(withheld, .VC_KEY_COLS)
-    actual_key <- .vc_row_key(df, .VC_KEY_COLS)
+    withheld_key <- .vc_row_key(withheld, key_cols)
+    actual_key <- .vc_row_key(df, key_cols)
 
     present_idx <- which(actual_key %in% withheld_key)
     if (length(present_idx) > 0) {
@@ -380,7 +399,7 @@ vc_cover_manifest <- function(ctx) {
       next
     }
 
-    missing_keys <- setdiff(.VC_MANIFEST_KEYS, names(man))
+    missing_keys <- setdiff(.vc_manifest_keys(), names(man))
     if (length(missing_keys) > 0) {
       out[[length(out) + 1]] <- data.frame(
         check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
@@ -449,6 +468,53 @@ vc_cover_manifest <- function(ctx) {
         )
       }
     }
+
+    if (!("estimation" %in% missing_keys)) {
+      declared <- trimws(man[["estimation"]])
+      est_codes <- ctx$meta$CL_ESTIMATION$code
+      problems <- character(0)
+      if (!is.null(est_codes) && !(declared %in% est_codes)) {
+        problems <- c(problems, sprintf("is not a CL_ESTIMATION code"))
+      }
+      parsed <- ctx_parse_file_name(key)
+      if (!is.null(parsed) && !identical(declared, unname(parsed[["estimation"]]))) {
+        problems <- c(problems, sprintf("disagrees with the file name's %s", parsed[["estimation"]]))
+      }
+      if ("ESTIMATION" %in% names(df) && nrow(df) > 0) {
+        actual <- unique(df$ESTIMATION)
+        if (length(actual) == 1 && !identical(actual, declared)) {
+          problems <- c(problems, sprintf("disagrees with the file's %s", actual))
+        }
+      }
+      if (length(problems) > 0) {
+        out[[length(out) + 1]] <- data.frame(
+          check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
+          row_key = "key=estimation",
+          message = sprintf("Manifest estimation (%s) %s.", declared, paste(problems, collapse = "; ")),
+          stringsAsFactors = FALSE
+        )
+      }
+    }
+
+    # `sources` lists the distinct SOURCE_ID values of the file. A value the
+    # file uses but the manifest does not list is CODES.SOURCE_ID's finding;
+    # here, a listed value the file does not use.
+    if (!("sources" %in% missing_keys) && "SOURCE_ID" %in% names(df)) {
+      listed <- strsplit(trimws(man[["sources"]]), "\\s+")[[1]]
+      listed <- listed[nzchar(listed)]
+      unused <- setdiff(listed, unique(df$SOURCE_ID))
+      if (length(unused) > 0) {
+        out[[length(out) + 1]] <- data.frame(
+          check_id = "COVER.MANIFEST", severity = "ERROR", file = file,
+          row_key = "key=sources",
+          message = sprintf(
+            "Manifest sources lists %s, which no row of the file carries.",
+            paste(unused, collapse = " ")
+          ),
+          stringsAsFactors = FALSE
+        )
+      }
+    }
   }
   .vc_bind(out)
 }
@@ -487,14 +553,23 @@ vc_cover_survey <- function(ctx) {
     if ("ref_area" %in% names(man) && !identical(match_rows$ref_area[1], man[["ref_area"]])) {
       mismatch <- TRUE
     }
-    if ("time_period" %in% names(man) && !identical(match_rows$time_period[1], man[["time_period"]])) {
+    # A model-based file's TIME_PERIOD is the year it refers to, not its base
+    # survey's (standard, "Manifest"), so only a SURVEY file's time_period
+    # must equal the survey's.
+    is_survey_file <- identical(ctx_file_estimation(ctx, key), "SURVEY")
+    if (is_survey_file && "time_period" %in% names(man) &&
+        !identical(match_rows$time_period[1], man[["time_period"]])) {
       mismatch <- TRUE
     }
     if (mismatch) {
       out[[length(out) + 1]] <- data.frame(
         check_id = "COVER.SURVEY", severity = "ERROR", file = file,
         row_key = paste0("survey_id=", sid),
-        message = "SURVEYS.csv row's ref_area or time_period differs from the manifest.",
+        message = if (is_survey_file) {
+          "SURVEYS.csv row's ref_area or time_period differs from the manifest."
+        } else {
+          "SURVEYS.csv row's ref_area differs from the manifest."
+        },
         stringsAsFactors = FALSE
       )
     }

@@ -51,6 +51,40 @@ can be compared with the committed files. With the same inputs and
 `--timestamp`, the output is byte-identical (GeoPackages excepted: they are
 compared by content).
 
+## The validator
+
+`validate.R` runs every `vc_*` check of the `R/validate_*.R` modules and
+writes one findings CSV (`check_id, severity, file, row_key, message`), at
+most 20 findings per check and file plus a SUMMARY row. It exits 1 on any
+ERROR, 2 if a check crashed. `--metadata-only` skips the data files; `--data
+<file>` (repeatable) validates only those. The modules follow the standard's
+"Validation checks" section:
+
+- `STRUCT` (`validate_structure.R`): the DSD header, the file name
+  `AFW360_HH_<REF_AREA>_<TIME_PERIOD>_<ESTIMATION>.csv` agreeing with the rows
+  and the manifest, the 19-column key.
+- `CODES` (`validate_codes.R`): codelists, slots, qualifiers against
+  `INDICATOR_QUALIFIERS.csv` and `QUALIFIER_PAIRS.csv`, `SERIES_ID` against
+  `SERIES_PLAN.csv`, `UNIT_MEASURE` (LCU resolved to `CL_AREA.currency`),
+  `SOURCE_ID` against `SOURCES.csv` and the manifest.
+- `COVER` (`validate_coverage.R`): the required rows of the file's
+  `ESTIMATION` (country `SERIES_PLAN` rows over `ALL`, `NOT_PRODUCED` left
+  out, withheld cells subtracted), the manifest and `SURVEYS.csv`.
+- `VALUE` (`validate_values.R`): numbers, ranges, `PRECISION`, the
+  reliability attributes (required on `PRODUCER`-source rows), and the
+  `OBS_STATUS` rules (`E` in a `MODEL` file, `D` on `DEVIATES` series, `U` by
+  the `RULES.csv` thresholds, no `Q`).
+- `RULE` (`validate_rules.R`): every row of `RULES.csv`, with tolerances
+  from each row's `PRECISION`, and the `N_POP` partition sums.
+- `META` (`validate_metadata.R`): every metadata and content CSV against
+  `COLUMNS.csv`, references, and the rules of `RULES.csv`,
+  `INDICATOR_QUALIFIERS.csv`, `QUALIFIER_PAIRS.csv`, `SERIES_PLAN.csv` and
+  `SOURCES.csv`.
+- `DOCS` (`validate_docs.R`): the generated tables of the standard are
+  current (`docs_check()` of `R/docs.R`).
+- `ASSET` and `TEXT` (`validate_assets.R`, `validate_text.R`): boundaries,
+  figures and dashboard text.
+
 ## The bootstrap scripts are frozen
 
 `pipeline/bootstrap/build_*.R` generated the first version (0.1.0) of every

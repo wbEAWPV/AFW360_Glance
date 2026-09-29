@@ -8,7 +8,63 @@
 # Depends on pipeline/R/codes.R for slot_sort() and fill_slots(), and
 # pipeline/R/constants.R for SENTINEL_TOTAL, SENTINEL_NA, DATAFLOW_ID and
 # KEY_COLUMNS. Callers source those (and pipeline/R/io.R, for building
-# `meta` with load_metadata()) before this file.
+# `meta` with load_metadata() and for dsd_key_columns()) before this file.
+#
+# Standard v0.5 ("Which rows exist"): a SERIES_PLAN row for a specific
+# country overrides the ALL row of the same series_id; a series whose
+# status for the country is NOT_PRODUCED requires no rows; only series
+# whose `estimation` lists the file's ESTIMATION are required; and the key
+# has 19 columns, ESTIMATION included.
+
+#' The key columns a generated row carries.
+#'
+#' The DSD's key ([dsd_key_columns()]) when `meta` holds
+#' `DSD_AFW360_HH`, else the [KEY_COLUMNS] constant (a hand-made `meta` in
+#' a unit test).
+.plan_key_columns <- function(meta) {
+  if (!is.null(meta$DSD_AFW360_HH) && exists("dsd_key_columns", mode = "function")) {
+    return(dsd_key_columns(meta))
+  }
+  KEY_COLUMNS
+}
+
+#' The SERIES_PLAN rows that apply to one country, one per series_id.
+#'
+#' Keeps the rows whose `ref_area` is `ALL` or `ref_area`; where both exist
+#' for a `series_id`, the country row wins (standard, "Which rows exist").
+#' A country row with no ALL row is kept too (META.SERIES_PLAN reports it).
+#' Order follows the plan file.
+#'
+#' @param meta A named list holding `SERIES_PLAN`.
+#' @param ref_area A country code.
+#' @return A data frame, a subset of the SERIES_PLAN rows.
+effective_series_plan <- function(meta, ref_area) {
+  sp <- as.data.frame(meta$SERIES_PLAN, stringsAsFactors = FALSE)
+  if (nrow(sp) == 0) return(sp)
+  sp <- sp[sp$ref_area %in% c("ALL", ref_area), , drop = FALSE]
+  has_country <- sp$series_id[sp$ref_area == ref_area]
+  drop <- sp$ref_area == "ALL" & sp$series_id %in% has_country
+  if (identical(ref_area, "ALL")) drop <- rep(FALSE, nrow(sp))
+  sp <- sp[!drop, , drop = FALSE]
+  sp[!duplicated(sp$series_id), , drop = FALSE]
+}
+
+#' Whether a SERIES_PLAN `estimation` field includes an estimation code.
+#'
+#' An absent or empty field (a plan written before metadata 0.2.0, or a
+#' hand-made test plan) applies to every estimation.
+#'
+#' @param field A character vector of `estimation` cells (or `NULL`).
+#' @param estimation One code, e.g. `"SURVEY"`.
+#' @param n The number of rows, used when `field` is `NULL`.
+#' @return A logical vector.
+.plan_estimation_applies <- function(field, estimation, n = length(field)) {
+  if (is.null(field)) return(rep(TRUE, n))
+  vapply(field, function(f) {
+    toks <- .plan_tokens(f)
+    length(toks) == 0 || estimation %in% toks
+  }, logical(1), USE.NAMES = FALSE)
+}
 
 #' Split a space-separated field into tokens.
 #'
@@ -26,9 +82,11 @@
 #'
 #' Crosses every series of `meta$SERIES_PLAN` with every cut of
 #' `meta$TAB_PLAN` that applies to it, and every cell of that cut, following
-#' WP08.md's "Required rows" rule:
-#'   1. Keep the `SERIES_PLAN` and `TAB_PLAN` rows whose `ref_area` is `ALL`
-#'      or `ref_area`.
+#' WP08.md's "Required rows" rule and the standard's "Which rows exist":
+#'   1. Keep the `TAB_PLAN` rows whose `ref_area` is `ALL` or `ref_area`,
+#'      and the series of [effective_series_plan()] (a country row
+#'      overriding the ALL row) whose `estimation` includes `estimation`
+#'      and whose `status` is not `NOT_PRODUCED`.
 #'   2. A cut applies to a series when every variable in its
 #'      `comp_breakdowns` lists the indicator's `stat_unit` in
 #'      `CL_BRK_VAR.applies_to_units`, none of those variables is the
@@ -39,14 +97,17 @@
 #'      `SEX`, `AGE` and `comp_breakdowns` category domains.
 #'   4. Cells that use a variable or category listed in the indicator's
 #'      `excluded_breakdowns` are dropped.
-#'   5. Each row carries the 18 key columns, with `SEX`/`AGE` becoming `_Z`
+#'   5. Each row carries the 19 key columns (`ESTIMATION` = `estimation`),
+#'      with `SEX`/`AGE` becoming `_Z`
 #'      in place of `_T` when the indicator's `stat_unit` is not `IND`,
 #'      `COMP_BREAKDOWN_1..5` holding the cut's categories plus the defining
 #'      breakdown (ordered by [slot_sort()], padded with `_T`), and
 #'      `MEASURE_QUAL_1..5` holding the series' qualifiers (ordered by
 #'      qualifier `slot_order`, padded with `_Z`).
-#'   6. Rows carry `series_id` and `cut_id`, and are sorted by the key
-#'      columns; the function stops if the key is not unique.
+#'   6. Rows carry their provenance, `series_id`, `cut_id` and
+#'      `defining_breakdown` (the series' defining category, `""` when it
+#'      has none), and are sorted by the key columns; the function stops if
+#'      the key is not unique.
 #'
 #' @param meta A named list from [load_metadata()], holding at least
 #'   `SERIES_PLAN`, `TAB_PLAN`, `CL_INDICATOR` (`code`, `stat_unit`,
@@ -54,9 +115,12 @@
 #'   `CL_QUAL_VAR`, `CL_QUALIFIER` and `CL_GEO`.
 #' @param ref_area A country code, e.g. `"SEN"`.
 #' @param time_period A time period string, e.g. `"2021"`.
-#' @return A data frame of the 18 `KEY_COLUMNS` plus `series_id` and
-#'   `cut_id`, one row per required cell, sorted by the key columns.
-required_rows <- function(meta, ref_area, time_period) {
+#' @param estimation The file's `ESTIMATION` code. Default `"SURVEY"`.
+#' @return A data frame of the key columns (the DSD's 19, see
+#'   [.plan_key_columns()]) plus `series_id`, `cut_id` and
+#'   `defining_breakdown`, one row per required cell, sorted by the key
+#'   columns.
+required_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
   needed <- c(
     "SERIES_PLAN", "TAB_PLAN", "CL_INDICATOR", "CL_BRK_VAR",
     "CL_COMP_BREAKDOWN", "CL_QUAL_VAR", "CL_QUALIFIER", "CL_GEO"
@@ -69,7 +133,13 @@ required_rows <- function(meta, ref_area, time_period) {
     )
   }
 
-  series_plan <- as.data.frame(meta$SERIES_PLAN, stringsAsFactors = FALSE)
+  key_cols <- .plan_key_columns(meta)
+  series_plan <- effective_series_plan(meta, ref_area)
+  keep <- .plan_estimation_applies(series_plan$estimation, estimation, nrow(series_plan))
+  if (!is.null(series_plan$status)) {
+    keep <- keep & !(series_plan$status %in% "NOT_PRODUCED")
+  }
+  series_plan <- series_plan[keep, , drop = FALSE]
   tab_plan <- as.data.frame(meta$TAB_PLAN, stringsAsFactors = FALSE)
   cl_indicator <- as.data.frame(meta$CL_INDICATOR, stringsAsFactors = FALSE)
   cl_brk_var <- as.data.frame(meta$CL_BRK_VAR, stringsAsFactors = FALSE)
@@ -78,7 +148,6 @@ required_rows <- function(meta, ref_area, time_period) {
   cl_qualifier <- as.data.frame(meta$CL_QUALIFIER, stringsAsFactors = FALSE)
   cl_geo <- as.data.frame(meta$CL_GEO, stringsAsFactors = FALSE)
 
-  series_plan <- series_plan[series_plan$ref_area %in% c("ALL", ref_area), , drop = FALSE]
   tab_plan <- tab_plan[tab_plan$ref_area %in% c("ALL", ref_area), , drop = FALSE]
 
   ind_stat_unit <- setNames(cl_indicator$stat_unit, cl_indicator$code)
@@ -239,6 +308,7 @@ required_rows <- function(meta, ref_area, time_period) {
                   REF_AREA = ref_area,
                   GEO = geo,
                   TIME_PERIOD = time_period,
+                  ESTIMATION = estimation,
                   INDICATOR = indicator,
                   SEX = sx,
                   AGE = ag,
@@ -254,7 +324,8 @@ required_rows <- function(meta, ref_area, time_period) {
                   MEASURE_QUAL_4 = qual_slots[4],
                   MEASURE_QUAL_5 = qual_slots[5],
                   series_id = series_id,
-                  cut_id = cut_id
+                  cut_id = cut_id,
+                  defining_breakdown = defining_brk
                 )
               }
             }
@@ -264,7 +335,7 @@ required_rows <- function(meta, ref_area, time_period) {
     }
   }
 
-  out_names <- c(KEY_COLUMNS, "series_id", "cut_id")
+  out_names <- c(key_cols, "series_id", "cut_id", "defining_breakdown")
 
   if (length(out_rows) == 0) {
     out <- as.data.frame(
@@ -276,14 +347,21 @@ required_rows <- function(meta, ref_area, time_period) {
   }
 
   out <- as.data.frame(do.call(rbind, out_rows), stringsAsFactors = FALSE)
-  names(out) <- out_names
+  missing_cols <- setdiff(out_names, names(out))
+  if (length(missing_cols) > 0) {
+    stop(
+      "required_rows: the DSD key has column(s) the generator does not fill: ",
+      paste(missing_cols, collapse = ", "), call. = FALSE
+    )
+  }
+  out <- out[out_names]
   rownames(out) <- NULL
 
-  ord <- do.call(order, c(as.list(out[KEY_COLUMNS]), list(method = "radix")))
+  ord <- do.call(order, c(as.list(out[key_cols]), list(method = "radix")))
   out <- out[ord, , drop = FALSE]
   rownames(out) <- NULL
 
-  key <- do.call(paste, c(as.list(out[KEY_COLUMNS]), list(sep = "")))
+  key <- do.call(paste, c(as.list(out[key_cols]), list(sep = "")))
   if (any(duplicated(key))) {
     stop(
       "required_rows: duplicate key produced: ", key[duplicated(key)][1],

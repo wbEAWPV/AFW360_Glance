@@ -1,9 +1,11 @@
 #!/usr/bin/env Rscript
 # pipeline/validate.R
 #
-# WP11: the AFW360 validator's entry point. Sources io.R, constants.R,
-# codes.R, ctx.R, plan.R and every pipeline/R/validate_*.R module present
-# (STRUCT/CODES/META from WP11, plus WP12/13/14's modules once they exist),
+# The AFW360 validator's entry point (standard v0.5, "Validation checks").
+# Sources io.R, constants.R, codes.R, ctx.R, plan.R, manifest.R (the
+# manifest keys) and docs.R (the DOCS module's docs_check()), and every
+# pipeline/R/validate_*.R module present (ASSET, CODES, COVER, DOCS, META,
+# RULE, STRUCT, TEXT, VALUE),
 # builds the shared ctx (build_ctx()), discovers every vc_* check function
 # and runs them in alphabetical order, writes one findings CSV, and exits
 # 0 (no ERROR), 1 (at least one ERROR) or 2 (a check crashed).
@@ -30,6 +32,8 @@ source(file.path(root, "pipeline", "R", "constants.R"))
 source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "ctx.R"))
 source(file.path(root, "pipeline", "R", "plan.R"))
+source(file.path(root, "pipeline", "R", "manifest.R"))
+source(file.path(root, "pipeline", "R", "docs.R"))
 
 module_files <- sort(Sys.glob(file.path(root, "pipeline", "R", "validate_*.R")))
 for (f in module_files) source(f)

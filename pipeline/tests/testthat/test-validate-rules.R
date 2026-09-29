@@ -1,6 +1,8 @@
 # pipeline/tests/testthat/test-validate-rules.R
 #
-# Tests for pipeline/R/validate_rules.R (WP13.md).
+# Tests for pipeline/R/validate_rules.R (WP13.md; since standard v0.5 every
+# rule is a row of metadata/rules/RULES.csv and tolerances follow each
+# row's PRECISION).
 #
 # Fixtures are built on a temporary copy of the real metadata
 # (make_temp_root(), auto-sourced from helper-temp-root.R) plus
@@ -11,9 +13,8 @@
 # TAB_PLAN.csv is trimmed (on the temp copy only, never the real file) to
 # just the cuts a test needs, for two reasons found while building this
 # fixture (see the implementer report's Questions):
-#   - the real TAB_PLAN's AEZ cut has ref_area "ALL", but CL_GEO has no
-#     AEZ codes for SEN, so required_rows(meta, "SEN", ...) on the
-#     unmodified metadata stops with an error;
+#   - (historical) the AEZ cut once had ref_area "ALL", which CL_GEO could
+#     not satisfy for SEN;
 #   - AGG_SUM's parent is a single TOTAL-cut row, shared by every other
 #     cut. The real TAB_PLAN's non-TOTAL cuts (URB, HHH_SEX, HHH_AGE,
 #     QUINT, ADM1, ZONES) have different child counts k, so one parent
@@ -26,12 +27,13 @@ source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "constants.R"))
 source(file.path(root, "pipeline", "R", "plan.R"))
 source(file.path(root, "pipeline", "R", "ctx.R"))
+source(file.path(root, "pipeline", "R", "manifest.R"))
 source(file.path(root, "pipeline", "R", "validate_rules.R"))
 
 ALL_RULE_FNS <- c(
   "vc_rule_range_0_1", "vc_rule_range_nonneg", "vc_rule_agg_sum",
   "vc_rule_agg_bracket", "vc_rule_sum_to_1_qual", "vc_rule_sum_to_1_brk",
-  "vc_rule_monotone", "vc_rule_npop_skipped", "vc_rule_unknown_token"
+  "vc_rule_monotone", "vc_rule_agg_npop_mean", "vc_rule_npop_partition"
 )
 
 run_all_rules <- function(ctx) {
@@ -105,8 +107,9 @@ make_consistent_ctx <- function() {
   list(ctx = build_ctx(fx$root, data_files = fx$data_path), root = fx$root, data_path = fx$data_path)
 }
 
-#' The series_id -> scale LEGACY_LABELS gives a series, in a temp root
-#' (WP13.md "Tolerance"; mirrors .vc_series_scale()).
+#' The series_id -> scale LEGACY_LABELS gives a series, in a temp root. The
+#' fixture writes PRECISION = 0.01 x scale on every row of a series, so the
+#' validator's h = PRECISION / 2 = 0.005 x scale.
 series_scale <- function(tmp_root, series_id) {
   ll <- read_std_csv(file.path(tmp_root, "metadata", "plans", "LEGACY_LABELS.csv"))
   row <- ll[ll$series_id == series_id, , drop = FALSE][1, ]
@@ -387,22 +390,211 @@ test_that("WP13.A6: with ctx$data empty, every function returns zero rows", {
   }
 })
 
+
 # ---------------------------------------------------------------------------
-# RULE.UNKNOWN_TOKEN (WP13.md check table; not one of WP13.A1-A6, but part
-# of the interface's "one function per check").
+# Standard v0.5 (WP-C): rules from RULES.csv, per-row PRECISION tolerances
 # ---------------------------------------------------------------------------
 
-test_that("an unrecognised token gives one RULE.UNKNOWN_TOKEN finding per indicator", {
-  fx <- make_rules_root(series_ids = "CONS_SH.COICOP_CP01", cuts = "URB")
+#' Edit the temp root's RULES.csv.
+edit_rules <- function(tmp_root, fn) {
+  edit_csv(file.path(tmp_root, "metadata", "rules", "RULES.csv"), fn)
+}
+
+#' Append one RULES.csv row.
+add_rule <- function(tmp_root, scope, scope_code, rule, param = "", tolerance = "", severity = "ERROR") {
+  edit_rules(tmp_root, function(df) {
+    prefix <- if (scope == "DATAFLOW") "AFW360_HH" else scope_code
+    new <- df[1, ]
+    new$rule_id <- paste0(prefix, ".", rule, if (nzchar(param)) paste0(".", param) else "")
+    new$scope <- scope
+    new$scope_code <- scope_code
+    new$rule <- rule
+    new$param <- param
+    new$tolerance <- tolerance
+    new$severity <- severity
+    new$notes <- ""
+    rbind(df, new)
+  })
+}
+
+test_that("PRECISION drives the tolerance: a legacy share 0.005 above 1 passes, an exact share 0.001 above fails", {
+  fx <- make_consistent_ctx()
   on.exit(unlink(fx$root, recursive = TRUE))
 
-  edit_csv(file.path(fx$root, "metadata", "codelists", "CL_INDICATOR.csv"), function(df) {
-    df$checks[df$code == "CONS_SH"] <- paste(df$checks[df$code == "CONS_SH"], "BOGUS_TOKEN")
+  cp01 <- function(df) which(df$INDICATOR == "CONS_SH" & row_has_qual(df, "COICOP_CP01") & df$URBANISATION == "_T")
+  edit_csv(fx$data_path, function(df) {
+    idx <- cp01(df)
+    expect_equal(df$PRECISION[idx], "0.01") # a legacy row: h = 0.005
+    df$OBS_VALUE[idx] <- "1.005"
     df
   })
+  res <- vc_rule_range_0_1(build_ctx(fx$root, data_files = fx$data_path))
+  expect_false("RULE.RANGE_0_1" %in% res$check_id)
 
-  res <- vc_rule_unknown_token(build_ctx(fx$root, data_files = fx$data_path))
-  hit <- res[res$check_id == "RULE.UNKNOWN_TOKEN" & res$row_key == "code=CONS_SH", , drop = FALSE]
-  expect_equal(nrow(hit), 1)
-  expect_equal(hit$severity, "ERROR")
+  edit_csv(fx$data_path, function(df) {
+    idx <- cp01(df)
+    df$PRECISION[idx] <- "" # an exact value: h = 0
+    df$OBS_VALUE[idx] <- "1.001"
+    df
+  })
+  res <- vc_rule_range_0_1(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(sum(res$check_id == "RULE.RANGE_0_1"), 1L)
+  expect_match(res$message[res$check_id == "RULE.RANGE_0_1"], "rule=CONS_SH.RANGE_0_1", fixed = TRUE)
+})
+
+test_that("an exact AGG_SUM child off by 0.001 fails; the largest h among the rows compared widens it", {
+  fx <- make_rules_root(series_ids = "POV_NUM.POVLINE_PL300.PPP_2021", cuts = "URB")
+  on.exit(unlink(fx$root, recursive = TRUE))
+
+  edit_csv(fx$data_path, function(df) {
+    df$PRECISION <- ""
+    df$OBS_VALUE[df$URBANISATION == "_T"] <- "3000000"
+    df$OBS_VALUE[df$URBANISATION != "_T"] <- "1000000"
+    df$OBS_VALUE[df$URBANISATION == "CAP"] <- "1000000.001"
+    df
+  })
+  res <- vc_rule_agg_sum(build_ctx(fx$root, data_files = fx$data_path))
+  expect_true("RULE.AGG_SUM" %in% res$check_id)
+
+  # One legacy child (PRECISION 10000, h 5000) makes the bound (k + 1) x 5000.
+  edit_csv(fx$data_path, function(df) {
+    df$PRECISION[df$URBANISATION == "R"] <- "10000"
+    df$OBS_VALUE[df$URBANISATION == "CAP"] <- "1019999"
+    df
+  })
+  res <- vc_rule_agg_sum(build_ctx(fx$root, data_files = fx$data_path))
+  expect_false("RULE.AGG_SUM" %in% res$check_id)
+})
+
+test_that("a filled RULES.csv tolerance replaces the computed bound", {
+  fx <- make_consistent_ctx()
+  on.exit(unlink(fx$root, recursive = TRUE))
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$INDICATOR == "CONS_SH" & row_has_qual(df, "COICOP_CP01") & df$URBANISATION == "_T")
+    df$PRECISION[idx] <- ""
+    df$OBS_VALUE[idx] <- "1.001"
+    df
+  })
+  edit_rules(fx$root, function(df) {
+    df$tolerance[df$rule_id == "CONS_SH.RANGE_0_1"] <- "0.01"
+    df
+  })
+  res <- vc_rule_range_0_1(build_ctx(fx$root, data_files = fx$data_path))
+  expect_false("RULE.RANGE_0_1" %in% res$check_id)
+})
+
+test_that("a rule's severity comes from its RULES.csv row, and a SERIES rule applies to its series only", {
+  fx <- make_consistent_ctx()
+  on.exit(unlink(fx$root, recursive = TRUE))
+  edit_csv(fx$data_path, function(df) {
+    for (q in c("POVLINE_PL300", "POVLINE_PL420")) {
+      idx <- which(df$INDICATOR == "POV_HC" & row_has_qual(df, q) & df$URBANISATION == "_T")
+      df$PRECISION[idx] <- ""
+      df$OBS_VALUE[idx] <- "1.2"
+    }
+    df
+  })
+  edit_rules(fx$root, function(df) df[df$rule_id != "POV_HC.RANGE_0_1", ])
+  add_rule(fx$root, "SERIES", "POV_HC.POVLINE_PL420.PPP_2021", "RANGE_0_1", severity = "WARN")
+  res <- vc_rule_range_0_1(build_ctx(fx$root, data_files = fx$data_path))
+  hit <- res[res$check_id == "RULE.RANGE_0_1", ]
+  expect_equal(nrow(hit), 1L)
+  expect_equal(hit$severity, "WARN")
+  expect_match(hit$row_key, "POVLINE_PL420", fixed = TRUE)
+  expect_match(hit$message, "rule=POV_HC.POVLINE_PL420.PPP_2021.RANGE_0_1", fixed = TRUE)
+})
+
+test_that("MONOTONE_IN takes its variable from param and orders categories by CL_QUALIFIER.order", {
+  fx <- make_consistent_ctx()
+  on.exit(unlink(fx$root, recursive = TRUE))
+  # With the rule removed, the PL300 > PL420 inversion is not checked.
+  edit_rules(fx$root, function(df) df[df$rule != "MONOTONE_IN", ])
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$INDICATOR == "POV_HC" & row_has_qual(df, "POVLINE_PL300") & df$URBANISATION == "_T")
+    df$OBS_VALUE[idx] <- "0.5"
+    df
+  })
+  res <- vc_rule_monotone(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(nrow(res), 0L)
+
+  add_rule(fx$root, "INDICATOR", "POV_HC", "MONOTONE_IN", param = "POVLINE")
+  res <- vc_rule_monotone(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(sum(res$check_id == "RULE.MONOTONE"), 1L)
+  expect_match(res$message, "POVLINE order 5", fixed = TRUE) # PL420's order, above PL300's 4
+})
+
+test_that("AGG_NPOP_MEAN checks the N_POP-weighted mean, and is skipped with INFO where N_POP is empty", {
+  fx <- make_rules_root(series_ids = "POV_HC.POVLINE_PL300.PPP_2021", cuts = "URB")
+  on.exit(unlink(fx$root, recursive = TRUE))
+  add_rule(fx$root, "INDICATOR", "POV_HC", "AGG_NPOP_MEAN")
+
+  res <- vc_rule_agg_npop_mean(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(res$check_id, "RULE.NPOP_SKIPPED")
+  expect_equal(res$severity, "INFO")
+
+  edit_csv(fx$data_path, function(df) {
+    df$PRECISION <- ""
+    child <- df$URBANISATION != "_T"
+    df$OBS_VALUE[child] <- c("0.1", "0.2", "0.6")
+    df$N_POP[child] <- c("100", "300", "600")
+    df$OBS_VALUE[!child] <- "0.43" # (10 + 60 + 360) / 1000
+    df$N_POP[!child] <- "1000"
+    df
+  })
+  res <- vc_rule_agg_npop_mean(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(nrow(res), 0L)
+
+  edit_csv(fx$data_path, function(df) {
+    df$OBS_VALUE[df$URBANISATION == "_T"] <- "0.431"
+    df
+  })
+  res <- vc_rule_agg_npop_mean(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(res$check_id, "RULE.AGG_NPOP_MEAN")
+})
+
+test_that("RULE.NPOP_PARTITION sums N_POP over population cuts, never over a defining breakdown", {
+  he <- paste0("POP_HH_SH.HE_COUNT_", c("0", "1", "2", "3", "4P"))
+  fx <- make_rules_root(series_ids = he, cuts = "URB")
+  on.exit(unlink(fx$root, recursive = TRUE))
+
+  # Every HE_COUNT series is a share of the same households, so each
+  # series' N_POP is the same denominator: 1000 in total, 300 + 300 + 400 by
+  # residence. Summing over the defining breakdown (5 x 1000) would fail.
+  edit_csv(fx$data_path, function(df) {
+    df$OBS_VALUE <- "0.2"
+    df$N_POP <- ifelse(df$URBANISATION == "_T", "1000", ifelse(df$URBANISATION == "R", "400", "300"))
+    df
+  })
+  res <- vc_rule_npop_partition(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(nrow(res), 0L)
+
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$SERIES_ID == "POP_HH_SH.HE_COUNT_1" & df$URBANISATION == "R")
+    df$N_POP[idx] <- "401"
+    df
+  })
+  res <- vc_rule_npop_partition(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(res$check_id, "RULE.NPOP_PARTITION")
+  expect_match(res$message, "series=POP_HH_SH.HE_COUNT_1 cut=URB", fixed = TRUE)
+
+  # A cut some of whose rows carry no N_POP is skipped with a WARN.
+  edit_csv(fx$data_path, function(df) {
+    idx <- which(df$SERIES_ID == "POP_HH_SH.HE_COUNT_1" & df$URBANISATION == "R")
+    df$N_POP[idx] <- ""
+    df
+  })
+  res <- vc_rule_npop_partition(build_ctx(fx$root, data_files = fx$data_path))
+  expect_equal(res$check_id, "RULE.AGG_SKIPPED")
+  expect_equal(res$severity, "WARN")
+})
+
+test_that("the retired EQUALS_NPOP_RATIO rule is unknown to META.RULES", {
+  source(file.path(root, "pipeline", "R", "validate_structure.R"))
+  source(file.path(root, "pipeline", "R", "validate_metadata.R"))
+  tmp <- make_temp_root(root)
+  on.exit(unlink(tmp, recursive = TRUE))
+  add_rule(tmp, "INDICATOR", "POP_SH", "EQUALS_NPOP_RATIO")
+  res <- vc_meta_rules(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_match(res$message, "unknown rule 'EQUALS_NPOP_RATIO'", fixed = TRUE)
 })
