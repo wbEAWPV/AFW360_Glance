@@ -1,5 +1,5 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes,parent
-U,Urban,The area is urban.,DRAFT,0.1.0,,,
-R,Rural,The area is rural.,DRAFT,0.1.0,,,
-CAP,Capital city,The area is the capital city.,DRAFT,0.1.0,,,U
-OU,Other urban,The area is urban but not the capital city.,DRAFT,0.1.0,,,U
+code,name_en,definition_en,status,version_added,replaced_by,notes,parent,global_urn
+U,Urban,The area is urban.,DRAFT,0.1.0,,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_URBANISATION(1.10).U
+R,Rural,The area is rural.,DRAFT,0.1.0,,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_URBANISATION(1.10).R
+CAP,Capital city,The area is the capital city.,DRAFT,0.1.0,,,U,
+OU,Other urban,The area is urban but not the capital city.,DRAFT,0.1.0,,,U,

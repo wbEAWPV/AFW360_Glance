@@ -1,0 +1,14 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes,global_urn
+SHARE,Share,"A share from 0 to 1, never 0 to 100.",DRAFT,0.1.0,,,
+INDEX,Index,"An index, for Gini and similar statistics.",DRAFT,0.1.0,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).IX
+PERSON,Person,A count of persons.,DRAFT,0.1.0,,,
+HH,Household,A count of households.,DRAFT,0.1.0,,,
+HE,Household enterprise,A count of non-agricultural household enterprises.,DRAFT,0.1.0,,,
+LCU,Local currency units,Local currency units.,DRAFT,0.1.0,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).CUR_LCU
+PPP_USD,PPP US dollars,US dollars at purchasing power parity.,DRAFT,0.1.0,,,
+HA,Hectares,Hectares.,DRAFT,0.1.0,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).HA
+TLU,Tropical livestock units,Tropical livestock units.,DRAFT,0.1.0,,,
+DAY,Day,A count of days.,DRAFT,0.1.0,,,
+YEAR,Year,A count of years.,DRAFT,0.1.0,,,
+COUNT,Count,A plain count.,DRAFT,0.1.0,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).NUMBER
+XOF,CFA franc BCEAO,"West African CFA franc (ISO 4217), the currency of Senegal and Guinea-Bissau.",DRAFT,0.3.0,,,

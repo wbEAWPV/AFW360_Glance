@@ -1,0 +1,2 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes,global_urn
+A,Annual,The value refers to a calendar year or a survey year; the only frequency the database publishes.,DRAFT,0.3.0,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_FREQ(2.1).A

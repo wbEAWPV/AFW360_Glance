@@ -1,3 +1,3 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes
-SURVEY,Survey estimate,A direct estimate from the survey microdata of the reference year.,DRAFT,0.2.0,,
-MODEL,Model-based estimate,"A model-based value for the reference year: a nowcast, projection or microsimulation built on an earlier survey or on scenario assumptions. Every filled row of a MODEL file carries OBS_STATUS E.",DRAFT,0.2.0,,
+code,name_en,definition_en,status,version_added,replaced_by,notes,global_urn
+SURVEY,Survey estimate,A direct estimate from the survey microdata of the reference year.,DRAFT,0.2.0,,,
+MODEL,Model-based estimate,"A model-based value for the reference year: a nowcast, projection or microsimulation built on an earlier survey or on scenario assumptions. Every filled row of a MODEL file carries OBS_STATUS E.",DRAFT,0.2.0,,,

@@ -1,8 +1,8 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes,admits_se
-PROPORTION,Proportion,A proportion.,DRAFT,0.1.0,,,Y
-MEAN,Mean,A mean.,DRAFT,0.1.0,,,Y
-MEDIAN,Median,A median.,DRAFT,0.1.0,,,Y
-TOTAL,Total,A total.,DRAFT,0.1.0,,,Y
-RATIO_TOTALS,Ratio of totals,A ratio of two weighted totals.,DRAFT,0.1.0,,,Y
-GINI,Gini coefficient,A Gini coefficient.,DRAFT,0.1.0,,,Y
-INDEX,Index,An index.,DRAFT,0.1.0,,,N
+code,name_en,definition_en,status,version_added,replaced_by,notes,admits_se,global_urn
+PROPORTION,Proportion,A proportion.,DRAFT,0.1.0,,,Y,
+MEAN,Mean,A mean.,DRAFT,0.1.0,,,Y,
+MEDIAN,Median,A median.,DRAFT,0.1.0,,,Y,
+TOTAL,Total,A total.,DRAFT,0.1.0,,,Y,
+RATIO_TOTALS,Ratio of totals,A ratio of two weighted totals.,DRAFT,0.1.0,,,Y,
+GINI,Gini coefficient,A Gini coefficient.,DRAFT,0.1.0,,,Y,
+INDEX,Index,An index.,DRAFT,0.1.0,,,N,
