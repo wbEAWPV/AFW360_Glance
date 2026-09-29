@@ -27,10 +27,10 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | committed | opus (69k tokens) | sonnet, PASS 6/6 | 5e37861 | 2026-09-29 |
 | WP2-fix | Metadata 0.3.0: CL_SERIES dropped, SERIES_ID uncoded; generated tables refreshed (Gate 1) | WP2b, WP2c, Gate 1 answers | committed | opus (63k tokens) | sonnet, PASS 8/8 | 8f5fa20 | 2026-09-29 |
 | Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c, WP1-fix, WP2-fix | approved | | | ae7db97, 8f5fa20 | 2026-09-29 |
-| WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | in progress | opus | | | 2026-09-29 |
-| WP3b | Reconciliation and 0.2.0 projection test | WP3a | todo | | | | |
-| WP7 | Independent verification tools (pysdmx, lxml) | WP3a, WP5a1 | todo | | | | |
-| WP9a | Dashboard loader | WP3a, WP2c | todo | | | | |
+| WP3a | Converter, I/O, manifest; data regenerated | Gate 1 | committed | opus (111k tokens, over budget; complete) | sonnet, PASS 9/9; regression: 30 shared columns identical, only 39 GNB NaN cells differ | 1874b69 | 2026-09-29 |
+| WP3b | Reconciliation and 0.2.0 projection test | WP3a | in progress | opus | | | 2026-09-29 |
+| WP7 | Independent verification tools (pysdmx, lxml) | WP3a, WP5a1 | in progress | opus | | | 2026-09-29 |
+| WP9a | Dashboard loader | WP3a, WP2c | in progress | opus | | | 2026-09-29 |
 | WP4a | Validator: structure, context, plan, coverage | WP3b | todo | | | | |
 | WP4b | Validator: codes, values, rules, metadata | WP4a | todo | | | | |
 | WP5a | SDMX-ML writer: agency, concepts, codelists | WP2c, WP3a, WP5a1, WP7 | todo | | | | |
@@ -108,6 +108,8 @@ Questions raised during WP1 and WP2a:
 | 13 | WP2b | `.gitattributes` gives the fixture copies of `VERSION` (`pipeline/tests/testthat/fixtures/metadata-0.*/metadata/VERSION`, no extension) no `eol` rule, so a fresh checkout with `core.autocrlf=true` may write them with CRLF; the migration trims the value and rewrites the file, so the tests still pass, but WP2b check 1 (`cmp` against the blob) would fail on such a checkout. A rule `VERSION text eol=lf` (basename pattern) covers all copies. | WP10c (`.gitattributes`) |
 | 14 | WP1 | Chapter review at Gate 1 (Opus reviewer, relayed to the data lead): the chapter matches plan section 2 in every count, id, URN form and table. Wording to fix, no decision changes: line 589 states the SDMX-ML 3.0 profile as an existing capability (it is the WP8b2 contingency); line 549 "SDMX cannot express required coverage or arithmetic rules" overstates (VTL and DataConstraint exist; say the project validator keeps that job and neither is used in this release, as D45 does); "FMR 12" (line 582) versus "FMR 12.4" (line 589); "37 columns, in DSD order" (line 405) versus `Pos` being CSV order only (line 451); the `MDS_TEXT.csv` source `content/TEXT.csv` is never named (lines 508 and 514); line 570 "a pull request fails the check" must match how the staleness check is actually run. Line 486 ("real codelists for `SERIES_ID` and `SOURCE_ID`") depends on G1-Q1. | WP10a |
 | 15 | WP1 | Plan 2.6 and the chapter (line 494) annotate `INDICATOR` with `SDMX_CROSS_DOMAIN_CONCEPT`; the reviewer doubts that `INDICATOR` exists in `SDMX:CROSS_DOMAIN_CONCEPTS(2.0)`. WP5a fetches the scheme once (2.9 curl form) and writes the annotation only for ids that exist, reporting any dropped id. | WP5a (check), WP10a (text) |
+| 16 | WP3a | `pipeline/R/plan.R` line 28 and `pipeline/R/ctx.R` lines 79 and 91 fall back to the removed `KEY_COLUMNS` and `DSD_COLUMNS` when the metadata has no DSD, and `test-plan.R` lines 151 to 340 reference both; `required_rows()` in `plan.R` stops on DSD 0.3.0 ("the DSD key has column(s) the generator does not fill: FREQ") and still builds rows with `DATAFLOW` (line 307), so `make_data_fixture()` cannot run end to end until `plan.R` is updated (the helper was tested with a stub and produces a correct 37-column file). | WP4a |
+| 17 | WP3a | Manifest key order chosen: `structure_id` in the old `dataflow` slot, `sdmx_csv_version` right after it, then the other 15 keys in their old order (17 keys). | WP10a (manifest section of the standard) |
 
 ## Plan amendments
 
