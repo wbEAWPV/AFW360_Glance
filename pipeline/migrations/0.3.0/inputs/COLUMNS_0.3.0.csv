@@ -1,0 +1,33 @@
+file,position,column,status,description
+DSD_AFW360_HH.csv,1,position,R,"1-34, the component order of the data structure: dimensions, TIME_PERIOD, measures, attributes. The data file has the same order after its fixed SDMX-CSV columns (D46)."
+DSD_AFW360_HH.csv,2,id,R,"Component id, exactly as it appears in the data file header."
+DSD_AFW360_HH.csv,3,component,R,"SDMX component class: dimension, time_dimension, measure or attribute."
+DSD_AFW360_HH.csv,4,role,R,"Project role: reference, breakdown, qualifier, measure or attribute."
+DSD_AFW360_HH.csv,5,name_en,R,Short English name of the component; also the name of its concept in CS_AFW360.
+DSD_AFW360_HH.csv,6,codelist,C,"The CL_* codelist that constrains this component, where the component is coded."
+DSD_AFW360_HH.csv,7,data_type,C,"SDMX data type of an uncoded component (GregorianYear, Double, Integer or String); empty for a coded component."
+DSD_AFW360_HH.csv,8,usage,C,mandatory or optional; set for measures and attributes (SDMX usage) and empty for dimensions.
+DSD_AFW360_HH.csv,9,relationship,C,"Attribute relationship: observation, or the space-separated dimensions the attribute is attached to; empty for dimensions and measures."
+DSD_AFW360_HH.csv,10,measure_relationship,O,Space-separated measures an attribute relates to (SDMX 3 measure relationship); empty when none.
+DSD_AFW360_HH.csv,11,required,R,"R, C or O, as in tbl-columns."
+DSD_AFW360_HH.csv,12,sentinel,C,"Which of _T/_Z is valid here, where either sentinel applies."
+DSD_AFW360_HH.csv,13,min_value,O,"Smallest valid value of a numeric component, where a bound applies."
+DSD_AFW360_HH.csv,14,max_value,O,"Largest valid value of a numeric component, where a bound applies."
+DSD_AFW360_HH.csv,15,description,R,What the column holds.
+ARTEFACTS.csv,1,artefact_id,R,SDMX id of the artefact; unique in the file.
+ARTEFACTS.csv,2,artefact_type,R,"SDMX class name: AgencyScheme, ConceptScheme, Codelist, DataStructure, Dataflow, MetadataStructure, Metadataflow, DataProviderScheme, ProvisionAgreement, MetadataProviderScheme or MetadataProvisionAgreement."
+ARTEFACTS.csv,3,agency_id,R,Maintenance agency: WB for the agency scheme and WB.AFW360 for every other artefact (D31).
+ARTEFACTS.csv,4,source_file,C,Repository path of the CSV the artefact is generated from; empty when it is not generated from a CSV.
+ARTEFACTS.csv,5,name_en,R,English name of the artefact.
+ARTEFACTS.csv,6,description_en,R,English description of the artefact.
+ARTEFACTS.csv,7,status,R,"DRAFT, ACTIVE or DEPRECATED."
+ARTEFACTS.csv,8,version_added,R,metadata/VERSION value at which the artefact was added.
+ARTEFACTS.csv,9,notes,O,Free text.
+CL_FREQ.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_FREQ.csv,2,name_en,R,Short English name.
+CL_FREQ.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_FREQ.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_FREQ.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_FREQ.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_FREQ.csv,7,notes,O,Free text.
+CL_FREQ.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."

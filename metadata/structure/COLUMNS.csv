@@ -1,16 +1,41 @@
 file,position,column,status,description
-DSD_AFW360_HH.csv,1,position,R,"1-31, the data file's column order."
-DSD_AFW360_HH.csv,2,id,R,"Column name, exactly as it appears in the data file header."
-DSD_AFW360_HH.csv,3,role,R,"constant, breakdown, reference, qualifier, measure, or attribute."
-DSD_AFW360_HH.csv,4,codelist,C,"The CL_* file that constrains this column, where the column is coded."
-DSD_AFW360_HH.csv,5,required,R,"R, C or O, as in tbl-columns."
-DSD_AFW360_HH.csv,6,sentinel,C,"Which of _T/_Z is valid here, where either sentinel applies."
-DSD_AFW360_HH.csv,7,description,R,What the column holds.
+DSD_AFW360_HH.csv,1,position,R,"1-34, the component order of the data structure: dimensions, TIME_PERIOD, measures, attributes. The data file has the same order after its fixed SDMX-CSV columns (D46)."
+DSD_AFW360_HH.csv,2,id,R,"Component id, exactly as it appears in the data file header."
+DSD_AFW360_HH.csv,3,component,R,"SDMX component class: dimension, time_dimension, measure or attribute."
+DSD_AFW360_HH.csv,4,role,R,"Project role: reference, breakdown, qualifier, measure or attribute."
+DSD_AFW360_HH.csv,5,name_en,R,Short English name of the component; also the name of its concept in CS_AFW360.
+DSD_AFW360_HH.csv,6,codelist,C,"The CL_* codelist that constrains this component, where the component is coded."
+DSD_AFW360_HH.csv,7,data_type,C,"SDMX data type of an uncoded component (GregorianYear, Double, Integer or String); empty for a coded component."
+DSD_AFW360_HH.csv,8,usage,C,mandatory or optional; set for measures and attributes (SDMX usage) and empty for dimensions.
+DSD_AFW360_HH.csv,9,relationship,C,"Attribute relationship: observation, or the space-separated dimensions the attribute is attached to; empty for dimensions and measures."
+DSD_AFW360_HH.csv,10,measure_relationship,O,Space-separated measures an attribute relates to (SDMX 3 measure relationship); empty when none.
+DSD_AFW360_HH.csv,11,required,R,"R, C or O, as in tbl-columns."
+DSD_AFW360_HH.csv,12,sentinel,C,"Which of _T/_Z is valid here, where either sentinel applies."
+DSD_AFW360_HH.csv,13,min_value,O,"Smallest valid value of a numeric component, where a bound applies."
+DSD_AFW360_HH.csv,14,max_value,O,"Largest valid value of a numeric component, where a bound applies."
+DSD_AFW360_HH.csv,15,description,R,What the column holds.
 COLUMNS.csv,1,file,R,"File name of a metadata or content CSV, e.g. CL_GEO.csv."
 COLUMNS.csv,2,position,R,1-based position of the column in that file.
 COLUMNS.csv,3,column,R,"Column name, exactly as in the file's header."
 COLUMNS.csv,4,status,R,"R (required), C (required when relevant) or O (optional)."
 COLUMNS.csv,5,description,R,What the column holds.
+ARTEFACTS.csv,1,artefact_id,R,SDMX id of the artefact; unique in the file.
+ARTEFACTS.csv,2,artefact_type,R,"SDMX class name: AgencyScheme, ConceptScheme, Codelist, DataStructure, Dataflow, MetadataStructure, Metadataflow, DataProviderScheme, ProvisionAgreement, MetadataProviderScheme or MetadataProvisionAgreement."
+ARTEFACTS.csv,3,agency_id,R,Maintenance agency: WB for the agency scheme and WB.AFW360 for every other artefact (D31).
+ARTEFACTS.csv,4,source_file,C,Repository path of the CSV the artefact is generated from; empty when it is not generated from a CSV.
+ARTEFACTS.csv,5,name_en,R,English name of the artefact.
+ARTEFACTS.csv,6,description_en,R,English description of the artefact.
+ARTEFACTS.csv,7,status,R,"DRAFT, ACTIVE or DEPRECATED."
+ARTEFACTS.csv,8,version_added,R,metadata/VERSION value at which the artefact was added.
+ARTEFACTS.csv,9,notes,O,Free text.
+CL_FREQ.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_FREQ.csv,2,name_en,R,Short English name.
+CL_FREQ.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_FREQ.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_FREQ.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_FREQ.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_FREQ.csv,7,notes,O,Free text.
+CL_FREQ.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_SEX.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_SEX.csv,2,name_en,R,Short English name.
 CL_SEX.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -18,6 +43,7 @@ CL_SEX.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_SEX.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_SEX.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_SEX.csv,7,notes,O,Free text.
+CL_SEX.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_AGE.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_AGE.csv,2,name_en,R,Short English name.
 CL_AGE.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -25,6 +51,7 @@ CL_AGE.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_AGE.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_AGE.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_AGE.csv,7,notes,O,Free text.
+CL_AGE.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_URBANISATION.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_URBANISATION.csv,2,name_en,R,Short English name.
 CL_URBANISATION.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -33,6 +60,7 @@ CL_URBANISATION.csv,5,version_added,R,metadata/VERSION value at which the code w
 CL_URBANISATION.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_URBANISATION.csv,7,notes,O,Free text.
 CL_URBANISATION.csv,8,parent,C,U for CAP and OU (their parent category); empty for U and R.
+CL_URBANISATION.csv,9,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_OBS_STATUS.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_OBS_STATUS.csv,2,name_en,R,Short English name.
 CL_OBS_STATUS.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -40,6 +68,7 @@ CL_OBS_STATUS.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_OBS_STATUS.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_OBS_STATUS.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_OBS_STATUS.csv,7,notes,O,Free text.
+CL_OBS_STATUS.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_ESTIMATION.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_ESTIMATION.csv,2,name_en,R,Short English name.
 CL_ESTIMATION.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -47,6 +76,7 @@ CL_ESTIMATION.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_ESTIMATION.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_ESTIMATION.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_ESTIMATION.csv,7,notes,O,Free text.
+CL_ESTIMATION.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_THEME.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_THEME.csv,2,name_en,R,Short English name.
 CL_THEME.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -54,13 +84,15 @@ CL_THEME.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_THEME.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_THEME.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_THEME.csv,7,notes,O,Free text.
-CL_UNIT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
-CL_UNIT.csv,2,name_en,R,Short English name.
-CL_UNIT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
-CL_UNIT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
-CL_UNIT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
-CL_UNIT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
-CL_UNIT.csv,7,notes,O,Free text.
+CL_THEME.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
+CL_UNIT_MEASURE.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
+CL_UNIT_MEASURE.csv,2,name_en,R,Short English name.
+CL_UNIT_MEASURE.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
+CL_UNIT_MEASURE.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
+CL_UNIT_MEASURE.csv,5,version_added,R,metadata/VERSION value at which the code was added.
+CL_UNIT_MEASURE.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
+CL_UNIT_MEASURE.csv,7,notes,O,Free text.
+CL_UNIT_MEASURE.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_STAT_UNIT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_STAT_UNIT.csv,2,name_en,R,Short English name.
 CL_STAT_UNIT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -68,6 +100,7 @@ CL_STAT_UNIT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_STAT_UNIT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_STAT_UNIT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_STAT_UNIT.csv,7,notes,O,Free text.
+CL_STAT_UNIT.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_STATISTIC.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_STATISTIC.csv,2,name_en,R,Short English name.
 CL_STATISTIC.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -76,6 +109,7 @@ CL_STATISTIC.csv,5,version_added,R,metadata/VERSION value at which the code was 
 CL_STATISTIC.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_STATISTIC.csv,7,notes,O,Free text.
 CL_STATISTIC.csv,8,admits_se,R,Y/N: whether this statistic admits a standard error (gap o).
+CL_STATISTIC.csv,9,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_WEIGHT.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_WEIGHT.csv,2,name_en,R,Short English name.
 CL_WEIGHT.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -83,6 +117,7 @@ CL_WEIGHT.csv,4,status,R,"DRAFT, ACTIVE or DEPRECATED."
 CL_WEIGHT.csv,5,version_added,R,metadata/VERSION value at which the code was added.
 CL_WEIGHT.csv,6,replaced_by,C,Required when status=DEPRECATED: the code that replaces it.
 CL_WEIGHT.csv,7,notes,O,Free text.
+CL_WEIGHT.csv,8,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_AREA.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_AREA.csv,2,name_en,R,Short English name.
 CL_AREA.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -93,6 +128,7 @@ CL_AREA.csv,7,notes,O,Free text.
 CL_AREA.csv,8,iso2,R,"The P-code prefix (SN, GW)."
 CL_AREA.csv,9,currency,R,ISO 4217 (XOF for both SEN and GNB; not XAF).
 CL_AREA.csv,10,wb_region,R,World Bank region (AFW).
+CL_AREA.csv,11,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_GEO_SCHEME.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_GEO_SCHEME.csv,2,name_en,R,Short English name.
 CL_GEO_SCHEME.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -105,6 +141,7 @@ CL_GEO_SCHEME.csv,9,local_name_en,R,"What that level is called in the country, i
 CL_GEO_SCHEME.csv,10,has_geometry,R,Y only for ADM0 and ADM1.
 CL_GEO_SCHEME.csv,11,nests_in,O,"Another scheme, only where nesting is genuine; roll-up checks only, never used to derive geometry."
 CL_GEO_SCHEME.csv,12,partition,R,Y if its units cover the country exactly once.
+CL_GEO_SCHEME.csv,13,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_GEO.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_GEO.csv,2,name_en,R,Short English name.
 CL_GEO.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -119,6 +156,7 @@ CL_GEO.csv,11,source_id,C,GEO_SOURCES.csv key; required when has_geometry=Y.
 CL_GEO.csv,12,geom_layer,C,Layer holding the polygon (adm0/adm1); empty for schemes with no geometry.
 CL_GEO.csv,13,valid_from,R,Boundary vintage the code belongs to (not data validity).
 CL_GEO.csv,14,valid_to,C,Empty while current.
+CL_GEO.csv,15,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_BRK_VAR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_BRK_VAR.csv,2,name_en,R,Short English name.
 CL_BRK_VAR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -134,6 +172,7 @@ CL_BRK_VAR.csv,12,partition,R,Y if categories are mutually exclusive and cover t
 CL_BRK_VAR.csv,13,requires_qual,C,"Qualifier variables the categories depend on, e.g. POVLINE PPP for POOR."
 CL_BRK_VAR.csv,14,slot_order,R,"Integer, spaced by 10; ties break alphabetically by var_code."
 CL_BRK_VAR.csv,15,owner,R,Team or person responsible.
+CL_BRK_VAR.csv,16,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_COMP_BREAKDOWN.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_COMP_BREAKDOWN.csv,2,name_en,R,Short English name.
 CL_COMP_BREAKDOWN.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -144,6 +183,7 @@ CL_COMP_BREAKDOWN.csv,7,notes,O,Free text.
 CL_COMP_BREAKDOWN.csv,8,var_code,R,The CL_BRK_VAR code this category belongs to; code = <var_code>_<category>.
 CL_COMP_BREAKDOWN.csv,9,parent,O,"A category of the same variable, for nested classifications."
 CL_COMP_BREAKDOWN.csv,10,order,R,Display order.
+CL_COMP_BREAKDOWN.csv,11,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_QUAL_VAR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_QUAL_VAR.csv,2,name_en,R,Short English name.
 CL_QUAL_VAR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -154,6 +194,7 @@ CL_QUAL_VAR.csv,7,notes,O,Free text.
 CL_QUAL_VAR.csv,8,slot_order,R,"Integer, spaced by 10; ties break alphabetically."
 CL_QUAL_VAR.csv,9,requires,C,Other qualifier variables that must appear with it (e.g. PPP for POVLINE).
 CL_QUAL_VAR.csv,10,owner,R,Team or person responsible.
+CL_QUAL_VAR.csv,11,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_QUALIFIER.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_QUALIFIER.csv,2,name_en,R,Short English name.
 CL_QUALIFIER.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -165,6 +206,7 @@ CL_QUALIFIER.csv,8,var_code,R,The CL_QUAL_VAR code this category belongs to.
 CL_QUALIFIER.csv,9,value,C,"The numeric parameter, e.g. 3.00 for POVLINE_PL300."
 CL_QUALIFIER.csv,10,basis,C,What that value is expressed in.
 CL_QUALIFIER.csv,11,order,R,Display order.
+CL_QUALIFIER.csv,12,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 CL_INDICATOR.csv,1,code,R,"The code itself; uppercase ASCII, digits, _; starts with a letter; <=32 chars."
 CL_INDICATOR.csv,2,name_en,R,Short English name.
 CL_INDICATOR.csv,3,definition_en,R,"Full English definition; required where a boundary is not obvious (age cutoffs, groupings, ranking rules)."
@@ -182,7 +224,7 @@ CL_INDICATOR.csv,14,statistic,R,CL_STATISTIC.
 CL_INDICATOR.csv,15,weight,R,CL_WEIGHT.
 CL_INDICATOR.csv,16,ref_period,R,"ISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW; always P12M, never P1Y."
 CL_INDICATOR.csv,17,excluded_breakdowns,O,Breakdown variables or categories outside its universe; must not be produced.
-CL_INDICATOR.csv,18,unit_measure,R,CL_UNIT.
+CL_INDICATOR.csv,18,unit_measure,R,CL_UNIT_MEASURE.
 CL_INDICATOR.csv,19,unit_denom,C,"What the value is per, for levels."
 CL_INDICATOR.csv,20,unit_time,C,"DAY, MONTH, YEAR, for flows."
 CL_INDICATOR.csv,21,price_basis,C,"NOMINAL or DEFLATED, for money."
@@ -200,6 +242,7 @@ CL_INDICATOR.csv,32,source_questionnaire,R,Survey module or section.
 CL_INDICATOR.csv,33,source_vars,R,Harmonized microdata variables used.
 CL_INDICATOR.csv,34,program,R,Program that computes it.
 CL_INDICATOR.csv,35,owner,R,Team or person responsible.
+CL_INDICATOR.csv,36,global_urn,O,"Full URN of the matching code in a global codelist, urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>; empty when no global code matches. Exported as the annotation GLOBAL_CODE (D32, D41)."
 RULES.csv,1,rule_id,R,"Unique id of the rule: <scope_code or AFW360_HH>.<rule>[.<param>], e.g. POV_HC.MONOTONE_IN.POVLINE."
 RULES.csv,2,scope,R,"What the rule applies to: DATAFLOW (every row), INDICATOR (every series of one indicator) or SERIES (one series)."
 RULES.csv,3,scope_code,C,The indicator code or series_id the rule applies to; empty when scope is DATAFLOW.

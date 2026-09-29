@@ -6,27 +6,31 @@
 # that is the coverage check's job (WP12).
 #
 # Depends on pipeline/R/codes.R for slot_sort() and fill_slots(), and
-# pipeline/R/constants.R for SENTINEL_TOTAL, SENTINEL_NA, DATAFLOW_ID and
-# KEY_COLUMNS. Callers source those (and pipeline/R/io.R, for building
-# `meta` with load_metadata() and for dsd_key_columns()) before this file.
+# pipeline/R/constants.R for SENTINEL_TOTAL and SENTINEL_NA. Callers source
+# those (and pipeline/R/io.R, for building `meta` with load_metadata() and
+# for dsd_key_columns()) before this file.
 #
 # Standard v0.5 ("Which rows exist"): a SERIES_PLAN row for a specific
 # country overrides the ALL row of the same series_id; a series whose
 # status for the country is NOT_PRODUCED requires no rows; only series
 # whose `estimation` lists the file's ESTIMATION are required; and the key
-# has 19 columns, ESTIMATION included.
+# is the DSD's (19 columns in DSD 0.3.0: FREQ .. MEASURE_QUAL_5 plus
+# TIME_PERIOD). Every generated row has FREQ = A (annual, D34).
 
 #' The key columns a generated row carries.
 #'
-#' The DSD's key ([dsd_key_columns()]) when `meta` holds
-#' `DSD_AFW360_HH`, else the [KEY_COLUMNS] constant (a hand-made `meta` in
-#' a unit test).
+#' The DSD's key ([dsd_key_columns()]). `meta` must hold `DSD_AFW360_HH`
+#' (a hand-made `meta` in a unit test adds the real DSD table); no column
+#' list is hard-coded.
 .plan_key_columns <- function(meta) {
-  if (!is.null(meta$DSD_AFW360_HH) && exists("dsd_key_columns", mode = "function")) {
-    return(dsd_key_columns(meta))
+  if (is.null(meta$DSD_AFW360_HH)) {
+    stop("required_rows: meta lacks DSD_AFW360_HH (metadata/structure/DSD_AFW360_HH.csv)", call. = FALSE)
   }
-  KEY_COLUMNS
+  dsd_key_columns(meta)
 }
+
+#' The FREQ of every generated row: annual (D34).
+.PLAN_FREQ <- "A"
 
 #' The SERIES_PLAN rows that apply to one country, one per series_id.
 #'
@@ -304,7 +308,7 @@ required_rows <- function(meta, ref_area, time_period, estimation = "SURVEY") {
             for (sx in sex_cells) {
               for (ag in age_cells) {
                 out_rows[[length(out_rows) + 1]] <- c(
-                  DATAFLOW = DATAFLOW_ID,
+                  FREQ = .PLAN_FREQ,
                   REF_AREA = ref_area,
                   GEO = geo,
                   TIME_PERIOD = time_period,

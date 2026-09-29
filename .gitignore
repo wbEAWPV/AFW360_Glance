@@ -21,3 +21,8 @@ _shinylive/
 
 # Agent worktrees (Claude Code, isolation: "worktree")
 .claude/worktrees/
+
+# SDMX transition scratch (logs, findings) and the verification venv
+tmp/
+tools/verify/.venv/
+tools/fmr/runtime/

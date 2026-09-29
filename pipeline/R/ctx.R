@@ -25,6 +25,10 @@
 #'       character vector (key to value) read from the `<stem>_manifest.csv`
 #'       file beside the data file, or an empty character vector when the
 #'       manifest is missing.}
+#'     \item{version}{The metadata version, the trimmed first line of
+#'       `<root>/metadata/VERSION` (for example `"0.3.0"`), or `NA` when the
+#'       file is missing; `STRUCTURE_ID` must equal
+#'       [structure_id()] of it.}
 #'     \item{opts}{`opts`.}
 #'   }
 build_ctx <- function(root, data_files = character(0), opts = list()) {
@@ -51,11 +55,19 @@ build_ctx <- function(root, data_files = character(0), opts = list()) {
     manifests[[key]] <- man_vec
   }
 
+  version <- NA_character_
+  version_path <- file.path(root, "metadata", "VERSION")
+  if (file.exists(version_path)) {
+    v <- trimws(readLines(version_path, n = 1, warn = FALSE))
+    if (length(v) == 1 && nzchar(v)) version <- v
+  }
+
   list(
     root = root,
     meta = meta,
     data = data,
     manifests = manifests,
+    version = version,
     opts = opts
   )
 }
@@ -67,28 +79,45 @@ build_ctx <- function(root, data_files = character(0), opts = list()) {
 # estimation method and the dataflow's reliability thresholds. They live
 # here, beside build_ctx(), so the modules agree on them.
 
-#' The data file's key columns: the DSD's (19 in DSD 0.2.0) when the
-#' metadata holds `DSD_AFW360_HH`, else the [KEY_COLUMNS] constant.
+#' The key columns of a data file: the DSD's dimensions and time dimension
+#' (19 in DSD 0.3.0, `FREQ` .. `MEASURE_QUAL_5` plus `TIME_PERIOD`), from
+#' [dsd_key_columns()]. Stops when the metadata holds no `DSD_AFW360_HH`
+#' (no script hard-codes the column list; a validator run reports the stop
+#' as a `<MODULE>.CRASH` finding).
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A character vector of column ids.
 ctx_key_columns <- function(ctx) {
-  if (!is.null(ctx$meta$DSD_AFW360_HH) && exists("dsd_key_columns", mode = "function")) {
-    return(dsd_key_columns(ctx$meta))
-  }
-  KEY_COLUMNS
+  .ctx_require_dsd(ctx)
+  dsd_key_columns(ctx$meta)
 }
 
-#' The data file's columns in DSD order (the DSD's when loaded, else the
-#' [DSD_COLUMNS] constant).
+#' The DSD components in data-file order (34 in DSD 0.3.0), from
+#' [dsd_columns()]; the three fixed SDMX-CSV columns are not among them.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A character vector of column ids.
 ctx_dsd_columns <- function(ctx) {
-  if (!is.null(ctx$meta$DSD_AFW360_HH) && exists("dsd_columns", mode = "function")) {
-    return(dsd_columns(ctx$meta))
+  .ctx_require_dsd(ctx)
+  dsd_columns(ctx$meta)
+}
+
+#' The full header of an SDMX-CSV 2.1 data file: [SDMX_CSV_FIXED]
+#' (`STRUCTURE`, `STRUCTURE_ID`, `ACTION`) followed by [ctx_dsd_columns()]
+#' (37 columns in DSD 0.3.0).
+#'
+#' @param ctx The list from [build_ctx()].
+#' @return A character vector of column names.
+ctx_data_columns <- function(ctx) {
+  c(SDMX_CSV_FIXED, ctx_dsd_columns(ctx))
+}
+
+#' Stop unless the metadata holds the DSD table.
+.ctx_require_dsd <- function(ctx) {
+  if (is.null(ctx$meta$DSD_AFW360_HH)) {
+    stop("ctx: metadata table DSD_AFW360_HH is missing (metadata/structure/DSD_AFW360_HH.csv)", call. = FALSE)
   }
-  DSD_COLUMNS
+  invisible(TRUE)
 }
 
 #' The findings `row_key` of each row: its key values joined by one space.

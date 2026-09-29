@@ -4,9 +4,13 @@
 # `AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>_manifest.csv` sidecar (card WP15,
 # "Manifest"; standard v0.5, "Manifest").
 
-#' The manifest's 16 keys, in order (metadata 0.2.0).
+#' The SDMX-CSV format version of the data files.
+SDMX_CSV_VERSION <- "2.1.0"
+
+#' The manifest's 17 keys, in order (metadata 0.3.0): `structure_id`
+#' replaces 0.2.0's `dataflow` and `sdmx_csv_version` is new.
 MANIFEST_KEYS <- c(
-  "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+  "structure_id", "sdmx_csv_version", "dsd_version", "metadata_version", "ref_area", "time_period",
   "estimation", "survey_id", "sources", "file_name", "n_rows",
   "producer", "program", "software", "run_timestamp", "status", "notes"
 )
@@ -33,7 +37,7 @@ manifest_file_name <- function(file_name) {
 
 #' Build a data file's manifest.
 #'
-#' `constants.R` must already be sourced (for [DATAFLOW_ID]).
+#' `constants.R` must already be sourced (for [structure_id()]).
 #'
 #' @param country The country code (`ref_area`).
 #' @param time_period The survey year.
@@ -52,7 +56,8 @@ build_manifest <- function(country, time_period, estimation, survey_id, source_i
   source_ids <- source_ids[!is.na(source_ids) & source_ids != ""]
   sources <- paste(sort(unique(source_ids), method = "radix"), collapse = " ")
   values <- c(
-    dataflow = DATAFLOW_ID,
+    structure_id = structure_id(metadata_version),
+    sdmx_csv_version = SDMX_CSV_VERSION,
     dsd_version = metadata_version,
     metadata_version = metadata_version,
     ref_area = country,

@@ -1,5 +1,5 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes
-POP,Population weight,"Household weight times household size, for person-level statistics computed on household data.",DRAFT,0.1.0,,
-HH,Household weight,Household weight.,DRAFT,0.1.0,,
-IND,Individual weight,Individual weight.,DRAFT,0.1.0,,
-HE,Enterprise weight,Enterprise weight.,DRAFT,0.1.0,,
+code,name_en,definition_en,status,version_added,replaced_by,notes,global_urn
+POP,Population weight,"Household weight times household size, for person-level statistics computed on household data.",DRAFT,0.1.0,,,
+HH,Household weight,Household weight.,DRAFT,0.1.0,,,
+IND,Individual weight,Individual weight.,DRAFT,0.1.0,,,
+HE,Enterprise weight,Enterprise weight.,DRAFT,0.1.0,,,

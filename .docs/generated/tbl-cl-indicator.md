@@ -10,7 +10,7 @@
 | `weight` | R | CL_WEIGHT. |
 | `ref_period` | R | ISO 8601 duration (P7D, P12M, P3Y) or INTERVIEW; always P12M, never P1Y. |
 | `excluded_breakdowns` | O | Breakdown variables or categories outside its universe; must not be produced. |
-| `unit_measure` | R | CL_UNIT. |
+| `unit_measure` | R | CL_UNIT_MEASURE. |
 | `unit_denom` | C | What the value is per, for levels. |
 | `unit_time` | C | DAY, MONTH, YEAR, for flows. |
 | `price_basis` | C | NOMINAL or DEFLATED, for money. |

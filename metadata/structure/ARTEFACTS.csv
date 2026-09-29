@@ -1,0 +1,33 @@
+artefact_id,artefact_type,agency_id,source_file,name_en,description_en,status,version_added,notes
+AGENCIES,AgencyScheme,WB,,Agencies,"Local placeholder agency scheme of the World Bank declaring the sub-agency AFW360, so that the agency WB.AFW360 resolves. Never submitted to a registry; replaced by the World Bank's own scheme at registration.",DRAFT,0.3.0,Fixed version 1.0 as the XSD requires (D31).
+CS_AFW360,ConceptScheme,WB.AFW360,metadata/structure/DSD_AFW360_HH.csv,AFW 360 concepts,One concept per component of the household indicator data structure and per reference metadata attribute.,DRAFT,0.3.0,Metadata attribute concepts come from metadata/structure/COLUMNS.csv.
+DSD_AFW360_HH,DataStructure,WB.AFW360,metadata/structure/DSD_AFW360_HH.csv,AFW 360 household indicators data structure,"Structure of the household welfare indicator data: 18 dimensions, a time dimension, 9 measures and 6 attributes.",DRAFT,0.3.0,
+AFW360_HH,Dataflow,WB.AFW360,,AFW 360 household indicators,"Poverty and welfare indicators from household surveys and models for West and Central African countries, by area, sex, age, urbanisation and other breakdowns.",DRAFT,0.3.0,
+MSD_AFW360,MetadataStructure,WB.AFW360,metadata/structure/COLUMNS.csv,AFW 360 reference metadata structure,"Reference metadata attributes describing surveys, sources, texts and figures.",DRAFT,0.3.0,
+MDF_AFW360,Metadataflow,WB.AFW360,,AFW 360 reference metadata,"Reference metadata for the survey, source and figure codelists and for the household indicators dataflow.",DRAFT,0.3.0,
+DATA_PROVIDERS,DataProviderScheme,WB.AFW360,,AFW 360 data providers,Data providers of the AFW 360 household indicators: the AFW DIP/POV team.,DRAFT,0.3.0,Fixed version 1.0 as the XSD requires.
+PA_AFW360_HH,ProvisionAgreement,WB.AFW360,,AFW 360 household indicators provision agreement,Links the household indicators dataflow to its data provider AFW_POV.,DRAFT,0.3.0,
+METADATA_PROVIDERS,MetadataProviderScheme,WB.AFW360,,AFW 360 metadata providers,Providers of the AFW 360 reference metadata: the AFW DIP/POV team.,DRAFT,0.3.0,Fixed version 1.0 as the XSD requires.
+MPA_AFW360,MetadataProvisionAgreement,WB.AFW360,,AFW 360 reference metadata provision agreement,Links the reference metadataflow to its metadata provider AFW_POV.,DRAFT,0.3.0,
+CL_AGE,Codelist,WB.AFW360,metadata/codelists/CL_AGE.csv,Age,Age bands of the individual counted.,DRAFT,0.3.0,
+CL_AREA,Codelist,WB.AFW360,metadata/codelists/CL_AREA.csv,Reference area,Countries covered by the database: ISO 3166-1 alpha-3 codes.,DRAFT,0.3.0,
+CL_BRK_VAR,Codelist,WB.AFW360,metadata/codelists/CL_BRK_VAR.csv,Breakdown variables,"Variables by which an indicator can be broken down, such as consumption quintile; each groups categories of the breakdown codelist.",DRAFT,0.3.0,
+CL_COMP_BREAKDOWN,Codelist,WB.AFW360,metadata/codelists/CL_COMP_BREAKDOWN.csv,Breakdown categories,Categories of the breakdown variables used in the five breakdown dimensions.,DRAFT,0.3.0,
+CL_ESTIMATION,Codelist,WB.AFW360,metadata/codelists/CL_ESTIMATION.csv,Estimation method,How a value was produced: directly from a survey or by a model.,DRAFT,0.3.0,
+CL_FREQ,Codelist,WB.AFW360,metadata/codelists/CL_FREQ.csv,Frequency,Frequency of the observations; aligned to the SDMX frequency codelist.,DRAFT,0.3.0,
+CL_GEO,Codelist,WB.AFW360,metadata/codelists/CL_GEO.csv,Geographic area,"Subnational areas of each country, such as regions, departments and agro-ecological zones.",DRAFT,0.3.0,
+CL_GEO_SCHEME,Codelist,WB.AFW360,metadata/codelists/CL_GEO_SCHEME.csv,Geographic schemes,"Geographic partitions of each country, such as first-level administrative units and agro-ecological zones.",DRAFT,0.3.0,Code ids are ref_area and code joined by an underscore (for example SEN_ADM1).
+CL_INDICATOR,Codelist,WB.AFW360,metadata/codelists/CL_INDICATOR.csv,Indicator,"Indicators of poverty, welfare and household characteristics, with their statistical definition.",DRAFT,0.3.0,
+CL_OBS_STATUS,Codelist,WB.AFW360,metadata/codelists/CL_OBS_STATUS.csv,Observation status,Status of an observation value; aligned to the SDMX observation status codelist.,DRAFT,0.3.0,
+CL_QUAL_VAR,Codelist,WB.AFW360,metadata/codelists/CL_QUAL_VAR.csv,Qualifier variables,"Variables that qualify what an indicator measures, such as the poverty line; each groups values of the qualifier codelist.",DRAFT,0.3.0,
+CL_QUALIFIER,Codelist,WB.AFW360,metadata/codelists/CL_QUALIFIER.csv,Measure qualifiers,Values of the qualifier variables used in the five measure qualifier dimensions.,DRAFT,0.3.0,
+CL_SEX,Codelist,WB.AFW360,metadata/codelists/CL_SEX.csv,Sex,Sex of the individual counted; aligned to the SDMX sex codelist.,DRAFT,0.3.0,
+CL_STAT_UNIT,Codelist,WB.AFW360,metadata/codelists/CL_STAT_UNIT.csv,Statistical unit,"Units an indicator counts or describes, such as persons or households.",DRAFT,0.3.0,
+CL_STATISTIC,Codelist,WB.AFW360,metadata/codelists/CL_STATISTIC.csv,Statistic,"Statistics an indicator computes, such as a share, mean or count, and whether each admits a standard error.",DRAFT,0.3.0,
+CL_THEME,Codelist,WB.AFW360,metadata/codelists/CL_THEME.csv,Theme,Themes that group the indicators on the dashboard.,DRAFT,0.3.0,
+CL_UNIT_MEASURE,Codelist,WB.AFW360,metadata/codelists/CL_UNIT_MEASURE.csv,Unit of measure,Units in which observation values are expressed; includes ISO 4217 currency codes of the covered countries.,DRAFT,0.3.0,Renamed in 0.3.0 to match the id of the IAEG-SDGs unit list; the 0.2.0 file was the project unit list.
+CL_URBANISATION,Codelist,WB.AFW360,metadata/codelists/CL_URBANISATION.csv,Degree of urbanisation,"Urban and rural areas of residence, with the capital city and other urban areas as children of urban.",DRAFT,0.3.0,
+CL_WEIGHT,Codelist,WB.AFW360,metadata/codelists/CL_WEIGHT.csv,Weight,Survey weights used to compute the indicators.,DRAFT,0.3.0,
+CL_SOURCE,Codelist,WB.AFW360,metadata/registries/SOURCES.csv,Source,Sources of the data: one code per program run that produced observations.,DRAFT,0.3.0,Derived codelist (D43).
+CL_SURVEY,Codelist,WB.AFW360,metadata/surveys/SURVEYS.csv,Survey,Household surveys from which the indicators are computed.,DRAFT,0.3.0,Derived codelist (D43).
+CL_FIGURE,Codelist,WB.AFW360,metadata/registries/FIGURES.csv,Figure,Static figures shown on the dashboard.,DRAFT,0.3.0,Derived codelist (D43).

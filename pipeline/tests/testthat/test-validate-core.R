@@ -89,7 +89,7 @@ test_that("validate.R on the clean fixture gives 0 ERROR from STRUCT, CODES and 
   # Those findings are expected and belong to WP12 and WP13, so validate.R
   # exits non-zero here. That the whole validator is clean is proven on the
   # real data by the wave-3 integrator, not on this fixture.
-  # --root also has to resolve pipeline/R/*.R (COMMON.md section 5), so
+  # --root also has to resolve pipeline/R/*.R (.docs/data-standard.qmd), so
   # the temp copy needs "pipeline" alongside the metadata/content/data it
   # is testing.
   fx <- .small_fixture(include = c("metadata", "content", "data", "pipeline"))
@@ -327,7 +327,7 @@ test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
 
 test_that("a renamed column header gives META.HEADER", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT.csv"), function(df) {
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT_MEASURE.csv"), function(df) {
     names(df)[names(df) == "notes"] <- "note"
     df
   })
@@ -422,7 +422,7 @@ test_that("validate.R --metadata-only on the real metadata has no unexplained ER
   # The one known, reported metadata defect (WP11-implementer.md,
   # Questions): metadata/plans/LEGACY_LABELS.csv leaves `scale` empty on
   # rows this transition did not touch (mostly action != MAP); a findings
-  # cap (COMMON.md "Findings format") can fold those 20+ rows into one
+  # cap (see .docs/data-standard.qmd) can fold those 20+ rows into one
   # extra SUMMARY row for the same check_id/file. Every other ERROR would
   # be unexplained and should fail this test.
   unexplained <- errors[!(errors$check_id == "META.REQUIRED" &
@@ -432,14 +432,108 @@ test_that("validate.R --metadata-only on the real metadata has no unexplained ER
 
 # ---- standard v0.5 (WP-C): structure ---------------------------------------
 
-test_that("the fixture has the 31 DSD columns and a 19-column key", {
+test_that("the fixture has the 37 SDMX-CSV 2.1 columns and a 19-column key", {
   fx <- .small_fixture()
   df <- read_std_csv(fx$data_path)
-  expect_equal(ncol(df), 31L)
+  expect_equal(ncol(df), 37L)
+  expect_equal(names(df)[1:4], c("STRUCTURE", "STRUCTURE_ID", "ACTION", "FREQ"))
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   expect_equal(length(ctx_key_columns(ctx)), 19L)
+  expect_equal(ctx_key_columns(ctx)[c(1, 19)], c("FREQ", "TIME_PERIOD"))
   expect_equal(nrow(vc_struct_header(ctx)), 0L)
   expect_equal(nrow(vc_struct_file_name(ctx)), 0L)
+  expect_equal(nrow(vc_struct_structure(ctx)), 0L)
+  expect_equal(nrow(vc_struct_action(ctx)), 0L)
+  expect_equal(nrow(vc_struct_attr_level(ctx)), 0L)
+})
+
+# ---- SDMX-CSV 2.1 (WP4a): fixed columns and attribute level ----------------
+
+.struct_errors <- function(ctx) {
+  findings <- .run_all_checks(ctx)
+  .error_ids(findings[grepl("^STRUCT[.]", findings$check_id), ])
+}
+
+test_that("a data file without the ACTION column gives STRUCT.HEADER only", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) df[setdiff(names(df), "ACTION")])
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(.struct_errors(ctx), "STRUCT.HEADER")
+  expect_true(grepl("expected [STRUCTURE, STRUCTURE_ID, ACTION, FREQ,", vc_struct_header(ctx)$message, fixed = TRUE))
+})
+
+test_that("a STRUCTURE other than dataflow gives STRUCT.STRUCTURE", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$STRUCTURE[1] <- "datastructure"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(.struct_errors(ctx), "STRUCT.STRUCTURE")
+  res <- vc_struct_structure(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_true(grepl("STRUCTURE 'datastructure' is not dataflow", res$message, fixed = TRUE))
+})
+
+test_that("a STRUCTURE_ID of another version gives STRUCT.STRUCTURE", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$STRUCTURE_ID[2] <- "WB.AFW360:AFW360_HH(0.2.0)"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_false(is.na(ctx$version))
+  expect_equal(.struct_errors(ctx), "STRUCT.STRUCTURE")
+  res <- vc_struct_structure(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_true(grepl(paste0("is not ", structure_id(ctx$version)), res$message, fixed = TRUE))
+})
+
+test_that("an ACTION other than R gives STRUCT.ACTION", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$ACTION[1] <- "I"
+    df$ACTION[2] <- "D"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(.struct_errors(ctx), "STRUCT.ACTION")
+  res <- vc_struct_action(ctx)
+  expect_equal(nrow(res), 2L)
+  expect_true(all(grepl("is not R$", res$message)))
+})
+
+test_that("two UNIT_MEASURE values for one REF_AREA and INDICATOR give STRUCT.ATTR_LEVEL", {
+  fx <- .small_fixture()
+  df0 <- read_std_csv(fx$data_path)
+  ind <- df0$INDICATOR[1]
+  expect_true(sum(df0$INDICATOR == ind) >= 2)
+  edit_csv(fx$data_path, function(df) {
+    df$UNIT_MEASURE[1] <- if (df$UNIT_MEASURE[1] == "SHARE") "COUNT" else "SHARE"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(.struct_errors(ctx), "STRUCT.ATTR_LEVEL")
+  res <- vc_struct_attr_level(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$row_key, paste("UNIT_MEASURE GNB", ind))
+  expect_equal(res$file, "data/AFW360_HH_GNB_2021_SURVEY.csv")
+})
+
+test_that("STRUCT.ATTR_LEVEL groups SERIES_ID across all data files", {
+  fx <- .small_fixture()
+  # A second file (another year) repeats the fixture with one SERIES_ID changed.
+  df <- read_std_csv(fx$data_path)
+  df$TIME_PERIOD <- "2022"
+  df$SERIES_ID[1] <- paste0(df$SERIES_ID[1], "_X")
+  second <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2022_SURVEY.csv")
+  write_std_csv(df, second)
+  ctx <- build_ctx(fx$tmp, data_files = c(fx$data_path, second))
+  res <- vc_struct_attr_level(ctx)
+  expect_true(nrow(res) >= 1)
+  expect_true(all(res$check_id == "STRUCT.ATTR_LEVEL"))
+  expect_true(all(startsWith(res$row_key, "SERIES_ID ")))
+  expect_true(any(grepl("AFW360_HH_GNB_2021_SURVEY.csv, data/AFW360_HH_GNB_2022_SURVEY.csv", res$message, fixed = TRUE)))
 })
 
 test_that("a row whose ESTIMATION differs from the file name gives STRUCT.FILE_NAME", {
@@ -494,7 +588,10 @@ test_that("CODES.SERIES_ID passes on the fixture and flags an unknown or mismatc
   })
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   findings <- .run_all_checks(ctx)
-  expect_equal(.error_ids(findings), "CODES.SERIES_ID")
+  # Both rows share their INDICATOR/breakdown/qualifier group with the
+  # unchanged SEN/GNB rows, so SERIES_ID also varies within its attachment
+  # group (STRUCT.ATTR_LEVEL, WP4a).
+  expect_equal(.error_ids(findings), c("CODES.SERIES_ID", "STRUCT.ATTR_LEVEL"))
   res <- findings[findings$check_id == "CODES.SERIES_ID", ]
   expect_equal(nrow(res), 2L)
   expect_true(any(grepl("NOT_A_SERIES is not in SERIES_PLAN.csv", res$message, fixed = TRUE)))
@@ -750,6 +847,116 @@ test_that("the DOCS module gives one INFO when the root has no standard", {
   res <- vc_docs_fragments(build_ctx(tmp))
   expect_equal(res$check_id, "DOCS.SKIPPED")
   expect_equal(res$severity, "INFO")
+})
+
+# ---- WP4b: SDMX-CSV values, derived codelists, ARTEFACTS, global_urn -----------
+
+#' The VALUE checks, sourced into their own environment so that
+#' .run_all_checks() above keeps its module set.
+.values_env <- function() {
+  ve <- new.env(parent = globalenv())
+  sys.source(file.path(.root, "pipeline", "R", "validate_values.R"), envir = ve)
+  ve
+}
+
+test_that("NaN is the missing OBS_VALUE on O and M rows only (D39)", {
+  # Row 3 (M, empty cell) is accepted: an empty cell still counts as missing.
+  ve <- .values_env()
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$OBS_VALUE[1] <- "NaN"
+    df$OBS_STATUS[1] <- "O"
+    df$OBS_COMMENT[1] <- "LEGACY_EMPTY: test"
+    df$OBS_VALUE[2] <- "NaN" # status stays A
+    df$OBS_VALUE[3] <- ""
+    df$OBS_STATUS[3] <- "M"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(nrow(ve$vc_value_numeric(ctx)), 0L)
+  res <- ve$vc_value_status_empty(ctx)
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$message, "OBS_STATUS 'A' requires OBS_VALUE, but it is NaN.")
+})
+
+test_that("N_OBS_NUM, DEFF and DF are checked, and N_OBS_NUM <= N_OBS", {
+  ve <- .values_env()
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$N_OBS[1] <- "10"
+    df$N_POP[1] <- "100"
+    df$N_OBS_NUM[1] <- "12"
+    df$DEFF[2] <- "-1"
+    df$DF[3] <- "2.5"
+    df$N_OBS_NUM[4] <- "1e3"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  num <- ve$vc_value_numeric(ctx)
+  expect_equal(num$message, "N_OBS_NUM '1e3' is not a plain decimal number.")
+  res <- ve$vc_value_n(ctx)
+  res <- res[res$severity == "ERROR", ]
+  expect_equal(nrow(res), 3L)
+  expect_true(any(grepl("N_OBS_NUM exceeds N_OBS", res$message)))
+  expect_true(any(grepl("DEFF is negative", res$message)))
+  expect_true(any(grepl("DF is not a non-negative integer", res$message)))
+})
+
+test_that("CODES read the SDMX-CSV header and resolve CL_SOURCE from SOURCES.csv", {
+  fx <- .small_fixture()
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  expect_equal(length(.codes_files(ctx)), 1L)
+  expect_identical(.codes_codelist_codes(ctx, "CL_SOURCE"), ctx$meta$SOURCES$source_id)
+  expect_identical(.codes_codelist_codes(ctx, "CL_UNIT_MEASURE"), ctx$meta$CL_UNIT_MEASURE$code)
+  expect_null(.codes_codelist_codes(ctx, "CL_SERIES"))
+})
+
+test_that("a UNIT_MEASURE outside CL_UNIT_MEASURE gives CODES.UNIT", {
+  fx <- .small_fixture()
+  edit_csv(fx$data_path, function(df) {
+    df$UNIT_MEASURE[1] <- "XXX"
+    df
+  })
+  ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
+  res <- vc_codes_unit(ctx)
+  expect_equal(nrow(res), 1L)
+})
+
+test_that("a CL_AREA currency outside CL_UNIT_MEASURE gives META.REFERENCE", {
+  tmp <- make_temp_root(.root)
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_AREA.csv"), function(df) {
+    df$currency[df$code == "SEN"] <- "EUR"
+    df
+  })
+  res <- vc_meta_reference(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_match(res$message, "currency references unknown CL_UNIT_MEASURE[.]code: EUR")
+})
+
+test_that("ARTEFACTS.csv passes, and an unlisted codelist or a missing source file gives META.ARTEFACTS", {
+  tmp <- make_temp_root(.root)
+  expect_equal(nrow(vc_meta_artefacts(build_ctx(tmp))), 0L)
+  edit_csv(file.path(tmp, "metadata", "structure", "ARTEFACTS.csv"), function(df) {
+    df$source_file[df$artefact_id == "CL_SOURCE"] <- "metadata/registries/NOPE.csv"
+    df[df$artefact_id != "CL_THEME", , drop = FALSE]
+  })
+  res <- vc_meta_artefacts(build_ctx(tmp))
+  expect_equal(unique(res$check_id), "META.ARTEFACTS")
+  expect_equal(sort(res$row_key), c("", "artefact_id=CL_SOURCE", "artefact_id=CL_THEME"))
+  expect_true(any(grepl("has 31 rows; expected 32", res$message)))
+})
+
+test_that("a global_urn that is not a full code URN gives META.GLOBAL_URN", {
+  tmp <- make_temp_root(.root)
+  expect_equal(nrow(vc_meta_global_urn(build_ctx(tmp))), 0L)
+  edit_csv(file.path(tmp, "metadata", "codelists", "CL_SEX.csv"), function(df) {
+    df$global_urn[df$code == "F"] <- "SDMX:CL_SEX(2.1).F"
+    df
+  })
+  res <- vc_meta_global_urn(build_ctx(tmp))
+  expect_equal(nrow(res), 1L)
+  expect_equal(res$row_key, "code=F")
+  expect_equal(res$file, "metadata/codelists/CL_SEX.csv")
 })
 
 # ---- determinism of the findings file ------------------------------------------

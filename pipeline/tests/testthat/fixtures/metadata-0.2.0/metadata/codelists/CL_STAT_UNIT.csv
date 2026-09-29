@@ -1,0 +1,5 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes
+IND,Individuals,The statistic counts individuals.,DRAFT,0.1.0,,
+HH,Households,The statistic counts households.,DRAFT,0.1.0,,
+HE,Non-agricultural household enterprises,The statistic counts non-agricultural household enterprises.,DRAFT,0.1.0,,
+PLOT,Agricultural plots,The statistic counts agricultural plots.,DRAFT,0.1.0,,

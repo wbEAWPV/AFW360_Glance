@@ -2,7 +2,7 @@
 # pipeline/reconcile.R
 #
 # WP16 - Independent reconciliation tool. A second, independent path from
-# data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv back to data_raw/tables/Tables_<ISO3>.xlsx,
+# data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv (SDMX-CSV 2.1) back to data_raw/tables/Tables_<ISO3>.xlsx,
 # built entirely from the legacy maps (never from the converter). Proves
 # every source cell is accounted for exactly once, and every converted
 # value matches its cell.
@@ -21,12 +21,17 @@
 .root_raw <- if (length(.root_idx) >= 1) .args[.root_idx[1] + 1] else "."
 root <- normalizePath(.root_raw, winslash = "/", mustWork = TRUE)
 
-source(file.path(root, "pipeline", "R", "io.R"))
 source(file.path(root, "pipeline", "R", "codes.R"))
 source(file.path(root, "pipeline", "R", "reconcile.R"))
 
-out_path <- cli_arg(.args, "--out", NULL)
-csv_path <- cli_arg(.args, "--csv", NULL)
+# Own flag reader (the tool shares no helpers with the pipeline).
+.flag_value <- function(flag) {
+  i <- which(.args == flag)
+  if (length(i) == 0 || i[1] >= length(.args)) return(NULL)
+  .args[i[1] + 1]
+}
+out_path <- .flag_value("--out")
+csv_path <- .flag_value("--csv")
 
 if (is.null(out_path)) {
   stop("pipeline/reconcile.R: --out <report.md> is required", call. = FALSE)
@@ -43,7 +48,11 @@ if (!is.null(csv_path)) {
     "ref_area", "sheet", "legacy_label", "column", "class", "result",
     "source_value", "data_value", "row_key"
   )
-  write_std_csv(res$report_rows[, csv_cols], csv_path)
+  cells_out <- as.data.frame(res$report_rows[, csv_cols])
+  cells_out[] <- lapply(cells_out, function(x) { x <- as.character(x); x[is.na(x)] <- ""; x })
+  dir.create(dirname(csv_path), recursive = TRUE, showWarnings = FALSE)
+  readr::write_csv(cells_out, csv_path, na = "", eol = "
+")
 }
 
 if (length(res$missing_files) > 0) {

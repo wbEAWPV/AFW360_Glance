@@ -1,61 +1,61 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes,var_code,parent,order
-QUINT_Q1,Quintile 1 (poorest),Poorest fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,1
-QUINT_Q2,Quintile 2,Second fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,2
-QUINT_Q3,Quintile 3,Middle fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,3
-QUINT_Q4,Quintile 4,Fourth fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,4
-QUINT_Q5,Quintile 5 (richest),Richest fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,5
-DEC_MKT_D01,Market income decile 01 (poorest),"Decile 01 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,1
-DEC_MKT_D02,Market income decile 02,"Decile 02 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,2
-DEC_MKT_D03,Market income decile 03,"Decile 03 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,3
-DEC_MKT_D04,Market income decile 04,"Decile 04 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,4
-DEC_MKT_D05,Market income decile 05,"Decile 05 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,5
-DEC_MKT_D06,Market income decile 06,"Decile 06 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,6
-DEC_MKT_D07,Market income decile 07,"Decile 07 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,7
-DEC_MKT_D08,Market income decile 08,"Decile 08 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,8
-DEC_MKT_D09,Market income decile 09,"Decile 09 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,9
-DEC_MKT_D10,Market income decile 10 (richest),"Decile 10 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,10
-HHH_SEX_F,Female,Household head is female.,DRAFT,0.1.0,,,HHH_SEX,,1
-HHH_SEX_M,Male,Household head is male.,DRAFT,0.1.0,,,HHH_SEX,,2
-HHH_AGE_LT35,Below cutoff,"Household head younger than the cutoff age used by HHH_AGE. The cutoff is unconfirmed: the code puts it at 35, but the dashboard's existing label implies 29 or 30 (H17); to be confirmed.",DRAFT,0.1.0,,,HHH_AGE,,1
-HHH_AGE_GE35,At or above cutoff,"Household head at or above the cutoff age used by HHH_AGE. The cutoff is unconfirmed: the code puts it at 35, but the dashboard's existing label implies 29 or 30 (H17); to be confirmed.",DRAFT,0.1.0,,,HHH_AGE,,2
-POOR_Y,Poor,"Household is poor at the poverty line (and PPP round, where relevant) named by the observation's POVLINE (and PPP) qualifiers.",DRAFT,0.1.0,,,POOR,,1
-POOR_N,Not poor,"Household is not poor at the poverty line (and PPP round, where relevant) named by the observation's POVLINE (and PPP) qualifiers.",DRAFT,0.1.0,,,POOR,,2
-HE_COUNT_0,0 enterprises,Household operates no non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,1
-HE_COUNT_1,1 enterprise,Household operates exactly 1 non-agricultural household enterprise.,DRAFT,0.1.0,,,HE_COUNT,,2
-HE_COUNT_2,2 enterprises,Household operates exactly 2 non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,3
-HE_COUNT_3,3 enterprises,Household operates exactly 3 non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,4
-HE_COUNT_4P,4 or more enterprises,Household operates 4 or more non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,5
-EMP_STATUS_EMPLOYED,Employed,Person was employed at any time in the 12 months before the survey.,DRAFT,0.1.0,,,EMP_STATUS,,1
-EMP_STATUS_NOT_EMPLOYED,Not employed,Person was not employed at any time in the 12 months before the survey.,DRAFT,0.1.0,,,EMP_STATUS,,2
-EMP_SECTOR_AGR,Agriculture,"ISIC Rev.4 section A: agriculture, forestry and fishing.",DRAFT,0.1.0,,,EMP_SECTOR,,1
-EMP_SECTOR_IND,Industry,"ISIC Rev.4 sections B to F: mining and quarrying, manufacturing, utilities, and construction.",DRAFT,0.1.0,,,EMP_SECTOR,,2
-EMP_SECTOR_SER,Services,"ISIC Rev.4 sections G to U: trade, transport, other services, government, and related activities.",DRAFT,0.1.0,,,EMP_SECTOR,,3
-EMP_ISIC_A,"Agriculture, forestry and fishing","ISIC Rev.4 section A: Agriculture, forestry and fishing. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,1
-EMP_ISIC_B,Mining and quarrying,ISIC Rev.4 section B: Mining and quarrying. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,2
-EMP_ISIC_C,Manufacturing,ISIC Rev.4 section C: Manufacturing. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,3
-EMP_ISIC_D,"Electricity, gas, steam and air conditioning supply","ISIC Rev.4 section D: Electricity, gas, steam and air conditioning supply. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,4
-EMP_ISIC_E,"Water supply; sewerage, waste management and remediation activities","ISIC Rev.4 section E: Water supply; sewerage, waste management and remediation activities. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,5
-EMP_ISIC_F,Construction,ISIC Rev.4 section F: Construction. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,6
-EMP_ISIC_G,Wholesale and retail trade; repair of motor vehicles and motorcycles,ISIC Rev.4 section G: Wholesale and retail trade; repair of motor vehicles and motorcycles. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,7
-EMP_ISIC_H,Transportation and storage,ISIC Rev.4 section H: Transportation and storage. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,8
-EMP_ISIC_I,Accommodation and food service activities,ISIC Rev.4 section I: Accommodation and food service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,9
-EMP_ISIC_J,Information and communication,ISIC Rev.4 section J: Information and communication. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,10
-EMP_ISIC_K,Financial and insurance activities,ISIC Rev.4 section K: Financial and insurance activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,11
-EMP_ISIC_L,Real estate activities,ISIC Rev.4 section L: Real estate activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,12
-EMP_ISIC_M,"Professional, scientific and technical activities","ISIC Rev.4 section M: Professional, scientific and technical activities. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,13
-EMP_ISIC_N,Administrative and support service activities,ISIC Rev.4 section N: Administrative and support service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,14
-EMP_ISIC_O,Public administration and defence; compulsory social security,ISIC Rev.4 section O: Public administration and defence; compulsory social security. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,15
-EMP_ISIC_P,Education,ISIC Rev.4 section P: Education. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,16
-EMP_ISIC_Q,Human health and social work activities,ISIC Rev.4 section Q: Human health and social work activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,17
-EMP_ISIC_R,"Arts, entertainment and recreation","ISIC Rev.4 section R: Arts, entertainment and recreation. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,18
-EMP_ISIC_S,Other service activities,ISIC Rev.4 section S: Other service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,19
-EMP_ISIC_T,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,ISIC Rev.4 section T: Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,20
-EMP_ISIC_U,Activities of extraterritorial organizations and bodies,ISIC Rev.4 section U: Activities of extraterritorial organizations and bodies. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,21
-EMP_TYPE_WAGE,Wage employment,"Wage (employee) employment, under the international classification of status in employment (ICSE).",DRAFT,0.1.0,,,EMP_TYPE,,1
-EMP_TYPE_NONWAGE,Non-wage employment,"Non-wage employment: self-employment and unpaid family work, under the international classification of status in employment (ICSE).",DRAFT,0.1.0,,,EMP_TYPE,,2
-EMP_FORMAL_Y,Formal,Formal employment. Universe unconfirmed: see EMP_FORMAL (H6).,DRAFT,0.1.0,,,EMP_FORMAL,,1
-EMP_FORMAL_N,Informal,Informal employment. Universe unconfirmed: see EMP_FORMAL (H6).,DRAFT,0.1.0,,,EMP_FORMAL,,2
-HEO_SEX_F,Female,Main owner of the household enterprise is female.,DRAFT,0.1.0,,,HEO_SEX,,1
-HEO_SEX_M,Male,Main owner of the household enterprise is male.,DRAFT,0.1.0,,,HEO_SEX,,2
-HEO_MSTAT_MARRIED,Married,Main owner of the household enterprise is married.,DRAFT,0.1.0,,,HEO_MSTAT,,1
-HEO_MSTAT_NOT_MARRIED,Not married,Main owner of the household enterprise is not married.,DRAFT,0.1.0,,,HEO_MSTAT,,2
+code,name_en,definition_en,status,version_added,replaced_by,notes,var_code,parent,order,global_urn
+QUINT_Q1,Quintile 1 (poorest),Poorest fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,1,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q1
+QUINT_Q2,Quintile 2,Second fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,2,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q2
+QUINT_Q3,Quintile 3,Middle fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,3,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q3
+QUINT_Q4,Quintile 4,Fourth fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,4,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q4
+QUINT_Q5,Quintile 5 (richest),Richest fifth of the consumption-per-capita distribution used by QUINT. Ranking level and weighting are an open decision (see QUINT); to be confirmed.,DRAFT,0.1.0,,,QUINT,,5,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q5
+DEC_MKT_D01,Market income decile 01 (poorest),"Decile 01 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,1,
+DEC_MKT_D02,Market income decile 02,"Decile 02 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,2,
+DEC_MKT_D03,Market income decile 03,"Decile 03 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,3,
+DEC_MKT_D04,Market income decile 04,"Decile 04 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,4,
+DEC_MKT_D05,Market income decile 05,"Decile 05 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,5,
+DEC_MKT_D06,Market income decile 06,"Decile 06 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,6,
+DEC_MKT_D07,Market income decile 07,"Decile 07 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,7,
+DEC_MKT_D08,Market income decile 08,"Decile 08 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,8,
+DEC_MKT_D09,Market income decile 09,"Decile 09 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,9,
+DEC_MKT_D10,Market income decile 10 (richest),"Decile 10 of the household market income distribution used by DEC_MKT (D01 the poorest tenth, D10 the richest tenth).",DRAFT,0.1.0,,,DEC_MKT,,10,
+HHH_SEX_F,Female,Household head is female.,DRAFT,0.1.0,,,HHH_SEX,,1,
+HHH_SEX_M,Male,Household head is male.,DRAFT,0.1.0,,,HHH_SEX,,2,
+HHH_AGE_LT35,Below cutoff,"Household head younger than the cutoff age used by HHH_AGE. The cutoff is unconfirmed: the code puts it at 35, but the dashboard's existing label implies 29 or 30 (H17); to be confirmed.",DRAFT,0.1.0,,,HHH_AGE,,1,
+HHH_AGE_GE35,At or above cutoff,"Household head at or above the cutoff age used by HHH_AGE. The cutoff is unconfirmed: the code puts it at 35, but the dashboard's existing label implies 29 or 30 (H17); to be confirmed.",DRAFT,0.1.0,,,HHH_AGE,,2,
+POOR_Y,Poor,"Household is poor at the poverty line (and PPP round, where relevant) named by the observation's POVLINE (and PPP) qualifiers.",DRAFT,0.1.0,,,POOR,,1,
+POOR_N,Not poor,"Household is not poor at the poverty line (and PPP round, where relevant) named by the observation's POVLINE (and PPP) qualifiers.",DRAFT,0.1.0,,,POOR,,2,
+HE_COUNT_0,0 enterprises,Household operates no non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,1,
+HE_COUNT_1,1 enterprise,Household operates exactly 1 non-agricultural household enterprise.,DRAFT,0.1.0,,,HE_COUNT,,2,
+HE_COUNT_2,2 enterprises,Household operates exactly 2 non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,3,
+HE_COUNT_3,3 enterprises,Household operates exactly 3 non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,4,
+HE_COUNT_4P,4 or more enterprises,Household operates 4 or more non-agricultural household enterprises.,DRAFT,0.1.0,,,HE_COUNT,,5,
+EMP_STATUS_EMPLOYED,Employed,Person was employed at any time in the 12 months before the survey.,DRAFT,0.1.0,,,EMP_STATUS,,1,
+EMP_STATUS_NOT_EMPLOYED,Not employed,Person was not employed at any time in the 12 months before the survey.,DRAFT,0.1.0,,,EMP_STATUS,,2,
+EMP_SECTOR_AGR,Agriculture,"ISIC Rev.4 section A: agriculture, forestry and fishing.",DRAFT,0.1.0,,,EMP_SECTOR,,1,
+EMP_SECTOR_IND,Industry,"ISIC Rev.4 sections B to F: mining and quarrying, manufacturing, utilities, and construction.",DRAFT,0.1.0,,,EMP_SECTOR,,2,
+EMP_SECTOR_SER,Services,"ISIC Rev.4 sections G to U: trade, transport, other services, government, and related activities.",DRAFT,0.1.0,,,EMP_SECTOR,,3,
+EMP_ISIC_A,"Agriculture, forestry and fishing","ISIC Rev.4 section A: Agriculture, forestry and fishing. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,1,
+EMP_ISIC_B,Mining and quarrying,ISIC Rev.4 section B: Mining and quarrying. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,2,
+EMP_ISIC_C,Manufacturing,ISIC Rev.4 section C: Manufacturing. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,3,
+EMP_ISIC_D,"Electricity, gas, steam and air conditioning supply","ISIC Rev.4 section D: Electricity, gas, steam and air conditioning supply. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,4,
+EMP_ISIC_E,"Water supply; sewerage, waste management and remediation activities","ISIC Rev.4 section E: Water supply; sewerage, waste management and remediation activities. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,5,
+EMP_ISIC_F,Construction,ISIC Rev.4 section F: Construction. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,6,
+EMP_ISIC_G,Wholesale and retail trade; repair of motor vehicles and motorcycles,ISIC Rev.4 section G: Wholesale and retail trade; repair of motor vehicles and motorcycles. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,7,
+EMP_ISIC_H,Transportation and storage,ISIC Rev.4 section H: Transportation and storage. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,8,
+EMP_ISIC_I,Accommodation and food service activities,ISIC Rev.4 section I: Accommodation and food service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,9,
+EMP_ISIC_J,Information and communication,ISIC Rev.4 section J: Information and communication. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,10,
+EMP_ISIC_K,Financial and insurance activities,ISIC Rev.4 section K: Financial and insurance activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,11,
+EMP_ISIC_L,Real estate activities,ISIC Rev.4 section L: Real estate activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,12,
+EMP_ISIC_M,"Professional, scientific and technical activities","ISIC Rev.4 section M: Professional, scientific and technical activities. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,13,
+EMP_ISIC_N,Administrative and support service activities,ISIC Rev.4 section N: Administrative and support service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,14,
+EMP_ISIC_O,Public administration and defence; compulsory social security,ISIC Rev.4 section O: Public administration and defence; compulsory social security. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,15,
+EMP_ISIC_P,Education,ISIC Rev.4 section P: Education. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,16,
+EMP_ISIC_Q,Human health and social work activities,ISIC Rev.4 section Q: Human health and social work activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,17,
+EMP_ISIC_R,"Arts, entertainment and recreation","ISIC Rev.4 section R: Arts, entertainment and recreation. Universe unconfirmed: see EMP_ISIC.",DRAFT,0.1.0,,,EMP_ISIC,,18,
+EMP_ISIC_S,Other service activities,ISIC Rev.4 section S: Other service activities. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,19,
+EMP_ISIC_T,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,ISIC Rev.4 section T: Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,20,
+EMP_ISIC_U,Activities of extraterritorial organizations and bodies,ISIC Rev.4 section U: Activities of extraterritorial organizations and bodies. Universe unconfirmed: see EMP_ISIC.,DRAFT,0.1.0,,,EMP_ISIC,,21,
+EMP_TYPE_WAGE,Wage employment,"Wage (employee) employment, under the international classification of status in employment (ICSE).",DRAFT,0.1.0,,,EMP_TYPE,,1,
+EMP_TYPE_NONWAGE,Non-wage employment,"Non-wage employment: self-employment and unpaid family work, under the international classification of status in employment (ICSE).",DRAFT,0.1.0,,,EMP_TYPE,,2,
+EMP_FORMAL_Y,Formal,Formal employment. Universe unconfirmed: see EMP_FORMAL (H6).,DRAFT,0.1.0,,,EMP_FORMAL,,1,
+EMP_FORMAL_N,Informal,Informal employment. Universe unconfirmed: see EMP_FORMAL (H6).,DRAFT,0.1.0,,,EMP_FORMAL,,2,
+HEO_SEX_F,Female,Main owner of the household enterprise is female.,DRAFT,0.1.0,,,HEO_SEX,,1,
+HEO_SEX_M,Male,Main owner of the household enterprise is male.,DRAFT,0.1.0,,,HEO_SEX,,2,
+HEO_MSTAT_MARRIED,Married,Main owner of the household enterprise is married.,DRAFT,0.1.0,,,HEO_MSTAT,,1,
+HEO_MSTAT_NOT_MARRIED,Not married,Main owner of the household enterprise is not married.,DRAFT,0.1.0,,,HEO_MSTAT,,2,

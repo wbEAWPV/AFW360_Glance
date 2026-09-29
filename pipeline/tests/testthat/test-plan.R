@@ -15,6 +15,12 @@ source(file.path(root, "pipeline", "R", "plan.R"))
 
 seed_path <- function(...) file.path(root, "pipeline", "bootstrap", "seeds", ...)
 
+#' The real DSD table: required_rows() takes its key from it (no column
+#' list is hard-coded since DSD 0.3.0), so every hand-made `meta` carries it.
+real_dsd <- function() {
+  read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+}
+
 #' Build `meta` from the real contract seeds and this package's own plan
 #' files (WP08.md step 3).
 seed_meta_real <- function() {
@@ -45,7 +51,8 @@ seed_meta_real <- function() {
     CL_COMP_BREAKDOWN = codes[codes$codelist == "CL_COMP_BREAKDOWN", , drop = FALSE],
     CL_QUAL_VAR = codes[codes$codelist == "CL_QUAL_VAR", , drop = FALSE],
     CL_QUALIFIER = codes[codes$codelist == "CL_QUALIFIER", , drop = FALSE],
-    CL_GEO = geo
+    CL_GEO = geo,
+    DSD_AFW360_HH = real_dsd()
   )
 }
 
@@ -62,6 +69,7 @@ seed_temp_metadata <- function(tmp_root) {
   write_std_csv(meta$CL_QUAL_VAR, file.path(tmp_root, "metadata", "structure", "CL_QUAL_VAR.csv"))
   write_std_csv(meta$CL_QUALIFIER, file.path(tmp_root, "metadata", "structure", "CL_QUALIFIER.csv"))
   write_std_csv(meta$CL_GEO, file.path(tmp_root, "metadata", "structure", "CL_GEO.csv"))
+  write_std_csv(meta$DSD_AFW360_HH, file.path(tmp_root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   invisible(NULL)
 }
 
@@ -122,7 +130,8 @@ seed_meta_toy <- function() {
     CL_COMP_BREAKDOWN = cl_comp_breakdown,
     CL_QUAL_VAR = cl_qual_var,
     CL_QUALIFIER = cl_qualifier,
-    CL_GEO = cl_geo
+    CL_GEO = cl_geo,
+    DSD_AFW360_HH = real_dsd()
   )
 }
 
@@ -147,10 +156,12 @@ test_that("required_rows produces a unique, fully populated key for SEN and GNB"
   expect_equal(nrow(sen), n_series * (1 + 3 + 2 + 2 + 5 + 14 + 6))
   expect_equal(nrow(gnb), n_series * (1 + 3 + 2 + 2 + 5 + 9 + 4))
 
+  key_cols <- dsd_key_columns(meta)
   for (rows in list(sen, gnb)) {
-    key <- do.call(paste, c(as.list(rows[KEY_COLUMNS]), list(sep = "")))
+    key <- do.call(paste, c(as.list(rows[key_cols]), list(sep = "")))
     expect_equal(anyDuplicated(key), 0L)
-    expect_false(any(vapply(rows[KEY_COLUMNS], function(col) any(col == ""), logical(1))))
+    expect_false(any(vapply(rows[key_cols], function(col) any(col == ""), logical(1))))
+    expect_true(all(rows$FREQ == "A"))
   }
 
   expect_equal(sum(sen$cut_id == "TOTAL"), n_series)
@@ -235,7 +246,11 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   expect_equal(basename(path), "AFW360_HH_GNB_2021_SURVEY.csv")
 
   data <- read_std_csv(path)
-  expect_equal(names(data), DSD_COLUMNS)
+  expect_equal(names(data), c(SDMX_CSV_FIXED, dsd_columns(load_metadata(tmp_root))))
+  expect_equal(ncol(data), 37L)
+  expect_true(all(data$STRUCTURE == "dataflow"))
+  expect_true(all(data$ACTION == "R"))
+  expect_true(all(data$FREQ == "A"))
   expect_equal(nrow(data), 52L)
   expect_true(all(data$OBS_VALUE == "0.5"))
   expect_true(all(data$OBS_STATUS == "A"))
@@ -246,13 +261,14 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   expect_true(file.exists(manifest_path))
   manifest <- read_std_csv(manifest_path)
   # Long `key`, `value` form (read that way by build_ctx() in
-  # pipeline/R/ctx.R), not one wide row, with the 0.2.0 keys.
+  # pipeline/R/ctx.R), not one wide row, with the 0.3.0 keys (plan 2.3:
+  # `dataflow` became `structure_id`, and `sdmx_csv_version` is new).
   expect_equal(names(manifest), c("key", "value"))
-  expect_equal(nrow(manifest), 16L)
+  expect_equal(nrow(manifest), 17L)
   expect_equal(
     sort(manifest$key),
     sort(c(
-      "dataflow", "dsd_version", "metadata_version", "ref_area", "time_period",
+      "structure_id", "sdmx_csv_version", "dsd_version", "metadata_version", "ref_area", "time_period",
       "estimation", "survey_id", "sources", "file_name", "n_rows",
       "producer", "program", "software", "run_timestamp", "status", "notes"
     ))
@@ -282,8 +298,12 @@ seed_meta_toy_v05 <- function() {
 test_that("required_rows carries a 19-column key with the file's ESTIMATION", {
   meta <- seed_meta_toy_v05()
   rows <- required_rows(meta, "ZZ", "2099", "SURVEY")
-  expect_equal(names(rows), c(KEY_COLUMNS, "series_id", "cut_id", "defining_breakdown"))
-  expect_equal(length(KEY_COLUMNS), 19L)
+  key_cols <- dsd_key_columns(meta)
+  expect_equal(names(rows), c(key_cols, "series_id", "cut_id", "defining_breakdown"))
+  expect_equal(length(key_cols), 19L)
+  expect_equal(key_cols[1], "FREQ")
+  expect_false("DATAFLOW" %in% names(rows))
+  expect_true(all(rows$FREQ == "A"))
   expect_true(all(rows$ESTIMATION == "SURVEY"))
   # IND1 (SURVEY) and IND2 (SURVEY MODEL) are required in a SURVEY file;
   # IND3 (MODEL only) is not.
@@ -334,8 +354,11 @@ test_that("required_rows keeps each row's provenance: cut_id and defining breakd
   expect_setequal(unique(agr$cut_id), c("TOTAL", "URB", "HHH_SEX", "HHH_AGE", "QUINT", "ADM1", "ZONES"))
 })
 
-test_that("the KEY_COLUMNS and DSD_COLUMNS constants equal the DSD's", {
+test_that("required_rows takes its key from the DSD and stops without it", {
   meta <- load_metadata(root)
-  expect_equal(DSD_COLUMNS, dsd_columns(meta))
-  expect_equal(KEY_COLUMNS, dsd_key_columns(meta))
+  expect_equal(.plan_key_columns(meta), dsd_key_columns(meta))
+  expect_equal(.plan_key_columns(meta)[c(1, 19)], c("FREQ", "TIME_PERIOD"))
+  toy <- seed_meta_toy_v05()
+  toy$DSD_AFW360_HH <- NULL
+  expect_error(required_rows(toy, "ZZ", "2099", "SURVEY"), "DSD_AFW360_HH")
 })

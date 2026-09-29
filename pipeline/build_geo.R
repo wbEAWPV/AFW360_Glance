@@ -66,8 +66,8 @@ for (i in seq_along(countries)) {
     )
   }
 
-  # sha256 is computed after the build that is committed (COMMON.md /
-  # WP05.md): a GeoPackage's bytes change on every build, so the hash is
+  # sha256 is computed after the build that is committed (see
+  # .docs/data-standard.qmd): a GeoPackage's bytes change on every build, so the hash is
   # taken from the file just written, not fixed in advance.
   sources[[i]] <- data.frame(
     source_id = ctry$source_id,

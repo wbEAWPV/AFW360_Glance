@@ -1,7 +1,8 @@
 key,value
-dataflow,AFW360_HH
-dsd_version,0.2.0
-metadata_version,0.2.0
+structure_id,WB.AFW360:AFW360_HH(0.3.0)
+sdmx_csv_version,2.1.0
+dsd_version,0.3.0
+metadata_version,0.3.0
 ref_area,SEN
 time_period,2021
 estimation,SURVEY

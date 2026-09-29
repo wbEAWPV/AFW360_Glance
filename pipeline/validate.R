@@ -3,9 +3,11 @@
 #
 # The AFW360 validator's entry point (standard v0.5, "Validation checks").
 # Sources io.R, constants.R, codes.R, ctx.R, plan.R, manifest.R (the
-# manifest keys) and docs.R (the DOCS module's docs_check()), and every
+# manifest keys), docs.R (the DOCS module's docs_check()) and sdmx_xml.R,
+# sdmx_structures.R and sdmx_refmeta.R (the SDMX module regenerates the
+# SDMX outputs with them), and every
 # pipeline/R/validate_*.R module present (ASSET, CODES, COVER, DOCS, META,
-# RULE, STRUCT, TEXT, VALUE),
+# RULE, SDMX, STRUCT, TEXT, VALUE),
 # builds the shared ctx (build_ctx()), discovers every vc_* check function
 # and runs them in alphabetical order, writes one findings CSV, and exits
 # 0 (no ERROR), 1 (at least one ERROR) or 2 (a check crashed).
@@ -34,6 +36,9 @@ source(file.path(root, "pipeline", "R", "ctx.R"))
 source(file.path(root, "pipeline", "R", "plan.R"))
 source(file.path(root, "pipeline", "R", "manifest.R"))
 source(file.path(root, "pipeline", "R", "docs.R"))
+source(file.path(root, "pipeline", "R", "sdmx_xml.R"))
+source(file.path(root, "pipeline", "R", "sdmx_structures.R"))
+source(file.path(root, "pipeline", "R", "sdmx_refmeta.R"))
 
 source(file.path(root, "pipeline", "R", "validate_common.R"))
 module_files <- sort(Sys.glob(file.path(root, "pipeline", "R", "validate_*.R")), method = "radix")

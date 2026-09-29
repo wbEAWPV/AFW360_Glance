@@ -1,0 +1,5 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes
+Y_LT15,Under 15,The individual counted is under 15 years of age.,DRAFT,0.1.0,,
+Y15T24,15 to 24,The individual counted is 15 to 24 years of age.,DRAFT,0.1.0,,
+Y25T64,25 to 64,The individual counted is 25 to 64 years of age.,DRAFT,0.1.0,,
+Y_GE65,65 and over,The individual counted is 65 years of age or over.,DRAFT,0.1.0,,

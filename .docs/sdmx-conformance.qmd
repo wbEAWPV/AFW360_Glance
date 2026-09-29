@@ -1,0 +1,52 @@
+---
+title: "SDMX conformance"
+subtitle: "Checklist with evidence · standard v0.6 · metadata 0.3.0"
+date: 2026-09-29
+---
+
+This page is the evidence that the AFW 360 files conform to the SDMX 3.1 family chosen in the [standard](data-standard.qmd#sec-sdmx) (D27): SDMX-ML 3.1.0 for the structure message, SDMX-CSV 2.1.0 for data and reference metadata. Each row names a requirement, the command that checks it, and the result observed on 2026-09-29 on branch `standard/v0.6-sdmx`.
+
+Commands run from the repository root in Git Bash. `V` is `tools/verify/.venv/Scripts/python` (Python 3.11, `pysdmx[data,xml]==1.20.0`, created by `tools/verify/make_venv.sh` or `make_venv.ps1`) and `X` is `sdmx/structures/AFW360_structures.xml`. The Python tools are for verification only and are never part of the R pipeline (D30). Rows 1 to 12 and 14 were rerun for this page; row 13 comes from the FMR run of the same day, whose reports are kept under `tmp/fmr/` (gitignored).
+
+## Checklist
+
+| # | Requirement | Evidence command | Observed result |
+|---|---|---|---|
+| 1 | The structure message validates against the official SDMX-ML 3.1.0 XSDs | `$V tools/verify/xsd_validate.py pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd $X`; validator check `SDMX.XSD` in `Rscript pipeline/validate.R --root . --out tmp/findings.csv` | `valid`, exit 0; no `SDMX.XSD` finding |
+| 2 | Every artefact has agency `WB.AFW360` (`WB` for `AGENCIES`), a semver version, an `IDType` id and an English name | validator check `SDMX.IDENT` | no `SDMX.IDENT` finding (32 maintainables; version `0.3.0` equals `metadata/VERSION`; no version on the three fixed-version schemes) |
+| 3 | The sub-agency is declared in `WB:AGENCIES` | `grep -o 'str:Agency id="[A-Z0-9]*"' $X`; validator check `SDMX.URN` | `str:Agency id="AFW360"`; no `SDMX.URN` finding |
+| 4 | Every URN reference resolves inside the message | `$V tools/verify/check_urns.py $X`; validator check `SDMX.URN` | `unresolved: 0`, exit 0; no `SDMX.URN` finding (the `(1.0)` references to `DATA_PROVIDERS` and `METADATA_PROVIDERS` resolve and are exempt from the semver rule) |
+| 5 | DSD: 18 dimensions and time, 9 measures, 6 attributes with relationships, concepts for all | `grep -o '<str:Dimension ' $X \| wc -l`, likewise `str:TimeDimension`, `str:Measure`, `str:Attribute`, `str:MeasureRelationship`, `<str:Concept id=` | 18, 1, 9, 6, 1; 82 concepts (34 components plus 48 metadata attributes) |
+| 6 | Every dimension value in the data exists in its codelist, including sentinels | `Rscript pipeline/validate.R --root . --out tmp/findings.csv; echo $?`, then count findings by `check_id` | exit 0; no `CODES.*` error (the only `CODES` rows are 42 `CODES.DRAFT` warnings from manifests still marked `DRAFT`); FMR validation `"Errors":false` for both files (row 13) |
+| 7 | Data files are SDMX-CSV 2.1: fixed columns, `STRUCTURE_ID` short form, action `R`, `NaN` for intentionally missing, RFC 4180 quoting, UTF-8, LF | header and byte check of `data/AFW360_HH_*_SURVEY.csv` with Python (column count, BOM, carriage returns, distinct `ACTION` and `STRUCTURE_ID`, `NaN` on `O`/`M` rows); validator checks `STRUCT.*` and `SDMX.CSV_HEADER` | both files: 37 columns, no BOM, 0 CR bytes, `ACTION` only `R`, `STRUCTURE_ID` only `WB.AFW360:AFW360_HH(0.3.0)`; GNB 39 `O` rows all `NaN`, SEN none; no `STRUCT.*` or `SDMX.CSV_HEADER` finding. pysdmx maps empty cells to `NaN`, so the `NaN`-versus-empty rule is checked on raw text (this check and the projection test), not by pysdmx |
+| 8 | Reference metadata files are SDMX-CSV 2.1 metadata messages consistent with the MSD and metadataflow | `$V tools/verify/verify_sdmx.py --root .` (metadata part); validator check `SDMX.STALE` | `MDS_FIGURES.csv: 1 rows`, `MDS_SOURCES.csv: 2 rows`, `MDS_SURVEYS.csv: 2 rows`, `MDS_TEXT.csv: 8 rows`, `failures: 0`; no `SDMX.STALE` finding. The Python check is a header check only (limits in the notes below); FMR does not read these files (no MSD in the 3.0 profile) |
+| 9 | Codes aligned to global lists carry the global URN | `grep -c '<com:AnnotationType>GLOBAL_CODE<' $X` against the filled `global_urn` cells of `metadata/codelists/CL_*.csv`; validator check `META.GLOBAL_URN` | 32 annotations = 27 filled `global_urn` cells plus 5 sentinels; no `META.GLOBAL_URN` finding |
+| 10 | Generated files are never stale | `Rscript pipeline/build_sdmx.R --root . --check; echo $?`; `Rscript pipeline/build_docs.R --root . --check; echo $?`; validator check `SDMX.STALE` | five lines `... is current` (the message and the four `MDS_*.csv`), exit 0; docs check exit 0; no `SDMX.STALE` finding |
+| 11 | The round trip CSV to SDMX-ML to CSV is lossless | `Rscript pipeline/import_sdmx.R --root . --diff $X` (WP6 checks 1 and 3); the same on the FMR export `tmp/fmr/export.xml` | exit 0; no diff output, only the three lines `CL_SOURCE`, `CL_SURVEY`, `CL_FIGURE: derived from ...; reported, not written`; the FMR 3.0 export also round-trips with no change (299 codes, 2371 annotations, 399 descriptions). Scope limits in the notes below |
+| 12 | An independent implementation reads every file | `$V tools/verify/verify_sdmx.py --root .; echo $?` | `32 artefacts read (1 agency scheme, 22 codelists, 1 concept scheme, 1 data provider scheme, 1 data structure definition, 1 dataflow, 1 metadata provider scheme, 1 metadata provision agreement, 1 metadata structure, 1 metadataflow, 1 provision agreement)`; `AFW360_HH_GNB_2021_SURVEY.csv: 2268 observations`, `AFW360_HH_SEN_2021_SURVEY.csv: 3003 observations`; four metadata files; `failures: 0`, exit 0 |
+| 13 | FMR loads the structures and validates the data | `Rscript tools/fmr/fmr_load.R --root .`; `Rscript tools/fmr/fmr_validate.R --root .`; `Rscript tools/fmr/fmr_export.R --root . --out tmp/fmr/export.xml` ([fmr-guide.qmd](fmr-guide.qmd)) | FMR 12.4.2 installed. SDMX-ML 3.1 rejected (HTTP 400, error 150); the SDMX-ML 3.0 profile (`build_sdmx.R --sdmx-ml-version 3.0`) loads once `WB` is registered in `SDMX:AGENCIES(1.0)` ("Success"). Both data files accepted as they are and resolved to `WB.AFW360:AFW360_HH(0.3.0)`: 3003 and 2268 observations, `"Errors":false`. Export is SDMX-ML 3.0 only (3.1 returns HTTP 406) |
+| 14 | The standard documents every SDMX decision and the mapping | `for d in $(seq 27 46); do grep -q "D$d" .docs/data-standard.qmd \|\| echo "missing D$d"; done`; the same loop over `SDMX.STALE SDMX.XSD SDMX.URN SDMX.IDENT SDMX.CSV_HEADER STRUCT.ATTR_LEVEL` | both print nothing |
+
+: SDMX conformance checklist {#tbl-conformance}
+
+The whole validator run of row 6 exits 0 with these findings and no `ERROR`: 42 `CODES.DRAFT` and 42 `META.TBD` warnings, 27 `RULE.AGG_SKIPPED` warnings, 4 `TEXT.TBD` warnings, 6 `RULE.CLOSURE_PARTIAL` and 2 `VALUE.N` notes. None is an SDMX finding.
+
+## Notes on the evidence
+
+**Vendored schemas (row 1).** `pipeline/xsd/sdmx-ml-3.1/` holds the 30 files of `schemas/` at tag `v3.1.0` of `sdmx-twg/sdmx-ml`, entry `SDMXMessage.xsd`. The repository has no `LICENSE`, `LICENCE` or `COPYING` file at that tag and its README states no licence terms, so the folder's `README.md` records the absence instead of quoting a licence. `xml2::xml_validate()` in `build_sdmx.R` and the validator's `SDMX.XSD` check use the same schemas. pysdmx's own `read_sdmx(validate=True)` validates against its bundled schemas, not these; `xsd_validate.py` covers the vendored ones.
+
+**pysdmx 1.20.0 limits (rows 8 and 12).** pysdmx cannot read `com:AnnotationValue`, which the XSD allows and every codelist here uses; `verify_sdmx.py` validates the original bytes and hands pysdmx a copy without annotation values. It has no SDMX-CSV metadata reader (`Format.REFMETA_SDMX_CSV_2_1_0` exists but no reader uses it), so the metadata messages get a header check: fixed columns, `MDSTRUCTURE` = `metadataflow`, `TARGET_IDS` naming an artefact of the message, and dotted headers whose last segment is an MSD attribute id. It does not check the parent prefix, `MDSTRUCTURE_ID`, `TARGET_TYPES` or the uniqueness of `METADATASET_ID`; the byte comparison of `SDMX.STALE` covers those. `check_urns.py` registers a maintainable without a `version` attribute (the organisation schemes) under version 1.0.
+
+**Legacy regression (rows 7 and 11).** `pipeline/reconcile.R` matches every cell of the data files against the legacy workbooks (6871 cells OK, 98 GNB cells withheld by `LEGACY_OVERRIDES.csv`). The projection test in `pipeline/tests/testthat/` maps each data file back onto the 31 columns of the previous layout and finds only the removed `DATAFLOW` column and `NaN` against empty on the 39 GNB `O` rows. Its comparator is unit-tested; the whole test has not been mutation-tested.
+
+**What the FMR round trip does not cover (rows 11 and 13).** The MSD, the metadataflow and the metadata provision agreement are not in the 3.0 profile, so FMR neither loads nor exports them. `import_sdmx.R` does not write back the `ARTEFACTS.csv` columns `status`, `version_added`, `notes`, `agency_id` and `source_file`, edits to the derived codelists, `AFW_METADATA_VERSION`, the structure of the concept scheme, DSD, MSD, dataflow and agreements, non-English names, or sentinel names and their `GLOBAL_CODE`. The 3.0 profile keeps `AnnotationValue`, which FMR accepted; it has not been checked against the 3.0 XSDs.
+
+**FMR's clean report.** An FMR validation report says `"Errors":false` when the file is clean; the word "error" appears in a clean report, so the field, not a text search, is the test.
+
+## Not claimed
+
+- No DataConstraint and no VTL: required coverage and arithmetic rules are checked by the project validator (D45).
+- `SERIES_ID` is an uncoded `String` attribute checked against `SERIES_PLAN.csv`, not a codelist (D43, `IDType` forbids the dot in series ids).
+- `WB:AGENCIES` is a local placeholder declaring `AFW360`; nothing is registered in the Global Registry (D31).
+- Sender id `WB_AFW360`: message sender ids are `IDType` and cannot contain the dot of `WB.AFW360`.
+- Byte-identical regeneration of the boundaries: `pipeline/build_geo.R` writes GeoPackages that are not byte-deterministic, so a rebuild changes `geo/boundaries/*.gpkg` and the two `sha256` fields of `metadata/registries/GEO_SOURCES.csv`, and the regenerated tree fails the byte-identity test of `test-migrate-0.3.0.R` (WP11). The committed GeoPackages and hashes are the reference; a deterministic writer needs a metadata patch version and a migration and is left for a later release.

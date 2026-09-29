@@ -21,17 +21,18 @@
 
 # ---- the fragment list ---------------------------------------------------
 
-# The seven columns every codelist carries (standard, section "Metadata
+# The eight columns every codelist carries (standard, section "Metadata
 # files"); the "beyond the common ones" column tables leave them out.
 .DOCS_COMMON_COLS <- c(
   "code", "name_en", "definition_en", "status",
-  "version_added", "replaced_by", "notes"
+  "version_added", "replaced_by", "notes", "global_urn"
 )
 
 # The small codelists of @tbl-small-codelists, in the order shown.
 .DOCS_SMALL_CODELISTS <- c(
-  "CL_SEX", "CL_AGE", "CL_URBANISATION", "CL_ESTIMATION", "CL_OBS_STATUS",
-  "CL_THEME", "CL_STAT_UNIT", "CL_STATISTIC", "CL_WEIGHT", "CL_UNIT"
+  "CL_FREQ", "CL_SEX", "CL_AGE", "CL_URBANISATION", "CL_ESTIMATION",
+  "CL_OBS_STATUS", "CL_THEME", "CL_STAT_UNIT", "CL_STATISTIC", "CL_WEIGHT",
+  "CL_UNIT_MEASURE"
 )
 
 # Column tables projected from metadata/structure/COLUMNS.csv:
@@ -217,6 +218,7 @@ md_categories <- function(codes) {
   CL_QUAL_VAR = "metadata/codelists/CL_QUAL_VAR.csv",
   CL_QUALIFIER = "metadata/codelists/CL_QUALIFIER.csv",
   CL_OBS_STATUS = "metadata/codelists/CL_OBS_STATUS.csv",
+  CL_FREQ = "metadata/codelists/CL_FREQ.csv",
   CL_SEX = "metadata/codelists/CL_SEX.csv",
   CL_AGE = "metadata/codelists/CL_AGE.csv",
   CL_URBANISATION = "metadata/codelists/CL_URBANISATION.csv",
@@ -225,7 +227,7 @@ md_categories <- function(codes) {
   CL_STAT_UNIT = "metadata/codelists/CL_STAT_UNIT.csv",
   CL_STATISTIC = "metadata/codelists/CL_STATISTIC.csv",
   CL_WEIGHT = "metadata/codelists/CL_WEIGHT.csv",
-  CL_UNIT = "metadata/codelists/CL_UNIT.csv"
+  CL_UNIT_MEASURE = "metadata/codelists/CL_UNIT_MEASURE.csv"
 )
 
 #' Read one source CSV by stem; stops with the path if it is missing.
@@ -261,16 +263,34 @@ md_categories <- function(codes) {
 
 .docs_tbl_columns <- function(root) {
   dsd <- .docs_read(root, "DSD_AFW360_HH")
-  .docs_need(dsd, c("position", "id", "role", "codelist", "required", "sentinel", "description"),
-    "DSD_AFW360_HH.csv")
+  .docs_need(dsd, c(
+    "position", "id", "component", "role", "codelist", "data_type", "usage",
+    "relationship", "measure_relationship", "required", "sentinel",
+    "min_value", "max_value", "description"
+  ), "DSD_AFW360_HH.csv")
   dsd <- .docs_by_order(dsd, "position")
+  # Data type with its bounds, e.g. "Double, min 0".
+  dtype <- dsd$data_type
+  has_min <- dsd$min_value != ""
+  has_max <- dsd$max_value != ""
+  dtype[has_min] <- paste0(dtype[has_min], ", min ", dsd$min_value[has_min])
+  dtype[has_max] <- paste0(dtype[has_max], ", max ", dsd$max_value[has_max])
+  # Attachment: "observation" as text, a dimension list as codes, then the
+  # measure relationship if any.
+  rel <- ifelse(dsd$relationship == "observation", "observation", md_codes(dsd$relationship))
+  has_mr <- dsd$measure_relationship != ""
+  rel[has_mr] <- paste0(rel[has_mr], "; measure ", md_codes(dsd$measure_relationship[has_mr]))
   md_table(
-    c("#", "Column", "Role", "Codelist", "Sentinels", "Required", "Description"),
+    c(
+      "#", "Component", "Type", "Role", "Codelist", "Data type", "Usage",
+      "Relationship", "Sentinels", "Required", "Description"
+    ),
     list(
-      md_text(dsd$position), md_code(dsd$id), md_text(dsd$role), md_code(dsd$codelist),
+      md_text(dsd$position), md_code(dsd$id), md_text(dsd$component), md_text(dsd$role),
+      md_code(dsd$codelist), md_text(dtype), md_text(dsd$usage), rel,
       md_codes(dsd$sentinel), md_text(dsd$required), md_text(dsd$description)
     ),
-    "Columns of an `AFW360_HH` data file", "tbl-columns"
+    "Components of the `DSD_AFW360_HH` data structure, in data-file order", "tbl-columns"
   )
 }
 

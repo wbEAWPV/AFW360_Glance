@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Registers the top-level agency WB in FMR's SDMX:AGENCIES(1.0) scheme so
+     that WB:AGENCIES(1.0), which declares the sub-agency WB.AFW360, resolves.
+     Submitted by tools/fmr/fmr_load.R (ACTION REPLACE) only when WB is missing.
+     The scheme keeps FMR's own item SDMX. SDMX-ML 3.0, the version FMR 12.4 reads. -->
+<mes:Structure xmlns:mes="http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message" xmlns:str="http://www.sdmx.org/resources/sdmxml/schemas/v3_0/structure" xmlns:com="http://www.sdmx.org/resources/sdmxml/schemas/v3_0/common">
+  <mes:Header>
+    <mes:ID>AFW360_AGENCIES_BOOTSTRAP</mes:ID>
+    <mes:Test>false</mes:Test>
+    <mes:Prepared>2026-01-01T00:00:00Z</mes:Prepared>
+    <mes:Sender id="WB"/>
+  </mes:Header>
+  <mes:Structures>
+    <str:AgencySchemes>
+      <str:AgencyScheme id="AGENCIES" agencyID="SDMX" version="1.0" isExternalReference="false">
+        <com:Name xml:lang="en">SDMX Agency Scheme</com:Name>
+        <str:Agency id="SDMX">
+          <com:Name xml:lang="en">SDMX</com:Name>
+        </str:Agency>
+        <str:Agency id="WB">
+          <com:Name xml:lang="en">World Bank</com:Name>
+        </str:Agency>
+      </str:AgencyScheme>
+    </str:AgencySchemes>
+  </mes:Structures>
+</mes:Structure>

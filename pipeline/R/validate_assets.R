@@ -1,7 +1,7 @@
 # pipeline/R/validate_assets.R
 #
 # Checks for the two asset registries (GEO_SOURCES, FIGURES) and the
-# GeoPackage boundary files they point at (COMMON.md wave 3, WP14).
+# GeoPackage boundary files they point at (.docs/data-standard.qmd).
 #
 # Every check function is named vc_asset_<check>(ctx) and returns a tibble
 # with columns check_id, severity, file, row_key, message (zero rows means
@@ -38,7 +38,7 @@
 }
 
 #' Cap findings at 20 per file, in row_key order, adding a SUMMARY row
-#' (COMMON.md / card "Findings format").
+#' (see .docs/data-standard.qmd).
 .af_cap <- function(df) {
   if (nrow(df) == 0) {
     return(df)

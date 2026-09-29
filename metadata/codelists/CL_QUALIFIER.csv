@@ -1,43 +1,43 @@
-code,name_en,definition_en,status,version_added,replaced_by,notes,var_code,value,basis,order
-WELFARE_CONS_PC,Consumption per capita,Household consumption expenditure divided by household size.,DRAFT,0.1.0,,,WELFARE,,,1
-WELFARE_INC_MARKET,Market income,"Income from market sources (wages, self-employment income, property income), before taxes and transfers.",DRAFT,0.1.0,,,WELFARE,,,2
-WELFARE_INC_MARKET_PENS,Market income plus pensions,Market income plus contributory pension income.,DRAFT,0.1.0,,,WELFARE,,,3
-WELFARE_INC_NETMARKET,Net market income,"Market income plus pensions, minus direct taxes and employee social security contributions.",DRAFT,0.1.0,,,WELFARE,,,4
-WELFARE_INC_DISP,Disposable income,Net market income plus direct cash and near-cash transfers.,DRAFT,0.1.0,,,WELFARE,,,5
-WELFARE_INC_CONSUMABLE,Consumable income,"Disposable income plus indirect subsidies, minus indirect taxes.",DRAFT,0.1.0,,,WELFARE,,,6
-WELFARE_INC_FINAL,Final income,Consumable income plus the value of in-kind education and health transfers.,DRAFT,0.1.0,,,WELFARE,,,7
-POVLINE_PL215,International poverty line ($2.15),International poverty line of $2.15 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,2.15,PPP$ per person per day,1
-POVLINE_PL365,Lower-middle-income poverty line ($3.65),Lower-middle-income poverty line of $3.65 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,3.65,PPP$ per person per day,2
-POVLINE_PL685,Upper-middle-income poverty line ($6.85),Upper-middle-income poverty line of $6.85 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,6.85,PPP$ per person per day,3
-POVLINE_PL300,International poverty line ($3.00),"International poverty line of $3.00 per person per day at 2021 PPP, replacing the 2017 PPP $2.15 line.",DRAFT,0.1.0,,,POVLINE,3,PPP$ per person per day,4
-POVLINE_PL420,Lower-middle-income poverty line ($4.20),"Lower-middle-income poverty line of $4.20 per person per day at 2021 PPP, replacing the 2017 PPP $3.65 line.",DRAFT,0.1.0,,,POVLINE,4.2,PPP$ per person per day,5
-POVLINE_PL830,Upper-middle-income poverty line ($8.30),"Upper-middle-income poverty line of $8.30 per person per day at 2021 PPP, replacing the 2017 PPP $6.85 line.",DRAFT,0.1.0,,,POVLINE,8.3,PPP$ per person per day,6
-POVLINE_NPL,National poverty line,"The survey's own national poverty line. Takes no PPP round (QUALIFIER_PAIRS.csv: allowed = _Z for PPP); its value is in local currency, given in SURVEYS.csv, not here.",DRAFT,0.1.0,,,POVLINE,,Local currency; the value is in SURVEYS.csv,7
-POVLINE_NPL_FOOD,National food poverty line,"The survey's own national food poverty line. Takes no PPP round (QUALIFIER_PAIRS.csv: allowed = _Z for PPP); its value is in local currency, given in SURVEYS.csv, not here.",DRAFT,0.1.0,,,POVLINE,,Local currency; the value is in SURVEYS.csv,8
-PPP_2011,2011 PPP round,Purchasing power parity round based on the 2011 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,1
-PPP_2017,2017 PPP round,Purchasing power parity round based on the 2017 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,2
-PPP_2021,2021 PPP round,Purchasing power parity round based on the 2021 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,3
-COICOP_CP01,Food and non-alcoholic beverages,COICOP 2018 division 01: Food and non-alcoholic beverages.,DRAFT,0.1.0,,,COICOP,,,1
-COICOP_CP02,"Alcoholic beverages, tobacco and narcotics","COICOP 2018 division 02: Alcoholic beverages, tobacco and narcotics.",DRAFT,0.1.0,,,COICOP,,,2
-COICOP_CP03,Clothing and footwear,COICOP 2018 division 03: Clothing and footwear.,DRAFT,0.1.0,,,COICOP,,,3
-COICOP_CP04,"Housing, water, electricity, gas and other fuels","COICOP 2018 division 04: Housing, water, electricity, gas and other fuels.",DRAFT,0.1.0,,,COICOP,,,4
-COICOP_CP05,"Furnishings, household equipment and routine household maintenance","COICOP 2018 division 05: Furnishings, household equipment and routine household maintenance.",DRAFT,0.1.0,,,COICOP,,,5
-COICOP_CP06,Health,COICOP 2018 division 06: Health.,DRAFT,0.1.0,,,COICOP,,,6
-COICOP_CP07,Transport,COICOP 2018 division 07: Transport.,DRAFT,0.1.0,,,COICOP,,,7
-COICOP_CP08,Information and communication,COICOP 2018 division 08: Information and communication.,DRAFT,0.1.0,,,COICOP,,,8
-COICOP_CP09,"Recreation, sport and culture","COICOP 2018 division 09: Recreation, sport and culture.",DRAFT,0.1.0,,,COICOP,,,9
-COICOP_CP10,Education services,COICOP 2018 division 10: Education services.,DRAFT,0.1.0,,,COICOP,,,10
-COICOP_CP11,Restaurants and accommodation services,COICOP 2018 division 11: Restaurants and accommodation services.,DRAFT,0.1.0,,,COICOP,,,11
-COICOP_CP12,Insurance and financial services,COICOP 2018 division 12: Insurance and financial services.,DRAFT,0.1.0,,,COICOP,,,12
-COICOP_CP13,"Personal care, social protection and miscellaneous goods and services","COICOP 2018 division 13: Personal care, social protection and miscellaneous goods and services.",DRAFT,0.1.0,,,COICOP,,,13
-ACQ_PURCH,Purchased,Food item acquired by purchase.,DRAFT,0.1.0,,,ACQ,,,1
-ACQ_OWNPROD,Own production,Food item acquired from the household's own production.,DRAFT,0.1.0,,,ACQ,,,2
-ACQ_GIFT,Gift,Food item acquired as a gift.,DRAFT,0.1.0,,"Registered, not populated by the legacy tables (H2).",ACQ,,,3
-ACQ_INKIND,In-kind,"Food item acquired in kind, other than as own production or a gift.",DRAFT,0.1.0,,"Registered, not populated by the legacy tables (H2).",ACQ,,,4
-FI_DIR_TAX,Direct taxes,Direct taxes paid by the household (e.g. personal income tax).,DRAFT,0.1.0,,,FI,,,1
-FI_DIR_TRANSF,Direct transfers,Direct cash or near-cash transfers received by the household.,DRAFT,0.1.0,,,FI,,,2
-FI_INDIR_TAX,Indirect taxes,"Indirect taxes paid by the household (e.g. value-added tax, excises).",DRAFT,0.1.0,,,FI,,,3
-FI_SUBSIDY,Subsidies,Indirect subsidies received by the household.,DRAFT,0.1.0,,,FI,,,4
-FI_INKIND_EDU,In-kind education,In-kind transfer of public education services.,DRAFT,0.1.0,,,FI,,,5
-FI_INKIND_HEALTH,In-kind health,In-kind transfer of public health services.,DRAFT,0.1.0,,,FI,,,6
-FI_ALL,All instruments,"All fiscal instruments together: direct taxes, direct transfers, indirect taxes, subsidies, in-kind education and in-kind health.",DRAFT,0.1.0,,,FI,,,7
+code,name_en,definition_en,status,version_added,replaced_by,notes,var_code,value,basis,order,global_urn
+WELFARE_CONS_PC,Consumption per capita,Household consumption expenditure divided by household size.,DRAFT,0.1.0,,,WELFARE,,,1,
+WELFARE_INC_MARKET,Market income,"Income from market sources (wages, self-employment income, property income), before taxes and transfers.",DRAFT,0.1.0,,,WELFARE,,,2,
+WELFARE_INC_MARKET_PENS,Market income plus pensions,Market income plus contributory pension income.,DRAFT,0.1.0,,,WELFARE,,,3,
+WELFARE_INC_NETMARKET,Net market income,"Market income plus pensions, minus direct taxes and employee social security contributions.",DRAFT,0.1.0,,,WELFARE,,,4,
+WELFARE_INC_DISP,Disposable income,Net market income plus direct cash and near-cash transfers.,DRAFT,0.1.0,,,WELFARE,,,5,
+WELFARE_INC_CONSUMABLE,Consumable income,"Disposable income plus indirect subsidies, minus indirect taxes.",DRAFT,0.1.0,,,WELFARE,,,6,
+WELFARE_INC_FINAL,Final income,Consumable income plus the value of in-kind education and health transfers.,DRAFT,0.1.0,,,WELFARE,,,7,
+POVLINE_PL215,International poverty line ($2.15),International poverty line of $2.15 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,2.15,PPP$ per person per day,1,
+POVLINE_PL365,Lower-middle-income poverty line ($3.65),Lower-middle-income poverty line of $3.65 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,3.65,PPP$ per person per day,2,
+POVLINE_PL685,Upper-middle-income poverty line ($6.85),Upper-middle-income poverty line of $6.85 per person per day at 2017 PPP.,DRAFT,0.1.0,,,POVLINE,6.85,PPP$ per person per day,3,
+POVLINE_PL300,International poverty line ($3.00),"International poverty line of $3.00 per person per day at 2021 PPP, replacing the 2017 PPP $2.15 line.",DRAFT,0.1.0,,,POVLINE,3,PPP$ per person per day,4,
+POVLINE_PL420,Lower-middle-income poverty line ($4.20),"Lower-middle-income poverty line of $4.20 per person per day at 2021 PPP, replacing the 2017 PPP $3.65 line.",DRAFT,0.1.0,,,POVLINE,4.2,PPP$ per person per day,5,
+POVLINE_PL830,Upper-middle-income poverty line ($8.30),"Upper-middle-income poverty line of $8.30 per person per day at 2021 PPP, replacing the 2017 PPP $6.85 line.",DRAFT,0.1.0,,,POVLINE,8.3,PPP$ per person per day,6,
+POVLINE_NPL,National poverty line,"The survey's own national poverty line. Takes no PPP round (QUALIFIER_PAIRS.csv: allowed = _Z for PPP); its value is in local currency, given in SURVEYS.csv, not here.",DRAFT,0.1.0,,,POVLINE,,Local currency; the value is in SURVEYS.csv,7,
+POVLINE_NPL_FOOD,National food poverty line,"The survey's own national food poverty line. Takes no PPP round (QUALIFIER_PAIRS.csv: allowed = _Z for PPP); its value is in local currency, given in SURVEYS.csv, not here.",DRAFT,0.1.0,,,POVLINE,,Local currency; the value is in SURVEYS.csv,8,
+PPP_2011,2011 PPP round,Purchasing power parity round based on the 2011 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,1,
+PPP_2017,2017 PPP round,Purchasing power parity round based on the 2017 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,2,
+PPP_2021,2021 PPP round,Purchasing power parity round based on the 2021 International Comparison Program.,DRAFT,0.1.0,,,PPP,,,3,
+COICOP_CP01,Food and non-alcoholic beverages,COICOP 2018 division 01: Food and non-alcoholic beverages.,DRAFT,0.1.0,,,COICOP,,,1,
+COICOP_CP02,"Alcoholic beverages, tobacco and narcotics","COICOP 2018 division 02: Alcoholic beverages, tobacco and narcotics.",DRAFT,0.1.0,,,COICOP,,,2,
+COICOP_CP03,Clothing and footwear,COICOP 2018 division 03: Clothing and footwear.,DRAFT,0.1.0,,,COICOP,,,3,
+COICOP_CP04,"Housing, water, electricity, gas and other fuels","COICOP 2018 division 04: Housing, water, electricity, gas and other fuels.",DRAFT,0.1.0,,,COICOP,,,4,
+COICOP_CP05,"Furnishings, household equipment and routine household maintenance","COICOP 2018 division 05: Furnishings, household equipment and routine household maintenance.",DRAFT,0.1.0,,,COICOP,,,5,
+COICOP_CP06,Health,COICOP 2018 division 06: Health.,DRAFT,0.1.0,,,COICOP,,,6,
+COICOP_CP07,Transport,COICOP 2018 division 07: Transport.,DRAFT,0.1.0,,,COICOP,,,7,
+COICOP_CP08,Information and communication,COICOP 2018 division 08: Information and communication.,DRAFT,0.1.0,,,COICOP,,,8,
+COICOP_CP09,"Recreation, sport and culture","COICOP 2018 division 09: Recreation, sport and culture.",DRAFT,0.1.0,,,COICOP,,,9,
+COICOP_CP10,Education services,COICOP 2018 division 10: Education services.,DRAFT,0.1.0,,,COICOP,,,10,
+COICOP_CP11,Restaurants and accommodation services,COICOP 2018 division 11: Restaurants and accommodation services.,DRAFT,0.1.0,,,COICOP,,,11,
+COICOP_CP12,Insurance and financial services,COICOP 2018 division 12: Insurance and financial services.,DRAFT,0.1.0,,,COICOP,,,12,
+COICOP_CP13,"Personal care, social protection and miscellaneous goods and services","COICOP 2018 division 13: Personal care, social protection and miscellaneous goods and services.",DRAFT,0.1.0,,,COICOP,,,13,
+ACQ_PURCH,Purchased,Food item acquired by purchase.,DRAFT,0.1.0,,,ACQ,,,1,
+ACQ_OWNPROD,Own production,Food item acquired from the household's own production.,DRAFT,0.1.0,,,ACQ,,,2,
+ACQ_GIFT,Gift,Food item acquired as a gift.,DRAFT,0.1.0,,"Registered, not populated by the legacy tables (H2).",ACQ,,,3,
+ACQ_INKIND,In-kind,"Food item acquired in kind, other than as own production or a gift.",DRAFT,0.1.0,,"Registered, not populated by the legacy tables (H2).",ACQ,,,4,
+FI_DIR_TAX,Direct taxes,Direct taxes paid by the household (e.g. personal income tax).,DRAFT,0.1.0,,,FI,,,1,
+FI_DIR_TRANSF,Direct transfers,Direct cash or near-cash transfers received by the household.,DRAFT,0.1.0,,,FI,,,2,
+FI_INDIR_TAX,Indirect taxes,"Indirect taxes paid by the household (e.g. value-added tax, excises).",DRAFT,0.1.0,,,FI,,,3,
+FI_SUBSIDY,Subsidies,Indirect subsidies received by the household.,DRAFT,0.1.0,,,FI,,,4,
+FI_INKIND_EDU,In-kind education,In-kind transfer of public education services.,DRAFT,0.1.0,,,FI,,,5,
+FI_INKIND_HEALTH,In-kind health,In-kind transfer of public health services.,DRAFT,0.1.0,,,FI,,,6,
+FI_ALL,All instruments,"All fiscal instruments together: direct taxes, direct transfers, indirect taxes, subsidies, in-kind education and in-kind health.",DRAFT,0.1.0,,,FI,,,7,

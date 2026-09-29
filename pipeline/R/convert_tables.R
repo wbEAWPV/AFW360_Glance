@@ -379,7 +379,7 @@ legacy_precision <- function(scale) {
 #' @param estimation The `ESTIMATION` code written on every row.
 #' @return A data frame with the DSD columns.
 build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
-  columns <- dsd_columns(meta)
+  columns <- dsd_components(meta)
   legacy_labels <- meta$LEGACY_LABELS
   legacy_columns <- meta$LEGACY_COLUMNS
   overrides <- meta$LEGACY_OVERRIDES
@@ -474,7 +474,7 @@ build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
 
       comments <- ov$obs_comment[ov$action == "COMMENT"]
       if (is_blank(raw)) {
-        obs_value <- ""
+        obs_value <- "NaN"
         obs_status <- "O"
         base_comment <- paste0(
           "LEGACY_EMPTY: empty cell in sheet '", sheet, "', column '", column, "'"
@@ -490,10 +490,9 @@ build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
       urb <- if (lc$URBANISATION[i] == "") SENTINEL_TOTAL else lc$URBANISATION[i]
 
       values <- c(
-        DATAFLOW = DATAFLOW_ID,
+        FREQ = "A",
         REF_AREA = country,
         GEO = geo,
-        TIME_PERIOD = time_period,
         ESTIMATION = estimation,
         INDICATOR = indicator,
         SEX = sex_age,
@@ -509,8 +508,9 @@ build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
         MEASURE_QUAL_3 = qual[3],
         MEASURE_QUAL_4 = qual[4],
         MEASURE_QUAL_5 = qual[5],
-        SERIES_ID = series_id,
+        TIME_PERIOD = time_period,
         OBS_VALUE = obs_value,
+        SERIES_ID = series_id,
         UNIT_MEASURE = unit_measure,
         PRECISION = precision,
         OBS_STATUS = obs_status,
@@ -543,7 +543,8 @@ build_country_rows <- function(country, wb, meta, estimation = "SURVEY") {
 #'
 #' @param df A data frame with the DSD columns.
 #' @param key_cols The key columns in DSD order, from [dsd_key_columns()]
-#'   (the 19 columns `DATAFLOW` through `MEASURE_QUAL_5` in DSD 0.2.0).
+#'   (in DSD 0.3.0 the 18 dimensions `FREQ` through `MEASURE_QUAL_5` plus
+#'   `TIME_PERIOD`, 19 columns).
 #' @return `df`, sorted, with row names reset.
 finalize_rows <- function(df, key_cols) {
   if (nrow(df) == 0) {

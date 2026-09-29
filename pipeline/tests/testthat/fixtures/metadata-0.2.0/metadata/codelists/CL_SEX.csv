@@ -1,0 +1,3 @@
+code,name_en,definition_en,status,version_added,replaced_by,notes
+F,Female,"The individual counted is female. Refers to the sex of the individual counted, never of the household head.",DRAFT,0.1.0,,
+M,Male,"The individual counted is male. Refers to the sex of the individual counted, never of the household head.",DRAFT,0.1.0,,

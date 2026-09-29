@@ -4,9 +4,11 @@
 # WP15 (Legacy converter): turns data_raw/tables/Tables_<ISO3>.xlsx into
 # data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv and its manifest, driven entirely by
 # the LEGACY_LABELS, LEGACY_COLUMNS, LEGACY_OVERRIDES and SERIES_PLAN metadata
-# plans, with the columns read from DSD_AFW360_HH.csv (DSD 0.2.0). Every row
-# carries ESTIMATION = SURVEY and the country's LEGACY_CONVERSION source from
-# SOURCES.csv. See .docs/transition.qmd and .docs/data-standard.qmd.
+# plans, with the columns read from DSD_AFW360_HH.csv (DSD 0.3.0). The file is
+# SDMX-CSV 2.1: STRUCTURE, STRUCTURE_ID, ACTION = R, then the 34 components.
+# Every row carries FREQ = A, ESTIMATION = SURVEY and the country's
+# LEGACY_CONVERSION source from SOURCES.csv; an empty cell is OBS_VALUE = NaN
+# with OBS_STATUS = O. See .docs/transition.qmd and .docs/data-standard.qmd.
 #
 # Usage: Rscript pipeline/convert_legacy.R --root <dir> --country SEN|GNB|ALL [--timestamp <ISO8601>] [--out-root <dir>]
 
@@ -78,7 +80,7 @@ for (country in countries) {
   wb <- read_legacy_workbook(workbook_path)
   rows <- build_country_rows(country, wb, meta, estimation = estimation)
   rows <- finalize_rows(rows, key_cols)
-  if (!identical(names(rows), dsd_columns(meta))) {
+  if (!identical(names(rows), dsd_components(meta))) {
     stop("convert_legacy: the rows' columns differ from DSD_AFW360_HH", call. = FALSE)
   }
 
@@ -95,7 +97,11 @@ for (country in countries) {
 
   file_name <- data_file_name(country, time_period, estimation)
   data_path <- repo_path(out_root, "data", file_name)
-  write_std_csv(rows, data_path)
+  write_sdmx_csv(rows, data_path, metadata_version)
+  written <- names(read_std_csv(data_path))
+  if (!identical(written, data_columns(meta))) {
+    stop("convert_legacy: ", file_name, " columns differ from data_columns()", call. = FALSE)
+  }
 
   manifest <- build_manifest(
     country = country,

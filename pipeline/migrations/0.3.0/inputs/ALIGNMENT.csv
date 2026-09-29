@@ -1,0 +1,29 @@
+codelist,code_0_2_0,code_0_3_0,name_en,definition_en,global_urn
+CL_FREQ,,A,Annual,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_FREQ(2.1).A
+CL_SEX,F,F,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_SEX(2.1).F
+CL_SEX,M,M,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_SEX(2.1).M
+CL_AGE,Y_LT15,Y0T14,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_AGE(1.25).Y0T14
+CL_AGE,Y15T24,Y15T24,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_AGE(1.25).Y15T24
+CL_AGE,Y25T64,Y25T64,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_AGE(1.25).Y25T64
+CL_AGE,Y_GE65,Y_GE65,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_AGE(1.25).Y_GE65
+CL_URBANISATION,U,U,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_URBANISATION(1.10).U
+CL_URBANISATION,R,R,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_URBANISATION(1.10).R
+CL_OBS_STATUS,A,A,Normal value,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).A
+CL_OBS_STATUS,E,E,Estimated value,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).E
+CL_OBS_STATUS,O,O,Missing value,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).O
+CL_OBS_STATUS,M,M,Missing value; data cannot exist,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).M
+CL_OBS_STATUS,U,U,Low reliability,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).U
+CL_OBS_STATUS,D,D,Definition differs,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).D
+CL_OBS_STATUS,Q,Q,Missing value; suppressed,,urn:sdmx:org.sdmx.infomodel.codelist.Code=SDMX:CL_OBS_STATUS(2.3).Q
+CL_UNIT_MEASURE,INDEX,INDEX,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).IX
+CL_UNIT_MEASURE,LCU,LCU,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).CUR_LCU
+CL_UNIT_MEASURE,HA,HA,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).HA
+CL_UNIT_MEASURE,COUNT,COUNT,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_UNIT_MEASURE(1.20).NUMBER
+CL_UNIT_MEASURE,,XOF,CFA franc BCEAO,"West African CFA franc (ISO 4217), the currency of Senegal and Guinea-Bissau.",
+CL_AREA,SEN,SEN,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=WB:CL_REF_AREA_WDI(1.0).SEN
+CL_AREA,GNB,GNB,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=WB:CL_REF_AREA_WDI(1.0).GNB
+CL_COMP_BREAKDOWN,QUINT_Q1,QUINT_Q1,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q1
+CL_COMP_BREAKDOWN,QUINT_Q2,QUINT_Q2,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q2
+CL_COMP_BREAKDOWN,QUINT_Q3,QUINT_Q3,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q3
+CL_COMP_BREAKDOWN,QUINT_Q4,QUINT_Q4,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q4
+CL_COMP_BREAKDOWN,QUINT_Q5,QUINT_Q5,,,urn:sdmx:org.sdmx.infomodel.codelist.Code=IAEG-SDGs:CL_QUANTILE(1.1).Q5

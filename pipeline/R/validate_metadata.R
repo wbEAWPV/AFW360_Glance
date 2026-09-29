@@ -5,7 +5,9 @@
 # columns, code syntax, code uniqueness, cross-file references, TBD
 # tracking and slot_order ties), and of the metadata 0.2.0 tables RULES.csv,
 # INDICATOR_QUALIFIERS.csv, QUALIFIER_PAIRS.csv, SERIES_PLAN.csv (its
-# estimation/status/series_id rules) and SOURCES.csv. Depends on
+# estimation/status/series_id rules) and SOURCES.csv, of the artefact
+# register ARTEFACTS.csv (META.ARTEFACTS) and of `global_urn` syntax
+# (META.GLOBAL_URN). Depends on
 # pipeline/R/io.R (sha256_file()), constants.R,
 # codes.R (is_valid_code(), TBD) and ctx.R. ctx$meta is a named list of
 # tibbles keyed by file stem (load_metadata()); this module rebuilds the
@@ -45,6 +47,7 @@
   TEXT = c("slot", "ref_area", "time_period", "order"),
   COLUMNS = c("file", "column"),
   DSD_AFW360_HH = "id",
+  ARTEFACTS = "artefact_id",
   CL_GEO_SCHEME = c("ref_area", "code")
 )
 
@@ -231,7 +234,10 @@ vc_meta_reference <- function(ctx) {
   check_field("CL_INDICATOR", "stat_unit", "CL_STAT_UNIT", "code")
   check_field("CL_INDICATOR", "statistic", "CL_STATISTIC", "code")
   check_field("CL_INDICATOR", "weight", "CL_WEIGHT", "code")
-  check_field("CL_INDICATOR", "unit_measure", "CL_UNIT", "code")
+  check_field("CL_INDICATOR", "unit_measure", "CL_UNIT_MEASURE", "code")
+  # UNIT_MEASURE closure (D14, plan 2.9): every CL_AREA currency is a
+  # CL_UNIT_MEASURE code, so the LCU-to-currency substitution stays coded.
+  check_field("CL_AREA", "currency", "CL_UNIT_MEASURE", "code")
   check_field("SERIES_PLAN", "INDICATOR", "CL_INDICATOR", "code")
   check_field("SERIES_PLAN", "MEASURE_QUALS", "CL_QUALIFIER", "code", multi = TRUE)
   check_field("SERIES_PLAN", "DEFINING_BREAKDOWN", "CL_COMP_BREAKDOWN", "code")
@@ -632,6 +638,93 @@ vc_meta_sources <- function(ctx) {
     out[[length(out) + 1]] <- .vc_finding(
       "META.SOURCES", "ERROR", rel, paste0("source_id=", d), "duplicate source_id"
     )
+  }
+  .vc_bind(out)
+}
+
+# The number of rows ARTEFACTS.csv lists (D43 as amended at Gate 1): the
+# agency scheme, the concept scheme, the DSD, the dataflow, the MSD, the
+# metadataflow, the two provider schemes, the two provision agreements, and
+# 22 codelists (19 CSV codelists plus the derived CL_SOURCE, CL_SURVEY and
+# CL_FIGURE). There is no CL_SERIES: SERIES_ID is an uncoded attribute.
+.META_ARTEFACTS_ROWS <- 32L
+
+# A full SDMX code URN: urn:sdmx:org.sdmx.infomodel.codelist.Code=
+# <agency>:<id>(<version>).<code> (plan 2.5, never the short form).
+.META_URN_PREFIX_RE <- "^urn:sdmx:org[.]sdmx[.]infomodel[.]codelist[.]Code="
+.META_URN_FULL_RE <- paste0(
+  .META_URN_PREFIX_RE,
+  "[A-Za-z][A-Za-z0-9_@.-]*:[A-Za-z][A-Za-z0-9_@-]*[(][0-9]+([.][0-9]+)*[)][.][A-Za-z0-9_@$-]+$"
+)
+
+#' META.ARTEFACTS: metadata/structure/ARTEFACTS.csv lists every
+#' metadata/codelists/CL_*.csv as a Codelist, every filled `source_file`
+#' exists under the root, no artefact_id repeats, and the table has
+#' exactly .META_ARTEFACTS_ROWS rows.
+vc_meta_artefacts <- function(ctx) {
+  out <- list()
+  art <- ctx$meta$ARTEFACTS
+  rel <- .meta_rel(ctx, "ARTEFACTS", "metadata/structure/ARTEFACTS.csv")
+  if (is.null(art)) {
+    if (dir.exists(file.path(ctx$root, "metadata", "structure"))) {
+      out[[1]] <- .vc_finding("META.ARTEFACTS", "ERROR", rel, "", "ARTEFACTS.csv is missing")
+    }
+    return(.vc_bind(out))
+  }
+  add <- function(rk, msg) {
+    out[[length(out) + 1]] <<- .vc_finding("META.ARTEFACTS", "ERROR", rel, rk, msg)
+  }
+  if (!all(c("artefact_id", "artefact_type", "source_file") %in% names(art))) {
+    add("", "ARTEFACTS.csv lacks artefact_id, artefact_type or source_file")
+    return(.vc_bind(out))
+  }
+  ids <- as.character(art$artefact_id)
+  type_of <- stats::setNames(as.character(art$artefact_type), ids)
+
+  if (nrow(art) != .META_ARTEFACTS_ROWS) {
+    add("", paste0("ARTEFACTS.csv has ", nrow(art), " rows; expected ", .META_ARTEFACTS_ROWS))
+  }
+  for (d in unique(ids[duplicated(ids)])) add(paste0("artefact_id=", d), "duplicate artefact_id")
+
+  cl_dir <- file.path(ctx$root, "metadata", "codelists")
+  cl_files <- if (dir.exists(cl_dir)) list.files(cl_dir, pattern = "^CL_.*[.]csv$") else character(0)
+  for (stem in sort(tools::file_path_sans_ext(cl_files), method = "radix")) {
+    if (!(stem %in% ids)) {
+      add(paste0("artefact_id=", stem), paste0("metadata/codelists/", stem, ".csv is not listed in ARTEFACTS.csv"))
+    } else if (!identical(unname(type_of[stem]), "Codelist")) {
+      add(paste0("artefact_id=", stem), paste0("artefact_type is '", type_of[stem], "', not Codelist"))
+    }
+  }
+
+  src <- trimws(as.character(art$source_file))
+  for (i in which(!is.na(src) & src != "")) {
+    if (!file.exists(file.path(ctx$root, src[i]))) {
+      add(paste0("artefact_id=", ids[i]), paste0("source_file ", src[i], " does not exist"))
+    }
+  }
+  .vc_bind(out)
+}
+
+#' META.GLOBAL_URN: every filled `global_urn` cell of a metadata table is a
+#' full SDMX code URN (urn:sdmx:org.sdmx.infomodel.codelist.Code=
+#' <agency>:<id>(<version>).<code>).
+vc_meta_global_urn <- function(ctx) {
+  out <- list()
+  file_map <- .meta_all_files_rel(ctx$root)
+  for (stem in sort(names(ctx$meta), method = "radix")) {
+    df <- ctx$meta[[stem]]
+    if (!("global_urn" %in% names(df)) || nrow(df) == 0) next
+    urn <- trimws(as.character(df$global_urn))
+    bad <- which(!is.na(urn) & urn != "" & !grepl(.META_URN_FULL_RE, urn))
+    for (i in bad) {
+      out[[length(out) + 1]] <- .vc_finding(
+        "META.GLOBAL_URN", "ERROR", unname(file_map[stem]), .meta_row_key(stem, df, i),
+        paste0(
+          "global_urn '", urn[i], "' is not a full code URN ",
+          "(urn:sdmx:org.sdmx.infomodel.codelist.Code=<agency>:<id>(<version>).<code>)"
+        )
+      )
+    }
   }
   .vc_bind(out)
 }
