@@ -49,7 +49,7 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP8c | FMR deferred (only if Gate 2 defers) | Gate 2 (defer), WP6 | skipped (Gate 2: install now) | | | | 2026-09-29 |
 | WP10a | Standard final and conformance page | every WP that ran (WP8b or WP8c, not both) | committed | opus (184k tokens, over budget; complete) | sonnet, PASS 8/8 | 0869abf | 2026-09-29 |
 | WP10b | Project documentation | every WP that ran (WP8b or WP8c, not both) | committed | opus (117k tokens, over budget; two rounds) | sonnet round 2, PASS 9/9 (its check-5 flag was a WP10c path outside the orchestrator's scope list) | 2ad7336 | 2026-09-29 |
-| WP10c | Inventory inconsistencies | every WP that ran (WP8b or WP8c, not both) | in progress | sonnet | | | 2026-09-29 |
+| WP10c | Inventory inconsistencies | every WP that ran (WP8b or WP8c, not both) | committed (with WP10c-fix) | sonnet (136k tokens, over budget; two rounds) + opus fix (54k) | sonnet, PASS 7/7 (amended list) | 3d156bb | 2026-09-29 |
 | WP11 | Final acceptance run | WP10a, WP10b, WP10c | todo | | verifier only | | |
 | Gate 3 | Acceptance and merge | WP11 | pending | | | | |
 
@@ -216,3 +216,4 @@ Questions raised during WP1 and WP2a:
 | 2026-09-29 | WP5c (c5cb2e4), WP5d (eb06f29), WP6 (23705fd), WP8a (d677861) verified, wave baseline green (1492 tests, 0 validator errors, 5 SDMX files current, reader 0 failures), committed in plan order; surfaced points 54 and 55. WP8b running (FMR install approved at Gate 2). |
 | 2026-09-29 | WP8b installed FMR 12.4.2 (Tomcat 10.1.60, MySQL 8.0.46, all under tools/fmr/runtime/) and stopped at the planned contingency: FMR rejects SDMX-ML 3.1 (HTTP 400, code 150). Surfaced points 56 and 57. WP8b2 (SDMX-ML 3.0 output profile) started; WP8b resumes after it. |
 | 2026-09-29 | WP8b2 (2db9f23) and WP8b (a2dfe67) verified and committed: FMR 12.4.2 loads the SDMX-ML 3.0 profile after the WB agency is registered, validates both SDMX-CSV 2.1 data files unchanged, exports 3.0 and round-trips with an empty diff. Surfaced points 58 to 60. WP10a, WP10b, WP10c started in parallel. |
+| 2026-09-29 | WP10a (0869abf), WP10b (2ad7336), WP10c (3d156bb) verified and committed. WP10b needed a second round (migration input mirrors the changelog); WP10c needed a comment-only cap exemption and WP10c-fix (the content builder re-extracted message bodies from index.qmd, obsolete since WP9c). Two environment notes: the WP10c verifier removed an untracked .posit/assistant/ cache folder that an Rscript run had created (outside its remit; untracked, no tracked file touched) and used PowerShell for read-only git diff calls after the auto-mode classifier blocked plain grep pipelines. WP11 acceptance run started; it doubles as the wave baseline. |
