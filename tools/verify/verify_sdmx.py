@@ -110,15 +110,16 @@ def check_structures(root: Path, rep: Report):
         rep.fail(f"{label}: {type(e).__name__}: {e}")
         return None
     counts = Counter(type(a).__name__ for a in (msg.structures or []))
-    by_class = ", ".join(
-        f"{counts.get(cls, 0)} {noun}{'' if counts.get(cls, 0) == 1 else 's'}"
-        for cls, noun in (("AgencyScheme", "agency scheme"),
-                          ("ConceptScheme", "concept scheme"),
-                          ("Codelist", "codelist")))
+    by_class = ", ".join(f"{n} {_class_noun(cls, n)}"
+                         for cls, n in sorted(counts.items()))
     print(f"{label}: {sum(counts.values())} artefacts read ({by_class})")
-    for name, n in sorted(counts.items()):
-        print(f"  {name}: {n}")
     return msg
+
+
+def _class_noun(cls: str, n: int) -> str:
+    """`DataStructureDefinition`, 2 -> `data structure definitions`."""
+    words = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", cls).lower()
+    return words if n == 1 else words + "s"
 
 
 def check_data(root: Path, rep: Report) -> None:
