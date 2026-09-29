@@ -19,9 +19,9 @@ Maintained by the orchestrator only. One row per work package; states are `todo`
 | WP | Title | Depends on | State | Implementer | Verifier | Commit | Date |
 |---|---|---|---|---|---|---|---|
 | WP0 | Scaffolding | | committed | orchestrator | orchestrator (WP0 check prints OK) | 883ba6b | 2026-09-29 |
-| WP1 | Standard v0.6 draft | WP0 | in progress | opus (162k tokens, over budget; deliverables complete, no split) | sonnet running | | 2026-09-29 |
+| WP1 | Standard v0.6 draft | WP0 | committed | opus (162k tokens, over budget; deliverables complete, no split) | sonnet, PASS 7/7 | a9b1b09 | 2026-09-29 |
 | WP2a | Metadata 0.3.0 inputs (alignment, artefacts, DSD rows) | WP0 | committed | opus (91k tokens) | sonnet, PASS 9/9 (check 6 re-run in corrected form by a second verifier, `bad 0` over 27 URNs) | df94270 | 2026-09-29 |
-| WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | todo | | | | |
+| WP2b | Metadata migration 0.2.0 to 0.3.0 (script, fixture, test) | WP2a | in progress | opus | | | 2026-09-29 |
 | WP5a1 | Vendored SDMX-ML 3.1.0 schemas | WP0 | committed | sonnet (61k tokens) | sonnet, PASS 4/4 | 6af721e | 2026-09-29 |
 | WP2c | Docs generator and DSD readers on the new DSD | WP2b, WP1 | todo | | | | |
 | Gate 1 | Design approval (D38 to D46 as applied) | WP1, WP2c | pending | | | | |
