@@ -7,16 +7,21 @@
 # the metadata structure MSD_AFW360 and metadataflow MDF_AFW360, and the
 # provision agreements PA_AFW360_HH and MPA_AFW360. The message is
 # validated against pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd before it is
-# written. Output is deterministic: the same input gives the same bytes.
+# written. It also writes the four reference-metadata messages of plan 2.7
+# (SDMX-CSV 2.1 metadata messages) to sdmx/metadata/MDS_SURVEYS.csv,
+# MDS_SOURCES.csv, MDS_TEXT.csv and MDS_FIGURES.csv, one metadataset per
+# row of SURVEYS.csv, SOURCES.csv, content/TEXT.csv and FIGURES.csv.
+# Output is deterministic: the same input gives the same bytes.
 #
 # Usage (from the repo root):
-#   Rscript pipeline/build_sdmx.R --root .            # rewrite the message
-#   Rscript pipeline/build_sdmx.R --root . --check    # exit 1 if it is stale
+#   Rscript pipeline/build_sdmx.R --root .            # rewrite the message and metadata
+#   Rscript pipeline/build_sdmx.R --root . --check    # exit 1 if any file is stale
 # Options:
 #   --out-root <dir>    where sdmx/ is written or checked (default: --root)
 #   --timestamp <ts>    header mes:Prepared (default 2026-01-01T00:00:00Z)
 #
-# The work is done in pipeline/R/sdmx_xml.R and pipeline/R/sdmx_structures.R.
+# The work is done in pipeline/R/sdmx_xml.R, pipeline/R/sdmx_structures.R
+# and pipeline/R/sdmx_refmeta.R.
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -30,6 +35,7 @@ root <- normalizePath(root_arg, winslash = "/", mustWork = TRUE)
 source(file.path(root, "pipeline", "R", "io.R"))
 source(file.path(root, "pipeline", "R", "sdmx_xml.R"))
 source(file.path(root, "pipeline", "R", "sdmx_structures.R"))
+source(file.path(root, "pipeline", "R", "sdmx_refmeta.R"))
 
 out_root <- cli_arg(args, "--out-root", root)
 timestamp <- cli_arg(args, "--timestamp", SDMX_DEFAULT_TIMESTAMP)
@@ -45,19 +51,30 @@ if (!isTRUE(ok)) {
   quit(status = 1)
 }
 
+msgs <- sdmx_refmeta_messages(root)
+md_rel <- file.path("sdmx", "metadata", paste0(names(msgs), ".csv"))
+
+same_bytes <- function(a, b) {
+  file.exists(b) &&
+    identical(readBin(a, "raw", file.info(a)$size), readBin(b, "raw", file.info(b)$size))
+}
+
 if (cli_flag(args, "--check")) {
-  tmp <- tempfile(fileext = ".xml")
-  on.exit(unlink(tmp))
-  sdmx_write(doc, tmp)
-  current <- file.exists(target) &&
-    identical(readBin(tmp, "raw", file.info(tmp)$size),
-              readBin(target, "raw", file.info(target)$size))
-  if (current) {
-    cat(sprintf("%s is current\n", rel_path))
-    quit(status = 0)
+  tmp <- tempfile("sdmx_check_")
+  dir.create(tmp)
+  sdmx_write(doc, file.path(tmp, rel_path))
+  sdmx_refmeta_write(msgs, file.path(tmp, "sdmx", "metadata"))
+  stale <- 0
+  for (p in c(rel_path, md_rel)) {
+    if (same_bytes(file.path(tmp, p), file.path(out_root, p))) {
+      cat(sprintf("%s is current\n", p))
+    } else {
+      cat(sprintf("%s is stale or missing; run Rscript pipeline/build_sdmx.R --root .\n", p))
+      stale <- stale + 1
+    }
   }
-  cat(sprintf("%s is stale or missing; run Rscript pipeline/build_sdmx.R --root .\n", rel_path))
-  quit(status = 1)
+  unlink(tmp, recursive = TRUE)
+  quit(status = if (stale == 0) 0 else 1)
 }
 
 sdmx_write(doc, target)
@@ -68,3 +85,7 @@ cat(sprintf(paste("wrote %s (1 agency scheme, 1 concept scheme, %d codelists,",
   rel_path, n_of("str:Codelist"), n_of("str:DataStructure"), n_of("str:Dataflow"),
   n_of("str:MetadataStructure"), n_of("str:Metadataflow"),
   n_of("str:ProvisionAgreement"), n_of("str:MetadataProvisionAgreement")))
+sdmx_refmeta_write(msgs, file.path(out_root, "sdmx", "metadata"))
+for (i in seq_along(msgs)) {
+  cat(sprintf("wrote %s (%d metadatasets)\n", md_rel[i], nrow(msgs[[i]])))
+}
