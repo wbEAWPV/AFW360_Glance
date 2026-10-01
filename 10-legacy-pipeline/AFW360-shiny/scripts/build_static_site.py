@@ -17,8 +17,8 @@ Two things make this more than `shinylive export .`:
 So this stages exactly what the app needs and exports that.
 
 Usage:
-    .venv/Scripts/python.exe scripts/build_static_site.py
-    .venv/Scripts/python.exe scripts/build_static_site.py --serve
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_static_site.py
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_static_site.py --serve
 """
 
 from __future__ import annotations
@@ -30,36 +30,37 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "_shinylive"
+ROOT = Path(__file__).resolve().parent.parent  # AFW360-shiny/
+LEGACY = ROOT.parent  # 10-legacy-pipeline/: the launcher, data_raw/, data_dashboard/
+OUT_DIR = LEGACY / "_shinylive"
 
-# Everything the running app opens, and nothing else.
-FILES = ["app.py", "data.py", "requirements.txt"]
-GLOBS = ["panels_*.py"]
-DIRS = ["geo", "static_data", "data_raw/text", "data_raw/figures"]
-WORKBOOKS = ["data_raw/tables/Tables_SEN.xlsx", "data_raw/tables/Tables_GNB.xlsx"]
+# Everything the running app opens, and nothing else, as paths under LEGACY.
+# The staged copy keeps the same layout, so data.py finds data_raw/ and
+# data_dashboard/ next to AFW360-shiny/ as it does on Connect.
+FILES = [
+    "app.py",
+    "requirements.txt",
+    "AFW360-shiny/dashboard.py",
+    "AFW360-shiny/data.py",
+    "data_raw/tables/Tables_SEN.xlsx",
+    "data_raw/tables/Tables_GNB.xlsx",
+]
+GLOBS = ["AFW360-shiny/panels_*.py"]
+DIRS = ["data_dashboard/geo", "data_dashboard/static_data", "data_raw/text", "data_raw/figures"]
 
 
 def stage(target: Path) -> list[str]:
-    staged: list[str] = []
-    for name in FILES:
-        shutil.copy2(ROOT / name, target / name)
-        staged.append(name)
+    rels = list(FILES)
     for pattern in GLOBS:
-        for path in sorted(ROOT.glob(pattern)):
-            shutil.copy2(path, target / path.name)
-            staged.append(path.name)
-    for name in DIRS:
-        src = ROOT / name
-        if src.exists():
-            shutil.copytree(src, target / name)
-            staged.append(f"{name}/")
-    for rel in WORKBOOKS:
-        src = ROOT / rel
-        if src.exists():
-            (target / Path(rel).parent).mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, target / rel)
-            staged.append(rel)
+        rels += sorted(p.relative_to(LEGACY).as_posix() for p in LEGACY.glob(pattern))
+    staged: list[str] = []
+    for rel in rels:
+        (target / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(LEGACY / rel, target / rel)
+        staged.append(rel)
+    for rel in DIRS:
+        shutil.copytree(LEGACY / rel, target / rel)
+        staged.append(f"{rel}/")
     return staged
 
 
@@ -68,7 +69,7 @@ def main() -> int:
     parser.add_argument("--serve", action="store_true", help="serve the build after export")
     args = parser.parse_args()
 
-    if not (ROOT / "static_data" / "manifest.json").exists():
+    if not (LEGACY / "data_dashboard" / "static_data" / "manifest.json").exists():
         raise SystemExit(
             "static_data/ is missing. Run scripts/build_static_data.py first - "
             "Shinylive cannot read the .xlsx workbooks."
@@ -96,17 +97,17 @@ def main() -> int:
             "import sys; from shinylive._main import main; "
             f"sys.argv = ['shinylive', 'export', {str(target)!r}, {str(OUT_DIR)!r}]; main()"
         )
-        result = subprocess.run([sys.executable, "-c", code], cwd=ROOT)
+        result = subprocess.run([sys.executable, "-c", code], cwd=LEGACY)
         if result.returncode != 0:
             return result.returncode
 
     total = sum(f.stat().st_size for f in OUT_DIR.rglob("*") if f.is_file())
-    print(f"\nexported to {OUT_DIR.relative_to(ROOT)}  ({total / 1e6:.1f} MB)")
+    print(f"\nexported to {OUT_DIR.relative_to(LEGACY)}  ({total / 1e6:.1f} MB)")
     print("The export must be served over HTTP; opening index.html from disk will not work.")
     if args.serve:
         subprocess.run(
             [sys.executable, "-m", "http.server", "8008", "--directory", str(OUT_DIR)],
-            cwd=ROOT,
+            cwd=LEGACY,
         )
     return 0
 

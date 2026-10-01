@@ -21,7 +21,6 @@ Three things in here exist to fix a verified defect in the Quarto page:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -105,7 +104,7 @@ MESSAGES_MISSING = (
 # Geometry -- loaded once at import, not once per render (both files are <45 KB)
 # --------------------------------------------------------------------------
 
-_GEO_DIR = Path(__file__).parent / "geo"
+_GEO_DIR = data.GEO_DIR
 
 
 def _load_geojson() -> dict[str, dict]:
@@ -276,7 +275,7 @@ def panel():
                 min_height="460px",
             ),
             # The page is taller than one viewport. Scrolling here keeps it
-            # readable whether or not app.py marks this panel `fillable`.
+            # readable whether or not dashboard.py marks this panel `fillable`.
             class_="d-flex flex-column gap-3 overflow-auto",
         ),
     )
@@ -288,7 +287,7 @@ def panel():
 
 
 def server(input, output, session, shared) -> None:
-    """Register the Overview outputs. Called once from app.py's server()."""
+    """Register the Overview outputs. Called once from dashboard.py's server()."""
 
     # ---- one shared derivation, read by every renderer on the page ----------
 

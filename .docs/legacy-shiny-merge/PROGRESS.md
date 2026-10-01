@@ -232,3 +232,66 @@ For the user to decide or do:
 
 Untouched working-tree changes that are not mine: `.docs/10-full-pipeline.qmd` (modified) and
 `.docs/15-legacy-verification.qmd` (new, untracked).
+
+WP8 commit: `498f15d`.
+
+## Phase 2. Restructure of `10-legacy-pipeline/` (2026-10-01, user request after WP8)
+
+User decisions: the Quarto dashboard goes in `AFW360/`, the Shiny app in `AFW360-shiny/`,
+the launcher stays at the top; the files built for the dashboards go in a sibling
+`data_dashboard/` (not inside the frozen `data_raw/`); the harmonised data stays at the
+repository root; Claude deploys with rsconnect.
+
+New layout:
+
+```
+10-legacy-pipeline/
+  README.md  app.py  requirements.txt  .python-version  .posit/
+  AFW360/          index.qmd  _quarto.yml  requirements.txt  README.md  afw360/ (loader, tests)
+  AFW360-shiny/    dashboard.py (was app.py)  data.py  panels_*.py  scripts/  tests/
+                   requirements-dev.txt  DEPLOY.md
+  data_dashboard/  content/  assets/  geo/  static_data/  README.md
+  data_raw/        unchanged
+```
+
+- Case clash: on Windows `AFW360/` and the package `afw360/` are the same folder; the first
+  `git mv` put the Quarto files into `afw360/`. Fixed by moving the package out, renaming
+  the folder, and nesting the package as `AFW360/afw360/`.
+- The Shiny `app.py` became `AFW360-shiny/dashboard.py`; the top-level `app.py` adds
+  `AFW360-shiny/` to `sys.path` and imports `app` from it. Connect and `shiny run` use it,
+  and so do the tests (`test_app.py` `APP` points at it).
+- Path changes: `data.py` (`LEGACY`, `DATA_RAW = LEGACY/"data_raw"`, `DASHBOARD_DATA`,
+  `GEO_DIR`, `_STATIC_DIR`); `panels_geography.py` and `panels_overview.py` use
+  `data.GEO_DIR` (the overview one was missed at first: the test
+  `test_guinea_bissau_gets_its_own_region_map` caught "14 of 0 regions"); the three scripts;
+  `build_static_site.py` stages the new layout; `requirements-dev.txt` includes
+  `-r ../requirements.txt`; `loader.py` gains `DASHBOARD_DATA`, and `ROOT` is now
+  `DASHBOARD.parent.parent`; `index.qmd` embeds the fiscal-equity PNG as a data URI, because it
+  is now outside the Quarto project and would not be copied into `_site/`.
+- Publisher configuration: `files` updated for the new paths (13 entries, 29 files).
+- One venv for both dashboards: `10-legacy-pipeline/.venv` now also has
+  `AFW360/requirements.txt` installed; `pip check` clean.
+- Docs: new `README.md` (plain-language, copy-paste launch blocks for PowerShell and Git
+  Bash, structure, requirements files), `AFW360/README.md`, `data_dashboard/README.md`;
+  `AFW360-shiny/DEPLOY.md` rewritten; root `CLAUDE.md` layout updated.
+- Removed local, gitignored leftovers of the old layout: `_site/`, `site_libs/`,
+  `.pytest_cache/`, `__pycache__/`. Not removed: `10-legacy-pipeline/.quarto/`, held open by a
+  Quarto preview the user runs in Positron (PID 5152, port 4848); excluded from the rsconnect
+  bundle.
+
+Checks:
+
+| Check | Result |
+|---|---|
+| App tests, `.venv` (`AFW360-shiny/tests`) | 86 passed (after the overview fix; 85 + 1 failure before) |
+| Loader tests (`AFW360/afw360/tests`) | 13 passed |
+| `build_static_data.py --check`, `build_geojson.py --check` | 7/7 sheets; SEN and GNB PASS |
+| `python -m shiny run app.py` from `10-legacy-pipeline/` | `GET /` 200, no tracebacks |
+| Copy holding only the Publisher `files` | 29 files; Excel, about text, figure, both maps found; `GET /` 200 |
+| rsconnect `write-manifest` with the DEPLOY.md excludes | 30 files (Publisher list + `.python-version`), Python 3.11.9 |
+| `quarto render` in `AFW360/` inside the repository | page complete (3 sections, 14 tables, 4 maps, figure), then the known `site_libs` "os error 32" |
+| `quarto render` in a copy outside the repository | exit 0, same content |
+| README blocks, PowerShell, fresh copy with system Python 3.13.7 and no venv | Shiny: install OK, `GET /` 200. Quarto: install OK, render exit 0, 14 tables |
+
+The first fresh-copy attempt failed with `WinError 206` (path too long) because the scratch path
+was very deep; at a short path it passed. The repository's own path is short enough.

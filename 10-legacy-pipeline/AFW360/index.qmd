@@ -218,7 +218,10 @@ def fiscal_cards(iso3):
             body = "_No fiscal-equity figure is available for this country yet._"
         else:
             fig_row = figures.iloc[0]
-            fig_src = Path(fig_row["path"]).relative_to(loader.DASHBOARD).as_posix()
+            # The figure lives in data_dashboard/, outside this Quarto project, so it is
+            # embedded in the page rather than linked.
+            fig_b64 = base64.b64encode(Path(fig_row["path"]).read_bytes()).decode("ascii")
+            fig_src = f"data:image/png;base64,{fig_b64}"
             body = (
                 f"![]({fig_src}){{width=100% fig-alt=\"{fig_row['alt_text_en']}\"}}\n"
                 f"_Note: The figure shows the {kind} incidence of taxes, transfers, and subsidies "

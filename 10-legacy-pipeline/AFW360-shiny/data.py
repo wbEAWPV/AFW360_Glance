@@ -42,11 +42,15 @@ import pandas as pd
 # --------------------------------------------------------------------------
 
 ROOT = Path(__file__).parent  # never cwd-relative: Connect and `shiny run` differ
-# The frozen legacy inputs, shared with the Quarto dashboard next door. Read only.
-DATA_RAW = ROOT / "data_raw"
+LEGACY = ROOT.parent  # 10-legacy-pipeline/
+# The frozen legacy inputs, shared with the Quarto dashboard. Read only.
+DATA_RAW = LEGACY / "data_raw"
 TABLES_DIR = DATA_RAW / "tables"
 TEXT_DIR = DATA_RAW / "text"
 FIGURES_DIR = DATA_RAW / "figures"
+# Files built for the dashboards (maps, CSV mirror), next to data_raw/.
+DASHBOARD_DATA = LEGACY / "data_dashboard"
+GEO_DIR = DASHBOARD_DATA / "geo"
 
 EMPTY_DISPLAY = "–"  # en dash -- shown for every missing / non-numeric cell
 
@@ -69,7 +73,7 @@ _WORKBOOK_FILES: dict[str, Path] = {
     "GNB": TABLES_DIR / "Tables_GNB.xlsx",
 }
 
-_STATIC_DIR = ROOT / "static_data"  # CSV mirror, built by scripts/build_static_data.py
+_STATIC_DIR = DASHBOARD_DATA / "static_data"  # CSV mirror, built by scripts/build_static_data.py
 
 
 def _load_from_excel() -> dict[str, dict[str, pd.DataFrame]]:
@@ -586,7 +590,7 @@ def region_labels(iso3: str) -> dict[str, str]:
     this, the same region read `DAKAR` on Explore and `Dakar` on Geography, and
     the capital was `SAB` on one page and `Bissau` on the other.
     """
-    path = ROOT / "geo" / f"adm1_{iso3.lower()}.json"
+    path = GEO_DIR / f"adm1_{iso3.lower()}.json"
     geo: dict[str, str] = {}
     if path.exists():
         features = json.loads(path.read_text(encoding="utf-8"))["features"]

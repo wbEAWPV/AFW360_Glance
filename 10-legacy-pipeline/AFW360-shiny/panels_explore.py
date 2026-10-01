@@ -36,7 +36,7 @@ PREFIX = "ex"
 
 # One accent plus neutrals (skill: dashboard-design). The amber is reserved for
 # values the data note says are not trustworthy -- it is meaning, not decoration.
-# The theme primary (app.py's ui.Theme). Was an unrelated blue, which read as
+# The theme primary (dashboard.py's ui.Theme). Was an unrelated blue, which read as
 # a second accent system next to the navbar and buttons.
 ACCENT = "#1F4E78"
 FLAG_ACCENT = "#c77700"

@@ -11,12 +11,12 @@ into `requirements.txt`. They are not installed on Posit Connect and never will 
 Keeping them out is the whole point of pre-converting, and it is what makes a static
 Shinylive build possible. See .docs/shiny-port-plan.md section 6.
 
-Usage (from the repo root, with the project venv)::
+Usage (from 10-legacy-pipeline/, with its venv)::
 
-    .venv/Scripts/python.exe scripts/build_geojson.py            # build, then verify
-    .venv/Scripts/python.exe scripts/build_geojson.py --check    # verify only, no writes
-    .venv/Scripts/python.exe scripts/build_geojson.py --country GNB
-    .venv/Scripts/python.exe scripts/build_geojson.py --tolerance 750
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_geojson.py            # build, then verify
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_geojson.py --check    # verify only, no writes
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_geojson.py --country GNB
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_geojson.py --tolerance 750
 
 `--check` needs only pandas + openpyxl (no geopandas), so the join can be re-verified
 anywhere. Building is idempotent: the output is canonicalised and sorted, so a re-run
@@ -38,9 +38,9 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SHP_DIR = ROOT / "data_raw" / "shp"
-TABLE_DIR = ROOT / "data_raw" / "tables"
-GEO_DIR = ROOT / "geo"
+SHP_DIR = ROOT.parent / "data_raw" / "shp"
+TABLE_DIR = ROOT.parent / "data_raw" / "tables"
+GEO_DIR = ROOT.parent / "data_dashboard" / "geo"
 
 # Keep the console from dying on Bafatá / Gabú / Kédougou under cp1252.
 for _stream in (sys.stdout, sys.stderr):
@@ -469,7 +469,7 @@ def check_country(iso3: str, normalise) -> bool:
     cfg = COUNTRIES[iso3]
     path = cfg["output"]
     ok = True
-    print(f"\n--- {iso3} ({cfg['name']}) -> {path.relative_to(ROOT)}")
+    print(f"\n--- {iso3} ({cfg['name']}) -> {path.relative_to(ROOT.parent)}")
 
     if not path.exists():
         print(f"    FAIL  file does not exist: {path}")

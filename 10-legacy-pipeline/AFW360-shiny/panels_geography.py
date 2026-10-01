@@ -54,7 +54,7 @@ PREFIX = "ge"
 # renderer: every session and every re-render would otherwise re-parse them.
 _GEOJSON: dict[str, dict] = {
     iso3: json.loads(
-        (data.ROOT / "geo" / f"adm1_{iso3.lower()}.json").read_text(encoding="utf-8")
+        (data.GEO_DIR / f"adm1_{iso3.lower()}.json").read_text(encoding="utf-8")
     )
     for iso3 in data.COUNTRIES
 }

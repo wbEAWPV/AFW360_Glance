@@ -15,8 +15,8 @@ the static export (CSV, generated). The CSVs are a build product of the workbook
 must never be hand-edited; regenerate them instead.
 
 Usage:
-    .venv/Scripts/python.exe scripts/build_static_data.py
-    .venv/Scripts/python.exe scripts/build_static_data.py --check
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_static_data.py
+    .venv/Scripts/python.exe AFW360-shiny/scripts/build_static_data.py --check
 """
 
 from __future__ import annotations
@@ -29,8 +29,8 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-WORKBOOK_DIR = ROOT / "data_raw" / "tables"
-OUT_DIR = ROOT / "static_data"
+WORKBOOK_DIR = ROOT.parent / "data_raw" / "tables"
+OUT_DIR = ROOT.parent / "data_dashboard" / "static_data"
 COUNTRIES = {"SEN": "Tables_SEN.xlsx", "GNB": "Tables_GNB.xlsx"}
 
 

@@ -34,11 +34,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import data  # noqa: E402
 
-APP = Path(__file__).resolve().parents[1] / "app.py"
+# The launcher at 10-legacy-pipeline/app.py, which Connect runs; it imports dashboard.py.
+APP = Path(__file__).resolve().parents[2] / "app.py"
 
 RATE_420 = data.POVERTY_LINES["420"].rate_indicator
 
-# The five nav values, exactly as `ui.nav_panel()` registers them in app.py.
+# The five nav values, exactly as `ui.nav_panel()` registers them in dashboard.py.
 PAGES = ("Overview", "Profile", "Geography", "Explore", "About")
 
 # A headless session sends no initial input values at all -- not the sidebar's
