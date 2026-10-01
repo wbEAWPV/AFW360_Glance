@@ -61,3 +61,19 @@ WP0 commit: `43b25d0`.
     and 30,060 bytes, the same size as the committed blobs, and JSON-equal to them; the
     working-copy files differ only by the CRLF that `core.autocrlf` adds on checkout. `geo/`
     not regenerated. `data_raw/` untouched (`git status` shows nothing under it).
+
+WP2 commit: `40042ca`.
+
+## WP3. App environment and tests (2026-10-01)
+
+- Deviation from D6: `..\.venv\Scripts\python.exe -m uv venv` fails here with
+  `OSError: [WinError 4551] An Application Control policy has blocked this file`
+  (`python -m uv` only locates and spawns `uv.exe`, which the policy blocks). Fallback used:
+  the stdlib `venv` module of the same uv-managed interpreter that the root `.venv` is based on
+  (`%APPDATA%\uv\python\cpython-3.11.9-windows-x86_64-none\python.exe -m venv .venv`), then
+  `.venv\Scripts\python.exe -m pip install -r requirements-dev.txt`. Result: Python 3.11.9,
+  shiny 1.8.0, pandas 3.0.6, plotly 7.1.0, rsconnect-python installed. `.venv/` is gitignored.
+- `.venv\Scripts\python.exe -m pytest tests -q` (app venv): **86 passed**, 2 warnings
+  (shinywidgets `Widget.widgets is deprecated`), 169 s. No fixes were needed.
+- `..\.venv\Scripts\python.exe -m pytest afw360/tests -q` (root venv): **13 passed**.
+- No commit for code in this WP; this log entry is committed on its own.
