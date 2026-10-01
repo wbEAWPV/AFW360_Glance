@@ -14,6 +14,7 @@ project:
   render:
     - data-standard.qmd           # -> index.html (set in its own front matter)
     - 10-full-pipeline.qmd        # high-level map of the pipeline, step 0 to step 4
+    - 15-legacy-verification.qmd  # step 0: the legacy dashboard as a reference
     - input-tables-findings.qmd   # -> Appendix A
     - transition.qmd              # -> Appendix B
     - sdmx-conformance.qmd        # SDMX conformance checklist with evidence
@@ -30,6 +31,8 @@ website:
         text: "Standard"
       - href: 10-full-pipeline.qmd
         text: "Pipeline"
+      - href: 15-legacy-verification.qmd
+        text: "Step 0 · Legacy"
       - href: input-tables-findings.qmd
         text: "Appendix A · Input tables"
       - href: transition.qmd

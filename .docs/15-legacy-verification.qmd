@@ -1,0 +1,70 @@
+---
+title: "Step 0: The legacy dashboard as a reference"
+subtitle: "Getting the original dashboard working again, unchanged"
+author: "Eduard Bukin"
+date: 2026-10-01
+format:
+  html:
+    toc: true
+    toc-location: left
+---
+
+# Where we started
+
+- The project began as a loose set of files at the top level of the project:
+  Excel tables with the poverty figures for each country, map files, short text
+  files (the "About" text and the key messages), one picture (Senegal's
+  fiscal-equity chart), and one web page that turned all of this into a
+  dashboard.
+- These files sat in folders named "INPUT Tables", "INPUT shp", "INPUT Text"
+  and "INPUT Figures". Test copies and stray files were mixed in with them.
+
+# What we did
+
+1. **We moved everything old into one folder, `10-legacy-pipeline/`.** All the
+   original files now live in one place, apart from the new work. Nothing
+   inside the files was changed.
+2. **We locked the original data.** The Excel tables, maps, texts and picture
+   are in a subfolder called `data_raw/`. A "fingerprint" of every file is
+   stored next to them, so anyone can check that not a single byte has
+   changed. The stray test files sit in a separate corner that nothing uses.
+3. **We brought in the working online dashboard.** A colleague had already
+   rebuilt the dashboard as an interactive web app. We copied it into the same
+   folder and pointed it at the locked original data.
+4. **We checked that it works.** The app's automatic checks all pass, it opens
+   correctly on a test computer, and the older static web page still builds
+   next to it.
+5. **We set it up to publish to the World Bank's internal web server (Posit
+   Connect).** It sends only the files the app needs and leaves behind the
+   large map files and the test files.
+
+# Why this matters
+
+We now have a working, unchanged copy of the original dashboard. Each later
+step can be compared against it.
+
+# Limitations
+
+- **The original data contain many errors and inaccuracies** (see
+  [Appendix A](input-tables-findings.qmd)). For example:
+  - In Guinea-Bissau, the column labelled "Capital" holds the figures of a
+    different zone, not Bissau, so the capital appears far poorer than it is.
+  - In Guinea-Bissau, cultivated land is reported in the millions of hectares
+    for some groups, which is impossible.
+  - Some indicators are empty, show the same value everywhere, or repeat
+    others.
+  - Senegal's file includes an older regional table that disagrees with the
+    main one and contains impossible values.
+- **So the dashboard should not be used for real analysis or decisions as it
+  is.** We keep it only as a record of what existed and as a point of
+  comparison.
+- **We keep the data exactly as received, errors included.** We do not fix
+  them in the original files. Many of these problems are likely to show up,
+  and be properly fixed, once the new pipeline works and the figures are
+  rebuilt from the underlying survey data.
+
+# Links
+
+- Live app (World Bank network or VPN needed):
+  <https://datanalytics-int.worldbank.org/AFW360-v1/>
+- How to run and republish it: `10-legacy-pipeline/DEPLOY.md`

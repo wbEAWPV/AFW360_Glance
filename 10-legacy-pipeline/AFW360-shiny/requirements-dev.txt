@@ -1,0 +1,6 @@
+# Development-only dependencies. Never deployed to Connect.
+-r ../requirements.txt
+pytest==9.1.1
+geopandas==1.1.4   # scripts/build_geojson.py only; run offline, output committed
+rsconnect-python==1.31.1
+shinylive==0.8.12   # scripts/build_static_site.py only; static GitHub Pages export
