@@ -7,26 +7,27 @@ entrypoint = "app.py"
 title = "AFW360_Glance"
 files = [
     "/app.py",
+    "/data.py",
+    "/panels_about.py",
+    "/panels_explore.py",
+    "/panels_geography.py",
+    "/panels_overview.py",
+    "/panels_profile.py",
     "/requirements.txt",
+    "/geo",
+    "/static_data",
+    "/data_raw/tables/Tables_SEN.xlsx",
+    "/data_raw/tables/Tables_GNB.xlsx",
+    "/data_raw/text",
+    "/data_raw/figures",
     "/.posit/publish/AFW360_Glance-7O1V.toml",
     "/.posit/publish/deployments/deployment-OA6V.toml",
-    "/requirements-dev.txt",
-    "/panels_overview.py",
-    "/panels_geography.py",
-    "/panels_explore.py",
-    "/panels_about.py",
-    "/panels_profile.py",
-    "/INPUT Text",
-    "/INPUT Tables",
-    "/INPUT shp",
-    "/INPUT Figures",
-    "/index.qmd",
-    "/geo",
-    "/data.py",
-    "/static_data",
-    "/scripts",
 ]
 validate = true
 product_type = "connect"
 
 [python]
+version = "3.11.9"
+package_file = "requirements.txt"
+package_manager = "auto"
+requires_python = "~=3.11.0"

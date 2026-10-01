@@ -93,3 +93,35 @@ WP3 commit: `8fc77ee`.
   `test_the_about_text_renders_and_is_not_senegals_for_guinea_bissau` (reads
   `data_raw/text/`) and `test_sweep_every_country_line_breakdown_and_geography_renders`.
   The user should still click through the five pages for SEN and GNB once.
+
+WP4 commit: `b5820b0`.
+
+## WP5. Connect configuration (2026-10-01)
+
+- Read the Publisher v3 schema (`posit-publishing-schema-v3.json`) and
+  `docs/configuration.md`: `files` takes project-relative, `.gitignore`-syntax patterns; a
+  leading `/` anchors to the project folder; a directory includes its contents. `[python]`
+  keys: `version`, `package_file`, `package_manager`, `requires_python`.
+- `.posit/publish/AFW360_Glance-7O1V.toml` rewritten as D4 says: the 16 runtime entries, and
+  `[python]` `version = "3.11.9"`, `package_file = "requirements.txt"`,
+  `package_manager = "auto"`, `requires_python = "~=3.11.0"`. `type`, `entrypoint`, `title`,
+  `validate`, `product_type`, `$schema` and the header comments unchanged; CRLF kept.
+  Removed from the list: `/requirements-dev.txt`, `/INPUT *` (4), `/index.qmd`, `/scripts`.
+  The deployment record `deployment-OA6V.toml` is not edited (it still shows the old file list
+  and `version = "3.13.7"`; Publisher rewrites it on the next deploy).
+- Note: the v3 schema's `package_manager` enum lists pip/conda/pipenv/poetry/none (the docs
+  say pip/uv/none); `"auto"` is in neither, but Publisher 2.13.9 wrote it into the record's
+  `[configuration.python]`, so it was kept as the plan says. If Publisher flags it, change it
+  to `"pip"` or delete the line.
+- Bundle check, in a scratch copy outside the repository with only the 16 `files` entries
+  (28 files, 567 KB):
+  - `python -c "from rsconnect.main import cli; cli()" write-manifest shiny <copy> --overwrite`:
+    exit 0, `appmode = python-shiny`, entrypoint `app`, Python 3.11.9, the same 28 files.
+    Warning "Python version constraint missing from pyproject.toml, setup.cfg or
+    .python-version" (`.python-version` is not in the bundle; Publisher sends the version from
+    `[python]`, so this concerns only the rsconnect command line).
+  - In the copy, `data.py` sees both workbooks (Excel, not the CSV fallback), `about_text("SEN")`
+    is 1,533 characters, the fiscal figure exists.
+  - `python -m shiny run app.py --port 8766` in the copy: `GET /` **200**, no tracebacks.
+  - Extra: the app's 86 tests, copied into the scratch copy only, **pass** against it.
+  - Scratch copy deleted.
