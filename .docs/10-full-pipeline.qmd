@@ -1,6 +1,6 @@
 ---
-title: "Africa West 360: The full data pipeline"
-subtitle: "From raw survey data to the dashboard, the API and the MCP server: Why and how?"
+title: "Africa West 360: High-level overview"
+subtitle: "From raw survey data to the dashboards, APIs and the MCP server: Why and how?"
 author: "Eduard Bukin"
 date: 2026-09-30
 format:
@@ -12,199 +12,177 @@ format:
 # Introduction
 
 This page is the map of the whole (ideal) process of data transformation for
-Africa West 360 (AFWA360) project,=. The goal of AFW360 is to operationalize
-microdata for its daily use by country economists and analysts through:
+the Africa West 360 (AFW360) project. The goal of AFW360 is to operationalize
+microdata for daily use by country economists and analysts through:
 
 1. enabling access to the raw microdata as is using an API.
-2. harmonizing microdata with clear harmonisation guidelines and data provenance and  enabling API-based access to it.
-3. creating a reproducible pipeline of indicators creation from the harmonized microdata and enabling acces to those through an API.
-4. making indicators operational for human and AI through a dashboard, data access MCP server, and AI chats.
+2. harmonizing microdata with clear harmonization guidelines and data provenance and enabling API-based access to it.
+3. creating a reproducible pipeline of indicators creation from the harmonized microdata and enabling access to those through an API.
+4. making indicators operational for humans and AI through a dashboard, a data access MCP server, and AI chats.
 
-This is a concept idea with a few developments to proof the concept.
+This is a concept note with a few prototypes to prove the concept.
 
 
 ## Where we have started
 
-Our prior is a set of Excel files produced from the raw data. It gives an
-overview of a fragment of the pipeline as well as initial version of the
+Our starting point is a set of Excel files produced from the raw data. It gives an
+overview of a fragment of the pipeline as well as the initial version of the
 dashboard developed by Moritz Meyer and published here: <https://datanalytics-int.worldbank.org/AFW360-v1/>
 (requires VPN to access). Original data and dashboard code are located in the
-folder `10-legacy-pipeline/`.
+folder `10-legacy-pipeline/`. @fig-legacy-pipeline shows how they connect.
 
-[Legacy Pipeline](figures/legacy-pipeline.svg){#fig-legacy-pipeline}
+![Legacy Pipeline](figures/legacy-pipeline.svg){#fig-legacy-pipeline}
 
 ## Where are we going
 
 Our goal is to create a sustainable data transformation pipeline, where data
-provenance is transparent and produced indicators are machine and human
-accessible and could be operationalized in the future as:
+provenance is transparent and the produced indicators are accessible to machines
+and humans and could be operationalized in the future as:
 
-(1) statistical data
-(2) API
-(3) MCP server for search and extractions by the AI,
-(4) basis for ai-processing and building stories based on the data.
+1. statistical data,
+2. an API,
+3. an MCP server for search and extraction by AI,
+4. a basis for AI processing and for building stories based on the data.
 
-The figure below shows the ideal pipeline: a medallion-style transformation flow,
-also known as ETL (extract, transform, load). Proposed pipeline is designed to
-be modular, consisting of Bronze, Silver and Gold stages.
+@fig-ideal-pipeline shows the ideal pipeline: a medallion-style (Bronze, Silver,
+Gold) ETL (extract, transform, load) pipeline. It is designed to be modular, with
+each stage building on the previous one.
 
-[Ideal Pipeline](figures/ideal-pipeline.svg){#fig-ideal-pipeline}
+![Ideal Pipeline](figures/ideal-pipeline.svg){#fig-ideal-pipeline}
 
 **Bronze.** Raw microdata ingestion and operationalization through an
-API-like sustainable access interface. WB has a choice of systems that come
-with own strengths and limitations. The following are the main known to me:
+API-like sustainable access interface. The World Bank (WB) has several systems
+for this, each with its own strengths and limitations. The main ones are:
 
-- Development Data Hub: <https://datacatalog.worldbank.org/>. I beliese the
-  that this is a best alternative out of the available because it permits hosting
-  data in individual files wihtou need of deep standardisation, access to the data
-  through the streamable APIs and direct integration into the data bricks and other
-  data storage platforms. It is a recommended way of data publication for the analysis
-  recommended by the [WB reproducibility team](https://worldbank.github.io/wb-reproducible-research-repository/guidance_note_wb.html).
+- **Development Data Hub**: <https://datacatalog.worldbank.org/>. This appears to
+  be the best of the available options. It permits hosting data in individual
+  files without the need for deep standardization, gives access to the data
+  through streamable APIs and integrates directly with Databricks and other data
+  storage platforms. It is the way of publishing data for analysis recommended
+  by the [WB reproducibility team](https://worldbank.github.io/wb-reproducible-research-repository/guidance_note_wb.html).
 
-- World Bank Micro Data Library: <https://microdatalib.worldbank.org/index.php/home>
-  This is another alternative that is used to dissseminte micro data. The key
-  limitaitons of the system is that it requires an exaustive prepareaiont of the
-  metadta and data itself that brings additional costs, therefore its completness
-  patchy, while data is ofen available as incomplete data set.
+- **World Bank Microdata Library**: <https://microdatalib.worldbank.org/index.php/home>.
+  This is another option used to disseminate microdata. Its key limitation is
+  that it requires exhaustive preparation of the data and metadata, which is
+  costly. As a result, its coverage is patchy, and data are often available
+  only as incomplete data sets.
 
-- DatLibWeb: <https://datalibweb2.worldbank.org/home>
-  Stata native system design for GMD data hosting and deployment. I find it
-  oversestrictive and outdated in the way how data is being served to the users,
-  although it benefirts form the granular access controle.
+- **Datalibweb**: <https://datalibweb2.worldbank.org/home>. A Stata-native system
+  designed for hosting and serving the Global Monitoring Database (GMD). It
+  benefits from granular access control, but the way it serves data to users is
+  restrictive and is harder to use outside Stata.
 
 
 **Silver.** Harmonization of microdata into a common format, with clear
 documentation of the harmonization decisions and a reproducible data pipeline.
 This stage establishes a shared harmonization standard across countries and
 regions and enables API-based dissemination of the harmonized data. As a
-dissemination platform a Development Data Hub cpould be used again, or one could
-choose the World Bank Micro Data Library to share this harmonized data with a
-standard documentaion in the same way as global labour database is being shared.
+dissemination platform, the Development Data Hub could be used again, or the
+World Bank Microdata Library could share the harmonized data with standard
+documentation, in the same way as the Global Labor Database (GLD) is shared:
 <https://microdatalib.worldbank.org/index.php/catalog/GLD/>
 
 **Gold.** Production of indicators in a standard SDMX format in a fully
-reproducible manner that enable data access to the final users.
+reproducible manner that enables data access for the final users.
 
-There are few concepts here worth exploring:
+There are a few concepts here worth exploring:
 
-1. `SDMX` is a standard for [statistical data and metadata exchange](https://sdmx.org/). It is a
-  widely used standard in the international statistical community, and it is
-  supported by many statistical software packages and  visualization tools.
-  It is a standard behind WDI, OECD Stats, Data 360 and other data
-  dissemination platforms. It is important because it enables a transparent
-  and reproducible data provenance as well as clear communicaiton of the
-  computed indicators and data.
+1. **SDMX** (Statistical Data and Metadata eXchange): a standard for
+   [statistical data and metadata exchange](https://sdmx.org/). It is widely
+   used in the international statistical community and supported by many
+   statistical software packages and visualization tools. It is the standard
+   behind WDI, OECD Stats, Data 360 and other data dissemination platforms. It
+   matters because it makes data provenance transparent and reproducible and
+   communicates clearly what the computed indicators and data are.
 
-2. Access to the SDMX data by analyst is simple. Each country, surevey, year
-   is reprsented as a single CSV file, with supporting metadata. Users
-   simply load it into their statistical software and start working with it.
-   These files could be hosted on the Micro Data Library or Development Data Hub.
+2. **SDMX data files**: access to SDMX data is simple for analysts. Each
+   country, survey and year is represented as a single CSV file with supporting
+   metadata. Users load it into their statistical software and start working
+   with it. These files could be hosted on the Microdata Library or the
+   Development Data Hub.
 
-3. `API` is a goldern standrad to access SDMX-based data because it establishes
-   a standard interface for data reading and loading for any user: huma,
-   statistical software, etc. Example of such API is data360 API
+3. **API**: an API is the standard way to access SDMX-based data because it
+   gives every user (people, statistical software and so on) the same interface
+   for reading and loading data. One example is the Data 360 API
    <https://data360.worldbank.org/en/int/api>. Type
    <https://data360api.worldbank.org/data360/indicators?datasetId=WB_WDI> in the
    browser and you will get the full list of indicators available in the WDI database.
 
-4. `MCP Server` this is a new development in the age of AI. It is a piece of
-   software that local or remote AI agent have to communicate and extract data
-   from the API. It is essentially needed to connect any AI agent to the
-   data and metadata. In data 306 is it introduced here:
-   <https://worldbank.github.io/data360-mcp/> and used across AI agents.
-   It is open source and could potentially be adopted at low cost.
-   The pover of the MCP servers is in the fact that they could be integrated
-   into `mAI` or `k360` chats enabling data exploration augmented by
-   the access to the WB knowladge and internal documentation.
+4. **MCP server** (Model Context Protocol server): software that lets local or
+   remote AI agents communicate with the API and extract data from it. It is
+   what connects any AI agent to the data and metadata. Data 360 introduces its
+   MCP server here: <https://worldbank.github.io/data360-mcp/>, and it is used
+   across AI agents. It is open source and could be adopted at low cost.
+   MCP servers are powerful because they can be integrated into the World Bank's
+   internal AI chats, mAI and k360, enabling data exploration augmented by
+   access to WB knowledge and internal documentation.
 
-5. `AI Chat` this is probably a final stage of the process, which is in
-   operationalizing ai to give answers to a development quesiton based on the
-   data and metadata available for the region in the SDMX format.
-   One prototype is the <https://data360.worldbank.org/en/int/chat>, Anotehr
-   is <https://k360.worldbankgroup.org/>.  Both use a set of `MCP servers` to
-   access relevant information and leverage AI's capability to restructure the
-   questions (prompt engeneering) in order to get the most relevant data and
-   relevantly strucure anser
+5. **AI chat**: probably the final stage of the process. It operationalizes AI
+   to answer development questions based on the data and metadata available for
+   the region in SDMX format. One prototype is
+   <https://data360.worldbank.org/en/int/chat>; another is
+   <https://k360.worldbankgroup.org/> (requires VPN to access). Both use a set
+   of MCP servers to access relevant information. They use AI to rephrase the
+   questions (prompt engineering) so that they retrieve the most relevant data
+   and structure the answers well.
 
-6. `Dashboards` are the human-oriented interface to the data. Having data
+6. **Dashboards**: the human-oriented interface to the data. Having data
    structured as an SDMX database with an API enables any dashboard to be built
-   on top of it and deployed through the useful chanels, e.g. PowerBI, Tableau,
-   R Shiny, etc.
+   on top of it and deployed through channels such as Power BI, Tableau and
+   R Shiny.
 
-7. `Supporting knowladge`. This is a key element to a successful and relevant
-   data pipeline. In order for AI to give relevant answers to the development
-   questions that is supported by the data, it needs to know how to reason.
-   This is wehere it is imporatnat to create a hiierarcy of supporting knowladge,
-   including the development questions, the data and metadata, that will give AI
-   correct references and templates for reasoning and exploring the data as well as
-   template for populating the answer. This knowladge essentially meanst
-   plain text data, which is structured and organized in a way that AI can use it:
-   e.g. AI Skills.
+7. **Supporting knowledge**: a key element of a successful and relevant data
+   pipeline. For AI to give relevant, data-supported answers to development
+   questions, it needs to know how to reason. This is why a hierarchy of
+   supporting knowledge is important: the development questions, the data and
+   the metadata. It gives AI correct references and templates for reasoning,
+   for exploring the data and for writing the answer. In practice, this
+   knowledge is structured plain text organized so that AI can use it, e.g.
+   AI Skills.
 
 
 This pipeline could be implemented in any statistical software, but its
-advantage comes forward with implementation in a scalable working environment,
-e.g. Databricks. We could also borrow best practices of its implementaion
-from the Global Labour Database (GLD).
+advantages show most in a scalable working environment such as Databricks.
+We could also borrow implementation best practices from the GLD.
 
 # Implementing AFW360 data pipeline
 
-It is a challenge that requires commitment and investment. Yet, in the modern
-age of AI and diversity of tools, this is easier than ever. The following steps
+It is a challenge that requires commitment and investment. Yet modern AI tools
+make it more feasible than it used to be. The following steps
 are proposed to implement the pipeline:
 
+- Step 0: Verify that the legacy pipeline (Excel-Dashboard) is working and could be used as a reference for the new pipeline
 - Step 1: Reverse engineer Silver-Gold: convert existing Excel files into SDMX-based data
-- Step 2: Micro-data harmonization and indicators computation Bronze-Silver medallions
-- Step 3: APIs to the indicators data
-- Step 4: Knowladge base for AI to use
-- Step 5: MCP server for AFW360 data
-- Step 6: Dedicated AI chat and that operationalized data and knowladge
+- Step 2: Establish an SDMX Data Structure Definition (DSD) for our indicators
+- Step 3: Validate that Excel-based indicators after transformation follow the DSD standard
+- Step 4: Build a process of expanding indicators and data coverage
+- Step 5: Micro-data harmonization and indicators computation Bronze-Silver medallions
+- Step 6: APIs to the indicators data
+- Step 7: Knowledge base for AI to use
+- Step 8: MCP server for AFW360 data
+- Step 9: Dedicated AI chat that operationalizes data and knowledge
 
 ## Implementation tracking
 
 | Step | Short description | Status |
 |---|---|---|
-| 1 | Reverse engineer Silver–Gold stages | Planned |
-| 2 | Harmonize microdata and compute indicators | Planned |
-| 3 | Provide indicator APIs | Planned |
-| 4 | Build an AI knowledge base | Planned |
-| 5 | Build an AFW360 MCP server | Planned |
-| 6 | Launch a dedicated AI chat | Planned |
+| 0 | Verify the legacy Excel-to-dashboard pipeline as a reference | Planned |
+| 1 | Reverse engineer Silver-to-Gold: convert existing Excel files into SDMX-based data | Planned |
+| 2 | Establish an SDMX Data Structure Definition (DSD) for the indicators | Planned |
+| 3 | Validate transformed Excel-based indicators against the DSD | Planned |
+| 4 | Build a process to expand indicator and data coverage | Planned |
+| 5 | Harmonize microdata and compute indicators (Bronze-to-Silver stages) | Planned |
+| 6 | Provide APIs for indicator data | Planned |
+| 7 | Build a knowledge base for AI | Planned |
+| 8 | Build an MCP server for AFW360 data | Planned |
+| 9 | Launch a dedicated AI chat using the data and knowledge | Planned |
 
+The process starts from Gold and works back to Bronze because the dashboard and
+its Excel tables already exist. Converting them to SDMX first (Steps 1–3) forces
+a precise definition of the indicators and their structure, the DSD. The DSD
+then becomes the target that the harmonized microdata (Step 5) must feed, so
+the upstream stages are built against a known output rather than in the abstract.
 
-##
+All steps are explained in the respective documents:
 
-
-
-
-## Step 3. Converting indicators to SDMX
-
-**Status: today.** The R pipeline under `pipeline/` turns the indicator values into the files of the data standard:
-
-- `data/AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`: one SDMX-CSV 2.1 data message per country and year, with a manifest. `convert_legacy.R` produces it from the Excel tables; the long table of step 2 would feed the same output through a much smaller converter.
-- `metadata/`: the codelists, the data structure definition, the plans, registries, rules and surveys. This is the source of truth for what every code means.
-- `geo/boundaries/`, `content/` and `assets/figures/`: the boundaries, text and figures, built by `build_geo.R` and `build_content.R`.
-- `sdmx/`: generated from `metadata/` and `content/` by `build_sdmx.R`: one SDMX-ML 3.1 structure message and the SDMX-CSV 2.1 reference metadata.
-
-`validate.R` checks every file against the standard, and `reconcile.R` compares every cell with the workbooks. The [pipeline README](https://github.com/wbEAWPV/AFW360_Glance/blob/master/pipeline/README.md) lists the commands.
-
-## Step 4. Serving the data
-
-Three consumers run in parallel. Each reads the SDMX files and nothing else.
-
-- **Dashboard (today).** `index.qmd`, one section per country and an About page, rendered by Quarto. It reads through `afw360/loader.py`, the one place where the data source is wired, so switching the dashboard to the API later touches one module.
-- **API (planned).** Machine access to the data and structures, for example an SDMX REST endpoint, so that other tools can pull the files rather than clone the repository.
-- **MCP server (planned).** The same data and metadata exposed to AI assistants through the Model Context Protocol, so that a user can ask questions about the indicators and get answers grounded in the published files.
-
-# Where each step stands
-
-| Step | Status | Code | Output |
-|---|---|---|---|
-| 0 · Raw data | held by the teams; legacy copy frozen | none in the repository (`data_raw/`) | microdata, shapefiles, text, figures |
-| 1 · Harmonisation | planned | to be written | harmonised microdata |
-| 2 · Computing indicators | planned | to be written | one long table per country and year |
-| 2 · Excel tables | today | the teams' own code | `data_raw/tables/Tables_<ISO3>.xlsx` |
-| 3 · SDMX conversion | today | `pipeline/*.R` | `data/`, `metadata/`, `sdmx/`, `geo/`, `content/`, `assets/` |
-| 4 · Dashboard | today | `index.qmd`, `afw360/` | `_site/` |
-| 4 · API | planned | to be written | |
-| 4 · MCP server | planned | to be written | |
+TODO.
