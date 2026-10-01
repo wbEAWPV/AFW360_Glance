@@ -153,14 +153,26 @@ It is a challenge that requires commitment and investment. Yet, in the modern
 age of AI and diversity of tools, this is easier than ever. The following steps
 are proposed to implement the pipeline:
 
-- Step 1: reverse engineering Silver-Gold medallions
+- Step 1: Reverse engineer Silver-Gold: convert existing Excel files into SDMX-based data
 - Step 2: Micro-data harmonization and indicators computation Bronze-Silver medallions
 - Step 3: APIs to the indicators data
 - Step 4: Knowladge base for AI to use
-- Step 5: Dedicated AI chat and MCP server for AFW360 data and knowladge.
+- Step 5: MCP server for AFW360 data
+- Step 6: Dedicated AI chat and that operationalized data and knowladge
+
+## Implementation tracking
+
+| Step | Short description | Status |
+|---|---|---|
+| 1 | Reverse engineer Silver–Gold stages | Planned |
+| 2 | Harmonize microdata and compute indicators | Planned |
+| 3 | Provide indicator APIs | Planned |
+| 4 | Build an AI knowledge base | Planned |
+| 5 | Build an AFW360 MCP server | Planned |
+| 6 | Launch a dedicated AI chat | Planned |
 
 
-
+##
 
 
 
