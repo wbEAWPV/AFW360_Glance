@@ -125,3 +125,23 @@ WP4 commit: `b5820b0`.
   - `python -m shiny run app.py --port 8766` in the copy: `GET /` **200**, no tracebacks.
   - Extra: the app's 86 tests, copied into the scratch copy only, **pass** against it.
   - Scratch copy deleted.
+
+WP5 commit: `f19a873`.
+
+## WP6. Quarto dashboard unaffected (2026-10-01)
+
+- Scratch copy outside the repository: repository `data/`, `metadata/`, `geo/` and
+  `10-legacy-pipeline/` without `.venv`, `_site`, `site_libs`, `.quarto`, `.pytest_cache`
+  (so the copy includes the new app files). `_quarto.yml` `render:` still lists only
+  `index.qmd`.
+- First two attempts (Git Bash, then PowerShell) ran all 32 cells and then failed at the
+  pandoc step: `ERROR: The filename, directory name, or volume label syntax is incorrect.
+  (os error 123): stat 'C:\Program Files\R\R-4.6.1<BS>ind'`. Cause: this session's
+  environment has `QUARTO_R` set to `C:\Program Files\R\R-4.6.1\bin` with `\b` turned into a
+  backspace character. Not set in the user's persistent environment variables (only in the
+  process environment Claude Code inherited); not caused by this work.
+- With `QUARTO_R` unset and `QUARTO_PYTHON` = root `.venv`: `quarto render` **exit 0**,
+  `Output created: _site\index.html`. Sections `Senegal`, `Guinea Bissau`, `About`;
+  **14** `<table>`; **4** figure PNGs (the maps); no `Traceback`. `_site/` holds only
+  `index.html`, `index_files/`, `assets/`, `site_libs/`, `search.json`: the `.py` files are
+  not rendered. Scratch copy deleted.
