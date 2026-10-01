@@ -145,3 +145,33 @@ WP5 commit: `f19a873`.
   **14** `<table>`; **4** figure PNGs (the maps); no `Traceback`. `_site/` holds only
   `index.html`, `index_files/`, `assets/`, `site_libs/`, `search.json`: the `.py` files are
   not rendered. Scratch copy deleted.
+
+WP6 commit: `4a6340b`.
+
+## WP7. Documentation (2026-10-01)
+
+- New `10-legacy-pipeline/DEPLOY.md`: what is in the folder (two dashboards, shared
+  `data_raw/`); the app venv (with the Application Control workaround from WP3); running
+  locally; both test suites; the Python 3.11.9 pin and why; deploying from Positron
+  (content id, URLs, the two `.posit` files, what the bundle contains and why `data_raw/shp`
+  is left out); the rsconnect command-line alternative; the Shinylive export; regenerating
+  `static_data/` and `geo/`; rendering the Quarto dashboard (`requirements-quarto.txt`, root
+  venv, the `site_libs` lock and the broken-`QUARTO_R` notes). Links
+  `../.docs/shiny-port-plan.md`.
+- The rsconnect command in DEPLOY.md was checked with `write-manifest shiny` (same
+  arguments) on a scratch copy of the whole folder (without `.venv`, `_site`, ...): 29 files,
+  the 28 of the Publisher bundle plus `.python-version`. Two traps found and documented:
+  click expands `*` in a separate argument against the disk on Windows (first try failed with
+  "File 'afw360\tests' is a directory"), so patterns are written `--exclude=PATTERN`; and `*`
+  matches one level only, so `**` is used. `deploy` itself was not run (never deploy).
+- Root `CLAUDE.md`: the project description names the Shiny app; an **Exception** paragraph
+  after the working rule (the Shiny app reads `10-legacy-pipeline/data_raw/` directly; the
+  loader rule applies to the Quarto dashboard); Layout now has a `10-legacy-pipeline/` entry
+  (Quarto dashboard with `DASHBOARD` vs `ROOT`, Shiny app, `content/`, `assets/`,
+  `data_raw/`) and the root `content/`, `assets/` and `data_raw/` entries are gone; the render
+  line says "from `10-legacy-pipeline/`"; one Known issue added: `pipeline/*.R` still use root
+  `data_raw/`, `content/`, `assets/` (checked: `pipeline/build_content.R:46,56,78` use
+  `repo_path(root, "data_raw", ...)` and `repo_path(out_root, "content", ...)`). Other sections
+  unchanged.
+- `.docs/10-full-pipeline.qmd` not touched (it is still modified in the working tree by the
+  user, unstaged).
