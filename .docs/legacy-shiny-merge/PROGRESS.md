@@ -175,3 +175,60 @@ WP6 commit: `4a6340b`.
   unchanged.
 - `.docs/10-full-pipeline.qmd` not touched (it is still modified in the working tree by the
   user, unstaged).
+
+WP7 commit: `3f87b9c`.
+
+## WP8. Report (2026-10-01)
+
+Status: WP0–WP8 done on `dev/legacy-shiny`. Not merged into `dev/eb`, not pushed, not deployed.
+Waiting for the user.
+
+Commits (first parent, oldest first): `43b25d0` WP0, `55225a2` WP1 (merge of `dev/app`),
+`40042ca` WP2, `8fc77ee` WP3, `b5820b0` WP4, `f19a873` WP5, `4a6340b` WP6, `3f87b9c` WP7, and
+the WP8 commit adding this entry.
+
+Final checks:
+
+- `git diff dev/eb HEAD` touches nothing under any `data_raw/`.
+- `deployment-OA6V.toml` has the same blob as on `dev/app` (`41247e8`).
+- `index.qmd`, `_quarto.yml`, `afw360/`, `content/`, `assets/` in `10-legacy-pipeline/` are
+  unchanged against `dev/eb`; the only Quarto-side change is the D2 rename.
+
+| Check | Result |
+|---|---|
+| App tests, app venv (`tests/`) | 86 passed |
+| Quarto loader tests, root venv (`afw360/tests`) | 13 passed |
+| `build_static_data.py --check` | 7/7 sheets match |
+| `build_geojson.py --check`, rebuild in scratch | PASS; rebuild equals the committed blobs |
+| App from `10-legacy-pipeline/`, `GET /` | 200, no tracebacks |
+| Bundle-only scratch copy: `write-manifest`, `GET /`, the 86 tests | OK, 200, 86 passed |
+| Quarto render in scratch copy outside the repo | exit 0 (with `QUARTO_R` unset), 3 sections, 14 tables, 4 maps |
+
+Not verified:
+
+- Clicking through the app in a browser (no browser tool in this session).
+- That Positron's Publisher picks up the project in `10-legacy-pipeline/` and offers
+  "Redeploy" to content `57e0a46b-...` (needs the user's Positron).
+- That Publisher accepts `package_manager = "auto"` against its v3 schema (see WP5).
+- The actual deploy (out of scope).
+- A render of the Quarto page inside the repository (plan section 3: known `site_libs` lock).
+
+Deviations from the plan: the venv is made with the stdlib `venv` module, not `uv venv`
+(WP3); the `.posit` folder was moved file by file (WP1); the merge was started before the
+rename (WP1).
+
+For the user to decide or do:
+
+1. In Positron, open the Publisher sidebar and check it lists the `AFW360_Glance`
+   deployment from `10-legacy-pipeline/` with content id `57e0a46b-...`. If not, open
+   `10-legacy-pipeline/` as the workspace folder.
+2. Redeploy, then open the URL and check both countries on every page.
+3. Merge `dev/legacy-shiny` into `dev/eb` when satisfied.
+4. Optional follow-ups, not done here: `pipeline/*.R` still read root `data_raw/` and write
+   root `content/`; `.gitattributes` has no `eol=lf` rule for `requirements-quarto.txt` and
+   its `data_raw/** -text` rule is anchored to the root, so it does not cover
+   `10-legacy-pipeline/data_raw/`; the session environment's `QUARTO_R` value is broken
+   (see WP6) — if it comes from a Positron or shell setting, fix it there.
+
+Untouched working-tree changes that are not mine: `.docs/10-full-pipeline.qmd` (modified) and
+`.docs/15-legacy-verification.qmd` (new, untracked).
