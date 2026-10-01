@@ -77,3 +77,19 @@ WP2 commit: `40042ca`.
   (shinywidgets `Widget.widgets is deprecated`), 169 s. No fixes were needed.
 - `..\.venv\Scripts\python.exe -m pytest afw360/tests -q` (root venv): **13 passed**.
 - No commit for code in this WP; this log entry is committed on its own.
+
+WP3 commit: `8fc77ee`.
+
+## WP4. Run the app (2026-10-01)
+
+- From `10-legacy-pipeline/`: `.venv\Scripts\python.exe -m shiny run app.py --port 8765`
+  in the background. `GET /` returned **200** (70,732 bytes; the navbar names Overview,
+  Profile, Geography, Explore, About). Server log: startup complete, one `GET / 200 OK`, no
+  tracebacks. Server stopped afterwards.
+- **Visual check not done**: no browser tool was connected in this session. What covers it
+  instead are the in-memory server tests run in WP3, which render the outputs for both
+  countries, among them `test_the_senegal_fiscal_figure_is_shown_for_senegal_only`
+  (reads `data_raw/figures/`), `test_guinea_bissau_gets_its_own_region_map`,
+  `test_the_about_text_renders_and_is_not_senegals_for_guinea_bissau` (reads
+  `data_raw/text/`) and `test_sweep_every_country_line_breakdown_and_geography_renders`.
+  The user should still click through the five pages for SEN and GNB once.
