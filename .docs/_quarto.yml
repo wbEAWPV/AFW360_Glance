@@ -13,6 +13,7 @@ project:
   output-dir: _site
   render:
     - data-standard.qmd           # -> index.html (set in its own front matter)
+    - 10-full-pipeline.qmd        # high-level map of the pipeline, step 0 to step 4
     - input-tables-findings.qmd   # -> Appendix A
     - transition.qmd              # -> Appendix B
     - sdmx-conformance.qmd        # SDMX conformance checklist with evidence
@@ -27,6 +28,8 @@ website:
     left:
       - href: data-standard.qmd
         text: "Standard"
+      - href: 10-full-pipeline.qmd
+        text: "Pipeline"
       - href: input-tables-findings.qmd
         text: "Appendix A · Input tables"
       - href: transition.qmd

@@ -19,7 +19,10 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(os.environ.get("AFW360_ROOT", Path(__file__).resolve().parents[1]))
+# ROOT is the repository (data/, metadata/, geo/); DASHBOARD is the folder that
+# holds index.qmd with its content/ and assets/.
+DASHBOARD = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("AFW360_ROOT", DASHBOARD.parent))
 
 FIXED_COLUMNS = ["STRUCTURE", "STRUCTURE_ID", "ACTION"]
 DATAFLOW = "WB.AFW360:AFW360_HH"
@@ -239,7 +242,7 @@ def load_text(iso3: str, slot: str, time_period=None, root=None) -> pd.DataFrame
     Columns include ``title`` and ``body``; when a row names a ``file``
     (relative to ``content/text``), ``body`` holds that file's content.
     """
-    base = _root(root) / "content"
+    base = (Path(root) if root is not None else DASHBOARD) / "content"
     text = _read_text_csv(base / "TEXT.csv")
     rows = text[(text["ref_area"] == iso3.upper()) & (text["slot"] == slot)].copy()
     if time_period is not None:
@@ -257,7 +260,8 @@ def load_figures(iso3: str, root=None) -> pd.DataFrame:
     root = _root(root)
     reg = _read_text_csv(root / "metadata" / "registries" / "FIGURES.csv")
     rows = reg[reg["ref_area"] == iso3.upper()].reset_index(drop=True)
-    rows["path"] = [str(root / "assets" / "figures" / f) if f else "" for f in rows["file"]]
+    assets = (DASHBOARD if root == ROOT else root) / "assets" / "figures"
+    rows["path"] = [str(assets / f) if f else "" for f in rows["file"]]
     return rows
 
 

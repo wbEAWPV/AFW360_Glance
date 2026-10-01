@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 185" width="870" height="185" font-family="Source Sans Pro, Segoe UI, Helvetica Neue, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#444444"/></marker></defs>
+<!-- Legacy implementation: dotted enclosure around Excel tables and the dashboard -->
+<rect x="436" y="20" width="414" height="145" rx="6" fill="#fbf7ef" stroke="#7a8a5e" stroke-width="1.8" stroke-dasharray="2 4"/>
+<text x="643.0" y="44" text-anchor="middle" font-size="13.5" font-weight="600" fill="#201e1d">10-legacy-pipeline/</text>
+<!-- Raw data (data store) -->
+<path d="M20.0,74 a80.0,7 0 0 1 160,0 v62 a80.0,7 0 0 1 -160,0 z" fill="#ebddc5" stroke="#7a8a5e" stroke-width="1.6"/>
+<path d="M20.0,74 a80.0,7 0 0 0 160,0" fill="none" stroke="#7a8a5e" stroke-width="1.6"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="100.0" y="98.0" font-weight="600" font-size="12.5">Raw data</tspan><tspan x="100.0" y="112.0" font-size="11.5">Survey microdata,</tspan><tspan x="100.0" y="126.0" font-size="11.5">shapefiles, text</tspan></text>
+<line x1="180" y1="105.0" x2="218.0" y2="105.0" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<!-- Stata code (scripts) -->
+<rect x="220.0" y="77" width="176" height="56" rx="4" fill="#f5ead8" stroke="#201e1d" stroke-width="1.4" stroke-dasharray="5 3"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="308.0" y="95.0" font-weight="600" font-size="12.5">Stata code</tspan><tspan x="308.0" y="109.0" font-size="11.5">.do files: cleaning</tspan><tspan x="308.0" y="123.0" font-size="11.5">and tabulation</tspan></text>
+<line x1="396" y1="105.0" x2="454.0" y2="105.0" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<!-- Excel tables (data store) -->
+<path d="M456.0,74 a88.0,7 0 0 1 176,0 v62 a88.0,7 0 0 1 -176,0 z" fill="#ebddc5" stroke="#7a8a5e" stroke-width="1.6"/>
+<path d="M456.0,74 a88.0,7 0 0 0 176,0" fill="none" stroke="#7a8a5e" stroke-width="1.6"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="544.0" y="98.0" font-weight="600" font-size="12.5">Excel tables</tspan><tspan x="544.0" y="112.0" font-size="11.5">Indicators tabulated</tspan><tspan x="544.0" y="126.0" font-size="11.5">by the country teams</tspan></text>
+<line x1="632" y1="105.0" x2="668.0" y2="105.0" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<!-- Dashboard (user interface) -->
+<rect x="670" y="82.0" width="160" height="46" rx="23.0" fill="#c67139"/>
+<text text-anchor="middle" fill="#ffffff"><tspan x="750.0" y="102.0" font-weight="600" font-size="12.5">R Shiny Dashboard</tspan><tspan x="750.0" y="116.0" font-size="11.5">User-facing interface</tspan></text>
+</svg>

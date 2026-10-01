@@ -218,7 +218,7 @@ def fiscal_cards(iso3):
             body = "_No fiscal-equity figure is available for this country yet._"
         else:
             fig_row = figures.iloc[0]
-            fig_src = Path(fig_row["path"]).relative_to(loader.ROOT).as_posix()
+            fig_src = Path(fig_row["path"]).relative_to(loader.DASHBOARD).as_posix()
             body = (
                 f"![]({fig_src}){{width=100% fig-alt=\"{fig_row['alt_text_en']}\"}}\n"
                 f"_Note: The figure shows the {kind} incidence of taxes, transfers, and subsidies "
