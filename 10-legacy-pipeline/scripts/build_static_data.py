@@ -29,7 +29,7 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-WORKBOOK_DIR = ROOT / "INPUT Tables"
+WORKBOOK_DIR = ROOT / "data_raw" / "tables"
 OUT_DIR = ROOT / "static_data"
 COUNTRIES = {"SEN": "Tables_SEN.xlsx", "GNB": "Tables_GNB.xlsx"}
 

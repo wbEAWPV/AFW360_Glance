@@ -92,7 +92,7 @@ MESSAGES_SEN: tuple[str, str, str] = (
 )
 
 # Guinea-Bissau has no key messages at all: index.qmd:727, :732 and :737 each
-# hold the literal string "TEXT", and INPUT Text/Messages_GNB.txt holds only the
+# hold the literal string "TEXT", and data_raw/text/Messages_GNB.txt holds only the
 # three section headings ("1. Poverty", "2. Inequality", "3. Policy"). Senegal's
 # prose is Senegal's and is never shown here; the card says so instead.
 MESSAGES_MISSING = (

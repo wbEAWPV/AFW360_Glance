@@ -7,8 +7,8 @@ Three things the legacy page got wrong are fixed here.
   box was silently dropped and only the download button survived.
 * The workbook was inlined as a ~114 KB base64 `data:` URI. It is now a real
   `@render.download_button`, so the page no longer carries the workbook.
-* Guinea-Bissau inherited Senegal's text. `INPUT Text/About_GNB.txt` contains the
-  literal string "TEXT", and `INPUT Text/About.txt` is byte-identical to
+* Guinea-Bissau inherited Senegal's text. `data_raw/text/About_GNB.txt` contains the
+  literal string "TEXT", and `data_raw/text/About.txt` is byte-identical to
   `About_SEN.txt` - so the "shared" About file is in fact Senegal's methodology.
   Neither is a truthful source for Guinea-Bissau, so GNB gets an explicit
   "not yet written" state rather than another country's methodology.
@@ -28,7 +28,7 @@ PREFIX = "ab"
 
 # Survey provenance, per country.
 #
-# Senegal's is taken from INPUT Text/About_SEN.txt, which is a real methodology
+# Senegal's is taken from data_raw/text/About_SEN.txt, which is a real methodology
 # note. Guinea-Bissau has none: its About file is a stub and plan section 11.2
 # records the survey year as an open question. Inventing a plausible source line
 # would be fabricating provenance, which is worse than admitting the gap, so the

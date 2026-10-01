@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Build the ADM1 GeoJSON the Shiny app renders, from the source shapefiles.
 
-    dev machine:  INPUT shp/{sen,gnb}_admin1.shp  --[this script, geopandas]-->
+    dev machine:  data_raw/shp/{sen,gnb}_admin1.shp  --[this script, geopandas]-->
                   geo/adm1_{sen,gnb}.json  --[committed]--> the app (stdlib json only)
 
 **This script is DEV-ONLY and is run by hand.** Its output is committed. The app
@@ -38,8 +38,8 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SHP_DIR = ROOT / "INPUT shp"
-TABLE_DIR = ROOT / "INPUT Tables"
+SHP_DIR = ROOT / "data_raw" / "shp"
+TABLE_DIR = ROOT / "data_raw" / "tables"
 GEO_DIR = ROOT / "geo"
 
 # Keep the console from dying on Bafatá / Gabú / Kédougou under cp1252.

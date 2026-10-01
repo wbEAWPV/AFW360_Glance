@@ -108,7 +108,7 @@ FISCAL_INDICATORS: tuple[str, ...] = (
     "Absolute incidence – indirect taxes",
 )
 
-FISCAL_FIGURE = data.ROOT / "INPUT Figures" / "Fiscal Equity SEN.png"
+FISCAL_FIGURE = data.FIGURES_DIR / "Fiscal Equity SEN.png"
 FISCAL_FIGURE_ISO3 = "SEN"  # the only country the figure was produced for
 
 # The four data tabs: output id -> (tab title, rows, placeholder display labels).

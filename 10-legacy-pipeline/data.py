@@ -42,6 +42,11 @@ import pandas as pd
 # --------------------------------------------------------------------------
 
 ROOT = Path(__file__).parent  # never cwd-relative: Connect and `shiny run` differ
+# The frozen legacy inputs, shared with the Quarto dashboard next door. Read only.
+DATA_RAW = ROOT / "data_raw"
+TABLES_DIR = DATA_RAW / "tables"
+TEXT_DIR = DATA_RAW / "text"
+FIGURES_DIR = DATA_RAW / "figures"
 
 EMPTY_DISPLAY = "–"  # en dash -- shown for every missing / non-numeric cell
 
@@ -60,8 +65,8 @@ GEO_LEVELS: dict[str, str] = {
 }
 
 _WORKBOOK_FILES: dict[str, Path] = {
-    "SEN": ROOT / "INPUT Tables" / "Tables_SEN.xlsx",
-    "GNB": ROOT / "INPUT Tables" / "Tables_GNB.xlsx",
+    "SEN": TABLES_DIR / "Tables_SEN.xlsx",
+    "GNB": TABLES_DIR / "Tables_GNB.xlsx",
 }
 
 _STATIC_DIR = ROOT / "static_data"  # CSV mirror, built by scripts/build_static_data.py
@@ -115,7 +120,7 @@ def _load_workbooks() -> dict[str, dict[str, pd.DataFrame]]:
     if _STATIC_DIR.exists():
         return _load_from_static_csv()
     raise RuntimeError(
-        "No data source: neither INPUT Tables/*.xlsx (needs openpyxl) nor "
+        "No data source: neither data_raw/tables/*.xlsx (needs openpyxl) nor "
         "static_data/ (build it with scripts/build_static_data.py) is available."
     )
 
@@ -649,13 +654,13 @@ def catalogue(iso3: str = "SEN") -> pd.DataFrame:
 
 
 def about_text(iso3: str) -> str:
-    """Contents of `INPUT Text/About_<ISO3>.txt`, or "" if absent or blank.
+    """Contents of `data_raw/text/About_<ISO3>.txt`, or "" if absent or blank.
 
     GNB's file holds the literal string "TEXT" (plan section 11.2). It is
     returned as-is; the caller decides what to do about it. Do not invent
     replacement prose.
     """
-    path = ROOT / "INPUT Text" / f"About_{iso3.upper()}.txt"
+    path = TEXT_DIR / f"About_{iso3.upper()}.txt"
     if not path.exists():
         return ""
     return path.read_text(encoding="utf-8").strip()

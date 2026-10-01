@@ -6,7 +6,7 @@ browser under Pyodide, with no server.
 
 Two things make this more than `shinylive export .`:
 
-* **`INPUT shp/` is 28.6 MB** and the running app never touches it - the ADM1
+* **`data_raw/shp/` is 28.6 MB** and the running app never touches it - the ADM1
   geometry was pre-converted to `geo/*.json` precisely so that geopandas/GDAL
   never reach the runtime. Exporting the repo wholesale would ship all of it.
 * **Shinylive has no openpyxl**, so the workbooks cannot be *read* in the
@@ -36,8 +36,8 @@ OUT_DIR = ROOT / "_shinylive"
 # Everything the running app opens, and nothing else.
 FILES = ["app.py", "data.py", "requirements.txt"]
 GLOBS = ["panels_*.py"]
-DIRS = ["geo", "static_data", "INPUT Text", "INPUT Figures"]
-WORKBOOKS = ["INPUT Tables/Tables_SEN.xlsx", "INPUT Tables/Tables_GNB.xlsx"]
+DIRS = ["geo", "static_data", "data_raw/text", "data_raw/figures"]
+WORKBOOKS = ["data_raw/tables/Tables_SEN.xlsx", "data_raw/tables/Tables_GNB.xlsx"]
 
 
 def stage(target: Path) -> list[str]:

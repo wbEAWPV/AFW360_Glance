@@ -272,7 +272,7 @@ def test_guinea_bissau_gets_its_own_region_map(ts):
 
 
 def test_the_senegal_fiscal_figure_is_shown_for_senegal_only(ts):
-    """Plan 9.1 #11: `INPUT Figures/Fiscal Equity SEN.png` was embedded in the
+    """Plan 9.1 #11: `data_raw/figures/Fiscal Equity SEN.png` was embedded in the
     Guinea-Bissau section twice, under two different captions."""
     senegal = ts.get_output("pr_fiscal_figure")
     assert senegal.status == "ok"
