@@ -1,7 +1,7 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "ctx.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "constants.R"))
+source(stage_path(root, "code", "ctx.R"))
 
 test_that("build_ctx returns the six expected components with no data files", {
   tmp <- tempfile()
@@ -22,10 +22,10 @@ test_that("build_ctx returns the six expected components with no data files", {
 test_that("build_ctx loads metadata under the given root", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  dir.create(file.path(tmp, "metadata", "structure"), recursive = TRUE)
+  dir.create(stage_path(tmp, "metadata", "structure"), recursive = TRUE)
   write_std_csv(
     data.frame(x = "1", stringsAsFactors = FALSE),
-    file.path(tmp, "metadata", "structure", "CL_GEO.csv")
+    stage_path(tmp, "metadata", "structure", "CL_GEO.csv")
   )
 
   ctx <- build_ctx(tmp)
@@ -35,8 +35,8 @@ test_that("build_ctx loads metadata under the given root", {
 test_that("build_ctx reads a data file and gives an empty manifest when none exists", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  dir.create(file.path(tmp, "data"), recursive = TRUE)
-  data_path <- file.path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv")
+  dir.create(stage_path(tmp, "data"), recursive = TRUE)
+  data_path <- stage_path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv")
   write_std_csv(data.frame(STRUCTURE = "dataflow", stringsAsFactors = FALSE), data_path)
 
   ctx <- build_ctx(tmp, data_files = data_path)
@@ -50,11 +50,11 @@ test_that("build_ctx reads a data file and gives an empty manifest when none exi
 test_that("build_ctx reads a manifest's keys when present", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  dir.create(file.path(tmp, "data"), recursive = TRUE)
-  data_path <- file.path(tmp, "data", "AFW360_HH_SEN_2021_MODEL.csv")
+  dir.create(stage_path(tmp, "data"), recursive = TRUE)
+  data_path <- stage_path(tmp, "data", "AFW360_HH_SEN_2021_MODEL.csv")
   write_std_csv(data.frame(STRUCTURE = "dataflow", stringsAsFactors = FALSE), data_path)
 
-  manifest_path <- file.path(tmp, "data", "AFW360_HH_SEN_2021_MODEL_manifest.csv")
+  manifest_path <- stage_path(tmp, "data", "AFW360_HH_SEN_2021_MODEL_manifest.csv")
   write_std_csv(
     data.frame(
       key = c("estimation", "sources"),
@@ -91,8 +91,8 @@ test_that("build_ctx carries opts through unchanged", {
 test_that("build_ctx reads the metadata version from metadata/VERSION", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  dir.create(file.path(tmp, "metadata"), recursive = TRUE)
-  writeLines("0.3.0", file.path(tmp, "metadata", "VERSION"))
+  dir.create(stage_path(tmp, "metadata"), recursive = TRUE)
+  writeLines("0.3.0", stage_path(tmp, "metadata", "VERSION"))
   ctx <- build_ctx(tmp)
   expect_equal(ctx$version, "0.3.0")
   expect_equal(structure_id(ctx$version), "WB.AFW360:AFW360_HH(0.3.0)")
@@ -109,7 +109,7 @@ test_that("the column accessors follow the real DSD: 19 key columns, 34 componen
   expect_length(cols, 37L)
   expect_equal(cols[1:4], c("STRUCTURE", "STRUCTURE_ID", "ACTION", "FREQ"))
   expect_equal(cols[37], "OBS_COMMENT")
-  expect_equal(ctx$version, trimws(readLines(file.path(root, "metadata", "VERSION"), n = 1)))
+  expect_equal(ctx$version, trimws(readLines(stage_path(root, "metadata", "VERSION"), n = 1)))
 })
 
 test_that("the column accessors stop without DSD_AFW360_HH (no hard-coded fallback)", {

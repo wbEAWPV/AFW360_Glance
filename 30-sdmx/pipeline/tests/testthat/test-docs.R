@@ -1,14 +1,16 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "docs.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "docs_md.R"))
+source(stage_path(root, "code", "docs.R"))
 
+# The tables of the legacy plans (tbl-initial-plan, tbl-tab-plan,
+# tbl-legacy-*) are built by 20-excel-sdmx-csv/build_docs.R.
 expected_ids <- c(
   "tbl-brk-vars", "tbl-cl-brk-var", "tbl-cl-geo", "tbl-cl-geo-scheme",
   "tbl-cl-indicator", "tbl-columns", "tbl-indicator-qualifiers",
-  "tbl-initial-plan", "tbl-legacy-columns-csv", "tbl-legacy-labels",
-  "tbl-legacy-overrides", "tbl-obs-status", "tbl-povlines",
+  "tbl-obs-status", "tbl-povlines",
   "tbl-qualifier-pairs", "tbl-qual-vars", "tbl-rules", "tbl-series-plan",
-  "tbl-small-codelists", "tbl-sources", "tbl-surveys", "tbl-tab-plan",
+  "tbl-small-codelists", "tbl-sources", "tbl-surveys",
   "tbl-text"
 )
 
@@ -18,11 +20,11 @@ build_into_temp <- function() {
   out
 }
 
-test_that("the generator writes exactly the 22 fragments", {
+test_that("the generator writes exactly the 17 fragments", {
   out <- build_into_temp()
   on.exit(unlink(out, recursive = TRUE), add = TRUE)
   expect_setequal(sub("\\.md$", "", list.files(out)), expected_ids)
-  expect_length(list.files(out), 22)
+  expect_length(list.files(out), 17)
 })
 
 test_that("every fragment is one pipe table, a blank line and its caption", {
@@ -89,10 +91,10 @@ test_that("fragment row order follows position and slot_order, not the file's ro
     "metadata/codelists/CL_BRK_VAR.csv",
     "metadata/codelists/CL_QUAL_VAR.csv"
   )) {
-    df <- read_std_csv(file.path(tmp, rel))
+    df <- read_std_csv(stage_rel(tmp, rel))
     df <- df[rev(seq_len(nrow(df))), , drop = FALSE] # reversed: every row moves
     df <- df[sample(nrow(df)), , drop = FALSE]
-    write_std_csv(df, file.path(tmp, rel))
+    write_std_csv(df, stage_rel(tmp, rel))
   }
   ids <- c("tbl-columns", "tbl-brk-vars", "tbl-qual-vars")
   expect_identical(docs_fragments(tmp)[ids], docs_fragments(root)[ids])

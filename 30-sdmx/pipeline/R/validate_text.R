@@ -100,7 +100,7 @@
 #' Read a referenced Markdown file's content as one string, or NA if it
 #' does not exist.
 .tf_read_file <- function(root, file) {
-  full <- file.path(root, "content", "text", file)
+  full <- stage_path(root, "content", "text", file)
   if (!file.exists(full)) {
     return(NA_character_)
   }
@@ -141,7 +141,7 @@ vc_text_file_missing <- function(ctx) {
       next
     }
     rel <- paste0("content/text/", tc$file[i])
-    if (!file.exists(file.path(root, "content", "text", tc$file[i]))) {
+    if (!file.exists(stage_path(root, "content", "text", tc$file[i]))) {
       rows[[length(rows) + 1]] <- .tf_finding(
         "TEXT.FILE_MISSING", "ERROR", rel,
         .tf_row_key(tc$slot[i], tc$ref_area[i], tc$time_period[i], tc$order[i]),

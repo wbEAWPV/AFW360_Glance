@@ -1,4 +1,8 @@
-# pipeline/R/codes.R
+# codes.R
+#
+# Shared module: an identical copy lives in 20-excel-sdmx-csv/R/ and in
+# 30-sdmx/pipeline/R/; change both together (20-excel-sdmx-csv's
+# tests/testthat/test-shared-modules.R fails when they differ).
 #
 # Code validation and ordering helpers shared by the pipeline and its
 # validators (.docs/data-standard.qmd).

@@ -1,9 +1,9 @@
-# pipeline/R/geo.R
+# 20-excel-sdmx-csv/R/geo.R
 #
 # Shared geometry helpers for WP05 (Geography). Turns the legacy COD-AB
 # admin boundary shapefiles (data_raw/shp/{sen,gnb}_admin{0,1}.shp) into
-# the standard boundary layers used by pipeline/build_geo.R and
-# pipeline/bootstrap/build_geo_codelists.R.
+# the standard boundary layers used by build_geo.R and
+# bootstrap/build_geo_codelists.R.
 #
 # GEOS, not S2, is this pipeline's validity engine (.docs/data-standard.qmd): SN01 is
 # invalid only under S2, and SN13 is invalid under GEOS as delivered but

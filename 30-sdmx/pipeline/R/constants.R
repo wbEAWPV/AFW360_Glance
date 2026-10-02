@@ -1,4 +1,8 @@
-# pipeline/R/constants.R
+# constants.R
+#
+# Shared module: an identical copy lives in 20-excel-sdmx-csv/R/ and in
+# 30-sdmx/pipeline/R/; change both together (20-excel-sdmx-csv's
+# tests/testthat/test-shared-modules.R fails when they differ).
 #
 # Fixed identifiers shared by every pipeline script: the maintenance agency
 # and dataflow ids, the SDMX-CSV 2.1 fixed columns and action, and the
@@ -6,7 +10,7 @@
 #
 # The component list is authoritative in metadata/structure/DSD_AFW360_HH.csv;
 # code reads it through dsd_components(), data_columns() and
-# dsd_key_columns() (pipeline/R/io.R). No column list is hard-coded here.
+# dsd_key_columns() (io.R). No column list is hard-coded here.
 
 #' The SDMX maintenance agency of the dataflow and its structures.
 AGENCY_ID <- "WB.AFW360"

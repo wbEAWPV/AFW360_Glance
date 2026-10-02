@@ -45,7 +45,7 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
                                series_ids = NULL, value = "0.5",
                                estimation = "SURVEY", source_id = NULL,
                                precision = NULL) {
-  series_plan_path <- file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv")
+  series_plan_path <- stage_path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv")
 
   if (!is.null(series_ids)) {
     edit_csv(series_plan_path, function(df) {
@@ -114,8 +114,8 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   data <- data[columns]
 
   stem <- paste0(DATAFLOW_ID, "_", ref_area, "_", time_period, "_", estimation)
-  data_path <- file.path(tmp_root, "data", paste0(stem, ".csv"))
-  manifest_path <- file.path(tmp_root, "data", paste0(stem, "_manifest.csv"))
+  data_path <- stage_path(tmp_root, "data", paste0(stem, ".csv"))
+  manifest_path <- stage_path(tmp_root, "data", paste0(stem, "_manifest.csv"))
 
   # The manifest in its long form (one `key`, `value` row per key), as
   # build_ctx() (pipeline/R/ctx.R) reads it. Descriptive fields the helper
@@ -127,7 +127,7 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
     if (length(hit) > 0) survey_id <- surveys$survey_id[hit[1]]
   }
   version <- "TBD"
-  vf <- file.path(tmp_root, "metadata", "VERSION")
+  vf <- stage_path(tmp_root, "metadata", "VERSION")
   if (file.exists(vf)) version <- trimws(readLines(vf, warn = FALSE)[1])
   write_sdmx_csv(data, data_path, version)
 

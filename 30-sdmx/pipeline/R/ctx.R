@@ -11,7 +11,7 @@
 
 #' Build the shared pipeline context.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param data_files Character vector of paths to standard data CSVs to
 #'   load. Defaults to none.
 #' @param opts A list of extra options, carried through unchanged.
@@ -26,7 +26,7 @@
 #'       file beside the data file, or an empty character vector when the
 #'       manifest is missing.}
 #'     \item{version}{The metadata version, the trimmed first line of
-#'       `<root>/metadata/VERSION` (for example `"0.3.0"`), or `NA` when the
+#'       `metadata/VERSION` (for example `"0.3.0"`), or `NA` when the
 #'       file is missing; `STRUCTURE_ID` must equal
 #'       [structure_id()] of it.}
 #'     \item{opts}{`opts`.}
@@ -56,7 +56,7 @@ build_ctx <- function(root, data_files = character(0), opts = list()) {
   }
 
   version <- NA_character_
-  version_path <- file.path(root, "metadata", "VERSION")
+  version_path <- stage_path(root, "metadata", "VERSION")
   if (file.exists(version_path)) {
     v <- trimws(readLines(version_path, n = 1, warn = FALSE))
     if (length(v) == 1 && nzchar(v)) version <- v

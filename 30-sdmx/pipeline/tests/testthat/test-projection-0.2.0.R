@@ -62,11 +62,11 @@ test_that("each data file projects onto its 0.2.0 version with only the allowed 
   if (!nzchar(Sys.which("git"))) skip("git is not available")
   root <- find_root()
 
-  files <- basename(Sys.glob(file.path(root, "data", "AFW360_HH_*_SURVEY.csv")))
+  files <- basename(Sys.glob(stage_path(root, "data", "AFW360_HH_*_SURVEY.csv")))
   expect_gt(length(files), 0)
 
   for (f in files) {
-    new <- .proj_read(file.path(root, "data", f))
+    new <- .proj_read(stage_path(root, "data", f))
     old <- .proj_read_old(root, f)
 
     # Old layout is exactly the 31 columns; the new one drops only DATAFLOW.

@@ -1,7 +1,7 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "sdmx_xml.R"))
-source(file.path(root, "pipeline", "R", "sdmx_structures.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "sdmx_xml.R"))
+source(stage_path(root, "code", "sdmx_structures.R"))
 
 ns <- c(
   str = "http://www.sdmx.org/resources/sdmxml/schemas/v3_1/structure",
@@ -11,8 +11,8 @@ ns <- c(
 # Build one codelist into a fresh message and re-read the serialised bytes.
 codelist_round_trip <- function(id) {
   version <- sdmx_version(root)
-  artefacts <- read_std_csv(file.path(root, "metadata", "structure", "ARTEFACTS.csv"))
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  artefacts <- read_std_csv(stage_path(root, "metadata", "structure", "ARTEFACTS.csv"))
+  dsd <- read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   msg <- sdmx_new_message()
   cls <- xml2::xml_add_child(msg$structures, "str:Codelists")
   sdmx_codelist(cls, id, root, artefacts, version, dsd)
@@ -26,7 +26,7 @@ ann_value <- function(code, type) {
 }
 
 test_that("a CSV codelist round-trips to SDMX-ML: codes, annotations, parents, sentinels", {
-  csv <- read_std_csv(file.path(root, "metadata", "codelists", "CL_URBANISATION.csv"))
+  csv <- read_std_csv(stage_path(root, "metadata", "codelists", "CL_URBANISATION.csv"))
   doc <- codelist_round_trip("CL_URBANISATION")
   cl <- xml2::xml_find_first(doc, "//str:Codelist", ns)
   expect_equal(xml2::xml_attr(cl, "id"), "CL_URBANISATION")
@@ -74,7 +74,7 @@ test_that("sentinels follow the DSD sentinel column; own-list-less ones carry no
 })
 
 test_that("CL_GEO_SCHEME code ids join ref_area and code", {
-  csv <- read_std_csv(file.path(root, "metadata", "codelists", "CL_GEO_SCHEME.csv"))
+  csv <- read_std_csv(stage_path(root, "metadata", "codelists", "CL_GEO_SCHEME.csv"))
   doc <- codelist_round_trip("CL_GEO_SCHEME")
   ids <- xml2::xml_attr(xml2::xml_find_all(doc, "//str:Code", ns), "id")
   expect_equal(ids, paste0(csv$ref_area, "_", csv$code))
@@ -96,7 +96,7 @@ full_doc <- function() xml2::read_xml(sdmx_serialise(sdmx_structures_message(roo
 
 test_that("the message holds every artefact of ARTEFACTS.csv once", {
   doc <- full_doc()
-  artefacts <- read_std_csv(file.path(root, "metadata", "structure", "ARTEFACTS.csv"))
+  artefacts <- read_std_csv(stage_path(root, "metadata", "structure", "ARTEFACTS.csv"))
   tags <- c(DataStructure = "DataStructure", Dataflow = "Dataflow",
             MetadataStructure = "MetadataStructure", Metadataflow = "Metadataflow",
             DataProviderScheme = "DataProviderScheme", ProvisionAgreement = "ProvisionAgreement",
@@ -116,7 +116,7 @@ test_that("the message holds every artefact of ARTEFACTS.csv once", {
 
 test_that("the DSD has the components of the DSD CSV, attributes before measures", {
   doc <- full_doc()
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  dsd <- read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   comps <- xml2::xml_find_first(doc, "//str:DataStructure/str:DataStructureComponents", ns)
   expect_equal(xml2::xml_name(xml2::xml_children(comps)),
                c("DimensionList", "AttributeList", "MeasureList"))

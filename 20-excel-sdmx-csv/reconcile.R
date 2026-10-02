@@ -1,28 +1,33 @@
 #!/usr/bin/env Rscript
-# pipeline/reconcile.R
+# 20-excel-sdmx-csv/reconcile.R
 #
 # WP16 - Independent reconciliation tool. A second, independent path from
-# data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv (SDMX-CSV 2.1) back to data_raw/tables/Tables_<ISO3>.xlsx,
-# built entirely from the legacy maps (never from the converter). Proves
-# every source cell is accounted for exactly once, and every converted
-# value matches its cell.
+# the published data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv (SDMX-CSV 2.1,
+# 30-sdmx/data/) back to data_raw/tables/Tables_<ISO3>.xlsx (the frozen
+# legacy inputs), built entirely from the legacy maps (never from the
+# converter). Proves every source cell is accounted for exactly once, and
+# every converted value matches its cell. Locations: R/paths.R
+# (--sdmx-dir points at another SDMX stage, for example a rebuild).
 #
-#   Rscript pipeline/reconcile.R --root . --out <report.md> [--csv <cells.csv>]
+#   Rscript reconcile.R --out <report.md> [--csv <cells.csv>] [--root <dir>]
 #
-# Run from the repo root. Reconciles every country found in
-# metadata/plans/LEGACY_COLUMNS.csv. Exits 0 only when every result is OK,
+# Run from 20-excel-sdmx-csv/. Reconciles every country found in
+# plans/LEGACY_COLUMNS.csv. Exits 0 only when every result is OK,
 # there is no ORPHAN, and the class counts per country add up to the
 # number of source cells. Exits 1 otherwise. Exits 2 when a data file is
 # missing.
 
 .args <- commandArgs(trailingOnly = TRUE)
 
-.root_idx <- which(.args == "--root")
-.root_raw <- if (length(.root_idx) >= 1) .args[.root_idx[1] + 1] else "."
-root <- normalizePath(.root_raw, winslash = "/", mustWork = TRUE)
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
+}
+source(file.path(.script_dir(), "R", "paths.R"))
+paths <- stage_paths_from_args(.args, default_root = .script_dir())
 
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "reconcile.R"))
+source(stage_path(paths, "code", "codes.R"))
+source(stage_path(paths, "code", "reconcile.R"))
 
 # Own flag reader (the tool shares no helpers with the pipeline).
 .flag_value <- function(flag) {
@@ -34,10 +39,10 @@ out_path <- .flag_value("--out")
 csv_path <- .flag_value("--csv")
 
 if (is.null(out_path)) {
-  stop("pipeline/reconcile.R: --out <report.md> is required", call. = FALSE)
+  stop("reconcile.R: --out <report.md> is required", call. = FALSE)
 }
 
-res <- reconcile(root)
+res <- reconcile(paths)
 
 md <- reconcile_report_md(res)
 dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
@@ -57,7 +62,7 @@ if (!is.null(csv_path)) {
 
 if (length(res$missing_files) > 0) {
   message(
-    "pipeline/reconcile.R: missing data file(s):\n",
+    "reconcile.R: missing data file(s):\n",
     paste0("  ", res$missing_files, collapse = "\n")
   )
   quit(status = 2, save = "no")

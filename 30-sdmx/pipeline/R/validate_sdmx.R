@@ -1,6 +1,7 @@
-# pipeline/R/validate_sdmx.R
+# 30-sdmx/pipeline/R/validate_sdmx.R
 #
-# Validator module SDMX (plan 2.12, WP5d): the SDMX outputs under sdmx/
+# Validator module SDMX (plan 2.12, WP5d): the SDMX outputs under output/
+# (logical prefix sdmx/, R/paths.R)
 # and the SDMX-CSV header of the data files. Five checks:
 #
 #   SDMX.STALE       every file under sdmx/ (except the hand-written *.md)
@@ -9,7 +10,8 @@
 #                    temp dir and compared byte for byte; a file the build
 #                    does not write, or does not find, is also flagged.
 #   SDMX.XSD         sdmx/structures/AFW360_structures.xml is valid against
-#                    pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd (sdmx_validate()).
+#                    the vendored pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd
+#                    (sdmx_validate()).
 #   SDMX.URN         every URN referenced in the message (outside
 #                    annotations, whose values are not structural references)
 #                    resolves to an artefact or item of the same message;
@@ -27,11 +29,11 @@
 #                    three fixed SDMX-CSV columns and the DSD components, in
 #                    order) and every STRUCTURE_ID is structure_id(VERSION).
 #
-# A root without an sdmx/ folder (a trimmed copy used by a test) gives one
+# A stage without its output folder (a trimmed copy used by a test) gives one
 # INFO SDMX.SKIPPED from vc_sdmx_stale; the XSD, URN and IDENT checks then
 # return nothing. The regeneration needs pipeline/R/sdmx_xml.R,
 # sdmx_structures.R and sdmx_refmeta.R; validate.R sources them, and this
-# module sources them from the root when they are missing.
+# module sources them from the stage's code folder when they are missing.
 
 .VSDMX_STRUCT <- "sdmx/structures/AFW360_structures.xml"
 .VSDMX_AGENCY <- "WB.AFW360"
@@ -56,7 +58,7 @@
     !exists("sdmx_refmeta_messages", mode = "function")
   if (need) {
     for (f in c("sdmx_xml.R", "sdmx_structures.R", "sdmx_refmeta.R")) {
-      source(file.path(root, "pipeline", "R", f))
+      source(stage_path(root, "code", f))
     }
   }
   invisible(TRUE)
@@ -69,7 +71,7 @@
 #' The structure message of the root, parsed, or NULL when it is absent or
 #' not well-formed (SDMX.XSD reports both).
 .vsdmx_read <- function(ctx) {
-  path <- file.path(ctx$root, .VSDMX_STRUCT)
+  path <- stage_rel(ctx$root, .VSDMX_STRUCT)
   if (!file.exists(path)) return(NULL)
   tryCatch(.vsdmx_parse(path), error = function(e) NULL)
 }
@@ -99,10 +101,10 @@
 #' The SDMX.STALE findings (and SDMX.SKIPPED when there is no sdmx/).
 vc_sdmx_stale <- function(ctx) {
   root <- ctx$root
-  if (!dir.exists(file.path(root, "sdmx"))) {
+  if (!dir.exists(stage_dir(root, "sdmx"))) {
     return(.vc_finding(
       "SDMX.SKIPPED", "INFO", "sdmx/", "",
-      "the root has no sdmx/ folder; the SDMX outputs were not checked"
+      "the stage has no output folder (sdmx/); the SDMX outputs were not checked"
     ))
   }
   tmp <- tempfile("vsdmx_")
@@ -122,13 +124,13 @@ vc_sdmx_stale <- function(ctx) {
     ))
   }
   expected <- list.files(file.path(tmp, "sdmx"), recursive = TRUE)
-  actual <- list.files(file.path(root, "sdmx"), recursive = TRUE)
+  actual <- list.files(stage_dir(root, "sdmx"), recursive = TRUE)
   actual <- actual[!grepl("[.]md$", actual)]
   rebuild <- "; run Rscript pipeline/build_sdmx.R --root ."
   parts <- list()
   for (p in sort(union(expected, actual), method = "radix")) {
     rel <- paste0("sdmx/", p)
-    a <- file.path(root, "sdmx", p)
+    a <- stage_path(root, "sdmx", p)
     e <- file.path(tmp, "sdmx", p)
     if (!p %in% expected) {
       parts[[length(parts) + 1]] <- .vc_finding(
@@ -160,8 +162,8 @@ vc_sdmx_stale <- function(ctx) {
 #' The SDMX.XSD findings.
 vc_sdmx_xsd <- function(ctx) {
   root <- ctx$root
-  if (!dir.exists(file.path(root, "sdmx"))) return(.vsdmx_empty())
-  path <- file.path(root, .VSDMX_STRUCT)
+  if (!dir.exists(stage_dir(root, "sdmx"))) return(.vsdmx_empty())
+  path <- stage_rel(root, .VSDMX_STRUCT)
   if (!file.exists(path)) {
     return(.vc_finding("SDMX.XSD", "ERROR", .VSDMX_STRUCT, "", "the structure message is missing"))
   }

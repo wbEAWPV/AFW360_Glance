@@ -1,16 +1,16 @@
-# pipeline/tests/testthat/test-convert.R
+# 20-excel-sdmx-csv/tests/testthat/test-convert.R
 #
-# Tests for pipeline/R/convert_tables.R (card WP15) and pipeline/R/manifest.R.
+# Tests for R/convert_tables.R (card WP15) and R/manifest.R.
 # Covers the slot order, the SEX/AGE sentinel rule, an empty cell, WITHHOLD,
 # COMMENT, a failing assertion and an unknown label, the DSD 0.3.0 components
 # and the SDMX-CSV 2.1 data files (FREQ, ESTIMATION, SERIES_ID, UNIT_MEASURE, PRECISION, SOURCE_ID), the file names
 # and the manifest keys, plus the small pure helpers.
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "convert_tables.R"))
-source(file.path(root, "pipeline", "R", "manifest.R"))
+source(stage_path(root, "code", "codes.R"))
+source(stage_path(root, "code", "constants.R"))
+source(stage_path(root, "code", "convert_tables.R"))
+source(stage_path(root, "code", "manifest.R"))
 
 # ---- a tiny, fully synthetic fixture (not the real metadata) --------------
 #
@@ -139,7 +139,7 @@ make_fixture <- function() {
   )
 
   meta <- list(
-    DSD_AFW360_HH = read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv")),
+    DSD_AFW360_HH = read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv")),
     SOURCES = sources,
     CL_AREA = cl_area,
     LEGACY_LABELS = legacy_labels,
@@ -408,23 +408,23 @@ test_that("build_manifest writes the 17 keys in order, with sorted distinct sour
 
 test_that("the committed data files match the 0.3.0 SDMX-CSV 2.1 contract", {
   meta <- load_metadata(root)
-  version <- trimws(readLines(file.path(root, "metadata", "VERSION"), warn = FALSE)[1])
+  version <- trimws(readLines(stage_path(root, "metadata", "VERSION"), warn = FALSE)[1])
   cols <- dsd_components(meta)
-  files <- list.files(file.path(root, "data"), pattern = "^AFW360_HH_.*[.]csv$")
+  files <- list.files(stage_path(root, "data"), pattern = "^AFW360_HH_.*[.]csv$")
   data_files <- files[!grepl("_manifest[.]csv$", files)]
   expect_setequal(data_files, c("AFW360_HH_GNB_2021_SURVEY.csv", "AFW360_HH_SEN_2021_SURVEY.csv"))
   for (f in data_files) {
-    full <- read_std_csv(file.path(root, "data", f))
+    full <- read_std_csv(stage_path(root, "data", f))
     expect_equal(names(full), data_columns(meta), info = f)
     expect_true(all(full$ACTION == ACTION_PUBLISHED), info = f)
-    d <- read_sdmx_csv(file.path(root, "data", f), version)
+    d <- read_sdmx_csv(stage_path(root, "data", f), version)
     expect_equal(names(d), cols, info = f)
     expect_true(all(d$FREQ == "A"), info = f)
     expect_equal(d$OBS_VALUE == "NaN", d$OBS_STATUS %in% c("O", "M"), info = f)
     for (col in c("SERIES_ID", "UNIT_MEASURE", "PRECISION", "SOURCE_ID")) {
       expect_true(all(d[[col]] != ""), info = paste(f, col))
     }
-    man <- read_std_csv(file.path(root, "data", manifest_file_name(f)))
+    man <- read_std_csv(stage_path(root, "data", manifest_file_name(f)))
     v <- stats::setNames(man$value, man$key)
     expect_equal(man$key, MANIFEST_KEYS, info = f)
     expect_equal(v[["file_name"]], f)

@@ -1,4 +1,8 @@
-# pipeline/R/manifest.R
+# manifest.R
+#
+# Shared module: an identical copy lives in 20-excel-sdmx-csv/R/ and in
+# 30-sdmx/pipeline/R/; change both together (20-excel-sdmx-csv's
+# tests/testthat/test-shared-modules.R fails when they differ).
 #
 # Names a converted data file and builds its
 # `AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>_manifest.csv` sidecar (card WP15,
@@ -68,6 +72,10 @@ build_manifest <- function(country, time_period, estimation, survey_id, source_i
     file_name = file_name,
     n_rows = as.character(n_rows),
     producer = "AFW DIP/POV team",
+    # The program's name as recorded in the committed manifests and in
+    # SOURCES.csv (`program`); the script is now
+    # 20-excel-sdmx-csv/convert_legacy.R, but the recorded value is data and
+    # stays until the next metadata version changes it in both places.
     program = "pipeline/convert_legacy.R",
     software = paste0("R ", R.version$major, ".", R.version$minor),
     run_timestamp = run_timestamp,

@@ -1,5 +1,5 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "codes.R"))
+source(stage_path(root, "code", "codes.R"))
 
 test_that("is_valid_code accepts well-formed codes", {
   expect_true(all(is_valid_code(c("SN01", "POV_HC"))))

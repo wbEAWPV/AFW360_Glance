@@ -346,15 +346,6 @@ TEXT.csv,6,body,C,"The text, one paragraph, no line breaks; exactly one of body/
 TEXT.csv,7,file,C,Path under content/text/ for anything longer; exactly one of body/file is filled.
 TEXT.csv,8,status,R,DRAFT or PUBLISHED; production shows only PUBLISHED.
 TEXT.csv,9,updated_on,R,ISO date.
-TAB_PLAN.csv,1,cut_id,R,"e.g. ADM1, QUINT."
-TAB_PLAN.csv,2,ref_area,R,"ISO3, or ALL."
-TAB_PLAN.csv,3,geo_scheme,R,"_T, or a CL_GEO_SCHEME code."
-TAB_PLAN.csv,4,urbanisation,R,"_T, or a set such as CAP OU R or U R."
-TAB_PLAN.csv,5,sex,R,"_T, or F M."
-TAB_PLAN.csv,6,age,R,"_T, or a set of CL_AGE codes."
-TAB_PLAN.csv,7,comp_breakdowns,C,"Breakdown variable codes in slot order, e.g. QUINT HHH_SEX."
-TAB_PLAN.csv,8,themes,R,"ALL, or a list of CL_THEME codes."
-TAB_PLAN.csv,9,status,R,ACTIVE or DRAFT; every row is DRAFT in this transition.
 SERIES_PLAN.csv,1,series_id,R,Stable identifier for one indicator x qualifier-set x defining-breakdown combination.
 SERIES_PLAN.csv,2,ref_area,R,"ISO3, or ALL."
 SERIES_PLAN.csv,3,INDICATOR,R,CL_INDICATOR code.
@@ -364,28 +355,3 @@ SERIES_PLAN.csv,6,name_en,R,"Display name of the series for charts and reports, 
 SERIES_PLAN.csv,7,estimation,R,"File kinds in which the series is expected: SURVEY, MODEL, or both, space-separated (CL_ESTIMATION)."
 SERIES_PLAN.csv,8,status,R,"DRAFT, ACTIVE, NOT_PRODUCED or DEVIATES; the last two only on a row for a specific ref_area, with notes, overriding the ALL row for the same series_id."
 SERIES_PLAN.csv,9,notes,O,"Free text, e.g. provenance of a hard-case decision (H-number)."
-LEGACY_LABELS.csv,1,legacy_label,R,Free-text indicator label exactly as it appears in the workbook's indicator column.
-LEGACY_LABELS.csv,2,sheet,R,"National, ADM 1, ZAE, Departement, or * for National+ADM 1+ZAE."
-LEGACY_LABELS.csv,3,action,R,"MAP, DUPLICATE_OF, DERIVED, or SKIP."
-LEGACY_LABELS.csv,4,series_id,C,SERIES_PLAN.series_id; required when action=MAP.
-LEGACY_LABELS.csv,5,duplicate_of,C,series_id of the MAP row this label resolves against; required when action is DUPLICATE_OF or DERIVED.
-LEGACY_LABELS.csv,6,scale,C,"Multiplier applied to the raw cell value to reach base units, written as a plain decimal (1 or 1000000, never 1e6); empty on rows that are not MAP."
-LEGACY_LABELS.csv,7,assert_rule,C,"EQUALS:<series_id> or ONE_MINUS:<series_id>, optionally followed by ' tol=<number>' (default tolerance 0); required when action is DUPLICATE_OF or DERIVED."
-LEGACY_LABELS.csv,8,notes,O,"Free text, e.g. the hard-case ID (H1-H19) that decided this row."
-LEGACY_COLUMNS.csv,1,ref_area,R,SEN or GNB.
-LEGACY_COLUMNS.csv,2,sheet,R,"National, ADM 1, ZAE or Departement."
-LEGACY_COLUMNS.csv,3,column,R,"Exact workbook header, e.g. estimateFemale_HH."
-LEGACY_COLUMNS.csv,4,cut_id,C,TAB_PLAN.cut_id this column belongs to; empty on SKIP rows.
-LEGACY_COLUMNS.csv,5,GEO,C,"GEO code this column maps to, for ADM 1 / ZAE columns."
-LEGACY_COLUMNS.csv,6,URBANISATION,C,"URBANISATION code this column maps to, for National urban/rural columns."
-LEGACY_COLUMNS.csv,7,COMP_BREAKDOWN,C,"COMP_BREAKDOWN code this column maps to, for National group columns."
-LEGACY_COLUMNS.csv,8,action,R,"MAP, or SKIP for every Departement column (D3)."
-LEGACY_COLUMNS.csv,9,notes,O,Free text.
-LEGACY_OVERRIDES.csv,1,ref_area,R,SEN or GNB.
-LEGACY_OVERRIDES.csv,2,sheet,R,"National, ADM 1, ZAE, or * for all three."
-LEGACY_OVERRIDES.csv,3,column,R,"Exact workbook header, or * for every column."
-LEGACY_OVERRIDES.csv,4,legacy_label,R,"Exact workbook label, or * for every label."
-LEGACY_OVERRIDES.csv,5,action,R,"WITHHOLD (row absent from the data file) or COMMENT (value kept, OBS_COMMENT added)."
-LEGACY_OVERRIDES.csv,6,obs_comment,C,Required when action=COMMENT: the text written to OBS_COMMENT.
-LEGACY_OVERRIDES.csv,7,reason,R,Why the cell is overridden.
-LEGACY_OVERRIDES.csv,8,evidence,R,The value(s) or comparison that justify the override.

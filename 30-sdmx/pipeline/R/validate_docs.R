@@ -1,16 +1,17 @@
-# pipeline/R/validate_docs.R
+# 30-sdmx/pipeline/R/validate_docs.R
 #
 # Validator module DOCS (standard, "Validation checks" > "Documentation";
 # D20): every fragment under .docs/generated/ equals what
 # pipeline/build_docs.R would write from the current metadata, every
 # `{{< include generated/... >}}` in the standard names a fragment that
-# exists, and every fragment is included. The work is done by docs_check()
-# in pipeline/R/docs.R (needs io.R and dplyr); this module only calls it
+# exists (here or among the legacy tables of 20-excel-sdmx-csv/build_docs.R),
+# and every fragment of this stage is included. The work is done by
+# docs_check() in R/docs.R (needs io.R, docs_md.R and dplyr); this module only calls it
 # and passes its findings through (check ids DOCS.*, as docs_check()
 # names them). validate.R sources docs.R before the modules; when it has
-# not been sourced, this module sources it from the root.
+# not been sourced, this module sources it from the stage's code folder.
 #
-# A root without .docs/data-standard.qmd (a trimmed copy of the repository
+# A stage whose .docs/ (R/paths.R) has no data-standard.qmd (a trimmed copy
 # used by a test) cannot be checked: one INFO DOCS.SKIPPED says so.
 
 #' The DOCS module's findings.
@@ -19,7 +20,7 @@ vc_docs_fragments <- function(ctx) {
     check_id = character(0), severity = character(0), file = character(0),
     row_key = character(0), message = character(0)
   )
-  qmd <- file.path(ctx$root, ".docs", "data-standard.qmd")
+  qmd <- stage_path(ctx$root, "docs", "data-standard.qmd")
   if (!file.exists(qmd)) {
     return(tibble::tibble(
       check_id = "DOCS.SKIPPED", severity = "INFO", file = ".docs/data-standard.qmd",
@@ -27,7 +28,8 @@ vc_docs_fragments <- function(ctx) {
     ))
   }
   if (!exists("docs_check", mode = "function")) {
-    source(file.path(ctx$root, "pipeline", "R", "docs.R"))
+    source(stage_path(ctx$root, "code", "docs_md.R"))
+    source(stage_path(ctx$root, "code", "docs.R"))
   }
   res <- docs_check(ctx$root)
   if (is.null(res) || nrow(res) == 0) return(empty)

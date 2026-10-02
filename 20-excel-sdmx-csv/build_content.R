@@ -1,34 +1,38 @@
 #!/usr/bin/env Rscript
-# pipeline/build_content.R
+# 20-excel-sdmx-csv/build_content.R
 #
 # WP10 (Text, figures and surveys): builds content/TEXT.csv,
 # content/text/SEN/about.md, assets/figures/SEN/SEN_FISCAL_EQUITY.png and
-# metadata/registries/FIGURES.csv from the legacy About_SEN.txt, the
-# fiscal-equity figure and the key messages. The source of the key messages
-# is content/TEXT.csv itself: its `messages` rows are read and written back
-# unchanged, so a re-run is idempotent. See .docs/transition.qmd.
+# registries/FIGURES.csv under the output folder (--out-root, default
+# output/) from the legacy About_SEN.txt, the fiscal-equity figure and the
+# key messages. The source of the key messages is the published
+# content/TEXT.csv itself (10-legacy-pipeline/data_dashboard/content/): its
+# `messages` rows are read and written back unchanged, so a re-run is
+# idempotent. publish.R copies content/ and assets/ to
+# 10-legacy-pipeline/data_dashboard/ and FIGURES.csv to
+# 30-sdmx/data/metadata/registries/. Locations: R/paths.R. See
+# .docs/transition.qmd.
 #
-# Usage: Rscript pipeline/build_content.R [--root <dir>] [--out-root <dir>]
+# Usage (from 20-excel-sdmx-csv/):
+#   Rscript build_content.R [--out-root <dir>] [--root <dir>]
 #          [--messages-source csv|dashboard|files]
 
 args <- commandArgs(trailingOnly = TRUE)
 
-.arg <- function(args, flag, default) {
-  idx <- which(args == flag)
-  if (length(idx) == 0 || idx[1] >= length(args)) {
-    return(default)
-  }
-  args[idx[1] + 1]
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
 }
+source(file.path(.script_dir(), "R", "paths.R"))
+paths <- stage_paths_from_args(args, default_root = .script_dir())
 
-root <- .arg(args, "--root", ".")
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "content.R"))
-out_root <- cli_arg(args, "--out-root", root)
+source(stage_path(paths, "code", "io.R"))
+source(stage_path(paths, "code", "constants.R"))
+source(stage_path(paths, "code", "content.R"))
+out_root <- stage_out_root(args, paths)
 
 # Where the key-message titles and bodies come from. The default, "csv",
-# keeps the `messages` rows of the committed content/TEXT.csv, which is the
+# keeps the `messages` rows of the published content/TEXT.csv, which is the
 # source of truth for the messages since WP9c. "dashboard" (the original
 # answer to gate G0's question T1) is obsolete: since WP9c index.qmd calls
 # show_message() instead of Markdown(...), so the extractor finds no bodies
@@ -43,7 +47,7 @@ TIME_PERIOD <- "2021"
 
 # ---- about.md --------------------------------------------------------------
 
-about_src <- repo_path(root, "data_raw", "text", "About_SEN.txt")
+about_src <- stage_path(paths, "data_raw", "text", "About_SEN.txt")
 paras <- read_about_paragraphs(about_src)
 if (length(paras) != 2) {
   stop(
@@ -53,7 +57,7 @@ if (length(paras) != 2) {
 }
 about_md <- paste(paras, collapse = "\n\n")
 
-about_out <- repo_path(out_root, "content", "text", "SEN", "about.md")
+about_out <- output_path(out_root, "content", "text", "SEN", "about.md")
 dir.create(dirname(about_out), recursive = TRUE, showWarnings = FALSE)
 con <- file(about_out, open = "wb")
 writeLines(about_md, con, sep = "\n")
@@ -63,7 +67,7 @@ close(con)
 
 get_messages <- function(source) {
   if (identical(source, "dashboard")) {
-    qmd_lines <- readLines(repo_path(root, "index.qmd"), warn = FALSE, encoding = "UTF-8")
+    qmd_lines <- readLines(stage_path(paths, "quarto", "index.qmd"), warn = FALSE, encoding = "UTF-8")
     blocks <- extract_row_messages(qmd_lines)
     if (length(blocks) < 2) {
       stop(
@@ -75,11 +79,11 @@ get_messages <- function(source) {
     list(SEN = blocks[[1]], GNB = blocks[[2]])
   } else if (identical(source, "files")) {
     sen_lines <- readLines(
-      repo_path(root, "data_raw", "text", "Messages_SEN.txt"),
+      stage_path(paths, "data_raw", "text", "Messages_SEN.txt"),
       warn = FALSE, encoding = "UTF-8"
     )
     gnb_lines <- readLines(
-      repo_path(root, "data_raw", "text", "Messages_GNB.txt"),
+      stage_path(paths, "data_raw", "text", "Messages_GNB.txt"),
       warn = FALSE, encoding = "UTF-8"
     )
     list(SEN = parse_message_block(sen_lines), GNB = parse_message_block(gnb_lines))
@@ -89,8 +93,8 @@ get_messages <- function(source) {
 }
 
 if (identical(MESSAGES_SOURCE, "csv")) {
-  # Keep the existing `messages` rows of content/TEXT.csv exactly as they are.
-  existing <- read_std_csv(repo_path(root, "content", "TEXT.csv"))
+  # Keep the existing `messages` rows of the published content/TEXT.csv exactly as they are.
+  existing <- read_std_csv(stage_path(paths, "content", "TEXT.csv"))
   existing[] <- lapply(existing, as.character)
   existing_msgs <- existing[existing$slot == "messages", , drop = FALSE]
   messages <- list(SEN = NULL, GNB = NULL) # unused on this path
@@ -158,12 +162,12 @@ text_rows <- rbind(
   msg_rows("GNB", messages$GNB)
 )
 
-write_std_csv(text_rows, repo_path(out_root, "content", "TEXT.csv"))
+write_std_csv(text_rows, output_path(out_root, "content", "TEXT.csv"))
 
 # ---- figure ---------------------------------------------------------------
 
-fig_src <- repo_path(root, "data_raw", "figures", "Fiscal Equity SEN.png")
-fig_out <- repo_path(out_root, "assets", "figures", "SEN", "SEN_FISCAL_EQUITY.png")
+fig_src <- stage_path(paths, "data_raw", "figures", "Fiscal Equity SEN.png")
+fig_out <- output_path(out_root, "assets", "figures", "SEN", "SEN_FISCAL_EQUITY.png")
 dir.create(dirname(fig_out), recursive = TRUE, showWarnings = FALSE)
 ok <- file.copy(fig_src, fig_out, overwrite = TRUE)
 if (!ok) {
@@ -173,10 +177,10 @@ if (!ok) {
 fig_sha <- sha256_file(fig_src)
 
 # Exception to the frozen-bootstrap rule (D11): this is the only live script
-# that reads under pipeline/bootstrap/; figures_text.csv holds the one-off
+# that reads under bootstrap/; figures_text.csv holds the one-off
 # fiscal-equity caption text and has no home yet in metadata/registries/, so
 # it is read in place rather than duplicated (inventory inconsistency 12).
-fig_text <- read_std_csv(repo_path(root, "pipeline", "bootstrap", "text", "figures_text.csv"))
+fig_text <- read_std_csv(stage_path(paths, "bootstrap", "text", "figures_text.csv"))
 if (nrow(fig_text) != 1) {
   stop(
     "build_content: expected 1 row in figures_text.csv, found ", nrow(fig_text),
@@ -195,10 +199,10 @@ figures_row <- data.frame(
   stringsAsFactors = FALSE
 )
 
-write_std_csv(figures_row, repo_path(out_root, "metadata", "registries", "FIGURES.csv"))
+write_std_csv(figures_row, output_path(out_root, "registries", "FIGURES.csv"))
 
 cat(
   "build_content: wrote content/TEXT.csv, content/text/SEN/about.md, ",
-  "assets/figures/SEN/SEN_FISCAL_EQUITY.png, metadata/registries/FIGURES.csv\n",
+  "assets/figures/SEN/SEN_FISCAL_EQUITY.png, registries/FIGURES.csv under ", out_root, "\n",
   sep = ""
 )

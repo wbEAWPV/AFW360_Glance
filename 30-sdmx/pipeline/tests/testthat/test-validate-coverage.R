@@ -10,14 +10,14 @@
 # already long-form manifest.
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "plan.R"))
-source(file.path(root, "pipeline", "R", "ctx.R"))
-source(file.path(root, "pipeline", "R", "manifest.R"))
-source(file.path(root, "pipeline", "R", "validate_coverage.R"))
-source(file.path(root, "pipeline", "R", "validate_values.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "codes.R"))
+source(stage_path(root, "code", "constants.R"))
+source(stage_path(root, "code", "plan.R"))
+source(stage_path(root, "code", "ctx.R"))
+source(stage_path(root, "code", "manifest.R"))
+source(stage_path(root, "code", "validate_coverage.R"))
+source(stage_path(root, "code", "validate_values.R"))
 
 #' Targets fixed when the transition was accepted (metadata 0.1.0): GNB has
 #' 98 withheld cells (the whole `estimateCapital` column on `National`, plus
@@ -92,7 +92,7 @@ only_errors <- function(findings) findings[findings$severity == "ERROR", , drop 
 #'
 #' @return The new source id, invisibly.
 use_producer_source <- function(tmp, data_path, ref_area, source_id = paste0(ref_area, "_EHCVM2021_PROD_v1")) {
-  edit_csv(file.path(tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
+  edit_csv(stage_path(tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
     extra <- s[s$ref_area == ref_area, , drop = FALSE][1, ]
     extra$source_id <- source_id
     extra$kind <- "PRODUCER"
@@ -131,7 +131,7 @@ fill_reliability <- function(df, meta) {
 #' estimation and, optionally, a PRODUCER source with reliability filled.
 build_sen_fixture <- function(series_ids, estimation = "SURVEY", producer = FALSE, plan_edit = NULL) {
   tmp <- make_temp_root(root)
-  if (!is.null(plan_edit)) edit_csv(file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv"), plan_edit)
+  if (!is.null(plan_edit)) edit_csv(stage_path(tmp, "metadata", "plans", "SERIES_PLAN.csv"), plan_edit)
   data_path <- make_data_fixture(tmp, "SEN", series_ids = series_ids, estimation = estimation)
   if (producer) {
     use_producer_source(tmp, data_path, "SEN")
@@ -432,7 +432,7 @@ test_that("a NOT_PRODUCED country row removes the series from the required rows"
   # The fixture is built before the country row exists, so it holds the
   # HE_PROFIT rows; once the series is NOT_PRODUCED they are extra.
   s <- build_sen_fixture(SEN_SERIES)
-  edit_csv(file.path(s$tmp, "metadata", "plans", "SERIES_PLAN.csv"), add_not_produced)
+  edit_csv(stage_path(s$tmp, "metadata", "plans", "SERIES_PLAN.csv"), add_not_produced)
   ctx <- build_ctx(s$tmp, data_files = s$data_path)
   extra <- vc_cover_extra(ctx)
   expect_true(nrow(extra) > 0)
@@ -678,7 +678,7 @@ test_that("COVER.FILE_MISSING is silent when every SURVEYS row has its SURVEY fi
 
 test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for that country", {
   tmp <- make_temp_root(root)
-  file.remove(file.path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv"))
+  file.remove(stage_path(tmp, "data", "AFW360_HH_SEN_2021_SURVEY.csv"))
   res <- vc_cover_file_missing(build_ctx(tmp))
   expect_equal(nrow(res), 1L)
   expect_equal(res$check_id, "COVER.FILE_MISSING")
@@ -689,7 +689,7 @@ test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for 
 
   # A missing manifest alone is reported the same way.
   tmp2 <- make_temp_root(root)
-  file.remove(file.path(tmp2, "data", "AFW360_HH_GNB_2021_SURVEY_manifest.csv"))
+  file.remove(stage_path(tmp2, "data", "AFW360_HH_GNB_2021_SURVEY_manifest.csv"))
   res2 <- vc_cover_file_missing(build_ctx(tmp2))
   expect_equal(res2$file, "data/AFW360_HH_GNB_2021_SURVEY.csv")
   expect_match(res2$message, "_manifest.csv is missing", fixed = TRUE)
@@ -701,7 +701,7 @@ test_that("a missing country file gives exactly one WARN COVER.FILE_MISSING for 
 
 test_that("COVER.FILE_MISSING expects a file per estimation of SERIES_PLAN.estimation, not only SURVEY", {
   tmp <- make_temp_root(root)
-  plan_path <- file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
+  plan_path <- stage_path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
   sid <- read_std_csv(plan_path)$series_id[1]
   edit_csv(plan_path, function(df) {
     df$estimation[df$series_id == sid & df$ref_area == "ALL"] <- "SURVEY MODEL"

@@ -196,13 +196,14 @@ sdmx_write_v30 <- function(doc, path) {
 #' Validate a message against the vendored SDMX-ML 3.1 XSD.
 #'
 #' @param doc An xml2 document (or a path to an XML file).
-#' @param root Repo root holding `pipeline/xsd/sdmx-ml-3.1/`.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R);
+#'   the schemas are under its `xsd` folder.
 #' @return `TRUE` or `FALSE`, with the libxml2 errors in attribute `errors`.
 sdmx_validate <- function(doc, root = ".") {
   if (is.character(doc)) {
     doc <- xml2::read_xml(doc)
   }
-  xsd_path <- file.path(root, "pipeline", "xsd", "sdmx-ml-3.1", "SDMXMessage.xsd")
+  xsd_path <- stage_path(root, "xsd", "sdmx-ml-3.1", "SDMXMessage.xsd")
   schema <- xml2::read_xml(xsd_path)
   # Re-parse the serialised text so the result reflects the written bytes.
   parsed <- xml2::read_xml(sdmx_serialise(doc))

@@ -1,6 +1,6 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "content.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "content.R"))
 
 test_that("strip_message_wrappers unwraps a Markdown(<span>...</span>) call", {
   x <- 'Markdown("<span style=\'font-size:16px;\'>Some body text.</span>")'

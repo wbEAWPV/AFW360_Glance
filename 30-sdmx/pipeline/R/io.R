@@ -1,4 +1,8 @@
-# pipeline/R/io.R
+# io.R
+#
+# Shared module: an identical copy lives in 20-excel-sdmx-csv/R/ and in
+# 30-sdmx/pipeline/R/; change both together (20-excel-sdmx-csv's
+# tests/testthat/test-shared-modules.R fails when they differ).
 #
 # Shared I/O helpers for the AFW 360 pipeline: reading and writing the
 # standard CSV format (.docs/data-standard.qmd), hashing, metadata loading and
@@ -83,17 +87,19 @@ sha256_file <- function(path) {
   digest::digest(file = path, algo = "sha256")
 }
 
-#' Load every metadata and content CSV under a repo root.
+#' Load every metadata, content and plan CSV of a stage.
 #'
-#' Reads every `*.csv` found recursively under `<root>/metadata` and
-#' `<root>/content` with [read_std_csv()], keyed by file stem (for example
-#' `meta$CL_GEO`, `meta$SERIES_PLAN`, `meta$TEXT`). A folder that does not
-#' exist is skipped silently.
+#' Reads every `*.csv` found recursively under the folders of
+#' `stage_metadata_dirs(root)` (`R/paths.R` of the stage: the standard's
+#' `metadata/`, the dashboard `content/` and the legacy `plans/`) with
+#' [read_std_csv()], keyed by file stem (for example `meta$CL_GEO`,
+#' `meta$SERIES_PLAN`, `meta$TEXT`). A folder that does not exist is
+#' skipped silently. `paths.R` must already be sourced.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object.
 #' @return A named list of tibbles.
 load_metadata <- function(root) {
-  dirs <- c(file.path(root, "metadata"), file.path(root, "content"))
+  dirs <- stage_metadata_dirs(root)
   dirs <- dirs[dir.exists(dirs)]
 
   files <- character(0)

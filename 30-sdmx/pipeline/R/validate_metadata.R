@@ -1,4 +1,4 @@
-# pipeline/R/validate_metadata.R
+# 30-sdmx/pipeline/R/validate_metadata.R
 #
 # WP11 validator module META: checks of the metadata and content CSVs
 # themselves (header shape against metadata/structure/COLUMNS.csv, required
@@ -13,12 +13,16 @@
 # tibbles keyed by file stem (load_metadata()); this module rebuilds the
 # stem -> relative-path map itself because build_ctx() does not carry it.
 
-#' stem -> "metadata/.../FILE.csv" or "content/.../FILE.csv", forward
-#' slashes, for every CSV under `<root>/metadata` and `<root>/content`.
+#' stem -> "metadata/.../FILE.csv", "content/.../FILE.csv" or
+#' "plans/FILE.csv" (logical paths, R/paths.R), forward slashes, for every
+#' CSV under the folders that load_metadata() reads.
 .meta_all_files_rel <- function(root) {
   out <- character(0)
-  for (d in c("metadata", "content")) {
-    full_d <- file.path(root, d)
+  dirs <- stage_metadata_dirs(root)
+  prefixes <- stage_metadata_prefixes()
+  for (k in seq_along(dirs)) {
+    d <- prefixes[k]
+    full_d <- dirs[k]
     if (!dir.exists(full_d)) next
     fs <- list.files(full_d, pattern = "\\.csv$", recursive = TRUE, full.names = FALSE)
     if (length(fs) == 0) next
@@ -37,10 +41,6 @@
   INDICATOR_QUALIFIERS = c("indicator", "qual_var"),
   QUALIFIER_PAIRS = c("qualifier", "with_var"),
   SOURCES = "source_id",
-  LEGACY_LABELS = c("legacy_label", "sheet"),
-  LEGACY_COLUMNS = c("ref_area", "sheet", "column"),
-  LEGACY_OVERRIDES = c("ref_area", "sheet", "column", "legacy_label"),
-  TAB_PLAN = c("cut_id", "ref_area"),
   FIGURES = "figure_id",
   GEO_SOURCES = "source_id",
   SURVEYS = "survey_id",
@@ -249,11 +249,9 @@ vc_meta_reference <- function(ctx) {
   check_field("SOURCES", "ref_area", "CL_AREA", "code")
   check_field("SOURCES", "survey_id", "SURVEYS", "survey_id")
   check_field("SURVEYS", "ref_area", "CL_AREA", "code")
-  check_field("LEGACY_LABELS", "series_id", "SERIES_PLAN", "series_id")
-  check_field("LEGACY_COLUMNS", "GEO", "CL_GEO", "code")
-  check_field("LEGACY_COLUMNS", "URBANISATION", "CL_URBANISATION", "code")
-  check_field("LEGACY_COLUMNS", "COMP_BREAKDOWN", "CL_COMP_BREAKDOWN", "code")
-  check_field("LEGACY_COLUMNS", "cut_id", "TAB_PLAN", "cut_id")
+  # The references of the legacy plans (LEGACY_LABELS, LEGACY_COLUMNS,
+  # TAB_PLAN) are checked by 20-excel-sdmx-csv (R/plans_check.R), which owns
+  # them.
 
   .vc_bind(out)
 }
@@ -619,7 +617,7 @@ vc_meta_sources <- function(ctx) {
     inputs <- .meta_tokens(src$inputs[i])
     shas <- .meta_tokens(if ("inputs_sha256" %in% names(src)) src$inputs_sha256[i] else "")
     for (j in seq_along(inputs)) {
-      path <- file.path(ctx$root, inputs[j])
+      path <- tryCatch(stage_rel(ctx$root, inputs[j]), error = function(e) "")
       if (!file.exists(path) || dir.exists(path)) next
       want <- if (j <= length(shas)) tolower(shas[j]) else NA_character_
       if (is.na(want)) {
@@ -666,7 +664,7 @@ vc_meta_artefacts <- function(ctx) {
   art <- ctx$meta$ARTEFACTS
   rel <- .meta_rel(ctx, "ARTEFACTS", "metadata/structure/ARTEFACTS.csv")
   if (is.null(art)) {
-    if (dir.exists(file.path(ctx$root, "metadata", "structure"))) {
+    if (dir.exists(stage_path(ctx$root, "metadata", "structure"))) {
       out[[1]] <- .vc_finding("META.ARTEFACTS", "ERROR", rel, "", "ARTEFACTS.csv is missing")
     }
     return(.vc_bind(out))
@@ -686,7 +684,7 @@ vc_meta_artefacts <- function(ctx) {
   }
   for (d in unique(ids[duplicated(ids)])) add(paste0("artefact_id=", d), "duplicate artefact_id")
 
-  cl_dir <- file.path(ctx$root, "metadata", "codelists")
+  cl_dir <- stage_path(ctx$root, "metadata", "codelists")
   cl_files <- if (dir.exists(cl_dir)) list.files(cl_dir, pattern = "^CL_.*[.]csv$") else character(0)
   for (stem in sort(tools::file_path_sans_ext(cl_files), method = "radix")) {
     if (!(stem %in% ids)) {
@@ -698,7 +696,7 @@ vc_meta_artefacts <- function(ctx) {
 
   src <- trimws(as.character(art$source_file))
   for (i in which(!is.na(src) & src != "")) {
-    if (!file.exists(file.path(ctx$root, src[i]))) {
+    if (!file.exists(stage_rel(ctx$root, src[i]))) {
       add(paste0("artefact_id=", ids[i]), paste0("source_file ", src[i], " does not exist"))
     }
   }

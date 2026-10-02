@@ -1,41 +1,43 @@
 #!/usr/bin/env Rscript
-# pipeline/build_geo.R
+# 20-excel-sdmx-csv/build_geo.R
 #
 # WP05 - Geography. Builds the two GeoPackages (layers `adm0`, `adm1`) from
-# the legacy COD-AB shapefiles, and metadata/registries/GEO_SOURCES.csv.
+# the legacy COD-AB shapefiles, and the registry GEO_SOURCES.csv.
 #
-#   Rscript pipeline/build_geo.R --root . --out-root .
+#   Rscript build_geo.R [--out-root <dir>] [--root <dir>] [--legacy-dir <dir>]
 #
-# Run from the repo root. Reads data_raw/shp/{sen,gnb}_admin{0,1}.shp under
-# --root. Writes geo/boundaries/<source_id>.gpkg and
-# metadata/registries/GEO_SOURCES.csv under --out-root, at the same
-# relative paths, replacing any existing GeoPackage of the same name.
+# Run from 20-excel-sdmx-csv/. Reads data_raw/shp/{sen,gnb}_admin{0,1}.shp
+# (the frozen legacy inputs, R/paths.R). Writes geo/boundaries/<source_id>.gpkg
+# and registries/GEO_SOURCES.csv under the output folder (--out-root,
+# default output/), replacing any existing GeoPackage of the same name;
+# publish.R copies them to 30-sdmx/data/geo/boundaries/ and
+# 30-sdmx/data/metadata/registries/.
 
 .args <- commandArgs(trailingOnly = TRUE)
-.root_idx <- which(.args == "--root")
-root <- normalizePath(
-  if (length(.root_idx) == 1) .args[.root_idx + 1] else ".",
-  winslash = "/", mustWork = TRUE
-)
 
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "geo.R"))
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
+}
+source(file.path(.script_dir(), "R", "paths.R"))
+paths <- stage_paths_from_args(.args, default_root = .script_dir())
 
-out_root <- cli_arg(.args, "--out-root", root)
-dir.create(out_root, recursive = TRUE, showWarnings = FALSE)
-out_root <- normalizePath(out_root, winslash = "/", mustWork = TRUE)
+source(stage_path(paths, "code", "io.R"))
+source(stage_path(paths, "code", "constants.R"))
+source(stage_path(paths, "code", "geo.R"))
+
+out_root <- stage_out_root(.args, paths)
 
 countries <- list(
   list(
     ref_area = "SEN", source_id = "SEN_CODAB_v02",
-    adm0_shp = file.path(root, "data_raw", "shp", "sen_admin0.shp"),
-    adm1_shp = file.path(root, "data_raw", "shp", "sen_admin1.shp")
+    adm0_shp = stage_path(paths, "data_raw", "shp", "sen_admin0.shp"),
+    adm1_shp = stage_path(paths, "data_raw", "shp", "sen_admin1.shp")
   ),
   list(
     ref_area = "GNB", source_id = "GNB_CODAB_V01",
-    adm0_shp = file.path(root, "data_raw", "shp", "gnb_admin0.shp"),
-    adm1_shp = file.path(root, "data_raw", "shp", "gnb_admin1.shp")
+    adm0_shp = stage_path(paths, "data_raw", "shp", "gnb_admin0.shp"),
+    adm1_shp = stage_path(paths, "data_raw", "shp", "gnb_admin1.shp")
   )
 )
 
@@ -50,7 +52,7 @@ for (i in seq_along(countries)) {
   adm0 <- make_boundary_layer(raw_adm0, ctry$ref_area, "ADM0")
   adm1 <- make_boundary_layer(raw_adm1, ctry$ref_area, "ADM1")
 
-  gpkg_path <- file.path(out_root, "geo", "boundaries", paste0(ctry$source_id, ".gpkg"))
+  gpkg_path <- output_path(out_root, "geo", "boundaries", paste0(ctry$source_id, ".gpkg"))
   dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
   if (file.exists(gpkg_path)) unlink(gpkg_path)
 
@@ -68,7 +70,8 @@ for (i in seq_along(countries)) {
 
   # sha256 is computed after the build that is committed (see
   # .docs/data-standard.qmd): a GeoPackage's bytes change on every build, so the hash is
-  # taken from the file just written, not fixed in advance.
+  # taken from the file just written, not fixed in advance. publish.R keeps
+  # the published GeoPackage and its hash when the content is unchanged.
   sources[[i]] <- data.frame(
     source_id = ctry$source_id,
     ref_area = ctry$ref_area,
@@ -99,9 +102,9 @@ geo_sources_cols <- c(
 )
 geo_sources <- geo_sources[, geo_sources_cols]
 
-write_std_csv(geo_sources, file.path(out_root, "metadata", "registries", "GEO_SOURCES.csv"))
+write_std_csv(geo_sources, output_path(out_root, "registries", "GEO_SOURCES.csv"))
 
 cat(
   "build_geo: wrote", nrow(geo_sources), "GEO_SOURCES rows and",
-  length(countries), "GeoPackages\n"
+  length(countries), "GeoPackages under", out_root, "\n"
 )

@@ -32,8 +32,8 @@ SDMX_REFMETA_MESSAGES <- list(
                      target_type = "codelist", target_id = "CL_FIGURE")
 )
 
-# Folder holding the Markdown files named in the `file` column of TEXT.csv.
-SDMX_TEXT_DIR <- file.path("content", "text")
+# The Markdown files named in the `file` column of TEXT.csv are under
+# content/text/ (stage_path(root, "content", "text"), R/paths.R).
 
 #' `AGENCY:ID(VERSION)` reference used in MDSTRUCTURE_ID and TARGET_IDS.
 sdmx_short_ref <- function(id, version, agency = SDMX_AGENCY) {
@@ -55,7 +55,7 @@ sdmx_short_ref <- function(id, version, agency = SDMX_AGENCY) {
 
 #' Read a TEXT.csv Markdown file verbatim (UTF-8, line endings as LF).
 .sdmx_read_text_file <- function(root, rel) {
-  path <- file.path(root, SDMX_TEXT_DIR, rel)
+  path <- stage_path(root, "content", "text", rel)
   if (!file.exists(path)) stop("TEXT.csv file not found: ", path)
   txt <- readChar(path, file.info(path)$size, useBytes = TRUE)
   Encoding(txt) <- "UTF-8"
@@ -64,12 +64,12 @@ sdmx_short_ref <- function(id, version, agency = SDMX_AGENCY) {
 
 #' Build one metadata message as a data frame of character columns.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param spec One entry of SDMX_REFMETA_MESSAGES.
 #' @param concepts Output of sdmx_msd_concepts(root).
 #' @param version The metadata version.
 sdmx_refmeta_message <- function(root, spec, concepts, version) {
-  src <- read_std_csv(file.path(root, spec$file))
+  src <- read_std_csv(stage_rel(root, spec$file))
   if (spec$parent == "TEXT") {
     has_file <- nzchar(src$file)
     src$body[has_file] <- vapply(src$file[has_file], function(f) .sdmx_read_text_file(root, f),
@@ -103,7 +103,7 @@ sdmx_refmeta_message <- function(root, spec, concepts, version) {
 
 #' Build the four metadata messages of plan 2.7.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @return Named list (MDS_SURVEYS, MDS_SOURCES, MDS_TEXT, MDS_FIGURES) of
 #'   data frames.
 sdmx_refmeta_messages <- function(root) {

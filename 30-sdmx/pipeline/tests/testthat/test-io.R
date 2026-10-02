@@ -1,6 +1,6 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "constants.R"))
 
 test_that("fmt_num formats fixed notation, never scientific, no trailing zeros", {
   x <- c(0.37, 6520000, -3460.12, 1e-7, 100, NA)
@@ -63,10 +63,10 @@ test_that("sha256_file returns a lower-case hex digest", {
 test_that("load_metadata reads csvs under metadata/ and content/, keyed by stem", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  dir.create(file.path(tmp, "metadata", "structure"), recursive = TRUE)
+  dir.create(stage_path(tmp, "metadata", "structure"), recursive = TRUE)
   write_std_csv(
     data.frame(x = "1", stringsAsFactors = FALSE),
-    file.path(tmp, "metadata", "structure", "CL_GEO.csv")
+    stage_path(tmp, "metadata", "structure", "CL_GEO.csv")
   )
 
   meta <- load_metadata(tmp)

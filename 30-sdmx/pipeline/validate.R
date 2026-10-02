@@ -1,47 +1,43 @@
 #!/usr/bin/env Rscript
-# pipeline/validate.R
+# 30-sdmx/pipeline/validate.R
 #
 # The AFW360 validator's entry point (standard v0.5, "Validation checks").
-# Sources io.R, constants.R, codes.R, ctx.R, plan.R, manifest.R (the
-# manifest keys), docs.R (the DOCS module's docs_check()) and sdmx_xml.R,
-# sdmx_structures.R and sdmx_refmeta.R (the SDMX module regenerates the
-# SDMX outputs with them), and every
+# Sources paths.R, io.R, constants.R, codes.R, ctx.R, plan.R, manifest.R
+# (the manifest keys), docs_md.R and docs.R (the DOCS module's
+# docs_check()) and sdmx_xml.R, sdmx_structures.R and sdmx_refmeta.R (the
+# SDMX module regenerates the SDMX outputs with them), and every
 # pipeline/R/validate_*.R module present (ASSET, CODES, COVER, DOCS, META,
 # RULE, SDMX, STRUCT, TEXT, VALUE),
 # builds the shared ctx (build_ctx()), discovers every vc_* check function
 # and runs them in alphabetical order, writes one findings CSV, and exits
 # 0 (no ERROR), 1 (at least one ERROR) or 2 (a check crashed).
 #
-# Usage:
-#   Rscript pipeline/validate.R --root . [--metadata-only] [--data <file> ...] --out <findings.csv>
+# Usage (from 30-sdmx/):
+#   Rscript pipeline/validate.R [--metadata-only] [--data <file> ...] --out <findings.csv>
 #
-# --root defaults to "."; --data may repeat and is interpreted relative to
-# --root. Without --data (and without --metadata-only) every
-# data/AFW360_HH_*.csv that is not a manifest is validated.
+# --root is the stage folder (default: the 30-sdmx/ of this script);
+# --dashboard-dir, --plans-dir and --legacy-dir move the folders outside the
+# stage (pipeline/R/paths.R). --data may repeat and names a data file by its
+# logical path, data/<file>.csv (the stage's data/ folder). Without --data
+# (and without --metadata-only) every data/AFW360_HH_*.csv that is not a
+# manifest is validated.
 
 args <- commandArgs(trailingOnly = TRUE)
 
-.cli_root <- function(args, default = ".") {
-  idx <- which(args == "--root")
-  if (length(idx) == 0 || idx[1] == length(args)) return(default)
-  args[idx[1] + 1]
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
 }
+source(file.path(.script_dir(), "R", "paths.R"))
+paths <- stage_paths_from_args(args, default_root = dirname(.script_dir()))
 
-root <- .cli_root(args, ".")
-
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "ctx.R"))
-source(file.path(root, "pipeline", "R", "plan.R"))
-source(file.path(root, "pipeline", "R", "manifest.R"))
-source(file.path(root, "pipeline", "R", "docs.R"))
-source(file.path(root, "pipeline", "R", "sdmx_xml.R"))
-source(file.path(root, "pipeline", "R", "sdmx_structures.R"))
-source(file.path(root, "pipeline", "R", "sdmx_refmeta.R"))
-
-source(file.path(root, "pipeline", "R", "validate_common.R"))
-module_files <- sort(Sys.glob(file.path(root, "pipeline", "R", "validate_*.R")), method = "radix")
+for (m in c(
+  "io.R", "constants.R", "codes.R", "ctx.R", "plan.R", "manifest.R", "docs_md.R", "docs.R",
+  "sdmx_xml.R", "sdmx_structures.R", "sdmx_refmeta.R", "validate_common.R"
+)) {
+  source(stage_path(paths, "code", m))
+}
+module_files <- sort(Sys.glob(stage_path(paths, "code", "validate_*.R")), method = "radix")
 module_files <- module_files[basename(module_files) != "validate_common.R"]
 for (f in module_files) source(f)
 
@@ -55,7 +51,7 @@ if (metadata_only) {
 } else if (length(data_arg) > 0) {
   data_files_rel <- gsub("\\\\", "/", data_arg)
 } else {
-  data_dir <- file.path(root, "data")
+  data_dir <- stage_dir(paths, "data")
   if (dir.exists(data_dir)) {
     fs <- list.files(data_dir, pattern = "^AFW360_HH_.*\\.csv$", full.names = FALSE)
     fs <- fs[!grepl("_manifest\\.csv$", fs)]
@@ -64,10 +60,10 @@ if (metadata_only) {
     data_files_rel <- character(0)
   }
 }
-data_files_abs <- if (length(data_files_rel) == 0) character(0) else file.path(root, data_files_rel)
+data_files_abs <- vapply(data_files_rel, function(r) stage_rel(paths, r), character(1), USE.NAMES = FALSE)
 
 ctx <- build_ctx(
-  root,
+  paths,
   data_files = data_files_abs,
   opts = list(metadata_only = metadata_only, data_selected = length(data_arg) > 0)
 )

@@ -13,17 +13,18 @@
 # is exercised by running pipeline/validate.R as a real Rscript subprocess.
 
 .root <- find_root()
-source(file.path(.root, "pipeline", "R", "io.R"))
-source(file.path(.root, "pipeline", "R", "constants.R"))
-source(file.path(.root, "pipeline", "R", "codes.R"))
-source(file.path(.root, "pipeline", "R", "ctx.R"))
-source(file.path(.root, "pipeline", "R", "plan.R"))
-source(file.path(.root, "pipeline", "R", "manifest.R"))
-source(file.path(.root, "pipeline", "R", "docs.R"))
-source(file.path(.root, "pipeline", "R", "validate_structure.R"))
-source(file.path(.root, "pipeline", "R", "validate_codes.R"))
-source(file.path(.root, "pipeline", "R", "validate_metadata.R"))
-source(file.path(.root, "pipeline", "R", "validate_docs.R"))
+source(stage_path(.root, "code", "io.R"))
+source(stage_path(.root, "code", "constants.R"))
+source(stage_path(.root, "code", "codes.R"))
+source(stage_path(.root, "code", "ctx.R"))
+source(stage_path(.root, "code", "plan.R"))
+source(stage_path(.root, "code", "manifest.R"))
+source(stage_path(.root, "code", "docs_md.R"))
+source(stage_path(.root, "code", "docs.R"))
+source(stage_path(.root, "code", "validate_structure.R"))
+source(stage_path(.root, "code", "validate_codes.R"))
+source(stage_path(.root, "code", "validate_metadata.R"))
+source(stage_path(.root, "code", "validate_docs.R"))
 
 # ---- local test helpers -----------------------------------------------
 
@@ -54,13 +55,17 @@ source(file.path(.root, "pipeline", "R", "validate_docs.R"))
   # A copied data/ folder also holds the real SEN file, which the trimmed
   # SERIES_PLAN no longer describes; keep only the fixture and its manifest.
   others <- setdiff(
-    list.files(file.path(tmp, "data"), full.names = TRUE),
+    list.files(stage_path(tmp, "data"), full.names = TRUE),
     c(dp, sub("\\.csv$", "_manifest.csv", dp))
   )
   unlink(others)
-  edit_csv(file.path(tmp, "metadata", "plans", "LEGACY_LABELS.csv"), function(df) {
-    df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
-  })
+  # The legacy plans come from 20-excel-sdmx-csv/plans/ when it is present.
+  ll <- stage_path(tmp, "plans", "LEGACY_LABELS.csv")
+  if (file.exists(ll)) {
+    edit_csv(ll, function(df) {
+      df[trimws(df$series_id) == "" | df$series_id %in% keep_ids, , drop = FALSE]
+    })
+  }
   list(tmp = tmp, data_path = dp)
 }
 
@@ -114,10 +119,16 @@ test_that("a group a module already capped is not capped a second time", {
   # used to cap such a group again, which added a second SUMMARY row for the
   # same check_id and file and dropped a real finding: the SUMMARY's empty
   # row_key sorts first, so it survived the re-cap and displaced the twentieth.
-  # Leaving LEGACY_LABELS.csv untrimmed orphans 88 series_id references, well
-  # over the cap of 20, which is the case that exposed it.
+  # Leaving LEGACY_LABELS.csv untrimmed orphaned 88 series_id references, well
+  # over the cap of 20, which is the case that exposed it. The legacy plans
+  # are checked by 20-excel-sdmx-csv since the split, so the same group is
+  # made here by orphaning every var_code of CL_COMP_BREAKDOWN.csv (60 rows).
   tmp <- make_temp_root(.root, include = c("metadata", "content", "data", "pipeline"))
   make_data_fixture(tmp, "GNB", series_ids = c("POV_HC.POVLINE_PL420.PPP_2021"))
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_COMP_BREAKDOWN.csv"), function(df) {
+    df$var_code <- paste0(df$var_code, "_X")
+    df
+  })
 
   out_path <- file.path(tmp, "findings.csv")
   suppressWarnings(system2(
@@ -128,7 +139,7 @@ test_that("a group a module already capped is not capped a second time", {
   expect_true(file.exists(out_path))
   findings <- read_std_csv(out_path)
   grp <- findings[findings$check_id == "META.REFERENCE" &
-                    findings$file == "metadata/plans/LEGACY_LABELS.csv", , drop = FALSE]
+                    findings$file == "metadata/codelists/CL_COMP_BREAKDOWN.csv", , drop = FALSE]
   summaries <- grp[grepl("^SUMMARY: ", grp$message), , drop = FALSE]
   expect_equal(nrow(summaries), 1L)
   expect_equal(nrow(grp) - nrow(summaries), 20L)
@@ -303,7 +314,7 @@ test_that("a 33-character code in CL_THEME gives META.CODE_SYNTAX", {
   tmp <- make_temp_root(.root)
   # INEQ is not referenced by CL_INDICATOR.theme or anywhere else, so
   # renaming it cannot also break META.REFERENCE.
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
     df$code[df$code == "INEQ"] <- paste(rep("A", 33), collapse = "")
     df
   })
@@ -316,7 +327,7 @@ test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
   tmp <- make_temp_root(.root)
   # JOB and INEQ are both unused themes (not referenced by CL_INDICATOR.theme
   # or anywhere else), so colliding them cannot also break META.REFERENCE.
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
     df$code[df$code == "JOB"] <- "INEQ"
     df
   })
@@ -327,7 +338,7 @@ test_that("a duplicated code within a file gives META.CODE_UNIQUE", {
 
 test_that("a renamed column header gives META.HEADER", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_UNIT_MEASURE.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_UNIT_MEASURE.csv"), function(df) {
     names(df)[names(df) == "notes"] <- "note"
     df
   })
@@ -338,7 +349,7 @@ test_that("a renamed column header gives META.HEADER", {
 
 test_that("a parent that does not exist in CL_URBANISATION gives META.REFERENCE", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_URBANISATION.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_URBANISATION.csv"), function(df) {
     df$parent[df$code == "CAP"] <- "ZZZ_NOPE"
     df
   })
@@ -349,7 +360,7 @@ test_that("a parent that does not exist in CL_URBANISATION gives META.REFERENCE"
 
 test_that("a CL_THEME row set to ACTIVE with definition_en = TBD gives META.TBD (ERROR)", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
     df$status[1] <- "ACTIVE"
     df$definition_en[1] <- "TBD"
     df
@@ -365,7 +376,7 @@ test_that("a CL_THEME row set to ACTIVE with definition_en = TBD gives META.TBD 
 
 test_that("a check that calls stop() gives exit 2, <MODULE>.CRASH, and other checks still run", {
   tmp <- make_temp_root(.root, include = c("metadata", "content", "pipeline"))
-  crash_file <- file.path(tmp, "pipeline", "R", "validate_zzzcrash.R")
+  crash_file <- stage_path(tmp, "code", "validate_zzzcrash.R")
   writeLines('vc_zzz_boom <- function(ctx) stop("boom from a test check")', crash_file)
 
   out_path <- file.path(tmp, "findings.csv")
@@ -420,13 +431,13 @@ test_that("validate.R --metadata-only on the real metadata has no unexplained ER
   findings <- read_std_csv(out_path)
   errors <- findings[findings$severity == "ERROR", ]
   # The one known, reported metadata defect (WP11-implementer.md,
-  # Questions): metadata/plans/LEGACY_LABELS.csv leaves `scale` empty on
+  # Questions): plans/LEGACY_LABELS.csv leaves `scale` empty on
   # rows this transition did not touch (mostly action != MAP); a findings
   # cap (see .docs/data-standard.qmd) can fold those 20+ rows into one
   # extra SUMMARY row for the same check_id/file. Every other ERROR would
   # be unexplained and should fail this test.
   unexplained <- errors[!(errors$check_id == "META.REQUIRED" &
-    errors$file == "metadata/plans/LEGACY_LABELS.csv"), ]
+    errors$file == "plans/LEGACY_LABELS.csv"), ]
   expect_equal(nrow(unexplained), 0)
 })
 
@@ -526,7 +537,7 @@ test_that("STRUCT.ATTR_LEVEL groups SERIES_ID across all data files", {
   df <- read_std_csv(fx$data_path)
   df$TIME_PERIOD <- "2022"
   df$SERIES_ID[1] <- paste0(df$SERIES_ID[1], "_X")
-  second <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2022_SURVEY.csv")
+  second <- stage_path(fx$tmp, "data", "AFW360_HH_GNB_2022_SURVEY.csv")
   write_std_csv(df, second)
   ctx <- build_ctx(fx$tmp, data_files = c(fx$data_path, second))
   res <- vc_struct_attr_level(ctx)
@@ -552,8 +563,8 @@ test_that("a row whose ESTIMATION differs from the file name gives STRUCT.FILE_N
 
 test_that("a data file named without its ESTIMATION gives STRUCT.FILE_NAME", {
   fx <- .small_fixture()
-  old_stem <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2021_SURVEY")
-  new_stem <- file.path(fx$tmp, "data", "AFW360_HH_GNB_2021")
+  old_stem <- stage_path(fx$tmp, "data", "AFW360_HH_GNB_2021_SURVEY")
+  new_stem <- stage_path(fx$tmp, "data", "AFW360_HH_GNB_2021")
   file.rename(paste0(old_stem, ".csv"), paste0(new_stem, ".csv"))
   file.rename(paste0(old_stem, "_manifest.csv"), paste0(new_stem, "_manifest.csv"))
   ctx <- build_ctx(fx$tmp, data_files = paste0(new_stem, ".csv"))
@@ -641,7 +652,7 @@ test_that("CODES.SOURCE_ID flags an unknown source, a source of another country 
   expect_equal(nrow(vc_codes_source_id(ctx)), 0L)
 
   # A second GNB source, registered in SOURCES.csv but not in the manifest.
-  edit_csv(file.path(fx$tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
+  edit_csv(stage_path(fx$tmp, "metadata", "registries", "SOURCES.csv"), function(s) {
     extra <- s[s$source_id == "GNB_EHCVM2021_LEGACY_v1", ]
     extra$source_id <- "GNB_EHCVM2021_LEGACY_v2"
     rbind(s, extra)
@@ -694,7 +705,7 @@ test_that("a qualifier declared nowhere and dropped from INDICATOR_QUALIFIERS.cs
   fx <- .small_fixture()
   ctx <- build_ctx(fx$tmp, data_files = fx$data_path)
   expect_equal(nrow(vc_codes_qual_declared(ctx)), 0L)
-  edit_csv(file.path(fx$tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
+  edit_csv(stage_path(fx$tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
     df[!(df$indicator == "POV_HC" & df$qual_var == "PPP"), ]
   })
   res <- vc_codes_qual_declared(build_ctx(fx$tmp, data_files = fx$data_path))
@@ -708,7 +719,7 @@ test_that("a qualifier declared nowhere and dropped from INDICATOR_QUALIFIERS.cs
 
 test_that("a codelist code starting with '_' gives META.CODE_SYNTAX", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_THEME.csv"), function(df) {
     df$code[df$code == "INEQ"] <- "_X"
     df
   })
@@ -722,7 +733,7 @@ test_that("the real RULES.csv passes META.RULES, and each malformed row fails it
   tmp <- make_temp_root(.root)
   expect_equal(nrow(vc_meta_rules(build_ctx(tmp))), 0L)
 
-  path <- file.path(tmp, "metadata", "rules", "RULES.csv")
+  path <- stage_path(tmp, "metadata", "rules", "RULES.csv")
   edit_csv(path, function(df) {
     df$rule[df$rule_id == "POV_HC.RANGE_0_1"] <- "RANGE_0_2"           # unknown rule
     df$scope_code[df$rule_id == "CONS_SH.RANGE_0_1"] <- "NO_SUCH_IND"  # unresolved scope_code
@@ -745,11 +756,11 @@ test_that("INDICATOR_QUALIFIERS.csv and QUALIFIER_PAIRS.csv rows with foreign ca
   expect_equal(nrow(vc_meta_indicator_qualifiers(ctx)), 0L)
   expect_equal(nrow(vc_meta_qualifier_pairs(ctx)), 0L)
 
-  edit_csv(file.path(tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "structure", "INDICATOR_QUALIFIERS.csv"), function(df) {
     df$allowed[df$indicator == "POV_HC" & df$qual_var == "POVLINE"] <- "POVLINE_PL300 PPP_2021"
     df
   })
-  edit_csv(file.path(tmp, "metadata", "structure", "QUALIFIER_PAIRS.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "structure", "QUALIFIER_PAIRS.csv"), function(df) {
     df$allowed[df$qualifier == "POVLINE_PL300"] <- "POVLINE_PL420"
     df
   })
@@ -764,7 +775,7 @@ test_that("INDICATOR_QUALIFIERS.csv and QUALIFIER_PAIRS.csv rows with foreign ca
 
 test_that("META.SERIES_PLAN accepts a NOT_PRODUCED country row with notes and rejects the malformed ones", {
   tmp <- make_temp_root(.root)
-  path <- file.path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
+  path <- stage_path(tmp, "metadata", "plans", "SERIES_PLAN.csv")
   expect_equal(nrow(vc_meta_series_plan(build_ctx(tmp))), 0L)
 
   edit_csv(path, function(df) {
@@ -800,8 +811,8 @@ test_that("META.SERIES_PLAN accepts a NOT_PRODUCED country row with notes and re
 
 test_that("META.SOURCES checks kind and the checksum of an input file under the root", {
   tmp <- make_temp_root(.root)
-  path <- file.path(tmp, "metadata", "registries", "SOURCES.csv")
-  version_sha <- sha256_file(file.path(tmp, "metadata", "VERSION"))
+  path <- stage_path(tmp, "metadata", "registries", "SOURCES.csv")
+  version_sha <- sha256_file(stage_path(tmp, "metadata", "VERSION"))
   edit_csv(path, function(df) {
     df$inputs[1] <- "metadata/VERSION"
     df$inputs_sha256[1] <- version_sha
@@ -832,7 +843,7 @@ test_that("the DOCS module passes on current fragments and reports a stale one",
   tmp <- make_temp_root(.root, include = c("metadata", "content", ".docs"))
   expect_equal(nrow(vc_docs_fragments(build_ctx(tmp))), 0L)
 
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_OBS_STATUS.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_OBS_STATUS.csv"), function(df) {
     df$name_en[df$code == "U"] <- "Unreliable"
     df
   })
@@ -855,7 +866,7 @@ test_that("the DOCS module gives one INFO when the root has no standard", {
 #' .run_all_checks() above keeps its module set.
 .values_env <- function() {
   ve <- new.env(parent = globalenv())
-  sys.source(file.path(.root, "pipeline", "R", "validate_values.R"), envir = ve)
+  sys.source(stage_path(.root, "code", "validate_values.R"), envir = ve)
   ve
 }
 
@@ -924,7 +935,7 @@ test_that("a UNIT_MEASURE outside CL_UNIT_MEASURE gives CODES.UNIT", {
 
 test_that("a CL_AREA currency outside CL_UNIT_MEASURE gives META.REFERENCE", {
   tmp <- make_temp_root(.root)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_AREA.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_AREA.csv"), function(df) {
     df$currency[df$code == "SEN"] <- "EUR"
     df
   })
@@ -936,7 +947,7 @@ test_that("a CL_AREA currency outside CL_UNIT_MEASURE gives META.REFERENCE", {
 test_that("ARTEFACTS.csv passes, and an unlisted codelist or a missing source file gives META.ARTEFACTS", {
   tmp <- make_temp_root(.root)
   expect_equal(nrow(vc_meta_artefacts(build_ctx(tmp))), 0L)
-  edit_csv(file.path(tmp, "metadata", "structure", "ARTEFACTS.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "structure", "ARTEFACTS.csv"), function(df) {
     df$source_file[df$artefact_id == "CL_SOURCE"] <- "metadata/registries/NOPE.csv"
     df[df$artefact_id != "CL_THEME", , drop = FALSE]
   })
@@ -949,7 +960,7 @@ test_that("ARTEFACTS.csv passes, and an unlisted codelist or a missing source fi
 test_that("a global_urn that is not a full code URN gives META.GLOBAL_URN", {
   tmp <- make_temp_root(.root)
   expect_equal(nrow(vc_meta_global_urn(build_ctx(tmp))), 0L)
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_SEX.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_SEX.csv"), function(df) {
     df$global_urn[df$code == "F"] <- "SDMX:CL_SEX(2.1).F"
     df
   })

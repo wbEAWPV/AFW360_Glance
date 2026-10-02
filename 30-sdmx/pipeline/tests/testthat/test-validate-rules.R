@@ -22,13 +22,13 @@
 #     Each test keeps TOTAL plus exactly one other cut.
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "plan.R"))
-source(file.path(root, "pipeline", "R", "ctx.R"))
-source(file.path(root, "pipeline", "R", "manifest.R"))
-source(file.path(root, "pipeline", "R", "validate_rules.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "codes.R"))
+source(stage_path(root, "code", "constants.R"))
+source(stage_path(root, "code", "plan.R"))
+source(stage_path(root, "code", "ctx.R"))
+source(stage_path(root, "code", "manifest.R"))
+source(stage_path(root, "code", "validate_rules.R"))
 
 ALL_RULE_FNS <- c(
   "vc_rule_range_0_1", "vc_rule_range_nonneg", "vc_rule_agg_sum",
@@ -57,7 +57,7 @@ BASE_SERIES <- c(
 #' `AFW360_HH_<ISO3>_<YEAR>_manifest.csv`. No rewrite is needed here.
 make_rules_root <- function(series_ids = BASE_SERIES, cuts = "URB", ref_area = "SEN") {
   tmp <- make_temp_root(root)
-  edit_csv(file.path(tmp, "metadata", "plans", "TAB_PLAN.csv"), function(df) {
+  edit_csv(stage_path(tmp, "plans", "TAB_PLAN.csv"), function(df) {
     df[df$cut_id %in% c("TOTAL", cuts), , drop = FALSE]
   })
   data_path <- make_data_fixture(tmp, ref_area, "2021", series_ids = series_ids)
@@ -111,7 +111,7 @@ make_consistent_ctx <- function() {
 #' fixture writes PRECISION = 0.01 x scale on every row of a series, so the
 #' validator's h = PRECISION / 2 = 0.005 x scale.
 series_scale <- function(tmp_root, series_id) {
-  ll <- read_std_csv(file.path(tmp_root, "metadata", "plans", "LEGACY_LABELS.csv"))
+  ll <- read_std_csv(stage_path(tmp_root, "plans", "LEGACY_LABELS.csv"))
   row <- ll[ll$series_id == series_id, , drop = FALSE][1, ]
   s <- suppressWarnings(as.numeric(row$scale))
   if (length(s) == 0 || is.na(s)) 1 else s
@@ -397,7 +397,7 @@ test_that("WP13.A6: with ctx$data empty, every function returns zero rows", {
 
 #' Edit the temp root's RULES.csv.
 edit_rules <- function(tmp_root, fn) {
-  edit_csv(file.path(tmp_root, "metadata", "rules", "RULES.csv"), fn)
+  edit_csv(stage_path(tmp_root, "metadata", "rules", "RULES.csv"), fn)
 }
 
 #' Append one RULES.csv row.
@@ -589,8 +589,8 @@ test_that("RULE.NPOP_PARTITION sums N_POP over population cuts, never over a def
 })
 
 test_that("the retired EQUALS_NPOP_RATIO rule is unknown to META.RULES", {
-  source(file.path(root, "pipeline", "R", "validate_structure.R"))
-  source(file.path(root, "pipeline", "R", "validate_metadata.R"))
+  source(stage_path(root, "code", "validate_structure.R"))
+  source(stage_path(root, "code", "validate_metadata.R"))
   tmp <- make_temp_root(root)
   on.exit(unlink(tmp, recursive = TRUE))
   add_rule(tmp, "INDICATOR", "POP_SH", "EQUALS_NPOP_RATIO")

@@ -1,4 +1,4 @@
-# pipeline/R/content.R
+# 20-excel-sdmx-csv/R/content.R
 #
 # Helpers for WP10 (Text, figures and surveys): stripping the Quarto chunk
 # and HTML wrappers around a key-message title or body, extracting the

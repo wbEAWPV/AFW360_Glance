@@ -1,12 +1,12 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "geo.R"))
+source(stage_path(root, "code", "geo.R"))
 
 suppressPackageStartupMessages(library(sf))
 
-sen_adm0 <- file.path(root, "data_raw", "shp", "sen_admin0.shp")
-sen_adm1 <- file.path(root, "data_raw", "shp", "sen_admin1.shp")
-gnb_adm0 <- file.path(root, "data_raw", "shp", "gnb_admin0.shp")
-gnb_adm1 <- file.path(root, "data_raw", "shp", "gnb_admin1.shp")
+sen_adm0 <- stage_path(root, "data_raw", "shp", "sen_admin0.shp")
+sen_adm1 <- stage_path(root, "data_raw", "shp", "sen_admin1.shp")
+gnb_adm0 <- stage_path(root, "data_raw", "shp", "gnb_admin0.shp")
+gnb_adm1 <- stage_path(root, "data_raw", "shp", "gnb_admin1.shp")
 
 test_that("read_admin_layer rejects an unknown level", {
   expect_error(read_admin_layer(sen_adm0, "adm2"), "adm0.*adm1")

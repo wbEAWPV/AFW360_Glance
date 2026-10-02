@@ -1,4 +1,4 @@
-# pipeline/tests/testthat/test-reconcile.R
+# 20-excel-sdmx-csv/tests/testthat/test-reconcile.R
 #
 # WP16 - Independent reconciliation tool (DSD 0.3.0, SDMX-CSV 2.1). Builds data files straight from
 # expected_rows() (never from the converter), checks the tool reports
@@ -7,9 +7,9 @@
 # hand.
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "reconcile.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "codes.R"))
+source(stage_path(root, "code", "reconcile.R"))
 
 # The 19 key columns: the 18 dimensions, then TIME_PERIOD.
 .key_cols <- c(
@@ -27,7 +27,7 @@ source(file.path(root, "pipeline", "R", "reconcile.R"))
 )
 
 test_that("the fixture column list is the header of the published data files", {
-  for (p in Sys.glob(file.path(root, "data", "AFW360_HH_*_SURVEY.csv"))) {
+  for (p in Sys.glob(stage_path(root, "data", "AFW360_HH_*_SURVEY.csv"))) {
     header <- strsplit(readLines(p, n = 1, warn = FALSE), ",", fixed = TRUE)[[1]]
     expect_equal(header, .dsd_cols, info = basename(p))
   }
@@ -37,7 +37,7 @@ test_that("the fixture column list is the header of the published data files", {
 
 #' The fixture data file path for a country.
 .data_path <- function(tmp, ra, tp) {
-  file.path(tmp, "data", paste0("AFW360_HH_", ra, "_", tp, "_SURVEY.csv"))
+  stage_path(tmp, "data", paste0("AFW360_HH_", ra, "_", tp, "_SURVEY.csv"))
 }
 
 #' Write data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv under `tmp`, straight
@@ -273,13 +273,13 @@ test_that("an O row given a value gives MISMATCH", {
   expect_true(any(res$report_rows$result == "MISMATCH"))
 })
 
-test_that("neither pipeline/reconcile.R nor pipeline/R/reconcile.R refers to the converter", {
+test_that("neither reconcile.R nor R/reconcile.R refers to the converter", {
   # Built from parts, not spelled out whole, so this check's own text does
   # not itself trip a plain-text search for the names it looks for
   # (WP16.A5: the code must not refer to them at all).
   code <- c(
-    readLines(file.path(root, "pipeline", "reconcile.R"), warn = FALSE),
-    readLines(file.path(root, "pipeline", "R", "reconcile.R"), warn = FALSE)
+    readLines(file.path(root, "reconcile.R"), warn = FALSE),
+    readLines(stage_path(root, "code", "reconcile.R"), warn = FALSE)
   )
   forbidden <- c(
     paste0("convert", "_", "tables"),
@@ -301,11 +301,11 @@ test_that("reconcile() passes on the committed data files", {
 test_that("the CLI exits 0 and writes a PASS report on matching fixture data", {
   fx <- .new_fixture()
   on.exit(unlink(fx$tmp, recursive = TRUE), add = TRUE)
-  file.copy(file.path(root, "pipeline"), fx$tmp, recursive = TRUE)
+  copy_stage_code(root, fx$tmp)
 
   out_md <- file.path(fx$tmp, "report.md")
   out_csv <- file.path(fx$tmp, "cells.csv")
-  cli <- file.path(fx$tmp, "pipeline", "reconcile.R")
+  cli <- file.path(fx$tmp, "reconcile.R")
   res <- system2(
     "Rscript",
     args = shQuote(c(cli, "--root", fx$tmp, "--out", out_md, "--csv", out_csv)),
@@ -324,8 +324,8 @@ test_that("the CLI exits 0 and writes a PASS report on matching fixture data", {
 test_that("the CLI exits 1 on a MISMATCH and exits 2 on a missing data file", {
   fx <- .new_fixture()
   on.exit(unlink(fx$tmp, recursive = TRUE), add = TRUE)
-  file.copy(file.path(root, "pipeline"), fx$tmp, recursive = TRUE)
-  cli <- file.path(fx$tmp, "pipeline", "reconcile.R")
+  copy_stage_code(root, fx$tmp)
+  cli <- file.path(fx$tmp, "reconcile.R")
 
   edit_csv(fx$paths[["SEN"]], function(df) {
     i <- which(df$OBS_VALUE != "")[1]
@@ -342,7 +342,8 @@ test_that("the CLI exits 1 on a MISMATCH and exits 2 on a missing data file", {
   md <- readLines(out_md, warn = FALSE)
   expect_equal(tail(md, 1), "RECONCILIATION: FAIL")
 
-  unlink(file.path(fx$tmp, "data"), recursive = TRUE)
+  # The data folder of the copy also holds metadata/: remove the data files only.
+  unlink(Sys.glob(stage_path(fx$tmp, "data", "AFW360_HH_*.csv")))
   out_md2 <- file.path(fx$tmp, "report_missing.md")
   res2 <- suppressWarnings(system2(
     "Rscript",

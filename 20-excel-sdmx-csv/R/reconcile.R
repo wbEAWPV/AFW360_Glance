@@ -1,13 +1,15 @@
-# pipeline/R/reconcile.R
+# 20-excel-sdmx-csv/R/reconcile.R
 #
 # WP16 - Independent reconciliation tool. A second, independent path from
 # the standard data files (data/AFW360_HH_<ISO3>_<YEAR>_SURVEY.csv) back to the
 # legacy workbooks (data_raw/tables/Tables_<ISO3>.xlsx). It shares no code
 # with the converter: every key here is built straight from the legacy
-# maps (metadata/plans/LEGACY_*.csv, metadata/plans/SERIES_PLAN.csv) and
-# the small codelists, never from a converter helper.
+# maps (plans/LEGACY_*.csv of this stage, metadata/plans/SERIES_PLAN.csv of
+# the standard) and the small codelists, never from a converter helper.
+# Locations come from R/paths.R: the data files are the published ones
+# (30-sdmx/data/), the workbooks the frozen legacy inputs.
 #
-# Three pure functions, used by pipeline/reconcile.R (the CLI):
+# Three pure functions, used by reconcile.R (the CLI):
 #   source_cells(root)   -- every (country, sheet, label, column) cell,
 #                            classified as skipped / duplicate / derived /
 #                            withheld / converted.
@@ -51,12 +53,13 @@
   )
 }
 
-#' Every metadata and content CSV under a root, keyed by file stem.
+#' Every metadata, plan and content CSV of the stage, keyed by file stem
+#' (the folders of stage_metadata_dirs(), R/paths.R).
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object.
 #' @return A named list of tibbles.
 .reconcile_load_metadata <- function(root) {
-  dirs <- file.path(root, c("metadata", "content"))
+  dirs <- stage_metadata_dirs(root)
   dirs <- dirs[dir.exists(dirs)]
   files <- unlist(lapply(
     dirs, list.files, pattern = "[.]csv$", recursive = TRUE, full.names = TRUE
@@ -93,11 +96,12 @@
 
 #' The data file a country's legacy conversion is expected in.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param ref_area,time_period The country and year.
-#' @return `<root>/data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv`.
+#' @return `data/AFW360_HH_<ref_area>_<time_period>_SURVEY.csv` of the
+#'   stage (the published data folder, R/paths.R).
 .reconcile_data_path <- function(root, ref_area, time_period) {
-  file.path(
+  stage_path(
     root, "data",
     paste0("AFW360_HH_", ref_area, "_", time_period, "_", .reconcile_estimation, ".csv")
   )
@@ -126,7 +130,7 @@
 #' sheet a workbook has (`readxl::excel_sheets()`) and every data column
 #' (every column but the first) and every non-blank indicator row.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @return A tibble: ref_area, sheet, legacy_label, column, raw_value
 #'   (character, "" when blank), class (skipped/duplicate/derived/
 #'   withheld/converted), lbl_action, series_id, scale, duplicate_of,
@@ -143,7 +147,7 @@ source_cells <- function(root) {
 
   cell_frames <- list()
   for (ra in ref_areas) {
-    path <- file.path(root, "data_raw", "tables", paste0("Tables_", ra, ".xlsx"))
+    path <- stage_path(root, "data_raw", "tables", paste0("Tables_", ra, ".xlsx"))
     sheets <- readxl::excel_sheets(path)
     for (sh in sheets) {
       df <- readxl::read_excel(path, sheet = sh, col_types = "text")
@@ -252,7 +256,7 @@ source_cells <- function(root) {
 #' The 19-column key and expected value for every converted or withheld
 #' cell.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @return A tibble with one row per converted/withheld source cell:
 #'   identity columns (ref_area, sheet, legacy_label, column, class,
 #'   raw_value, scale), the 19 key columns, `row_key` (the 19 columns
@@ -391,7 +395,7 @@ expected_rows <- function(root) {
 
 #' Compare expected_rows() against the data files on disk.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @return A list: `report_rows` (one row per source cell: ref_area,
 #'   sheet, legacy_label, column, class, result, source_value, data_value,
 #'   row_key), `orphans` (data rows with no source cell: ref_area,

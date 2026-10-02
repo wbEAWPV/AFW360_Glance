@@ -151,13 +151,13 @@ sdmx_read_structures <- function(x) {
 #' Plan the import of a structure message against the metadata under `root`.
 #'
 #' @param x Path to the structure message, or an xml2 document.
-#' @param root Repo root holding metadata/.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @return A list: `files`, a list of `list(path, old, new)` (repository
 #'   paths and file texts), and `reports`, a character vector of notes
 #'   (derived codelists and artefacts not in ARTEFACTS.csv).
 sdmx_import_plan <- function(x, root) {
   doc <- sdmx_read_structures(x)
-  cols <- read_std_csv(file.path(root, "metadata", "structure", "COLUMNS.csv"))
+  cols <- read_std_csv(stage_path(root, "metadata", "structure", "COLUMNS.csv"))
   files <- list()
   reports <- character(0)
 
@@ -189,12 +189,12 @@ sdmx_import_plan <- function(x, root) {
     columns <- spec$column[order(as.integer(spec$position))]
     rows <- .imp_codelist_rows(node, id, columns)
     files[[length(files) + 1]] <- list(path = src,
-      old = .imp_file_text(file.path(root, src)), new = .imp_csv_text(rows))
+      old = .imp_file_text(stage_rel(root, src)), new = .imp_csv_text(rows))
   }
 
   # Names and descriptions of the maintainables back to ARTEFACTS.csv.
   art_path <- "metadata/structure/ARTEFACTS.csv"
-  artefacts <- read_std_csv(file.path(root, art_path))
+  artefacts <- read_std_csv(stage_rel(root, art_path))
   for (node in xml2::xml_find_all(doc, "/*/*[local-name()='Structures']/*/*[@id]")) {
     id <- xml2::xml_attr(node, "id")
     i <- which(artefacts$artefact_id == id)
@@ -206,7 +206,7 @@ sdmx_import_plan <- function(x, root) {
     artefacts$description_en[i] <- .imp_text(node, "Description")
   }
   files[[length(files) + 1]] <- list(path = art_path,
-    old = .imp_file_text(file.path(root, art_path)), new = .imp_csv_text(artefacts))
+    old = .imp_file_text(stage_rel(root, art_path)), new = .imp_csv_text(artefacts))
 
   list(files = files, reports = reports)
 }
@@ -282,7 +282,7 @@ sdmx_import_diff <- function(plan) {
 sdmx_import_apply <- function(plan, out_root) {
   changed <- character(0)
   for (f in plan$files) {
-    target <- file.path(out_root, f$path)
+    target <- stage_rel(out_root, f$path)
     dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
     con <- file(target, open = "wb")
     writeBin(charToRaw(f$new), con)

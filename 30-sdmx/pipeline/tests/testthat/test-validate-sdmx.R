@@ -6,12 +6,12 @@
 # injected into temp copies, never into sdmx/ or metadata/.
 
 .root <- find_root()
-source(file.path(.root, "pipeline", "R", "constants.R"))
-source(file.path(.root, "pipeline", "R", "ctx.R"))
-source(file.path(.root, "pipeline", "R", "sdmx_xml.R"))
-source(file.path(.root, "pipeline", "R", "sdmx_structures.R"))
-source(file.path(.root, "pipeline", "R", "sdmx_refmeta.R"))
-source(file.path(.root, "pipeline", "R", "validate_sdmx.R"))
+source(stage_path(.root, "code", "constants.R"))
+source(stage_path(.root, "code", "ctx.R"))
+source(stage_path(.root, "code", "sdmx_xml.R"))
+source(stage_path(.root, "code", "sdmx_structures.R"))
+source(stage_path(.root, "code", "sdmx_refmeta.R"))
+source(stage_path(.root, "code", "validate_sdmx.R"))
 
 .struct_rel <- "sdmx/structures/AFW360_structures.xml"
 
@@ -20,13 +20,13 @@ source(file.path(.root, "pipeline", "R", "validate_sdmx.R"))
 .sdmx_root <- function() {
   tmp <- make_temp_root(.root, include = c("metadata", "content", "sdmx"))
   dir.create(file.path(tmp, "pipeline"))
-  file.copy(file.path(.root, "pipeline", "xsd"), file.path(tmp, "pipeline"), recursive = TRUE)
+  file.copy(stage_path(.root, "xsd"), file.path(tmp, "pipeline"), recursive = TRUE)
   tmp
 }
 
 #' Replace text in the temp root's structure message (fixed strings).
 .sub_xml <- function(tmp, from, to, all = TRUE) {
-  path <- file.path(tmp, .struct_rel)
+  path <- stage_rel(tmp, .struct_rel)
   txt <- readChar(path, file.info(path)$size, useBytes = TRUE)
   new <- if (all) gsub(from, to, txt, fixed = TRUE) else sub(from, to, txt, fixed = TRUE)
   stopifnot(!identical(new, txt))
@@ -37,7 +37,7 @@ source(file.path(.root, "pipeline", "R", "validate_sdmx.R"))
 .ids <- function(res) unique(res$check_id)
 
 test_that("the five checks give no finding on the repository", {
-  data_file <- Sys.glob(file.path(.root, "data", "AFW360_HH_*.csv"))
+  data_file <- Sys.glob(stage_path(.root, "data", "AFW360_HH_*.csv"))
   data_file <- data_file[!grepl("_manifest[.]csv$", data_file)][1]
   ctx <- build_ctx(.root, data_files = data_file)
   expect_equal(nrow(vc_sdmx_stale(ctx)), 0)
@@ -60,12 +60,12 @@ test_that("a root without sdmx/ gives one INFO SDMX.SKIPPED and nothing else", {
 
 test_that("SDMX.STALE flags a changed codelist, a missing output and a stray file", {
   tmp <- .sdmx_root()
-  cl <- file.path(tmp, "metadata", "codelists", "CL_SEX.csv")
+  cl <- stage_path(tmp, "metadata", "codelists", "CL_SEX.csv")
   lines <- readLines(cl, encoding = "UTF-8")
   lines[2] <- sub("Female", "Femal", lines[2], fixed = TRUE)
   writeLines(lines, cl, useBytes = TRUE)
-  file.remove(file.path(tmp, "sdmx", "metadata", "MDS_FIGURES.csv"))
-  writeLines("x", file.path(tmp, "sdmx", "metadata", "MDS_EXTRA.csv"))
+  file.remove(stage_path(tmp, "sdmx", "metadata", "MDS_FIGURES.csv"))
+  writeLines("x", stage_path(tmp, "sdmx", "metadata", "MDS_EXTRA.csv"))
   res <- vc_sdmx_stale(build_ctx(tmp))
   expect_equal(.ids(res), "SDMX.STALE")
   expect_true(all(res$severity == "ERROR"))
@@ -83,11 +83,11 @@ test_that("SDMX.XSD flags an attribute the schema does not allow, and a broken f
   res <- vc_sdmx_xsd(build_ctx(tmp))
   expect_equal(.ids(res), "SDMX.XSD")
   expect_gte(nrow(res), 1)
-  writeLines("<not-closed>", file.path(tmp, .struct_rel))
+  writeLines("<not-closed>", stage_rel(tmp, .struct_rel))
   res <- vc_sdmx_xsd(build_ctx(tmp))
   expect_equal(.ids(res), "SDMX.XSD")
   expect_match(res$message, "not well-formed")
-  file.remove(file.path(tmp, .struct_rel))
+  file.remove(stage_rel(tmp, .struct_rel))
   expect_match(vc_sdmx_xsd(build_ctx(tmp))$message, "missing")
 })
 
@@ -102,10 +102,10 @@ test_that("SDMX.URN flags an unresolved reference", {
 
 test_that("SDMX.URN flags an unresolved code reference and a missing Parent", {
   tmp <- .sdmx_root()
-  doc <- xml2::read_xml(file.path(tmp, .struct_rel))
+  doc <- xml2::read_xml(stage_rel(tmp, .struct_rel))
   parent <- xml2::xml_find_first(doc, "//*[local-name()='Parent']")
   xml2::xml_text(parent) <- "NO_SUCH_CODE"
-  xml2::write_xml(doc, file.path(tmp, .struct_rel))
+  xml2::write_xml(doc, stage_rel(tmp, .struct_rel))
   res <- vc_sdmx_urn(build_ctx(tmp))
   expect_equal(.ids(res), "SDMX.URN")
   expect_true(any(grepl("Parent 'NO_SUCH_CODE'", res$message)))
@@ -139,11 +139,11 @@ test_that("SDMX.IDENT flags agency, version, id and name faults", {
   .sub_xml(tmp, 'id="CL_GEO" version="0.3.0"', 'id="CL_GEO" version="0.4.0"')
   .sub_xml(tmp, 'id="DATA_PROVIDERS"', 'id="DATA_PROVIDERS" version="1.0"')
   .sub_xml(tmp, 'id="CL_FREQ" version=', 'id="CL FREQ" version=')
-  doc <- xml2::read_xml(file.path(tmp, .struct_rel))
+  doc <- xml2::read_xml(stage_rel(tmp, .struct_rel))
   cl <- xml2::xml_find_first(doc, "//*[local-name()='Codelist'][@id='CL_AREA']")
   nm <- xml2::xml_find_first(cl, "./*[local-name()='Name']")
   xml2::xml_set_attr(nm, "xml:lang", "fr")
-  xml2::write_xml(doc, file.path(tmp, .struct_rel))
+  xml2::write_xml(doc, stage_rel(tmp, .struct_rel))
   res <- vc_sdmx_ident(build_ctx(tmp))
   expect_equal(.ids(res), "SDMX.IDENT")
   msg_for <- function(rk) paste(res$message[res$row_key == rk], collapse = " | ")
@@ -158,22 +158,22 @@ test_that("SDMX.IDENT flags agency, version, id and name faults", {
 
 test_that("SDMX.CSV_HEADER flags a missing column, a wrong order and a wrong STRUCTURE_ID version", {
   tmp <- make_temp_root(.root, include = c("metadata", "data"))
-  src <- Sys.glob(file.path(tmp, "data", "AFW360_HH_*.csv"))
+  src <- Sys.glob(stage_path(tmp, "data", "AFW360_HH_*.csv"))
   src <- src[!grepl("_manifest[.]csv$", src)][1]
   df <- utils::head(read_std_csv(src), 5)
 
   gone <- names(df)[10]
   missing_col <- df[setdiff(names(df), gone)]
-  p1 <- file.path(tmp, "data", "AFW360_HH_T1.csv")
+  p1 <- stage_path(tmp, "data", "AFW360_HH_T1.csv")
   write_std_csv(missing_col, p1)
 
   swapped <- df[c(names(df)[c(1, 2, 3, 5, 4)], names(df)[-(1:5)])]
-  p2 <- file.path(tmp, "data", "AFW360_HH_T2.csv")
+  p2 <- stage_path(tmp, "data", "AFW360_HH_T2.csv")
   write_std_csv(swapped, p2)
 
   old <- df
   old$STRUCTURE_ID[1] <- "WB.AFW360:AFW360_HH(0.2.0)"
-  p3 <- file.path(tmp, "data", "AFW360_HH_T3.csv")
+  p3 <- stage_path(tmp, "data", "AFW360_HH_T3.csv")
   write_std_csv(old, p3)
 
   ctx <- build_ctx(tmp, data_files = c(p1, p2, p3))

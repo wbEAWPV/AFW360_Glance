@@ -61,7 +61,7 @@ SDMX_MSD_PARENTS <- list(
 
 #' The metadata version (metadata/VERSION).
 sdmx_version <- function(root) {
-  trimws(readLines(file.path(root, "metadata", "VERSION"), warn = FALSE)[1])
+  trimws(readLines(stage_path(root, "metadata", "VERSION"), warn = FALSE)[1])
 }
 
 #' Row of ARTEFACTS.csv for an artefact id.
@@ -114,7 +114,7 @@ sdmx_agency_scheme <- function(parent, artefacts, version) {
 #' a data frame with id, name, description and `parent` (TRUE for the
 #' presentational parents), in parent order, children after their parent.
 sdmx_msd_concepts <- function(root) {
-  cols <- read_std_csv(file.path(root, "metadata", "structure", "COLUMNS.csv"))
+  cols <- read_std_csv(stage_path(root, "metadata", "structure", "COLUMNS.csv"))
   out <- list()
   for (pid in names(SDMX_MSD_PARENTS)) {
     p <- SDMX_MSD_PARENTS[[pid]]
@@ -123,7 +123,7 @@ sdmx_msd_concepts <- function(root) {
       children <- p$children
       cfile <- p$columns_file
     } else {
-      hdr <- names(read_std_csv(file.path(root, p$file)))
+      hdr <- names(read_std_csv(stage_rel(root, p$file)))
       children <- setdiff(hdr, c(p$id, "status"))
       cfile <- basename(p$file)
     }
@@ -142,13 +142,13 @@ sdmx_msd_concepts <- function(root) {
 #' component, then one per metadata attribute not already present.
 #'
 #' @param parent The `str:ConceptSchemes` node.
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param artefacts ARTEFACTS.csv as a tibble.
 #' @param version The metadata version.
 #' @return The `str:ConceptScheme` node.
 sdmx_concept_scheme <- function(parent, root, artefacts, version) {
   art <- .sdmx_artefact(artefacts, "CS_AFW360")
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  dsd <- read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   dsd <- dsd[order(as.integer(dsd$position)), , drop = FALSE]
   node <- .sdmx_add_maintainable(parent, "str:ConceptScheme", art, version)
   add_concept <- function(id, name, description) {
@@ -211,14 +211,14 @@ sdmx_sentinels <- function(dsd, codelist_id) {
 #'
 #' @param parent The `str:Codelists` node.
 #' @param id Codelist id, a row of ARTEFACTS.csv.
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param artefacts ARTEFACTS.csv as a tibble.
 #' @param version The metadata version.
 #' @param dsd DSD_AFW360_HH.csv as a tibble (for the sentinels).
 #' @return The `str:Codelist` node.
 sdmx_codelist <- function(parent, id, root, artefacts, version, dsd) {
   art <- .sdmx_artefact(artefacts, id)
-  rows <- read_std_csv(file.path(root, art$source_file))
+  rows <- read_std_csv(stage_rel(root, art$source_file))
   node <- .sdmx_add_maintainable(parent, "str:Codelist", art, version)
   derived <- SDMX_DERIVED_CODELISTS[[id]]
   if (!is.null(derived)) {
@@ -307,13 +307,13 @@ SDMX_MDF_TARGETS <- list(
 #' link.
 #'
 #' @param parent The `str:DataStructures` node.
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param artefacts ARTEFACTS.csv as a tibble.
 #' @param version The metadata version.
 #' @return The `str:DataStructure` node.
 sdmx_data_structure <- function(parent, root, artefacts, version) {
   art <- .sdmx_artefact(artefacts, "DSD_AFW360_HH")
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  dsd <- read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   dsd <- dsd[order(as.integer(dsd$position)), , drop = FALSE]
   node <- .sdmx_add_maintainable(parent, "str:DataStructure", art, version)
   comps <- xml2::xml_add_child(node, "str:DataStructureComponents")
@@ -415,7 +415,7 @@ sdmx_metadata_provision_agreement <- function(parent, artefacts, version) {
 #' attribute's concept is the CS_AFW360 concept of the same id (part 1).
 #'
 #' @param parent The `str:MetadataStructures` node.
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param artefacts ARTEFACTS.csv as a tibble.
 #' @param version The metadata version.
 #' @return The `str:MetadataStructure` node.
@@ -461,13 +461,13 @@ sdmx_metadataflow <- function(parent, artefacts, version) {
 #' ARTEFACTS.csv, the data structure and dataflow, the metadata structure
 #' and metadataflow, and the two provision agreements.
 #'
-#' @param root Repo root.
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
 #' @param timestamp Value of the header's `mes:Prepared`.
 #' @return An xml2 document.
 sdmx_structures_message <- function(root, timestamp = SDMX_DEFAULT_TIMESTAMP) {
   version <- sdmx_version(root)
-  artefacts <- read_std_csv(file.path(root, "metadata", "structure", "ARTEFACTS.csv"))
-  dsd <- read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  artefacts <- read_std_csv(stage_path(root, "metadata", "structure", "ARTEFACTS.csv"))
+  dsd <- read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   msg <- sdmx_new_message(timestamp)
   s <- msg$structures
   add <- function(tag) xml2::xml_add_child(s, tag)

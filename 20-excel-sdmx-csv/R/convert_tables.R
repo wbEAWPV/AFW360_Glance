@@ -1,4 +1,4 @@
-# pipeline/R/convert_tables.R
+# 20-excel-sdmx-csv/R/convert_tables.R
 #
 # Pure functions that turn a legacy workbook (data_raw/tables/Tables_<ISO3>.xlsx)
 # into AFW360_HH rows, driven entirely by the LEGACY_LABELS, LEGACY_COLUMNS,

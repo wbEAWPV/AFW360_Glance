@@ -62,14 +62,14 @@
 
 #' Whether a registered file exists and matches its registered sha256.
 #'
-#' @param root Repo root.
-#' @param sub_dir Registry's base directory, relative to root
-#'   ("geo/boundaries" or "assets/figures").
+#' @param root The stage folder, or a `stage_paths` object (R/paths.R).
+#' @param sub_dir Registry's base directory as a logical path
+#'   ("geo/boundaries" or "assets/figures"; R/paths.R maps it to disk).
 #' @param file The registry row's `file` value.
 #' @param sha256 The registry row's `sha256` value.
 .af_file_status <- function(root, sub_dir, file, sha256) {
   rel <- paste0(sub_dir, "/", file)
-  full <- file.path(root, sub_dir, file)
+  full <- stage_rel(root, rel)
   exists <- file.exists(full)
   hash_ok <- exists && identical(sha256_file(full), sha256)
   list(rel = rel, full = full, exists = exists, hash_ok = hash_ok, ok = exists && hash_ok)

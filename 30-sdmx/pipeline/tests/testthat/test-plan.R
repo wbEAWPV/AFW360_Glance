@@ -8,17 +8,17 @@
 # the two plan files this package owns.
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "codes.R"))
-source(file.path(root, "pipeline", "R", "constants.R"))
-source(file.path(root, "pipeline", "R", "plan.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "codes.R"))
+source(stage_path(root, "code", "constants.R"))
+source(stage_path(root, "code", "plan.R"))
 
-seed_path <- function(...) file.path(root, "pipeline", "bootstrap", "seeds", ...)
+seed_path <- function(...) stage_path(root, "stage20", "bootstrap", "seeds", ...)
 
 #' The real DSD table: required_rows() takes its key from it (no column
 #' list is hard-coded since DSD 0.3.0), so every hand-made `meta` carries it.
 real_dsd <- function() {
-  read_std_csv(file.path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  read_std_csv(stage_path(root, "metadata", "structure", "DSD_AFW360_HH.csv"))
 }
 
 #' Build `meta` from the real contract seeds and this package's own plan
@@ -28,8 +28,8 @@ seed_meta_real <- function() {
   geo <- read_std_csv(seed_path("geo_codes.csv"))
   triage <- read_std_csv(seed_path("label_triage.csv"))
 
-  series_plan <- read_std_csv(file.path(root, "metadata", "plans", "SERIES_PLAN.csv"))
-  tab_plan <- read_std_csv(file.path(root, "metadata", "plans", "TAB_PLAN.csv"))
+  series_plan <- read_std_csv(stage_path(root, "metadata", "plans", "SERIES_PLAN.csv"))
+  tab_plan <- read_std_csv(stage_path(root, "plans", "TAB_PLAN.csv"))
 
   map_rows <- triage[triage$action == "MAP", , drop = FALSE]
   indicator_codes <- unique(map_rows$INDICATOR)
@@ -61,15 +61,15 @@ seed_meta_real <- function() {
 #' stem (used to test `make_data_fixture()`, which reads `meta` from disk).
 seed_temp_metadata <- function(tmp_root) {
   meta <- seed_meta_real()
-  write_std_csv(meta$SERIES_PLAN, file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
-  write_std_csv(meta$TAB_PLAN, file.path(tmp_root, "metadata", "plans", "TAB_PLAN.csv"))
-  write_std_csv(meta$CL_INDICATOR, file.path(tmp_root, "metadata", "structure", "CL_INDICATOR.csv"))
-  write_std_csv(meta$CL_BRK_VAR, file.path(tmp_root, "metadata", "structure", "CL_BRK_VAR.csv"))
-  write_std_csv(meta$CL_COMP_BREAKDOWN, file.path(tmp_root, "metadata", "structure", "CL_COMP_BREAKDOWN.csv"))
-  write_std_csv(meta$CL_QUAL_VAR, file.path(tmp_root, "metadata", "structure", "CL_QUAL_VAR.csv"))
-  write_std_csv(meta$CL_QUALIFIER, file.path(tmp_root, "metadata", "structure", "CL_QUALIFIER.csv"))
-  write_std_csv(meta$CL_GEO, file.path(tmp_root, "metadata", "structure", "CL_GEO.csv"))
-  write_std_csv(meta$DSD_AFW360_HH, file.path(tmp_root, "metadata", "structure", "DSD_AFW360_HH.csv"))
+  write_std_csv(meta$SERIES_PLAN, stage_path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
+  write_std_csv(meta$TAB_PLAN, stage_path(tmp_root, "plans", "TAB_PLAN.csv"))
+  write_std_csv(meta$CL_INDICATOR, stage_path(tmp_root, "metadata", "structure", "CL_INDICATOR.csv"))
+  write_std_csv(meta$CL_BRK_VAR, stage_path(tmp_root, "metadata", "structure", "CL_BRK_VAR.csv"))
+  write_std_csv(meta$CL_COMP_BREAKDOWN, stage_path(tmp_root, "metadata", "structure", "CL_COMP_BREAKDOWN.csv"))
+  write_std_csv(meta$CL_QUAL_VAR, stage_path(tmp_root, "metadata", "structure", "CL_QUAL_VAR.csv"))
+  write_std_csv(meta$CL_QUALIFIER, stage_path(tmp_root, "metadata", "structure", "CL_QUALIFIER.csv"))
+  write_std_csv(meta$CL_GEO, stage_path(tmp_root, "metadata", "structure", "CL_GEO.csv"))
+  write_std_csv(meta$DSD_AFW360_HH, stage_path(tmp_root, "metadata", "structure", "DSD_AFW360_HH.csv"))
   invisible(NULL)
 }
 
@@ -279,7 +279,7 @@ test_that("make_data_fixture writes a data file and manifest for GNB", {
   expect_equal(man_vec[["estimation"]], "SURVEY")
   expect_equal(man_vec[["file_name"]], "AFW360_HH_GNB_2021_SURVEY.csv")
 
-  reduced_series_plan <- read_std_csv(file.path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
+  reduced_series_plan <- read_std_csv(stage_path(tmp_root, "metadata", "plans", "SERIES_PLAN.csv"))
   expect_equal(sort(reduced_series_plan$series_id), sort(c("POV_HC.POVLINE_PL420.PPP_2021", "POP_HH_SH.HE_COUNT_0")))
 })
 

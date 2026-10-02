@@ -9,9 +9,9 @@
 # give WARN TEXT.TBD).
 
 root <- find_root()
-source(file.path(root, "pipeline", "R", "ctx.R"))
-source(file.path(root, "pipeline", "R", "validate_assets.R"))
-source(file.path(root, "pipeline", "R", "validate_text.R"))
+source(stage_path(root, "code", "ctx.R"))
+source(stage_path(root, "code", "validate_assets.R"))
+source(stage_path(root, "code", "validate_text.R"))
 
 ASSET_CHECKS <- list(
   vc_asset_file_missing, vc_asset_sha256, vc_asset_layers, vc_asset_crs,
@@ -34,7 +34,7 @@ fresh_root <- function() {
 }
 
 set_sha256 <- function(tmp, source_id, gpkg_path) {
-  edit_csv(file.path(tmp, "metadata", "registries", "GEO_SOURCES.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "registries", "GEO_SOURCES.csv"), function(df) {
     df$sha256[df$source_id == source_id] <- sha256_file(gpkg_path)
     df
   })
@@ -83,7 +83,7 @@ test_that("an unmodified temp copy flags exactly the 4 TBD bodies", {
 
 test_that("a byte appended to a GeoPackage gives exactly ASSET.SHA256", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   con <- file(gpkg, "ab")
   writeBin(as.raw(0), con)
   close(con)
@@ -93,7 +93,7 @@ test_that("a byte appended to a GeoPackage gives exactly ASSET.SHA256", {
 
 test_that("a feature's geo_code set to SN99 gives exactly ASSET.GEO_CODE", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   extra <- lyr[lyr$geo_code == "SN05", ]
   extra$geo_code <- "SN99" # SN05's own feature is untouched, so it stays present
@@ -105,7 +105,7 @@ test_that("a feature's geo_code set to SN99 gives exactly ASSET.GEO_CODE", {
 
 test_that("one ADM1 feature removed gives exactly ASSET.MISSING_GEOMETRY", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   write_adm1(gpkg, lyr[lyr$geo_code != "SN05", ])
   set_sha256(tmp, "SEN_CODAB_v02", gpkg)
@@ -119,7 +119,7 @@ test_that("one ADM1 feature removed gives exactly ASSET.MISSING_GEOMETRY", {
 
 test_that("a feature duplicated gives exactly ASSET.DUPLICATE_FEATURE", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   dup <- lyr[lyr$geo_code == "SN05", ]
   write_adm1(gpkg, rbind(lyr, dup))
@@ -130,7 +130,7 @@ test_that("a feature duplicated gives exactly ASSET.DUPLICATE_FEATURE", {
 
 test_that("a bow-tie polygon gives exactly ASSET.INVALID_GEOMETRY", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   # The adm1 layer's geometry column is MULTIPOLYGON, so the bow-tie must
   # be wrapped as one too, or the GeoPackage writer rejects the mismatched
@@ -150,7 +150,7 @@ test_that("a bow-tie polygon gives exactly ASSET.INVALID_GEOMETRY", {
 
 test_that("a feature's name changed gives exactly ASSET.NAME_MISMATCH", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   lyr$name[lyr$geo_code == "SN05"] <- "Not Kaolack"
   write_adm1(gpkg, lyr)
@@ -163,7 +163,7 @@ test_that("a feature's name changed gives exactly ASSET.NAME_MISMATCH", {
 
 test_that("a layer not in EPSG:4326 gives exactly ASSET.CRS", {
   tmp <- fresh_root()
-  gpkg <- file.path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
+  gpkg <- stage_path(tmp, "geo", "boundaries", "SEN_CODAB_v02.gpkg")
   lyr <- read_adm1(gpkg)
   lyr <- sf::st_transform(lyr, 3857)
   write_adm1(gpkg, lyr)
@@ -174,7 +174,7 @@ test_that("a layer not in EPSG:4326 gives exactly ASSET.CRS", {
 
 test_that("the figure file deleted gives exactly ASSET.FILE_MISSING", {
   tmp <- fresh_root()
-  file.remove(file.path(tmp, "assets", "figures", "SEN", "SEN_FISCAL_EQUITY.png"))
+  file.remove(stage_path(tmp, "assets", "figures", "SEN", "SEN_FISCAL_EQUITY.png"))
 
   expect_only_new_check_id(tmp, "ASSET.FILE_MISSING")
 })
@@ -185,7 +185,7 @@ test_that("a has_geometry = N scheme produces no finding (WP14.A4)", {
   # real source/layer that does not contain it, to prove it is the
   # has_geometry flag -- not the presence of a matching feature -- that
   # silences the check.
-  edit_csv(file.path(tmp, "metadata", "codelists", "CL_GEO.csv"), function(df) {
+  edit_csv(stage_path(tmp, "metadata", "codelists", "CL_GEO.csv"), function(df) {
     i <- which(df$ref_area == "SEN" & df$scheme == "ZONES")[1]
     df$source_id[i] <- "SEN_CODAB_v02"
     df$geom_layer[i] <- "adm1"
@@ -201,7 +201,7 @@ test_that("a has_geometry = N scheme produces no finding (WP14.A4)", {
 
 test_that("a TEXT row with both body and file gives exactly TEXT.BODY_FILE", {
   tmp <- fresh_root()
-  edit_csv(file.path(tmp, "content", "TEXT.csv"), function(df) {
+  edit_csv(stage_path(tmp, "content", "TEXT.csv"), function(df) {
     i <- which(df$slot == "about" & df$ref_area == "SEN")
     df$body[i] <- "Some body text."
     df
@@ -212,14 +212,14 @@ test_that("a TEXT row with both body and file gives exactly TEXT.BODY_FILE", {
 
 test_that("about.md deleted gives exactly TEXT.FILE_MISSING", {
   tmp <- fresh_root()
-  file.remove(file.path(tmp, "content", "text", "SEN", "about.md"))
+  file.remove(stage_path(tmp, "content", "text", "SEN", "about.md"))
 
   expect_only_new_check_id(tmp, "TEXT.FILE_MISSING")
 })
 
 test_that("<b>x</b> in a body gives exactly TEXT.HTML", {
   tmp <- fresh_root()
-  edit_csv(file.path(tmp, "content", "TEXT.csv"), function(df) {
+  edit_csv(stage_path(tmp, "content", "TEXT.csv"), function(df) {
     i <- which(df$slot == "messages" & df$ref_area == "SEN" & df$order == "1")
     df$body[i] <- "<b>x</b>"
     df
@@ -230,7 +230,7 @@ test_that("<b>x</b> in a body gives exactly TEXT.HTML", {
 
 test_that("a body with a line break gives exactly TEXT.LINEBREAK", {
   tmp <- fresh_root()
-  edit_csv(file.path(tmp, "content", "TEXT.csv"), function(df) {
+  edit_csv(stage_path(tmp, "content", "TEXT.csv"), function(df) {
     i <- which(df$slot == "messages" & df$ref_area == "SEN" & df$order == "1")
     df$body[i] <- "Line one.\nLine two."
     df
@@ -241,7 +241,7 @@ test_that("a body with a line break gives exactly TEXT.LINEBREAK", {
 
 test_that("a {{...}} reference in a body gives exactly TEXT.REFERENCE", {
   tmp <- fresh_root()
-  edit_csv(file.path(tmp, "content", "TEXT.csv"), function(df) {
+  edit_csv(stage_path(tmp, "content", "TEXT.csv"), function(df) {
     i <- which(df$slot == "messages" & df$ref_area == "SEN" & df$order == "1")
     df$body[i] <- "The rate is {{poverty_rate}} this year."
     df

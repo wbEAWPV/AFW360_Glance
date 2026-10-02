@@ -229,8 +229,8 @@ vc_cover_file_missing <- function(ctx) {
       stem <- paste0(DATAFLOW_ID, "_", pairs$ref_area[i], "_", pairs$time_period[i], "_", est)
       data_rel <- paste0("data/", stem, ".csv")
       man_rel <- paste0("data/", stem, "_manifest.csv")
-      has_data <- file.exists(file.path(ctx$root, data_rel))
-      has_man <- file.exists(file.path(ctx$root, man_rel))
+      has_data <- file.exists(stage_rel(ctx$root, data_rel))
+      has_man <- file.exists(stage_rel(ctx$root, man_rel))
       if (has_data && has_man) next
       missing <- c(if (!has_data) data_rel, if (!has_man) man_rel)
       out[[length(out) + 1]] <- data.frame(
@@ -266,12 +266,31 @@ vc_cover_file_missing <- function(ctx) {
   if (length(toks) == 0) "SURVEY" else toks
 }
 
+#' Whether the legacy plans are missing from the metadata: TAB_PLAN.csv
+#' (with LEGACY_*.csv) lives in 20-excel-sdmx-csv/plans/, which this stage
+#' reads when present (R/paths.R, kind `plans`). Without it the required
+#' rows cannot be built, so COVER.MISSING reports one COVER.SKIPPED and
+#' COVER.EXTRA and COVER.WITHHELD_PRESENT return nothing.
+.vc_plans_absent <- function(ctx) is.null(ctx$meta$TAB_PLAN)
+
 #' COVER.MISSING: an expected row is absent from the data file.
 #'
 #' @param ctx The list from [build_ctx()].
 #' @return A findings tibble.
 vc_cover_missing <- function(ctx) {
   out <- list()
+  if (.vc_plans_absent(ctx)) {
+    if (length(ctx$data) == 0) return(.vc_bind(out))
+    return(.vc_bind(list(data.frame(
+      check_id = "COVER.SKIPPED", severity = "INFO", file = "plans/TAB_PLAN.csv", row_key = "",
+      message = paste(
+        "TAB_PLAN.csv is not loaded (20-excel-sdmx-csv/plans/ not found; see --plans-dir):",
+        "the required rows were not checked (COVER.MISSING, COVER.EXTRA,",
+        "COVER.WITHHELD_PRESENT and the RULE checks over required rows)"
+      ),
+      stringsAsFactors = FALSE
+    ))))
+  }
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     sc <- .vc_file_scope(ctx, key)
@@ -310,6 +329,7 @@ vc_cover_missing <- function(ctx) {
 #' @return A findings tibble.
 vc_cover_extra <- function(ctx) {
   out <- list()
+  if (.vc_plans_absent(ctx)) return(.vc_bind(out))
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next
@@ -343,6 +363,7 @@ vc_cover_extra <- function(ctx) {
 #' @return A findings tibble.
 vc_cover_withheld_present <- function(ctx) {
   out <- list()
+  if (.vc_plans_absent(ctx)) return(.vc_bind(out))
   for (key in names(ctx$data)) {
     df <- ctx$data[[key]]
     if (nrow(df) == 0) next

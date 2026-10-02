@@ -1,8 +1,8 @@
 root <- find_root()
-source(file.path(root, "pipeline", "R", "io.R"))
-source(file.path(root, "pipeline", "R", "sdmx_xml.R"))
-source(file.path(root, "pipeline", "R", "sdmx_structures.R"))
-source(file.path(root, "pipeline", "R", "sdmx_import.R"))
+source(stage_path(root, "code", "io.R"))
+source(stage_path(root, "code", "sdmx_xml.R"))
+source(stage_path(root, "code", "sdmx_structures.R"))
+source(stage_path(root, "code", "sdmx_import.R"))
 
 # The structure message built from the tracked metadata, as text.
 msg_text <- sdmx_serialise(sdmx_structures_message(root))
@@ -15,7 +15,7 @@ test_that("build then import gives byte-identical CSVs", {
   plan <- import_text(msg_text)
   paths <- vapply(plan$files, function(f) f$path, character(1))
   expect_setequal(paths, c(
-    file.path("metadata", "codelists", list.files(file.path(root, "metadata", "codelists"))),
+    file.path("metadata", "codelists", list.files(stage_path(root, "metadata", "codelists"))),
     "metadata/structure/ARTEFACTS.csv"
   ))
   expect_length(sdmx_import_diff(plan), 0)
@@ -25,8 +25,8 @@ test_that("build then import gives byte-identical CSVs", {
   expect_length(sdmx_import_apply(plan, out), 0)
   for (p in paths) {
     expect_identical(
-      readBin(file.path(out, p), "raw", file.size(file.path(out, p))),
-      readBin(file.path(root, p), "raw", file.size(file.path(root, p))),
+      readBin(stage_rel(out, p), "raw", file.size(stage_rel(out, p))),
+      readBin(stage_rel(root, p), "raw", file.size(stage_rel(root, p))),
       info = p
     )
   }
