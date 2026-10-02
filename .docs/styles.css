@@ -18,11 +18,18 @@ main table tbody tr:nth-child(odd) {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Tables span the content width; columns keep the relative widths set in
-   the source (pipe-table dashes), text is left-aligned, and a wide table
-   scrolls inside its own box instead of pushing the page sideways. */
+/* Tables span the content width and each column takes a share proportional
+   to its content. Pandoc writes fixed <col> widths from the pipe-table
+   dashes (often equal thirds); they are ignored here so the browser's
+   automatic layout sizes the columns. Text is left-aligned, and a wide
+   table scrolls inside its own box instead of pushing the page sideways. */
 main table {
   width: 100%;
+  table-layout: auto;
+}
+
+main table col {
+  width: auto !important;
 }
 
 main table th,
