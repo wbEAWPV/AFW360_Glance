@@ -139,3 +139,23 @@ blockquote {
   .tool-card { flex-direction: column; }
   .tool-thumb { flex-basis: auto; width: 100%; }
 }
+
+/* The large disclaimer at the top of the data standard page. */
+.callout.big-disclaimer {
+  font-size: 1.15rem;
+  border-width: 2px;
+  border-left-width: 8px;
+  margin: 1.5rem 0 2rem;
+}
+
+.callout.big-disclaimer .callout-header,
+.callout.big-disclaimer .callout-title-container {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.callout.big-disclaimer .callout-body-container,
+.callout.big-disclaimer .callout-body-container p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
