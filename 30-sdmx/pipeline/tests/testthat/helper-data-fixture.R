@@ -54,6 +54,9 @@ make_data_fixture <- function(tmp_root, ref_area, time_period = "2021",
   }
 
   meta <- load_metadata(tmp_root)
+  # The required rows need TAB_PLAN.csv, which lives in
+  # 20-excel-sdmx-csv/plans/: without that stage the test is skipped.
+  skip_without_plans(meta)
   rows <- required_rows(meta, ref_area, time_period, estimation)
 
   sources <- meta$SOURCES

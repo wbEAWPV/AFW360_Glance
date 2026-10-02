@@ -144,6 +144,7 @@ build_sen_fixture <- function(series_ids, estimation = "SURVEY", producer = FALS
 # ---- withheld_rows() (WP12.A3, and the "Withheld cells" rule) -------------
 
 test_that("withheld_rows on the real metadata matches the accepted counts", {
+  skip_without_plans(root)
   meta <- load_metadata(root)
 
   withheld_gnb <- withheld_rows(meta, "GNB", "2021")
@@ -156,6 +157,7 @@ test_that("withheld_rows on the real metadata matches the accepted counts", {
 })
 
 test_that("withheld_rows returns the same columns as required_rows, zero rows with no overrides", {
+  skip_without_plans(root)
   meta <- load_metadata(root)
   required_sen <- required_rows(meta, "SEN", "2021")
   withheld_sen <- withheld_rows(meta, "SEN", "2021")

@@ -22,6 +22,9 @@
 #     Each test keeps TOTAL plus exactly one other cut.
 
 root <- find_root()
+# Every rule test builds its rows from TAB_PLAN.csv (20-excel-sdmx-csv/plans/):
+# without the Excel stage the whole file is skipped.
+skip_without_plans(root)
 source(stage_path(root, "code", "io.R"))
 source(stage_path(root, "code", "codes.R"))
 source(stage_path(root, "code", "constants.R"))

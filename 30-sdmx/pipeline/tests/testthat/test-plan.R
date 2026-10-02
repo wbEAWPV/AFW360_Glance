@@ -24,6 +24,9 @@ real_dsd <- function() {
 #' Build `meta` from the real contract seeds and this package's own plan
 #' files (WP08.md step 3).
 seed_meta_real <- function() {
+  # The seeds and TAB_PLAN.csv live in 20-excel-sdmx-csv/.
+  skip_without_plans(root)
+  skip_if_not(file.exists(seed_path("codes.csv")), "20-excel-sdmx-csv/bootstrap/seeds/ is not present")
   codes <- read_std_csv(seed_path("codes.csv"))
   geo <- read_std_csv(seed_path("geo_codes.csv"))
   triage <- read_std_csv(seed_path("label_triage.csv"))

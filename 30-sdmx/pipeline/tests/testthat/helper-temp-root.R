@@ -81,6 +81,23 @@ make_temp_root <- function(root, include = c("metadata", "content", "geo", "asse
   tmp
 }
 
+#' Skip the current test when the legacy plans are not loaded.
+#'
+#' TAB_PLAN.csv and LEGACY_*.csv live in 20-excel-sdmx-csv/plans/; the tests
+#' that build required rows need them, so they are skipped when this stage
+#' runs without the Excel stage next to it (or with AFW360_PLANS_DIR pointing
+#' elsewhere).
+#'
+#' @param x A stage folder, or a `meta` list from [load_metadata()].
+skip_without_plans <- function(x = find_root()) {
+  has <- if (is.list(x) && !inherits(x, "stage_paths")) {
+    !is.null(x$TAB_PLAN)
+  } else {
+    file.exists(stage_path(x, "plans", "TAB_PLAN.csv"))
+  }
+  testthat::skip_if_not(has, "the legacy plans (20-excel-sdmx-csv/plans/) are not present")
+}
+
 #' Read a CSV, transform it, and write it back through the standard I/O
 #' helpers.
 #'
