@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wbEAWPV.github.io/AFW360_Glance/transition/decisions.html</loc>
-    <lastmod>2026-09-22T02:42:30.789Z</lastmod>
-  </url>
-  <url>
-    <loc>https://wbEAWPV.github.io/AFW360_Glance/transition/plan.html</loc>
-    <lastmod>2026-09-22T02:42:30.773Z</lastmod>
-  </url>
-  <url>
-    <loc>https://wbEAWPV.github.io/AFW360_Glance/index.html</loc>
-    <lastmod>2026-09-22T02:42:03.389Z</lastmod>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/tools.html</loc>
+    <lastmod>2026-10-02T14:27:25.839Z</lastmod>
   </url>
   <url>
     <loc>https://wbEAWPV.github.io/AFW360_Glance/input-tables-findings.html</loc>
-    <lastmod>2026-09-22T02:33:58.093Z</lastmod>
+    <lastmod>2026-10-02T13:36:50.670Z</lastmod>
   </url>
   <url>
-    <loc>https://wbEAWPV.github.io/AFW360_Glance/transition/contract.html</loc>
-    <lastmod>2026-09-22T02:42:30.777Z</lastmod>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/sdmx-conformance.html</loc>
+    <lastmod>2026-09-29T21:56:26.199Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/25-sdmx-standard.html</loc>
+    <lastmod>2026-10-02T13:36:50.638Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/20-excel-to-sdmx.html</loc>
+    <lastmod>2026-10-02T13:36:50.626Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/index.html</loc>
+    <lastmod>2026-10-02T13:36:50.585Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/15-legacy-verification.html</loc>
+    <lastmod>2026-10-02T13:36:50.604Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/30-dsd.html</loc>
+    <lastmod>2026-10-02T14:18:39.999Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/data-standard.html</loc>
+    <lastmod>2026-10-02T13:36:50.950Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/transition.html</loc>
+    <lastmod>2026-10-02T13:36:50.683Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wbEAWPV.github.io/AFW360_Glance/fmr-guide.html</loc>
+    <lastmod>2026-09-29T21:56:26.175Z</lastmod>
   </url>
 </urlset>

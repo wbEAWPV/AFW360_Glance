@@ -6,10 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Eduard Bukin">
-<meta name="dcterms.date" content="2026-09-30">
+<meta name="dcterms.date" content="2026-09-29">
 
-<title>Africa West 360: High-level overview – AFW360 - Platform Concept</title>
+<title>SDMX conformance – AFW360 - Platform Concept</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +78,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="docked nav-fixed quarto-light">
+<body class="nav-sidebar docked nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -97,11 +96,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data-standard.html"> 
+    <a class="nav-link active" href="./data-standard.html" aria-current="page"> 
 <span class="menu-text">Standard</span></a>
   </li>  
   <li class="nav-item">
@@ -126,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">AFW360 Overview</a></li><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data-standard.html">AFW360 SDMX Standard</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">Technical documentation</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">SDMX conformance</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -140,41 +139,17 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">AFW360 Overview</span></a>
+            <a href="./data-standard.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AFW360 SDMX Standard</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Introduction</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./15-legacy-verification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 0 · Legacy dashboard</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./20-excel-to-sdmx.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 1 · Excel to SDMX</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./30-dsd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 2 · Data Structure Definition</span></a>
-  </div>
-</li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Annexes</span></a>
+ <span class="menu-text">Technical documentation</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -182,8 +157,26 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./25-sdmx-standard.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">SDMX in plain terms</span></a>
+  <a href="./sdmx-conformance.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">SDMX conformance</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Transition record</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./input-tables-findings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input tables findings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./fmr-guide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">FMR guide</span></a>
   </div>
 </li>
       </ul>
@@ -200,42 +193,30 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
-  <ul class="collapse">
-  <li><a href="#where-we-have-started" id="toc-where-we-have-started" class="nav-link" data-scroll-target="#where-we-have-started">Where we have started</a></li>
-  <li><a href="#where-are-we-going" id="toc-where-are-we-going" class="nav-link" data-scroll-target="#where-are-we-going">Where are we going</a></li>
-  </ul></li>
-  <li><a href="#implementing-afw360-data-pipeline" id="toc-implementing-afw360-data-pipeline" class="nav-link" data-scroll-target="#implementing-afw360-data-pipeline">Implementing AFW360 data pipeline</a>
-  <ul class="collapse">
-  <li><a href="#implementation-tracking" id="toc-implementation-tracking" class="nav-link" data-scroll-target="#implementation-tracking">Implementation tracking</a></li>
-  </ul></li>
+  <li><a href="#checklist" id="toc-checklist" class="nav-link active" data-scroll-target="#checklist">Checklist</a></li>
+  <li><a href="#notes-on-the-evidence" id="toc-notes-on-the-evidence" class="nav-link" data-scroll-target="#notes-on-the-evidence">Notes on the evidence</a></li>
+  <li><a href="#not-claimed" id="toc-not-claimed" class="nav-link" data-scroll-target="#not-claimed">Not claimed</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">AFW360 Overview</a></li><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data-standard.html">AFW360 SDMX Standard</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">Technical documentation</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">SDMX conformance</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Africa West 360: High-level overview</h1>
-<p class="subtitle lead">From raw survey data to the dashboards, APIs and the MCP server: Why and how?</p>
+<h1 class="title">SDMX conformance</h1>
+<p class="subtitle lead">Checklist with evidence · standard v0.6 · metadata 0.3.0</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Eduard Bukin </p>
-          </div>
-  </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 30, 2026</p>
+      <p class="date">September 29, 2026</p>
     </div>
   </div>
   
@@ -247,160 +228,136 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>This page is the map of the whole (ideal) process of data transformation for the Africa West 360 (AFW360) project. The goal of AFW360 is to operationalize microdata for daily use by country economists and analysts through:</p>
-<ol type="1">
-<li>enabling access to the raw microdata as is using an API.</li>
-<li>harmonizing microdata with clear harmonization guidelines and data provenance and enabling API-based access to it.</li>
-<li>creating a reproducible pipeline of indicators creation from the harmonized microdata and enabling access to those through an API.</li>
-<li>making indicators operational for humans and AI through a dashboard, a data access MCP server, and AI chats.</li>
-</ol>
-<p>This is a concept note with a few prototypes to prove the concept.</p>
-<section id="where-we-have-started" class="level3">
-<h3 class="anchored" data-anchor-id="where-we-have-started">Where we have started</h3>
-<p>Our starting point is a set of Excel files produced from the raw data. It gives an overview of a fragment of the pipeline as well as the initial version of the dashboard developed by Moritz Meyer and published here: <a href="https://datanalytics-int.worldbank.org/AFW360-v1/" class="uri">https://datanalytics-int.worldbank.org/AFW360-v1/</a> (requires VPN to access). Original data and dashboard code are located in the folder <code>10-legacy-pipeline/</code>. <a href="#fig-legacy-pipeline" class="quarto-xref">Figure&nbsp;1</a> shows how they connect.</p>
-<div id="fig-legacy-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-legacy-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/legacy-pipeline.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-legacy-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Legacy Pipeline
+<p>This page is the evidence that the AFW 360 files conform to the SDMX 3.1 family chosen in the <a href="./data-standard.html#sec-sdmx">standard</a> (D27): SDMX-ML 3.1.0 for the structure message, SDMX-CSV 2.1.0 for data and reference metadata. Each row names a requirement, the command that checks it, and the result observed on 2026-09-29 on branch <code>standard/v0.6-sdmx</code>.</p>
+<p>Commands run from the repository root in Git Bash. <code>V</code> is <code>tools/verify/.venv/Scripts/python</code> (Python 3.11, <code>pysdmx[data,xml]==1.20.0</code>, created by <code>tools/verify/make_venv.sh</code> or <code>make_venv.ps1</code>) and <code>X</code> is <code>sdmx/structures/AFW360_structures.xml</code>. The Python tools are for verification only and are never part of the R pipeline (D30). Rows 1 to 12 and 14 were rerun for this page; row 13 comes from the FMR run of the same day, whose reports are kept under <code>tmp/fmr/</code> (gitignored).</p>
+<section id="checklist" class="level2">
+<h2 class="anchored" data-anchor-id="checklist">Checklist</h2>
+<div id="tbl-conformance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-conformance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: SDMX conformance checklist
 </figcaption>
-</figure>
-</div>
-</section>
-<section id="where-are-we-going" class="level3">
-<h3 class="anchored" data-anchor-id="where-are-we-going">Where are we going</h3>
-<p>Our goal is to create a sustainable data transformation pipeline, where data provenance is transparent and the produced indicators are accessible to machines and humans and could be operationalized in the future as:</p>
-<ol type="1">
-<li>statistical data,</li>
-<li>an API,</li>
-<li>an MCP server for search and extraction by AI,</li>
-<li>a basis for AI processing and for building stories based on the data.</li>
-</ol>
-<p><a href="#fig-ideal-pipeline" class="quarto-xref">Figure&nbsp;2</a> shows the ideal pipeline: a medallion-style (Bronze, Silver, Gold) ETL (extract, transform, load) pipeline. It is designed to be modular, with each stage building on the previous one.</p>
-<div id="fig-ideal-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ideal-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/ideal-pipeline.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ideal-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Ideal Pipeline
-</figcaption>
-</figure>
-</div>
-<p><strong>Bronze.</strong> Raw microdata ingestion and operationalization through an API-like sustainable access interface. The World Bank (WB) has several systems for this, each with its own strengths and limitations. The main ones are:</p>
-<ul>
-<li><p><strong>Development Data Hub</strong>: <a href="https://datacatalog.worldbank.org/" class="uri">https://datacatalog.worldbank.org/</a>. This appears to be the best of the available options. It permits hosting data in individual files without the need for deep standardization, gives access to the data through streamable APIs and integrates directly with Databricks and other data storage platforms. It is the way of publishing data for analysis recommended by the <a href="https://worldbank.github.io/wb-reproducible-research-repository/guidance_note_wb.html">WB reproducibility team</a>.</p></li>
-<li><p><strong>World Bank Microdata Library</strong>: <a href="https://microdatalib.worldbank.org/index.php/home" class="uri">https://microdatalib.worldbank.org/index.php/home</a>. This is another option used to disseminate microdata. Its key limitation is that it requires exhaustive preparation of the data and metadata, which is costly. As a result, its coverage is patchy, and data are often available only as incomplete data sets.</p></li>
-<li><p><strong>Datalibweb</strong>: <a href="https://datalibweb2.worldbank.org/home" class="uri">https://datalibweb2.worldbank.org/home</a>. A Stata-native system designed for hosting and serving the Global Monitoring Database (GMD). It benefits from granular access control, but the way it serves data to users is restrictive and is harder to use outside Stata.</p></li>
-</ul>
-<p><strong>Silver.</strong> Harmonization of microdata into a common format, with clear documentation of the harmonization decisions and a reproducible data pipeline. This stage establishes a shared harmonization standard across countries and regions and enables API-based dissemination of the harmonized data. As a dissemination platform, the Development Data Hub could be used again, or the World Bank Microdata Library could share the harmonized data with standard documentation, in the same way as the Global Labor Database (GLD) is shared: <a href="https://microdatalib.worldbank.org/index.php/catalog/GLD/" class="uri">https://microdatalib.worldbank.org/index.php/catalog/GLD/</a></p>
-<p><strong>Gold.</strong> Production of indicators in a standard SDMX format in a fully reproducible manner that enables data access for the final users.</p>
-<p>There are a few concepts here worth exploring:</p>
-<ol type="1">
-<li><p><strong>SDMX</strong> (Statistical Data and Metadata eXchange): a standard for <a href="https://sdmx.org/">statistical data and metadata exchange</a>. It is widely used in the international statistical community and supported by many statistical software packages and visualization tools. It is the standard behind WDI, OECD Stats, Data 360 and other data dissemination platforms. It matters because it makes data provenance transparent and reproducible and communicates clearly what the computed indicators and data are.</p></li>
-<li><p><strong>SDMX data files</strong>: access to SDMX data is simple for analysts. Each country, survey and year is represented as a single CSV file with supporting metadata. Users load it into their statistical software and start working with it. These files could be hosted on the Microdata Library or the Development Data Hub.</p></li>
-<li><p><strong>API</strong>: an API is the standard way to access SDMX-based data because it gives every user (people, statistical software and so on) the same interface for reading and loading data. One example is the Data 360 API <a href="https://data360.worldbank.org/en/int/api" class="uri">https://data360.worldbank.org/en/int/api</a>. Type <a href="https://data360api.worldbank.org/data360/indicators?datasetId=WB_WDI" class="uri">https://data360api.worldbank.org/data360/indicators?datasetId=WB_WDI</a> in the browser and you will get the full list of indicators available in the WDI database.</p></li>
-<li><p><strong>MCP server</strong> (Model Context Protocol server): software that lets local or remote AI agents communicate with the API and extract data from it. It is what connects any AI agent to the data and metadata. Data 360 introduces its MCP server here: <a href="https://worldbank.github.io/data360-mcp/" class="uri">https://worldbank.github.io/data360-mcp/</a>, and it is used across AI agents. It is open source and could be adopted at low cost. MCP servers are powerful because they can be integrated into the World Bank’s internal AI chats, mAI and k360, enabling data exploration augmented by access to WB knowledge and internal documentation.</p></li>
-<li><p><strong>AI chat</strong>: probably the final stage of the process. It operationalizes AI to answer development questions based on the data and metadata available for the region in SDMX format. One prototype is <a href="https://data360.worldbank.org/en/int/chat" class="uri">https://data360.worldbank.org/en/int/chat</a>; another is <a href="https://k360.worldbankgroup.org/" class="uri">https://k360.worldbankgroup.org/</a> (requires VPN to access). Both use a set of MCP servers to access relevant information. They use AI to rephrase the questions (prompt engineering) so that they retrieve the most relevant data and structure the answers well.</p></li>
-<li><p><strong>Dashboards</strong>: the human-oriented interface to the data. Having data structured as an SDMX database with an API enables any dashboard to be built on top of it and deployed through channels such as Power BI, Tableau and R Shiny.</p></li>
-<li><p><strong>Supporting knowledge</strong>: a key element of a successful and relevant data pipeline. For AI to give relevant, data-supported answers to development questions, it needs to know how to reason. This is why a hierarchy of supporting knowledge is important: the development questions, the data and the metadata. It gives AI correct references and templates for reasoning, for exploring the data and for writing the answer. In practice, this knowledge is structured plain text organized so that AI can use it, e.g. AI Skills.</p></li>
-</ol>
-<p>This pipeline could be implemented in any statistical software, but its advantages show most in a scalable working environment such as Databricks. We could also borrow implementation best practices from the GLD.</p>
-</section>
-</section>
-<section id="implementing-afw360-data-pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="implementing-afw360-data-pipeline">Implementing AFW360 data pipeline</h2>
-<p>It is a challenge that requires commitment and investment. Yet modern AI tools make it more feasible than it used to be. The following steps are proposed to implement the pipeline:</p>
-<ul>
-<li>Step 0: Verify that the legacy pipeline (Excel-Dashboard) is working and could be used as a reference for the new pipeline</li>
-<li>Step 1: Reverse engineer Silver-Gold: convert existing Excel files into SDMX-based data</li>
-<li>Step 2: Establish an SDMX Data Structure Definition (DSD) for our indicators</li>
-<li>Step 3: Validate that Excel-based indicators after transformation follow the DSD standard</li>
-<li>Step 4: Build a process of expanding indicators and data coverage</li>
-<li>Step 5: Micro-data harmonization and indicators computation Bronze-Silver medallions</li>
-<li>Step 6: APIs to the indicators data</li>
-<li>Step 7: Knowledge base for AI to use</li>
-<li>Step 8: MCP server for AFW360 data</li>
-<li>Step 9: Dedicated AI chat that operationalizes data and knowledge</li>
-</ul>
-<section id="implementation-tracking" class="level3">
-<h3 class="anchored" data-anchor-id="implementation-tracking">Implementation tracking</h3>
+<div aria-describedby="tbl-conformance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 88%">
-<col style="width: 8%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Step</th>
-<th>Short description</th>
-<th>Status</th>
+<th>#</th>
+<th>Requirement</th>
+<th>Evidence command</th>
+<th>Observed result</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>0</td>
-<td>Verify the legacy Excel-to-dashboard pipeline as a reference</td>
-<td>Planned</td>
-</tr>
-<tr class="even">
 <td>1</td>
-<td>Reverse engineer Silver-to-Gold: convert existing Excel files into SDMX-based data</td>
-<td>Planned</td>
+<td>The structure message validates against the official SDMX-ML 3.1.0 XSDs</td>
+<td><code>$V tools/verify/xsd_validate.py pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd $X</code>; validator check <code>SDMX.XSD</code> in <code>Rscript pipeline/validate.R --root . --out tmp/findings.csv</code></td>
+<td><code>valid</code>, exit 0; no <code>SDMX.XSD</code> finding</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>2</td>
-<td>Establish an SDMX Data Structure Definition (DSD) for the indicators</td>
-<td>Planned</td>
+<td>Every artefact has agency <code>WB.AFW360</code> (<code>WB</code> for <code>AGENCIES</code>), a semver version, an <code>IDType</code> id and an English name</td>
+<td>validator check <code>SDMX.IDENT</code></td>
+<td>no <code>SDMX.IDENT</code> finding (32 maintainables; version <code>0.3.0</code> equals <code>metadata/VERSION</code>; no version on the three fixed-version schemes)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>3</td>
-<td>Validate transformed Excel-based indicators against the DSD</td>
-<td>Planned</td>
+<td>The sub-agency is declared in <code>WB:AGENCIES</code></td>
+<td><code>grep -o 'str:Agency id="[A-Z0-9]*"' $X</code>; validator check <code>SDMX.URN</code></td>
+<td><code>str:Agency id="AFW360"</code>; no <code>SDMX.URN</code> finding</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>4</td>
-<td>Build a process to expand indicator and data coverage</td>
-<td>Planned</td>
+<td>Every URN reference resolves inside the message</td>
+<td><code>$V tools/verify/check_urns.py $X</code>; validator check <code>SDMX.URN</code></td>
+<td><code>unresolved: 0</code>, exit 0; no <code>SDMX.URN</code> finding (the <code>(1.0)</code> references to <code>DATA_PROVIDERS</code> and <code>METADATA_PROVIDERS</code> resolve and are exempt from the semver rule)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>5</td>
-<td>Harmonize microdata and compute indicators (Bronze-to-Silver stages)</td>
-<td>Planned</td>
+<td>DSD: 18 dimensions and time, 9 measures, 6 attributes with relationships, concepts for all</td>
+<td><code>grep -o '&lt;str:Dimension ' $X \| wc -l</code>, likewise <code>str:TimeDimension</code>, <code>str:Measure</code>, <code>str:Attribute</code>, <code>str:MeasureRelationship</code>, <code>&lt;str:Concept id=</code></td>
+<td>18, 1, 9, 6, 1; 82 concepts (34 components plus 48 metadata attributes)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>6</td>
-<td>Provide APIs for indicator data</td>
-<td>Planned</td>
-</tr>
-<tr class="even">
-<td>7</td>
-<td>Build a knowledge base for AI</td>
-<td>Planned</td>
+<td>Every dimension value in the data exists in its codelist, including sentinels</td>
+<td><code>Rscript pipeline/validate.R --root . --out tmp/findings.csv; echo $?</code>, then count findings by <code>check_id</code></td>
+<td>exit 0; no <code>CODES.*</code> error (the only <code>CODES</code> rows are 42 <code>CODES.DRAFT</code> warnings from manifests still marked <code>DRAFT</code>); FMR validation <code>"Errors":false</code> for both files (row 13)</td>
 </tr>
 <tr class="odd">
-<td>8</td>
-<td>Build an MCP server for AFW360 data</td>
-<td>Planned</td>
+<td>7</td>
+<td>Data files are SDMX-CSV 2.1: fixed columns, <code>STRUCTURE_ID</code> short form, action <code>R</code>, <code>NaN</code> for intentionally missing, RFC 4180 quoting, UTF-8, LF</td>
+<td>header and byte check of <code>data/AFW360_HH_*_SURVEY.csv</code> with Python (column count, BOM, carriage returns, distinct <code>ACTION</code> and <code>STRUCTURE_ID</code>, <code>NaN</code> on <code>O</code>/<code>M</code> rows); validator checks <code>STRUCT.*</code> and <code>SDMX.CSV_HEADER</code></td>
+<td>both files: 37 columns, no BOM, 0 CR bytes, <code>ACTION</code> only <code>R</code>, <code>STRUCTURE_ID</code> only <code>WB.AFW360:AFW360_HH(0.3.0)</code>; GNB 39 <code>O</code> rows all <code>NaN</code>, SEN none; no <code>STRUCT.*</code> or <code>SDMX.CSV_HEADER</code> finding. pysdmx maps empty cells to <code>NaN</code>, so the <code>NaN</code>-versus-empty rule is checked on raw text (this check and the projection test), not by pysdmx</td>
 </tr>
 <tr class="even">
+<td>8</td>
+<td>Reference metadata files are SDMX-CSV 2.1 metadata messages consistent with the MSD and metadataflow</td>
+<td><code>$V tools/verify/verify_sdmx.py --root .</code> (metadata part); validator check <code>SDMX.STALE</code></td>
+<td><code>MDS_FIGURES.csv: 1 rows</code>, <code>MDS_SOURCES.csv: 2 rows</code>, <code>MDS_SURVEYS.csv: 2 rows</code>, <code>MDS_TEXT.csv: 8 rows</code>, <code>failures: 0</code>; no <code>SDMX.STALE</code> finding. The Python check is a header check only (limits in the notes below); FMR does not read these files (no MSD in the 3.0 profile)</td>
+</tr>
+<tr class="odd">
 <td>9</td>
-<td>Launch a dedicated AI chat using the data and knowledge</td>
-<td>Planned</td>
+<td>Codes aligned to global lists carry the global URN</td>
+<td><code>grep -c '&lt;com:AnnotationType&gt;GLOBAL_CODE&lt;' $X</code> against the filled <code>global_urn</code> cells of <code>metadata/codelists/CL_*.csv</code>; validator check <code>META.GLOBAL_URN</code></td>
+<td>32 annotations = 27 filled <code>global_urn</code> cells plus 5 sentinels; no <code>META.GLOBAL_URN</code> finding</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Generated files are never stale</td>
+<td><code>Rscript pipeline/build_sdmx.R --root . --check; echo $?</code>; <code>Rscript pipeline/build_docs.R --root . --check; echo $?</code>; validator check <code>SDMX.STALE</code></td>
+<td>five lines <code>... is current</code> (the message and the four <code>MDS_*.csv</code>), exit 0; docs check exit 0; no <code>SDMX.STALE</code> finding</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>The round trip CSV to SDMX-ML to CSV is lossless</td>
+<td><code>Rscript pipeline/import_sdmx.R --root . --diff $X</code> (WP6 checks 1 and 3); the same on the FMR export <code>tmp/fmr/export.xml</code></td>
+<td>exit 0; no diff output, only the three lines <code>CL_SOURCE</code>, <code>CL_SURVEY</code>, <code>CL_FIGURE: derived from ...; reported, not written</code>; the FMR 3.0 export also round-trips with no change (299 codes, 2371 annotations, 399 descriptions). Scope limits in the notes below</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>An independent implementation reads every file</td>
+<td><code>$V tools/verify/verify_sdmx.py --root .; echo $?</code></td>
+<td><code>32 artefacts read (1 agency scheme, 22 codelists, 1 concept scheme, 1 data provider scheme, 1 data structure definition, 1 dataflow, 1 metadata provider scheme, 1 metadata provision agreement, 1 metadata structure, 1 metadataflow, 1 provision agreement)</code>; <code>AFW360_HH_GNB_2021_SURVEY.csv: 2268 observations</code>, <code>AFW360_HH_SEN_2021_SURVEY.csv: 3003 observations</code>; four metadata files; <code>failures: 0</code>, exit 0</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>FMR loads the structures and validates the data</td>
+<td><code>Rscript tools/fmr/fmr_load.R --root .</code>; <code>Rscript tools/fmr/fmr_validate.R --root .</code>; <code>Rscript tools/fmr/fmr_export.R --root . --out tmp/fmr/export.xml</code> (<a href="./fmr-guide.html">fmr-guide.qmd</a>)</td>
+<td>FMR 12.4.2 installed. SDMX-ML 3.1 rejected (HTTP 400, error 150); the SDMX-ML 3.0 profile (<code>build_sdmx.R --sdmx-ml-version 3.0</code>) loads once <code>WB</code> is registered in <code>SDMX:AGENCIES(1.0)</code> (“Success”). Both data files accepted as they are and resolved to <code>WB.AFW360:AFW360_HH(0.3.0)</code>: 3003 and 2268 observations, <code>"Errors":false</code>. Export is SDMX-ML 3.0 only (3.1 returns HTTP 406)</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>The standard documents every SDMX decision and the mapping</td>
+<td><code>for d in $(seq 27 46); do grep -q "D$d" .docs/data-standard.qmd \|\| echo "missing D$d"; done</code>; the same loop over <code>SDMX.STALE SDMX.XSD SDMX.URN SDMX.IDENT SDMX.CSV_HEADER STRUCT.ATTR_LEVEL</code></td>
+<td>both print nothing</td>
 </tr>
 </tbody>
 </table>
-<p>The process starts from Gold and works back to Bronze because the dashboard and its Excel tables already exist. Converting them to SDMX first (Steps 1–3) forces a precise definition of the indicators and their structure, the DSD. The DSD then becomes the target that the harmonized microdata (Step 5) must feed, so the upstream stages are built against a known output rather than in the abstract.</p>
-<p>All steps are explained in the respective documents:</p>
-<p>TODO.</p>
-
-
+</div>
+</figure>
+</div>
+<p>The whole validator run of row 6 exits 0 with these findings and no <code>ERROR</code>: 42 <code>CODES.DRAFT</code> and 42 <code>META.TBD</code> warnings, 27 <code>RULE.AGG_SKIPPED</code> warnings, 4 <code>TEXT.TBD</code> warnings, 6 <code>RULE.CLOSURE_PARTIAL</code> and 2 <code>VALUE.N</code> notes. None is an SDMX finding.</p>
 </section>
+<section id="notes-on-the-evidence" class="level2">
+<h2 class="anchored" data-anchor-id="notes-on-the-evidence">Notes on the evidence</h2>
+<p><strong>Vendored schemas (row 1).</strong> <code>pipeline/xsd/sdmx-ml-3.1/</code> holds the 30 files of <code>schemas/</code> at tag <code>v3.1.0</code> of <code>sdmx-twg/sdmx-ml</code>, entry <code>SDMXMessage.xsd</code>. The repository has no <code>LICENSE</code>, <code>LICENCE</code> or <code>COPYING</code> file at that tag and its README states no licence terms, so the folder’s <code>README.md</code> records the absence instead of quoting a licence. <code>xml2::xml_validate()</code> in <code>build_sdmx.R</code> and the validator’s <code>SDMX.XSD</code> check use the same schemas. pysdmx’s own <code>read_sdmx(validate=True)</code> validates against its bundled schemas, not these; <code>xsd_validate.py</code> covers the vendored ones.</p>
+<p><strong>pysdmx 1.20.0 limits (rows 8 and 12).</strong> pysdmx cannot read <code>com:AnnotationValue</code>, which the XSD allows and every codelist here uses; <code>verify_sdmx.py</code> validates the original bytes and hands pysdmx a copy without annotation values. It has no SDMX-CSV metadata reader (<code>Format.REFMETA_SDMX_CSV_2_1_0</code> exists but no reader uses it), so the metadata messages get a header check: fixed columns, <code>MDSTRUCTURE</code> = <code>metadataflow</code>, <code>TARGET_IDS</code> naming an artefact of the message, and dotted headers whose last segment is an MSD attribute id. It does not check the parent prefix, <code>MDSTRUCTURE_ID</code>, <code>TARGET_TYPES</code> or the uniqueness of <code>METADATASET_ID</code>; the byte comparison of <code>SDMX.STALE</code> covers those. <code>check_urns.py</code> registers a maintainable without a <code>version</code> attribute (the organisation schemes) under version 1.0.</p>
+<p><strong>Legacy regression (rows 7 and 11).</strong> <code>pipeline/reconcile.R</code> matches every cell of the data files against the legacy workbooks (6871 cells OK, 98 GNB cells withheld by <code>LEGACY_OVERRIDES.csv</code>). The projection test in <code>pipeline/tests/testthat/</code> maps each data file back onto the 31 columns of the previous layout and finds only the removed <code>DATAFLOW</code> column and <code>NaN</code> against empty on the 39 GNB <code>O</code> rows. Its comparator is unit-tested; the whole test has not been mutation-tested.</p>
+<p><strong>What the FMR round trip does not cover (rows 11 and 13).</strong> The MSD, the metadataflow and the metadata provision agreement are not in the 3.0 profile, so FMR neither loads nor exports them. <code>import_sdmx.R</code> does not write back the <code>ARTEFACTS.csv</code> columns <code>status</code>, <code>version_added</code>, <code>notes</code>, <code>agency_id</code> and <code>source_file</code>, edits to the derived codelists, <code>AFW_METADATA_VERSION</code>, the structure of the concept scheme, DSD, MSD, dataflow and agreements, non-English names, or sentinel names and their <code>GLOBAL_CODE</code>. The 3.0 profile keeps <code>AnnotationValue</code>, which FMR accepted; it has not been checked against the 3.0 XSDs.</p>
+<p><strong>FMR’s clean report.</strong> An FMR validation report says <code>"Errors":false</code> when the file is clean; the word “error” appears in a clean report, so the field, not a text search, is the test.</p>
+</section>
+<section id="not-claimed" class="level2">
+<h2 class="anchored" data-anchor-id="not-claimed">Not claimed</h2>
+<ul>
+<li>No DataConstraint and no VTL: required coverage and arithmetic rules are checked by the project validator (D45).</li>
+<li><code>SERIES_ID</code> is an uncoded <code>String</code> attribute checked against <code>SERIES_PLAN.csv</code>, not a codelist (D43, <code>IDType</code> forbids the dot in series ids).</li>
+<li><code>WB:AGENCIES</code> is a local placeholder declaring <code>AFW360</code>; nothing is registered in the Global Registry (D31).</li>
+<li>Sender id <code>WB_AFW360</code>: message sender ids are <code>IDType</code> and cannot contain the dot of <code>WB.AFW360</code>.</li>
+<li>Byte-identical regeneration of the boundaries: <code>pipeline/build_geo.R</code> writes GeoPackages that are not byte-deterministic, so a rebuild changes <code>geo/boundaries/*.gpkg</code> and the two <code>sha256</code> fields of <code>metadata/registries/GEO_SOURCES.csv</code>, and the regenerated tree fails the byte-identity test of <code>test-migrate-0.3.0.R</code> (WP11). The committed GeoPackages and hashes are the reference; a deterministic writer needs a metadata patch version and a migration and is left for a later release.</li>
+</ul>
+
+
 </section>
 
 </main> <!-- /main -->

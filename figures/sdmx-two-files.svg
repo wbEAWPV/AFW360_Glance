@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1110 440" width="1110" height="440" font-family="Source Sans Pro, Segoe UI, Helvetica Neue, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">The two SDMX files</title>
+<desc id="d">Left: the structure file, an XML dictionary in which a concept and a codelist are used by the data structure definition, which the dataflow points to. Right: the data file, a CSV with one row per number. Each row names the dataflow in STRUCTURE_ID, and every code in a row must exist in its codelist.</desc>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#444444"/></marker></defs>
+
+<!-- Left panel: structure file -->
+<rect x="20" y="20" width="450" height="400" rx="6" fill="#f6e6d6" stroke="#b87333" stroke-width="1.8"/>
+<text x="245" y="46" text-anchor="middle" font-size="15" font-weight="600" fill="#201e1d">Structure file · SDMX-ML (XML)</text>
+<text x="245" y="64" text-anchor="middle" font-size="12" font-style="italic" fill="#5c4a36">The dictionary: one per metadata version, shared by all countries</text>
+
+<rect x="40" y="86" width="200" height="86" rx="4" fill="#fffaf3" stroke="#201e1d" stroke-width="1.2"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="140" y="108" font-weight="600" font-size="13">Concept</tspan><tspan x="140" y="128" font-size="11.5" font-family="Consolas, Menlo, monospace">URBANISATION</tspan><tspan x="140" y="145" font-size="11.5">“Degree of urbanisation”</tspan><tspan x="140" y="162" font-size="11" font-style="italic" fill="#5c4a36">what the column means</tspan></text>
+
+<rect x="250" y="86" width="200" height="86" rx="4" fill="#fffaf3" stroke="#201e1d" stroke-width="1.2"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="350" y="108" font-weight="600" font-size="13">Codelist</tspan><tspan x="350" y="128" font-size="11.5" font-family="Consolas, Menlo, monospace">CL_URBANISATION</tspan><tspan x="350" y="145" font-size="11.5" font-family="Consolas, Menlo, monospace">U · R · CAP · OU · _T</tspan><tspan x="350" y="162" font-size="11" font-style="italic" fill="#5c4a36">the allowed values</tspan></text>
+
+<line x1="140" y1="172" x2="140" y2="204" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<line x1="350" y1="172" x2="350" y2="204" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<text x="148" y="192" font-size="10.5" font-style="italic" fill="#5c4a36">used by</text>
+<text x="358" y="192" font-size="10.5" font-style="italic" fill="#5c4a36">used by</text>
+
+<rect x="40" y="206" width="410" height="96" rx="4" fill="#fffaf3" stroke="#201e1d" stroke-width="1.2"/>
+<text text-anchor="middle" fill="#201e1d"><tspan x="245" y="228" font-weight="600" font-size="13">Data structure definition (DSD)</tspan><tspan x="245" y="248" font-size="11.5" font-family="Consolas, Menlo, monospace">DSD_AFW360_HH</tspan><tspan x="245" y="266" font-size="11.5">dimension URBANISATION: this concept, coded by this codelist</tspan><tspan x="245" y="288" font-size="11" font-style="italic" fill="#5c4a36">+ 17 more dimensions, time, 9 measures, 6 attributes</tspan></text>
+
+<line x1="245" y1="302" x2="245" y2="328" stroke="#444444" stroke-width="1.5" marker-end="url(#ah)"/>
+<text x="253" y="320" font-size="10.5" font-style="italic" fill="#5c4a36">used by</text>
+
+<rect x="125" y="330" width="240" height="70" rx="4" fill="#c67139" stroke="#8a4a1f" stroke-width="1.2"/>
+<text text-anchor="middle" fill="#ffffff"><tspan x="245" y="352" font-weight="600" font-size="13">Dataflow</tspan><tspan x="245" y="371" font-size="11.5" font-family="Consolas, Menlo, monospace">WB.AFW360:AFW360_HH(0.3.0)</tspan><tspan x="245" y="389" font-size="11" font-style="italic">the dataset; it points to the DSD</tspan></text>
+
+<!-- Right panel: data file -->
+<rect x="630" y="20" width="460" height="400" rx="6" fill="#eef1e6" stroke="#7a8a5e" stroke-width="1.8"/>
+<text x="860" y="46" text-anchor="middle" font-size="15" font-weight="600" fill="#201e1d">Data file · SDMX-CSV</text>
+<text x="860" y="64" text-anchor="middle" font-size="12" font-style="italic" fill="#4d5a3a">The numbers: one file per country, year and estimation method</text>
+
+<g font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#201e1d">
+  <rect x="640" y="90" width="440" height="22" fill="#7a8a5e"/>
+  <rect x="640" y="112" width="440" height="72" fill="#ffffff" stroke="#7a8a5e" stroke-width="1"/>
+  <rect x="765" y="136" width="85" height="24" fill="#f6e6d6"/>
+  <line x1="640" y1="136" x2="1080" y2="136" stroke="#d5dccb"/>
+  <line x1="640" y1="160" x2="1080" y2="160" stroke="#d5dccb"/>
+  <line x1="765" y1="90" x2="765" y2="184" stroke="#d5dccb"/>
+  <line x1="850" y1="90" x2="850" y2="184" stroke="#d5dccb"/>
+  <line x1="920" y1="90" x2="920" y2="184" stroke="#d5dccb"/>
+  <line x1="1020" y1="90" x2="1020" y2="184" stroke="#d5dccb"/>
+  <g fill="#ffffff" font-weight="600">
+    <text x="646" y="105">STRUCTURE_ID</text><text x="771" y="105">URBANISATION</text><text x="856" y="105">INDICATOR</text><text x="926" y="105">MEASURE_QUAL_1</text><text x="1026" y="105">OBS_…</text>
+  </g>
+  <text x="646" y="128">…AFW360_HH(0.3.0)</text><text x="771" y="128">_T</text><text x="856" y="128">POV_HC</text><text x="926" y="128">POVLINE_PL300</text><text x="1026" y="128">0.18</text>
+  <text x="646" y="152">…AFW360_HH(0.3.0)</text><text x="771" y="152" font-weight="700">R</text><text x="856" y="152">POV_HC</text><text x="926" y="152">POVLINE_PL300</text><text x="1026" y="152">0.30</text>
+  <text x="646" y="176">…AFW360_HH(0.3.0)</text><text x="771" y="176">_T</text><text x="856" y="176">CONS_SH</text><text x="926" y="176">COICOP_CP01</text><text x="1026" y="176">0.45</text>
+</g>
+<text x="646" y="200" font-size="10.5" font-style="italic" fill="#4d5a3a">Senegal 2021; only some of the 37 columns are shown</text>
+
+<text fill="#201e1d" font-size="12"><tspan x="646" y="228" font-weight="600" font-size="13">One row = one number. Every row has:</tspan><tspan x="660" y="248">3 fixed columns, which name the dataflow</tspan><tspan x="660" y="266">19 key columns: 18 dimensions + TIME_PERIOD</tspan><tspan x="660" y="284">9 measures: the value and its reliability</tspan><tspan x="660" y="302">6 attributes: unit, status, source, …</tspan></text>
+
+<rect x="646" y="318" width="428" height="86" rx="4" fill="#ffffff" stroke="#4d5a3a" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text fill="#201e1d" font-size="12"><tspan x="660" y="338" font-weight="600" font-size="12.5">What the dictionary lets a machine check</tspan><tspan x="660" y="357">every code exists in its codelist</tspan><tspan x="660" y="374">no two rows share the same key</tspan><tspan x="660" y="391">every value has the type the DSD declares</tspan></text>
+
+<!-- Links between the files -->
+<path d="M807,90 C807,72 560,72 454,122" fill="none" stroke="#b87333" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+<text text-anchor="middle" font-size="11" font-style="italic" fill="#8a4a1f"><tspan x="550" y="142">each code must</tspan><tspan x="550" y="156">exist in its codelist</tspan></text>
+
+<path d="M640,148 C560,148 560,365 369,365" fill="none" stroke="#444444" stroke-width="1.6" marker-end="url(#ah)"/>
+<text text-anchor="middle" font-size="11" font-style="italic" fill="#201e1d"><tspan x="590" y="250" font-family="Consolas, Menlo, monospace" font-style="normal">STRUCTURE_ID</tspan><tspan x="590" y="264">names the</tspan><tspan x="590" y="278">dataflow</tspan></text>
+</svg>

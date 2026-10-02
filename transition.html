@@ -6,10 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Eduard Bukin">
-<meta name="dcterms.date" content="2026-09-30">
+<meta name="dcterms.date" content="2026-09-29">
 
-<title>Africa West 360: High-level overview – AFW360 - Platform Concept</title>
+<title>Appendix B. The data transition – AFW360 - Platform Concept</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +78,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="docked nav-fixed quarto-light">
+<body class="nav-sidebar docked nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -97,11 +96,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data-standard.html"> 
+    <a class="nav-link active" href="./data-standard.html" aria-current="page"> 
 <span class="menu-text">Standard</span></a>
   </li>  
   <li class="nav-item">
@@ -126,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">AFW360 Overview</a></li><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data-standard.html">AFW360 SDMX Standard</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">Technical documentation</a></li><li class="breadcrumb-item"><a href="./transition.html">Transition record</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -140,41 +139,17 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">AFW360 Overview</span></a>
+            <a href="./data-standard.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AFW360 SDMX Standard</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Introduction</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./15-legacy-verification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 0 · Legacy dashboard</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./20-excel-to-sdmx.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 1 · Excel to SDMX</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./30-dsd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Step 2 · Data Structure Definition</span></a>
-  </div>
-</li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Annexes</span></a>
+ <span class="menu-text">Technical documentation</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -182,8 +157,26 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./25-sdmx-standard.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">SDMX in plain terms</span></a>
+  <a href="./sdmx-conformance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SDMX conformance</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transition.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Transition record</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./input-tables-findings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input tables findings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./fmr-guide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">FMR guide</span></a>
   </div>
 </li>
       </ul>
@@ -200,42 +193,37 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
-  <ul class="collapse">
-  <li><a href="#where-we-have-started" id="toc-where-we-have-started" class="nav-link" data-scroll-target="#where-we-have-started">Where we have started</a></li>
-  <li><a href="#where-are-we-going" id="toc-where-are-we-going" class="nav-link" data-scroll-target="#where-are-we-going">Where are we going</a></li>
-  </ul></li>
-  <li><a href="#implementing-afw360-data-pipeline" id="toc-implementing-afw360-data-pipeline" class="nav-link" data-scroll-target="#implementing-afw360-data-pipeline">Implementing AFW360 data pipeline</a>
-  <ul class="collapse">
-  <li><a href="#implementation-tracking" id="toc-implementation-tracking" class="nav-link" data-scroll-target="#implementation-tracking">Implementation tracking</a></li>
-  </ul></li>
+  <li><a href="#in-one-paragraph" id="toc-in-one-paragraph" class="nav-link active" data-scroll-target="#in-one-paragraph">In one paragraph</a></li>
+  <li><a href="#before-and-after" id="toc-before-and-after" class="nav-link" data-scroll-target="#before-and-after">Before and after</a></li>
+  <li><a href="#what-was-done-by-hand" id="toc-what-was-done-by-hand" class="nav-link" data-scroll-target="#what-was-done-by-hand">What was done by hand</a></li>
+  <li><a href="#what-was-done-by-code" id="toc-what-was-done-by-code" class="nav-link" data-scroll-target="#what-was-done-by-code">What was done by code</a></li>
+  <li><a href="#main-decisions" id="toc-main-decisions" class="nav-link" data-scroll-target="#main-decisions">Main decisions</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#what-is-still-open" id="toc-what-is-still-open" class="nav-link" data-scroll-target="#what-is-still-open">What is still open</a></li>
+  <li><a href="#after-acceptance-standard-v0.5-and-metadata-0.2.0" id="toc-after-acceptance-standard-v0.5-and-metadata-0.2.0" class="nav-link" data-scroll-target="#after-acceptance-standard-v0.5-and-metadata-0.2.0">After acceptance: standard v0.5 and metadata 0.2.0</a></li>
+  <li><a href="#how-the-work-was-run" id="toc-how-the-work-was-run" class="nav-link" data-scroll-target="#how-the-work-was-run">How the work was run</a></li>
+  <li><a href="#sdmx-transition-standard-v0.6-metadata-0.3.0" id="toc-sdmx-transition-standard-v0.6-metadata-0.3.0" class="nav-link" data-scroll-target="#sdmx-transition-standard-v0.6-metadata-0.3.0">SDMX transition (standard v0.6, metadata 0.3.0)</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">AFW360 Overview</a></li><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data-standard.html">AFW360 SDMX Standard</a></li><li class="breadcrumb-item"><a href="./sdmx-conformance.html">Technical documentation</a></li><li class="breadcrumb-item"><a href="./transition.html">Transition record</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Africa West 360: High-level overview</h1>
-<p class="subtitle lead">From raw survey data to the dashboards, APIs and the MCP server: Why and how?</p>
+<h1 class="title">Appendix B. The data transition</h1>
+<p class="subtitle lead">How the legacy Excel, shapefile and text inputs became data in the AFW360 standard</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Eduard Bukin </p>
-          </div>
-  </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 30, 2026</p>
+      <p class="date">September 29, 2026</p>
     </div>
   </div>
   
@@ -247,160 +235,217 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>This page is the map of the whole (ideal) process of data transformation for the Africa West 360 (AFW360) project. The goal of AFW360 is to operationalize microdata for daily use by country economists and analysts through:</p>
-<ol type="1">
-<li>enabling access to the raw microdata as is using an API.</li>
-<li>harmonizing microdata with clear harmonization guidelines and data provenance and enabling API-based access to it.</li>
-<li>creating a reproducible pipeline of indicators creation from the harmonized microdata and enabling access to those through an API.</li>
-<li>making indicators operational for humans and AI through a dashboard, a data access MCP server, and AI chats.</li>
-</ol>
-<p>This is a concept note with a few prototypes to prove the concept.</p>
-<section id="where-we-have-started" class="level3">
-<h3 class="anchored" data-anchor-id="where-we-have-started">Where we have started</h3>
-<p>Our starting point is a set of Excel files produced from the raw data. It gives an overview of a fragment of the pipeline as well as the initial version of the dashboard developed by Moritz Meyer and published here: <a href="https://datanalytics-int.worldbank.org/AFW360-v1/" class="uri">https://datanalytics-int.worldbank.org/AFW360-v1/</a> (requires VPN to access). Original data and dashboard code are located in the folder <code>10-legacy-pipeline/</code>. <a href="#fig-legacy-pipeline" class="quarto-xref">Figure&nbsp;1</a> shows how they connect.</p>
-<div id="fig-legacy-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-legacy-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/legacy-pipeline.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-legacy-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Legacy Pipeline
-</figcaption>
-</figure>
-</div>
+<p>In September 2026 the dashboard’s inputs were converted, without changing a single number, into the files defined by the <a href="./data-standard.html">data standard</a>. This page summarises what was done, which part was done by code and which by hand, and where each piece lives.</p>
+<section id="in-one-paragraph" class="level1">
+<h1>In one paragraph</h1>
+<p>The dashboard used to read two Excel workbooks in which every row is identified by a free-text label and every column by a spelled-out region name. The transition kept those files untouched in <code>data_raw/</code>, wrote down by hand how each label and column maps to a coded indicator, breakdown and area, and used R code to turn that mapping into a documented, machine-checkable dataset: one long table per country and year, plus codelists, boundaries, text and figures. The output reproduces every value in the workbooks, and it is marked <code>DRAFT</code> until the team confirms it.</p>
 </section>
-<section id="where-are-we-going" class="level3">
-<h3 class="anchored" data-anchor-id="where-are-we-going">Where are we going</h3>
-<p>Our goal is to create a sustainable data transformation pipeline, where data provenance is transparent and the produced indicators are accessible to machines and humans and could be operationalized in the future as:</p>
-<ol type="1">
-<li>statistical data,</li>
-<li>an API,</li>
-<li>an MCP server for search and extraction by AI,</li>
-<li>a basis for AI processing and for building stories based on the data.</li>
-</ol>
-<p><a href="#fig-ideal-pipeline" class="quarto-xref">Figure&nbsp;2</a> shows the ideal pipeline: a medallion-style (Bronze, Silver, Gold) ETL (extract, transform, load) pipeline. It is designed to be modular, with each stage building on the previous one.</p>
-<div id="fig-ideal-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ideal-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/ideal-pipeline.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ideal-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Ideal Pipeline
-</figcaption>
-</figure>
-</div>
-<p><strong>Bronze.</strong> Raw microdata ingestion and operationalization through an API-like sustainable access interface. The World Bank (WB) has several systems for this, each with its own strengths and limitations. The main ones are:</p>
-<ul>
-<li><p><strong>Development Data Hub</strong>: <a href="https://datacatalog.worldbank.org/" class="uri">https://datacatalog.worldbank.org/</a>. This appears to be the best of the available options. It permits hosting data in individual files without the need for deep standardization, gives access to the data through streamable APIs and integrates directly with Databricks and other data storage platforms. It is the way of publishing data for analysis recommended by the <a href="https://worldbank.github.io/wb-reproducible-research-repository/guidance_note_wb.html">WB reproducibility team</a>.</p></li>
-<li><p><strong>World Bank Microdata Library</strong>: <a href="https://microdatalib.worldbank.org/index.php/home" class="uri">https://microdatalib.worldbank.org/index.php/home</a>. This is another option used to disseminate microdata. Its key limitation is that it requires exhaustive preparation of the data and metadata, which is costly. As a result, its coverage is patchy, and data are often available only as incomplete data sets.</p></li>
-<li><p><strong>Datalibweb</strong>: <a href="https://datalibweb2.worldbank.org/home" class="uri">https://datalibweb2.worldbank.org/home</a>. A Stata-native system designed for hosting and serving the Global Monitoring Database (GMD). It benefits from granular access control, but the way it serves data to users is restrictive and is harder to use outside Stata.</p></li>
-</ul>
-<p><strong>Silver.</strong> Harmonization of microdata into a common format, with clear documentation of the harmonization decisions and a reproducible data pipeline. This stage establishes a shared harmonization standard across countries and regions and enables API-based dissemination of the harmonized data. As a dissemination platform, the Development Data Hub could be used again, or the World Bank Microdata Library could share the harmonized data with standard documentation, in the same way as the Global Labor Database (GLD) is shared: <a href="https://microdatalib.worldbank.org/index.php/catalog/GLD/" class="uri">https://microdatalib.worldbank.org/index.php/catalog/GLD/</a></p>
-<p><strong>Gold.</strong> Production of indicators in a standard SDMX format in a fully reproducible manner that enables data access for the final users.</p>
-<p>There are a few concepts here worth exploring:</p>
-<ol type="1">
-<li><p><strong>SDMX</strong> (Statistical Data and Metadata eXchange): a standard for <a href="https://sdmx.org/">statistical data and metadata exchange</a>. It is widely used in the international statistical community and supported by many statistical software packages and visualization tools. It is the standard behind WDI, OECD Stats, Data 360 and other data dissemination platforms. It matters because it makes data provenance transparent and reproducible and communicates clearly what the computed indicators and data are.</p></li>
-<li><p><strong>SDMX data files</strong>: access to SDMX data is simple for analysts. Each country, survey and year is represented as a single CSV file with supporting metadata. Users load it into their statistical software and start working with it. These files could be hosted on the Microdata Library or the Development Data Hub.</p></li>
-<li><p><strong>API</strong>: an API is the standard way to access SDMX-based data because it gives every user (people, statistical software and so on) the same interface for reading and loading data. One example is the Data 360 API <a href="https://data360.worldbank.org/en/int/api" class="uri">https://data360.worldbank.org/en/int/api</a>. Type <a href="https://data360api.worldbank.org/data360/indicators?datasetId=WB_WDI" class="uri">https://data360api.worldbank.org/data360/indicators?datasetId=WB_WDI</a> in the browser and you will get the full list of indicators available in the WDI database.</p></li>
-<li><p><strong>MCP server</strong> (Model Context Protocol server): software that lets local or remote AI agents communicate with the API and extract data from it. It is what connects any AI agent to the data and metadata. Data 360 introduces its MCP server here: <a href="https://worldbank.github.io/data360-mcp/" class="uri">https://worldbank.github.io/data360-mcp/</a>, and it is used across AI agents. It is open source and could be adopted at low cost. MCP servers are powerful because they can be integrated into the World Bank’s internal AI chats, mAI and k360, enabling data exploration augmented by access to WB knowledge and internal documentation.</p></li>
-<li><p><strong>AI chat</strong>: probably the final stage of the process. It operationalizes AI to answer development questions based on the data and metadata available for the region in SDMX format. One prototype is <a href="https://data360.worldbank.org/en/int/chat" class="uri">https://data360.worldbank.org/en/int/chat</a>; another is <a href="https://k360.worldbankgroup.org/" class="uri">https://k360.worldbankgroup.org/</a> (requires VPN to access). Both use a set of MCP servers to access relevant information. They use AI to rephrase the questions (prompt engineering) so that they retrieve the most relevant data and structure the answers well.</p></li>
-<li><p><strong>Dashboards</strong>: the human-oriented interface to the data. Having data structured as an SDMX database with an API enables any dashboard to be built on top of it and deployed through channels such as Power BI, Tableau and R Shiny.</p></li>
-<li><p><strong>Supporting knowledge</strong>: a key element of a successful and relevant data pipeline. For AI to give relevant, data-supported answers to development questions, it needs to know how to reason. This is why a hierarchy of supporting knowledge is important: the development questions, the data and the metadata. It gives AI correct references and templates for reasoning, for exploring the data and for writing the answer. In practice, this knowledge is structured plain text organized so that AI can use it, e.g. AI Skills.</p></li>
-</ol>
-<p>This pipeline could be implemented in any statistical software, but its advantages show most in a scalable working environment such as Databricks. We could also borrow implementation best practices from the GLD.</p>
-</section>
-</section>
-<section id="implementing-afw360-data-pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="implementing-afw360-data-pipeline">Implementing AFW360 data pipeline</h2>
-<p>It is a challenge that requires commitment and investment. Yet modern AI tools make it more feasible than it used to be. The following steps are proposed to implement the pipeline:</p>
-<ul>
-<li>Step 0: Verify that the legacy pipeline (Excel-Dashboard) is working and could be used as a reference for the new pipeline</li>
-<li>Step 1: Reverse engineer Silver-Gold: convert existing Excel files into SDMX-based data</li>
-<li>Step 2: Establish an SDMX Data Structure Definition (DSD) for our indicators</li>
-<li>Step 3: Validate that Excel-based indicators after transformation follow the DSD standard</li>
-<li>Step 4: Build a process of expanding indicators and data coverage</li>
-<li>Step 5: Micro-data harmonization and indicators computation Bronze-Silver medallions</li>
-<li>Step 6: APIs to the indicators data</li>
-<li>Step 7: Knowledge base for AI to use</li>
-<li>Step 8: MCP server for AFW360 data</li>
-<li>Step 9: Dedicated AI chat that operationalizes data and knowledge</li>
-</ul>
-<section id="implementation-tracking" class="level3">
-<h3 class="anchored" data-anchor-id="implementation-tracking">Implementation tracking</h3>
+<section id="before-and-after" class="level1">
+<h1>Before and after</h1>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 88%">
-<col style="width: 8%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Step</th>
-<th>Short description</th>
-<th>Status</th>
+<th></th>
+<th>Before</th>
+<th>After</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>0</td>
-<td>Verify the legacy Excel-to-dashboard pipeline as a reference</td>
-<td>Planned</td>
+<td>Indicator values</td>
+<td>2 wide Excel workbooks, rows found by label text</td>
+<td><code>data/AFW360_HH_&lt;ISO3&gt;_2021_SURVEY.csv</code>: one row per value, every dimension coded</td>
 </tr>
 <tr class="even">
-<td>1</td>
-<td>Reverse engineer Silver-to-Gold: convert existing Excel files into SDMX-based data</td>
-<td>Planned</td>
+<td>What a number means</td>
+<td>Written inside the label (“Poor at $4.20/day (2021 PPP)”)</td>
+<td>Indicator, poverty line, PPP round, unit and population defined in <code>metadata/codelists/</code></td>
 </tr>
 <tr class="odd">
-<td>2</td>
-<td>Establish an SDMX Data Structure Definition (DSD) for the indicators</td>
-<td>Planned</td>
+<td>Regions and zones</td>
+<td>Names, some cut at 32 characters</td>
+<td>COD-AB P-codes (<code>SN01</code>, <code>GW08</code>…) in <code>CL_GEO</code>, boundaries in <code>geo/boundaries/*.gpkg</code></td>
 </tr>
 <tr class="even">
-<td>3</td>
-<td>Validate transformed Excel-based indicators against the DSD</td>
-<td>Planned</td>
+<td>Methodology and messages</td>
+<td>Loose <code>.txt</code> files, partly hard-coded in <code>index.qmd</code></td>
+<td><code>content/TEXT.csv</code> and <code>content/text/&lt;ISO3&gt;/</code></td>
 </tr>
 <tr class="odd">
-<td>4</td>
-<td>Build a process to expand indicator and data coverage</td>
-<td>Planned</td>
+<td>Figures</td>
+<td>Loose PNG</td>
+<td><code>assets/figures/&lt;ISO3&gt;/</code>, registered in <code>metadata/registries/FIGURES.csv</code></td>
 </tr>
 <tr class="even">
-<td>5</td>
-<td>Harmonize microdata and compute indicators (Bronze-to-Silver stages)</td>
-<td>Planned</td>
-</tr>
-<tr class="odd">
-<td>6</td>
-<td>Provide APIs for indicator data</td>
-<td>Planned</td>
-</tr>
-<tr class="even">
-<td>7</td>
-<td>Build a knowledge base for AI</td>
-<td>Planned</td>
-</tr>
-<tr class="odd">
-<td>8</td>
-<td>Build an MCP server for AFW360 data</td>
-<td>Planned</td>
-</tr>
-<tr class="even">
-<td>9</td>
-<td>Launch a dedicated AI chat using the data and knowledge</td>
-<td>Planned</td>
+<td>Surveys</td>
+<td>Not recorded</td>
+<td><code>metadata/surveys/SURVEYS.csv</code> (EHCVM 2021/22 for both countries)</td>
 </tr>
 </tbody>
 </table>
-<p>The process starts from Gold and works back to Bronze because the dashboard and its Excel tables already exist. Converting them to SDMX first (Steps 1–3) forces a precise definition of the indicators and their structure, the DSD. The DSD then becomes the target that the harmonized microdata (Step 5) must feed, so the upstream stages are built against a known output rather than in the abstract.</p>
-<p>All steps are explained in the respective documents:</p>
-<p>TODO.</p>
-
-
 </section>
+<section id="what-was-done-by-hand" class="level1">
+<h1>What was done by hand</h1>
+<p>These are the judgement calls. Everything else is derived from them by code.</p>
+<ul>
+<li><strong>The mapping of the workbooks.</strong> <code>pipeline/bootstrap/seeds/</code> holds seven small tables written during the transition:
+<ul>
+<li><code>label_triage.csv</code>: each of the 179 workbook labels, what it measures, and whether to keep, skip, or treat as a duplicate or derivable series;</li>
+<li><code>codes.csv</code>: the codes and hierarchies of every codelist (breakdowns, qualifiers, units…);</li>
+<li><code>geo_codes.csv</code>: the 35 regions and zones, with the workbook column each one came from;</li>
+<li><code>legacy_national_columns.csv</code>: what each column of the <code>National</code> sheet means (urban/rural, sex of head, quintile…);</li>
+<li><code>tab_plan.csv</code>: which breakdowns are published for which geography;</li>
+<li><code>legacy_overrides.csv</code>: the 12 cells or columns withheld or flagged as wrong;</li>
+<li><code>csv_headers.csv</code>: the columns of every metadata file.</li>
+</ul></li>
+<li><strong>The definitions.</strong> <code>pipeline/bootstrap/text/</code> holds the names, definitions, universes and notes of every indicator, breakdown, area, survey and figure (about 250 entries).</li>
+<li><strong>The standard itself.</strong> <a href="./data-standard.html"><code>data-standard.qmd</code></a> was revised to v0.4 to close 27 gaps found while writing the mapping, and to v0.5 after the acceptance (see below).</li>
+<li><strong>The decisions.</strong> The team settled the questions the data could not answer (see below).</li>
+</ul>
+</section>
+<section id="what-was-done-by-code" class="level1">
+<h1>What was done by code</h1>
+<p>All code is in R, under <code>pipeline/</code>. Every script runs from the repository root with <code>--root .</code>, and running it twice gives identical files.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Script</th>
+<th>Reads</th>
+<th>Writes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. Freeze the inputs</td>
+<td>(one-off move)</td>
+<td>the original input folders</td>
+<td><code>data_raw/</code>, with <code>CHECKSUMS.sha256</code> proving no byte changed</td>
+</tr>
+<tr class="even">
+<td>2. Build the metadata</td>
+<td><code>pipeline/bootstrap/build_*.R</code></td>
+<td>the seeds and texts above</td>
+<td><code>metadata/codelists/</code>, <code>plans/</code>, <code>surveys/</code></td>
+</tr>
+<tr class="odd">
+<td>3. Build the boundaries</td>
+<td><code>pipeline/build_geo.R</code></td>
+<td><code>data_raw/shp/</code></td>
+<td><code>geo/boundaries/*.gpkg</code>, <code>metadata/registries/GEO_SOURCES.csv</code></td>
+</tr>
+<tr class="even">
+<td>4. Build text and figures</td>
+<td><code>pipeline/build_content.R</code></td>
+<td><code>data_raw/text/</code>, <code>data_raw/figures/</code>, <code>index.qmd</code> messages</td>
+<td><code>content/</code>, <code>assets/</code>, <code>FIGURES.csv</code></td>
+</tr>
+<tr class="odd">
+<td>5. Convert the tables</td>
+<td><code>pipeline/convert_legacy.R</code></td>
+<td><code>data_raw/tables/</code>, <code>metadata/plans/</code>, <code>metadata/registries/SOURCES.csv</code></td>
+<td><code>data/AFW360_HH_&lt;ISO3&gt;_2021_SURVEY.csv</code> and its manifest</td>
+</tr>
+<tr class="even">
+<td>6. Check the result</td>
+<td><code>pipeline/validate.R</code></td>
+<td>everything above</td>
+<td>a list of errors and warnings</td>
+</tr>
+<tr class="odd">
+<td>7. Check the conversion</td>
+<td><code>pipeline/reconcile.R</code></td>
+<td>the workbooks and <code>data/</code>, independently of step 5</td>
+<td>a cell-by-cell report</td>
+</tr>
+<tr class="even">
+<td>8. Generate the standard’s tables</td>
+<td><code>pipeline/build_docs.R</code></td>
+<td><code>metadata/</code>, <code>content/</code></td>
+<td><code>.docs/generated/*.md</code>, included by the standard</td>
+</tr>
+</tbody>
+</table>
+<p>Shared functions are in <code>pipeline/R/</code>, and unit tests in <code>pipeline/tests/</code>.</p>
+<p><strong>The bootstrap scripts (step 2) are now frozen.</strong> From metadata version 0.1.0 onward the metadata CSV files themselves are the source of truth, and they are edited directly. The seeds and bootstrap scripts are kept as the record of how the first version was built. Later structural changes are made by one-off scripts under <code>pipeline/migrations/&lt;version&gt;/</code>; the first, <code>0.2.0/migrate.R</code>, took the metadata from 0.1.0 to 0.2.0 (below).</p>
+</section>
+<section id="main-decisions" class="level1">
+<h1>Main decisions</h1>
+<ul>
+<li><strong>Inputs are never edited.</strong> Every fix goes into the mapping or the code, so the original workbooks remain the audit trail.</li>
+<li><strong>SEN <code>Departement</code> sheet skipped.</strong> It is an older version whose poverty totals disagree with <code>ADM 1</code>.</li>
+<li><strong>Known-bad values withheld, not corrected.</strong> The GNB <code>Capital</code> column (a copy of a zone) and 7 GNB cultivated-area outliers (up to 148 million ha) are left out and registered in <code>LEGACY_OVERRIDES.csv</code>.</li>
+<li><strong>Empty cells kept as empty.</strong> They are recorded as “no value available” (<code>OBS_STATUS = O</code>) with a comment, never filled.</li>
+<li><strong>Three kinds of population share.</strong> A share of individuals, of households and of household enterprises get separate codes, because each needs its own weight.</li>
+<li><strong>GNB survey dated 2021.</strong> EHCVM 2021/22 is recorded as 2021.</li>
+<li><strong>Key messages taken from the dashboard.</strong> The version hard-coded in <code>index.qmd</code> was preferred over <code>Messages_&lt;ISO3&gt;.txt</code>.</li>
+<li><strong>19 ambiguous indicators coded as recommended.</strong> Examples: non-food share derived from the food share; three electricity indicators kept but flagged; household-head age groups kept as draft codes. All 19 were confirmed by the team and remain <code>DRAFT</code>.</li>
+</ul>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<ul>
+<li><strong>Senegal:</strong> 3,003 values (91 series × 33 population groups).</li>
+<li><strong>Guinea-Bissau:</strong> 2,268 values; 98 withheld as known errors; 39 empty in the source.</li>
+<li><strong>Coverage:</strong> every one of the 5,723 source cells is accounted for exactly once: converted, derived, duplicated, withheld or skipped.</li>
+<li><strong>Dictionary:</strong> 62 indicators, 13 breakdown variables (60 groups), 6 qualifiers (42 values), 35 geographic units in 6 schemes.</li>
+<li><strong>Checks:</strong> the validator finds no errors; the independent reconciliation matches every value.</li>
+<li><strong>Poverty headcounts reproduced exactly:</strong> SEN 3.13M / 6.52M and GNB 0.70M / 1.09M poor at $3.00 / $4.20 (2021 PPP).</li>
+</ul>
+</section>
+<section id="what-is-still-open" class="level1">
+<h1>What is still open</h1>
+<ul>
+<li>The dashboard still reads <code>data_raw/</code>. Pointing it at <code>data/</code>, <code>metadata/</code>, <code>geo/</code> and <code>content/</code> is the next step. (Done in the SDMX transition, below.)</li>
+<li>Everything is <code>DRAFT</code>. Codes become <code>ACTIVE</code> only once the team confirms them.</li>
+<li>The workbooks carry no sample sizes, population counts or standard errors. Producer files with those columns should replace them.</li>
+<li>Some questions in the standard remain open: quintile definition, who owns <code>metadata/</code>, and the policy on boundary versions. How to record an indicator a country cannot produce was settled in v0.5 (a country row in <code>SERIES_PLAN.csv</code>).</li>
+</ul>
+</section>
+<section id="after-acceptance-standard-v0.5-and-metadata-0.2.0" class="level1">
+<h1>After acceptance: standard v0.5 and metadata 0.2.0</h1>
+<p>On 2026-09-28 the standard was reviewed against the SDMX information model and revised to v0.5, with the metadata migrated to 0.2.0 and the data files regenerated. The review found the model sound and closed three kinds of gap: a data row could not be read from its key and the DSD alone, unit and provenance metadata sat at the file level rather than the row, and the population count on share rows was defined twice. In short:</p>
+<ul>
+<li>Every data row now carries <code>SERIES_ID</code>, <code>UNIT_MEASURE</code>, <code>PRECISION</code> and <code>SOURCE_ID</code>, and the key gains an <code>ESTIMATION</code> dimension (<code>SURVEY</code> or <code>MODEL</code>), so a nowcast and a survey estimate for the same year can coexist. Files are named <code>AFW360_HH_&lt;ISO3&gt;_&lt;YEAR&gt;_&lt;ESTIMATION&gt;.csv</code>.</li>
+<li>Verification rules and the indicator–qualifier relations moved out of codelist cells into <code>metadata/rules/RULES.csv</code>, <code>metadata/structure/INDICATOR_QUALIFIERS.csv</code> and <code>QUALIFIER_PAIRS.csv</code>; program runs are registered in <code>metadata/registries/SOURCES.csv</code>.</li>
+<li><code>OBS_STATUS</code> gains a rule-based low-reliability code and a definition-differs code; <code>SERIES_PLAN.csv</code> gains display names and per-country status.</li>
+<li>Every table in the standard that lists a metadata file is generated from it and checked for staleness.</li>
+</ul>
+<p>The decisions are recorded as D12 to D26 in the standard’s “Changes since v0.4” table. The values in <code>data/</code> are unchanged: projecting the new files onto the old 26 columns reproduces the accepted files exactly, and the reconciliation still matches every cell.</p>
+</section>
+<section id="how-the-work-was-run" class="level1">
+<h1>How the work was run</h1>
+<p>The transition was carried out by AI agents in 17 work packages, each checked by an independent verifier, with the team deciding at three gates (hard cases, the standard, final acceptance on 2026-09-23). The detailed plan, the per-package instructions and the verification reports were removed once the work was accepted. They remain in the git history at commit <code>af378e9</code>, under <code>.docs/transition/</code>.</p>
+</section>
+<section id="sdmx-transition-standard-v0.6-metadata-0.3.0" class="level1">
+<h1>SDMX transition (standard v0.6, metadata 0.3.0)</h1>
+<p>On 2026-09-29 the files themselves were made SDMX 3.1 conformant, with the standard revised to v0.6 and the metadata migrated to 0.3.0 by <code>pipeline/migrations/0.3.0/migrate.R</code>. v0.5 already followed the SDMX information model in spirit; v0.6 makes the published files readable by SDMX tools while keeping CSV as the working format and the CSVs under <code>metadata/</code>, <code>content/</code> and <code>data/</code> as the source of truth. The same step switched the dashboard from <code>data_raw/</code> to the harmonised files. In short:</p>
+<ul>
+<li><strong>Data.</strong> The two data files are SDMX-CSV 2.1 data messages: three fixed leading columns, one column per component of the data structure, 37 columns with a 19-column key, a <code>FREQ</code> dimension first, <code>ACTION</code> <code>R</code> on every row, and <code>NaN</code> where a value is intentionally missing.</li>
+<li><strong>Structures.</strong> <code>pipeline/build_sdmx.R</code> generates one SDMX-ML 3.1 structure message, <code>sdmx/structures/AFW360_structures.xml</code>, with 32 maintainables: the agency scheme, 22 codelists, a concept scheme of 82 concepts, the data structure and dataflow, the metadata structure and metadataflow, the data and metadata provider schemes and the two provision agreements. Agency <code>WB.AFW360</code> is declared as a sub-agency of the World Bank’s <code>WB</code>. The file is validated against the vendored SDMX-ML 3.1.0 schemas before it is written.</li>
+<li><strong>Reference metadata.</strong> Surveys, sources, dashboard text and figures are published as four SDMX-CSV 2.1 metadata messages under <code>sdmx/metadata/</code>, generated from the registry CSVs.</li>
+<li><strong>Round trip.</strong> <code>pipeline/import_sdmx.R</code> turns a structure message (SDMX-ML 3.0 or 3.1) back into the metadata CSVs. Importing the generated message and rebuilding gives the same file byte for byte.</li>
+<li><strong>Checks.</strong> The validator gains six <code>SDMX.*</code> checks (staleness, schema, references, identity, data-file header, skipped). <code>tools/verify/</code> checks the same files independently with pysdmx and lxml.</li>
+<li><strong>Dashboard.</strong> <code>afw360/loader.py</code> is the single data-access layer; the Senegal and Guinea-Bissau sections and the About page read <code>data/</code>, <code>metadata/</code>, <code>content/</code>, <code>geo/</code> and <code>assets/</code> through it. Guinea-Bissau now shows its own data, and every cell follows its indicator’s display rule.</li>
+<li><strong>Fusion Metadata Registry.</strong> FMR 12.4.2 was installed locally under <code>tools/fmr/runtime/</code> (Tomcat 10.1, MySQL 8.0, no Docker, no administrator rights). It rejects SDMX-ML 3.1, so <code>build_sdmx.R --sdmx-ml-version 3.0</code> writes a 3.0 profile without the metadata structure, metadataflow and metadata agreement. FMR loads that profile once the <code>WB</code> agency is registered, validates both SDMX-CSV 2.1 data files unchanged, and exports SDMX-ML 3.0, which the importer reads back with an empty diff. The workflow is in the <a href="./fmr-guide.html">FMR guide</a>.</li>
+</ul>
+<p>The decisions are recorded as D27 to D46 in the standard’s “Changes since v0.5” table and in <code>metadata/CHANGELOG.md</code>; the <a href="./sdmx-conformance.html">SDMX conformance</a> page gives the evidence for each requirement. The main ones: target the SDMX 3.1 family (SDMX-CSV 2.1 for data and reference metadata, SDMX-ML 3.1 for structures, no SDMX-JSON); keep the pipeline in R, with Python only in the dashboard loader and the verification tool; align project codes to global SDMX, SDG and World Bank codelists where one exists; nine measures; registries become codelists plus metadatasets; <code>SERIES_ID</code> stays an uncoded attribute, because series ids contain dots.</p>
+<p>The results: every value in <code>data/</code> is unchanged (the reconciliation matches all 6871 cells, and projecting the new files onto the v0.5 columns reproduces them); the validator reports no errors; the test suite holds 1503 expectations; the SDMX files and the generated tables of the standard are current; the independent reader reports no failures.</p>
+<p>What remains open: every code is still <code>DRAFT</code>; FMR cannot read the 3.1 message or the metadata structure, so the reference metadata files are checked only by the build, the validator and <code>tools/verify</code>; the page is not yet laid out as a Quarto dashboard.</p>
+<p>The work was run as 30 work packages and three gates, all on 2026-09-29, on branch <code>standard/v0.6-sdmx</code>. An orchestrating agent wrote a brief for each package; Opus agents implemented them and fresh Sonnet agents verified each one against its own checklist before it was committed. The data lead decided at Gate 1 (the design, decisions D38 to D46), Gate 2 (install FMR now rather than defer) and Gate 3 (final acceptance and merge). The plan, the progress log with every commit hash and the surfaced points are in <code>.docs/sdmx-transition/</code>.</p>
+
+
 </section>
 
 </main> <!-- /main -->
