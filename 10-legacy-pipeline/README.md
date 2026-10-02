@@ -4,7 +4,7 @@ This folder holds two versions of the AFW 360 poverty and welfare dashboard (Sen
 Guinea-Bissau):
 
 - **`AFW360/`: the website dashboard made with Quarto.** It reads the harmonised data of
-  this repository (`data/`, `metadata/`, `geo/` at the repository root).
+  this repository (`30-sdmx/data/`: the data files, `metadata/` and `geo/`).
 - **`AFW360-shiny/`: the interactive Python Shiny dashboard.** This is the one published on
   Posit Connect:
   <https://w0lxdrconn01.worldbank.org/content/57e0a46b-db8d-4eeb-acca-994a67bfeb4c/>.
@@ -79,8 +79,10 @@ On macOS or Linux, write `.venv/bin/python` instead of `.venv/Scripts/python`.
 ├── data_dashboard/      files prepared for the dashboards: key messages and about text
 │                        (content/), fiscal-equity image (assets/), region maps (geo/),
 │                        a CSV copy of the Excel tables (static_data/)
-└── data_raw/            the original inputs, never edited: Excel tables, text, figures,
-                         shapefiles (see data_raw/README.md)
+├── data_raw/            the original inputs, never edited: Excel tables, text, figures,
+│                        shapefiles (see data_raw/README.md)
+└── tools/               dashboard_numbers.py: the numeric table cells of a rendered page,
+                         to compare two renders
 ```
 
 `app.py`, `requirements.txt`, `.python-version` and `.posit/` stay at the top because Posit

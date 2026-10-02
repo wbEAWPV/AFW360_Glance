@@ -43,7 +43,7 @@ by where the number sits on the sheet.
 
 2. **We wrote down how the Excel files map to that structure.** Each Excel
    column and each row label is matched to its place in the structure in a few
-   small CSV tables (`metadata/plans/`) that anyone can read and review. The
+   small CSV tables (`20-excel-sdmx-csv/plans/`) that anyone can read and review. The
    mapping is kept in these tables, not inside the code. For example:
 
    | In the Excel file | In the standard |
@@ -52,7 +52,7 @@ by where the number sits on the sheet.
    | Sheet *ADM 1*, column "DAKAR" | region = Dakar (code `SN01`) |
    | Row "Access to electricity (grid)" | indicator = `EN_ELEC_ACCESS` |
 
-3. **We converted the files with one script.** `pipeline/convert_legacy.R`
+3. **We converted the files with one script.** `20-excel-sdmx-csv/convert_legacy.R`
    reads the Excel files and writes one standard data file per country, survey
    and year. The Excel files are never edited, and every value in the output
    can be traced back to its sheet and cell.

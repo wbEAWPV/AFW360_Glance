@@ -126,7 +126,7 @@ vc_sdmx_stale <- function(ctx) {
   expected <- list.files(file.path(tmp, "sdmx"), recursive = TRUE)
   actual <- list.files(stage_dir(root, "sdmx"), recursive = TRUE)
   actual <- actual[!grepl("[.]md$", actual)]
-  rebuild <- "; run Rscript pipeline/build_sdmx.R --root ."
+  rebuild <- "; run Rscript pipeline/build_sdmx.R (from 30-sdmx/)"
   parts <- list()
   for (p in sort(union(expected, actual), method = "radix")) {
     rel <- paste0("sdmx/", p)

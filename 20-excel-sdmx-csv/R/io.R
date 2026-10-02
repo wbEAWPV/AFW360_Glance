@@ -123,7 +123,7 @@ load_metadata <- function(root) {
 
 #' Join path segments under a root.
 #'
-#' @param root Repo root.
+#' @param root A folder.
 #' @param ... Additional path segments.
 #' @return A path string.
 repo_path <- function(root, ...) {

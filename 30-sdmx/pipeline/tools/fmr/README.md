@@ -6,7 +6,7 @@ data lead's machine, after Gate 2 approval) should follow. See plan section
 2.13 for the documented workflow this feeds into.
 
 **Update after WP8b (2026-09-29).** FMR 12.4.2 is now installed under
-`tools/fmr/runtime/` (gitignored): Tomcat 10.1.60, MySQL 8.0.46 noinstall,
+`30-sdmx/pipeline/tools/fmr/runtime/` (gitignored): Tomcat 10.1.60, MySQL 8.0.46 noinstall,
 Connector/J 9.6.0. The install as run, start and stop commands, and the load,
 validate and export workflow are in `.docs/fmr-guide.qmd` ("What is
 installed", "Install steps (as run)", "Start and stop", "Workflow"); the
@@ -127,22 +127,22 @@ Tomcat creates the connection pool.
 - Everything below lives under one user-writable folder tree; nothing
   installs to Program Files or as a Windows service.
 
-## 3. Install procedure (writes nothing outside `tools/fmr/runtime/` or a user-chosen folder)
+## 3. Install procedure (writes nothing outside `30-sdmx/pipeline/tools/fmr/runtime/` or a user-chosen folder)
 
 Documented for WP8b; **not executed in this spike**.
 
-1. `mkdir tools/fmr/runtime` (gitignored) — or any folder outside the repo.
-2. Download and extract the Tomcat zip into `tools/fmr/runtime/tomcat`.
-3. Set the Java heap: create `tools/fmr/runtime/tomcat/bin/setenv.bat` with
+1. `mkdir 30-sdmx/pipeline/tools/fmr/runtime` (gitignored) — or any folder outside the repo.
+2. Download and extract the Tomcat zip into `30-sdmx/pipeline/tools/fmr/runtime/tomcat`.
+3. Set the Java heap: create `30-sdmx/pipeline/tools/fmr/runtime/tomcat/bin/setenv.bat` with
    `set "JAVA_OPTS=-Xmx16G"` (lower it if RAM-constrained; no documented
    minimum was found — unverified how low it can go).
 4. Copy `fmr-12.4.2.war` to
-   `tools/fmr/runtime/tomcat/webapps/ROOT.war` (deploys FMR on the site
+   `30-sdmx/pipeline/tools/fmr/runtime/tomcat/webapps/ROOT.war` (deploys FMR on the site
    root, port 8080 by default) or `fmr.war` (deploys it under the `/fmr`
    path instead)
    ([InstallFusionMetadataRegistry](https://fmrwiki.sdmx.io/latest/admin/installation/InstallFusionMetadataRegistry/)).
 5. Download and extract the MySQL 8.0 noinstall zip into
-   `tools/fmr/runtime/mysql`; initialize with `mysqld --initialize --console`,
+   `30-sdmx/pipeline/tools/fmr/runtime/mysql`; initialize with `mysqld --initialize --console`,
    then start with `mysqld --console` — both run as the current user, no
    service install
    ([MySQL noinstall guide](https://dev.mysql.com/doc/refman/8.0/en/windows-install-archive.html)).
@@ -154,15 +154,15 @@ Documented for WP8b; **not executed in this spike**.
    ```
    ([MySql](https://fmrwiki.sdmx.io/latest/admin/installation/MySql/)).
 7. Download MySQL Connector/J and copy the jar into
-   `tools/fmr/runtime/tomcat/webapps/ROOT/WEB-INF/lib` (after the WAR has
+   `30-sdmx/pipeline/tools/fmr/runtime/tomcat/webapps/ROOT/WEB-INF/lib` (after the WAR has
    unpacked once) or a CLASSPATH directory
    ([MySql](https://fmrwiki.sdmx.io/latest/admin/installation/MySql/)).
    **Corrected:** copy `mysql-connector-j-9.6.0.jar` into
-   `tools/fmr/runtime/tomcat/lib` instead.
+   `30-sdmx/pipeline/tools/fmr/runtime/tomcat/lib` instead.
 8. Add a JNDI `<Resource>` for the DB connection to
-   `tools/fmr/runtime/tomcat/conf/context.xml` (section 4 below).
+   `30-sdmx/pipeline/tools/fmr/runtime/tomcat/conf/context.xml` (section 4 below).
    **Corrected:** name it `fmrdatabase`.
-9. Start Tomcat: `tools/fmr/runtime/tomcat/bin/startup.bat` — Tomcat's own
+9. Start Tomcat: `30-sdmx/pipeline/tools/fmr/runtime/tomcat/bin/startup.bat` — Tomcat's own
    scripts run as the current user, no admin rights needed.
 10. Open the deployed FMR address in a browser (port 8080 by default) and
     complete the first-run setup wizard,
@@ -172,7 +172,7 @@ Documented for WP8b; **not executed in this spike**.
     **Corrected:** when the setup is scripted over `/ws/secure/settings/*`,
     first open `install.html` and send its session cookie with each call.
 
-Nothing above writes outside `tools/fmr/runtime/` or a folder the installer
+Nothing above writes outside `30-sdmx/pipeline/tools/fmr/runtime/` or a folder the installer
 chooses outside the repo.
 
 ## 4. FMR properties needed
@@ -184,7 +184,7 @@ Auto-generated on first run. In FMR 12 the default location is
 `-DRegistryProperties=file:///c:/dir/AFile.txt` in `JAVA_OPTS`
 ([RegistryPropertiesFile](https://fmrwiki.sdmx.io/latest/admin/configuration/RegistryPropertiesFile/)).
 **Corrected:** set `-Duser.home` as well; without it FMR still writes into
-the user profile. The install sets both to `tools/fmr/runtime/home/`.
+the user profile. The install sets both to `30-sdmx/pipeline/tools/fmr/runtime/home/`.
 Example keys from the wiki's own sample (values illustrative/generated):
 
 ```
@@ -235,7 +235,7 @@ files supported). The `ACTION` header controls the import mode (`APPEND`,
 # FMR_BASE = the running FMR's address, e.g. its local host and port 8080
 curl --ssl-no-revoke -u root:<password> \
   -H "ACTION: REPLACE" \
-  -F "uploadFile=@sdmx/structures/AFW360_structures.xml" \
+  -F "uploadFile=@output/structures/AFW360_structures.xml" \
   "$FMR_BASE/ws/secure/sdmxapi/rest/"
 ```
 
@@ -260,8 +260,8 @@ curl --ssl-no-revoke \
 Both commands are built from the documented parameters; no FMR server was
 available to run them against, so their exact response bodies are
 unverified. **Corrected:** the calls as run are in `fmr_load.R` and
-`fmr_validate.R`. The dataflow is `WB.AFW360:AFW360_HH(<metadata/VERSION>)`,
-the data files are `data/AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`, sent as
+`fmr_validate.R`. The dataflow is `WB.AFW360:AFW360_HH(<data/metadata/VERSION>)`,
+the data files are `30-sdmx/data/AFW360_HH_<ISO3>_<YEAR>_<ESTIMATION>.csv`, sent as
 `application/vnd.sdmx.data+csv;version=2.1.0`, and FMR's submit and error
 responses are SDMX-ML 2.1.
 

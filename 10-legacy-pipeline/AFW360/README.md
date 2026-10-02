@@ -11,8 +11,8 @@ How to start it: see `../README.md` ("Quarto website dashboard").
 
 Where the data comes from:
 
-- numbers, indicator metadata and region boundaries: the harmonised files at the repository
-  root (`data/`, `metadata/`, `geo/`), read through `afw360/loader.py`;
+- numbers, indicator metadata and region boundaries: the harmonised files in
+  `30-sdmx/data/` (the data files, `metadata/`, `geo/`), read through `afw360/loader.py`;
 - key messages, the about text and the fiscal-equity image: `../data_dashboard/content/` and
   `../data_dashboard/assets/`.
 

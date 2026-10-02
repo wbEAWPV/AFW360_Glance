@@ -1,6 +1,6 @@
-# pipeline/tests/testthat.R
+# 30-sdmx/pipeline/tests/testthat.R
 #
-# Run from the repo root:
+# Run from 30-sdmx/:
 #   Rscript pipeline/tests/testthat.R
 # or:
 #   Rscript -e "testthat::test_dir('pipeline/tests/testthat', stop_on_failure = TRUE)"

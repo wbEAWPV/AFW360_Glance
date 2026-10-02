@@ -7,25 +7,25 @@ This guide records the real steps used on 2026-09-29 (work package WP8b) to
 run the Fusion Metadata Registry (FMR) locally on Windows 11 without
 administrator rights or Docker, and the workflow for loading, validating and
 editing the AFW 360 structures. The research behind it, with sources, is in
-`tools/fmr/README.md`.
+`30-sdmx/pipeline/tools/fmr/README.md`.
 
 ::: {.callout-note}
 ## Status: load, validation and round trip work through the SDMX-ML 3.0 profile
 
-FMR 12.4.2 does not read SDMX-ML 3.1, so `tools/fmr/fmr_load.R` loads the
-SDMX-ML 3.0 profile that `pipeline/build_sdmx.R --sdmx-ml-version 3.0`
+FMR 12.4.2 does not read SDMX-ML 3.1, so `30-sdmx/pipeline/tools/fmr/fmr_load.R` loads the
+SDMX-ML 3.0 profile that `30-sdmx/pipeline/build_sdmx.R --sdmx-ml-version 3.0`
 writes to `tmp/fmr/v30/` (same artefacts, `v3_0` namespaces, without the
 metadata structure, metadataflow and metadata provision agreement). The
-3.1 file under `sdmx/` stays the canonical committed output. The data files
-in `data/` (SDMX-CSV 2.1) validate without change, and the structures
+3.1 file under `30-sdmx/output/` stays the canonical committed output. The data files
+in `30-sdmx/data/` (SDMX-CSV 2.1) validate without change, and the structures
 exported back from FMR (SDMX-ML 3.0) give an empty
-`pipeline/import_sdmx.R --diff`. See [Workflow](#workflow).
+`30-sdmx/pipeline/import_sdmx.R --diff`. See [Workflow](#workflow).
 :::
 
 ::: {.callout-warning collapse="true"}
 ## Why the 3.0 profile: FMR 12.4.2 rejects the SDMX-ML 3.1 structure message
 
-Loading `sdmx/structures/AFW360_structures.xml`
+Loading `30-sdmx/output/structures/AFW360_structures.xml`
 (SDMX-ML 3.1, `v3_1` namespaces) fails. Response of
 `POST /ws/secure/sdmxapi/rest/`, both as a multipart upload
 (`-F uploadFile=@...`) and as a raw `application/xml` body:
@@ -38,7 +38,7 @@ HTTP 400
 <mes:Structure xmlns:mes="http://www.sdmx.org/resources/sdmxml/schemas/v3_1/message" xmlns:str="http://www.sdmx.org/resources/sdmxml/schemas/v3_1/structure" ...
 ```
 
-FMR log (`tools/fmr/runtime/tomcat/logs/FusionRegistryWarnings.log`):
+FMR log (`30-sdmx/pipeline/tools/fmr/runtime/tomcat/logs/FusionRegistryWarnings.log`):
 
 ```
 ERROR http-nio-8080-exec-7 io.sdmx.format.ml.engine.error.ErrorWriterEngineV21 - Unrecognised file format, contents of file are: <?xml version="1.0" encoding="UTF-8"?>
@@ -47,33 +47,33 @@ ERROR http-nio-8080-exec-7 io.sdmx.format.ml.engine.error.ErrorWriterEngineV21 -
 FMR's documentation lists SDMX-ML up to 3.0; the 3.1 namespaces are not
 recognised at all (the error body itself is SDMX-ML 2.1). Following the plan's
 contingency (section 2.13), WP8b2 added the `--sdmx-ml-version 3.0` option to
-`pipeline/build_sdmx.R`. With the 3.0 profile the format error is gone and
+`30-sdmx/pipeline/build_sdmx.R`. With the 3.0 profile the format error is gone and
 the only remaining obstacle was the agency `WB` (see step 2 of the workflow).
 :::
 
 ## What is installed
 
-Everything lives under `tools/fmr/runtime/` (gitignored); nothing is written
+Everything lives under `30-sdmx/pipeline/tools/fmr/runtime/` (gitignored); nothing is written
 to the registry, services or the user profile.
 
 | Component | Version | Location | Port |
 |---|---|---|---|
 | Java | Azul Zulu 21.0.12.1 (already on `PATH`, `JAVA_HOME`) | `C:\Program Files\Zulu\zulu-21` | |
-| Apache Tomcat | 10.1.60 (Windows zip) | `tools/fmr/runtime/tomcat` | 8080 (HTTP), 8015 (shutdown) |
-| FMR | 12.4.2 (`fmr-12.4.2.war`, 129,151,617 bytes) | `tools/fmr/runtime/tomcat/webapps/ROOT.war` | served at `/` |
-| MySQL | 8.0.46 (noinstall zip, MD5 checked) | `tools/fmr/runtime/mysql`, data in `mysql/data` | 3306, `127.0.0.1` only |
-| MySQL Connector/J | 9.6.0 | `tools/fmr/runtime/tomcat/lib/mysql-connector-j-9.6.0.jar` | |
+| Apache Tomcat | 10.1.60 (Windows zip) | `30-sdmx/pipeline/tools/fmr/runtime/tomcat` | 8080 (HTTP), 8015 (shutdown) |
+| FMR | 12.4.2 (`fmr-12.4.2.war`, 129,151,617 bytes) | `30-sdmx/pipeline/tools/fmr/runtime/tomcat/webapps/ROOT.war` | served at `/` |
+| MySQL | 8.0.46 (noinstall zip, MD5 checked) | `30-sdmx/pipeline/tools/fmr/runtime/mysql`, data in `mysql/data` | 3306, `127.0.0.1` only |
+| MySQL Connector/J | 9.6.0 | `30-sdmx/pipeline/tools/fmr/runtime/tomcat/lib/mysql-connector-j-9.6.0.jar` | |
 
-- Downloads are kept in `tools/fmr/runtime/dl/`, logs of the two processes in
-  `tools/fmr/runtime/logs/`, Tomcat and FMR logs in
-  `tools/fmr/runtime/tomcat/logs/` (`FusionRegistry.log`,
+- Downloads are kept in `30-sdmx/pipeline/tools/fmr/runtime/dl/`, logs of the two processes in
+  `30-sdmx/pipeline/tools/fmr/runtime/logs/`, Tomcat and FMR logs in
+  `30-sdmx/pipeline/tools/fmr/runtime/tomcat/logs/` (`FusionRegistry.log`,
   `FusionRegistryWarnings.log`).
 - Java heap: `-Xmx16g` (the FMR wiki's value; the machine has 128 GB).
 - Database `fmr` (utf8mb4), user `fmruser@localhost`. MySQL `root` has no
   password and listens on `127.0.0.1` only.
 - FMR superuser: `root`. Passwords (database user and FMR superuser) are in
-  `tools/fmr/runtime/secrets.txt`, never committed.
-- FMR's home folder and `fmr.properties` are in `tools/fmr/runtime/home/`
+  `30-sdmx/pipeline/tools/fmr/runtime/secrets.txt`, never committed.
+- FMR's home folder and `fmr.properties` are in `30-sdmx/pipeline/tools/fmr/runtime/home/`
   (set through `-Duser.home` and `-DRegistryProperties`).
 
 ## Install steps (as run)
@@ -84,7 +84,7 @@ Commands run from the repository root; Git Bash unless marked PowerShell.
    (`netstat -ano | findstr LISTENING`). Port 8005, Tomcat's default shutdown
    port, was taken by a system process, so the shutdown port is 8015.
 
-2. Download into `tools/fmr/runtime/dl/` (curl needs `--ssl-no-revoke` on
+2. Download into `30-sdmx/pipeline/tools/fmr/runtime/dl/` (curl needs `--ssl-no-revoke` on
    this machine):
 
    ```sh
@@ -98,21 +98,21 @@ Commands run from the repository root; Git Bash unless marked PowerShell.
    the WAR size against the GitHub release (129,151,617 bytes), and the MySQL
    zip's MD5 against the MySQL download page.
 
-3. Unzip (PowerShell `Expand-Archive`) to `tools/fmr/runtime/tomcat` and
-   `tools/fmr/runtime/mysql`; copy the Connector/J jar to
-   `tools/fmr/runtime/tomcat/lib/` (Tomcat's own `lib`, because the database
+3. Unzip (PowerShell `Expand-Archive`) to `30-sdmx/pipeline/tools/fmr/runtime/tomcat` and
+   `30-sdmx/pipeline/tools/fmr/runtime/mysql`; copy the Connector/J jar to
+   `30-sdmx/pipeline/tools/fmr/runtime/tomcat/lib/` (Tomcat's own `lib`, because the database
    connection is a Tomcat JNDI resource).
 
-4. MySQL: write `tools/fmr/runtime/mysql/my.ini`:
+4. MySQL: write `30-sdmx/pipeline/tools/fmr/runtime/mysql/my.ini`:
 
    ```ini
    [mysqld]
-   basedir=<repo>/tools/fmr/runtime/mysql
-   datadir=<repo>/tools/fmr/runtime/mysql/data
+   basedir=<repo>/30-sdmx/pipeline/tools/fmr/runtime/mysql
+   datadir=<repo>/30-sdmx/pipeline/tools/fmr/runtime/mysql/data
    port=3306
    bind-address=127.0.0.1
    mysqlx=OFF
-   log-error=<repo>/tools/fmr/runtime/logs/mysqld.err
+   log-error=<repo>/30-sdmx/pipeline/tools/fmr/runtime/logs/mysqld.err
    [client]
    port=3306
    host=127.0.0.1
@@ -122,8 +122,8 @@ Commands run from the repository root; Git Bash unless marked PowerShell.
    create the database:
 
    ```sh
-   tools/fmr/runtime/mysql/bin/mysqld --defaults-file=tools/fmr/runtime/mysql/my.ini --initialize-insecure
-   tools/fmr/runtime/mysql/bin/mysql --defaults-file=tools/fmr/runtime/mysql/my.ini -u root -e \
+   30-sdmx/pipeline/tools/fmr/runtime/mysql/bin/mysqld --defaults-file=30-sdmx/pipeline/tools/fmr/runtime/mysql/my.ini --initialize-insecure
+   30-sdmx/pipeline/tools/fmr/runtime/mysql/bin/mysql --defaults-file=30-sdmx/pipeline/tools/fmr/runtime/mysql/my.ini -u root -e \
      "CREATE DATABASE fmr CHARACTER SET utf8mb4;
       CREATE USER 'fmruser'@'localhost' IDENTIFIED BY '<password>';
       GRANT ALL ON fmr.* TO 'fmruser'@'localhost'; FLUSH PRIVILEGES;"
@@ -147,7 +147,7 @@ Commands run from the repository root; Git Bash unless marked PowerShell.
    - `bin/setenv.bat`:
 
      ```bat
-     set "JAVA_OPTS=%JAVA_OPTS% -Xmx16g -Duser.home=<repo>/tools/fmr/runtime/home -DRegistryProperties=file:///<repo>/tools/fmr/runtime/home/fmr.properties"
+     set "JAVA_OPTS=%JAVA_OPTS% -Xmx16g -Duser.home=<repo>/30-sdmx/pipeline/tools/fmr/runtime/home -DRegistryProperties=file:///<repo>/30-sdmx/pipeline/tools/fmr/runtime/home/fmr.properties"
      ```
 
    - Copy `fmr-12.4.2.war` to `webapps/ROOT.war` and delete the default
@@ -182,10 +182,10 @@ Commands run from the repository root; Git Bash unless marked PowerShell.
 ## Start and stop
 
 Start MySQL, then Tomcat (PowerShell, from anywhere; both run hidden as the
-current user, output in `tools/fmr/runtime/logs/`):
+current user, output in `30-sdmx/pipeline/tools/fmr/runtime/logs/`):
 
 ```powershell
-$r = "C:\Users\wb532966\eb-local\AFW360_Glance\tools\fmr\runtime"
+$r = "C:\Users\wb532966\eb-local\AFW360_Glance\30-sdmx\pipeline\tools\fmr\runtime"
 Start-Process -FilePath "$r\mysql\bin\mysqld.exe" -ArgumentList "--defaults-file=`"$r\mysql\my.ini`"" -RedirectStandardOutput "$r\logs\mysqld.out" -RedirectStandardError "$r\logs\mysqld.stderr" -WindowStyle Hidden
 $env:CATALINA_HOME = "$r\tomcat"; $env:CATALINA_BASE = "$r\tomcat"; $env:JAVA_HOME = "C:\Program Files\Zulu\zulu-21"
 Start-Process -FilePath "$r\tomcat\bin\catalina.bat" -ArgumentList "run" -WorkingDirectory "$r\tomcat" -RedirectStandardOutput "$r\logs\tomcat.out" -RedirectStandardError "$r\logs\tomcat.err" -WindowStyle Hidden
@@ -197,7 +197,7 @@ prints 200 (about two minutes).
 Stop Tomcat, then MySQL:
 
 ```powershell
-$r = "C:\Users\wb532966\eb-local\AFW360_Glance\tools\fmr\runtime"
+$r = "C:\Users\wb532966\eb-local\AFW360_Glance\30-sdmx\pipeline\tools\fmr\runtime"
 $env:CATALINA_HOME = "$r\tomcat"; $env:CATALINA_BASE = "$r\tomcat"; $env:JAVA_HOME = "C:\Program Files\Zulu\zulu-21"
 & "$r\tomcat\bin\shutdown.bat"
 & "$r\mysql\bin\mysqladmin.exe" "--defaults-file=$r\mysql\my.ini" -u root shutdown
@@ -205,27 +205,27 @@ $env:CATALINA_HOME = "$r\tomcat"; $env:CATALINA_BASE = "$r\tomcat"; $env:JAVA_HO
 
 ## Workflow
 
-All commands run from the repository root in Git Bash, with FMR started
+All commands run from `30-sdmx/` in Git Bash, with FMR started
 (see [Start and stop](#start-and-stop)). The scripts use the R packages
 `curl` and `jsonlite`. The FMR address comes from `FMR_BASE` (default
 `http://localhost:8080`); the account used to load structures comes from
-`FMR_USER` and `FMR_PASSWORD`, or else from `tools/fmr/runtime/secrets.txt`
+`FMR_USER` and `FMR_PASSWORD`, or else from `30-sdmx/pipeline/tools/fmr/runtime/secrets.txt`
 (`FMR_ADMIN_USER`, `FMR_ADMIN_PASSWORD`). Every response is kept under
-`tmp/fmr/`.
+the repository's `tmp/fmr/`.
 
 ### 1. Generate the SDMX files
 
 ```sh
-Rscript pipeline/build_sdmx.R --root .
+Rscript pipeline/build_sdmx.R
 ```
 
-This writes the canonical SDMX-ML 3.1 message under `sdmx/`. It is not what
+This writes the canonical SDMX-ML 3.1 message under `output/`. It is not what
 FMR loads (see the status box); step 2 builds the 3.0 profile itself.
 
 ### 2. Load the structures
 
 ```sh
-Rscript tools/fmr/fmr_load.R --root .
+Rscript pipeline/tools/fmr/fmr_load.R
 ```
 
 The script runs four steps:
@@ -243,7 +243,7 @@ The script runs four steps:
    ```
 
    The script reads `GET /sdmx/v2/structure/agencyscheme/SDMX/AGENCIES/1.0`
-   and, only when `WB` is missing, submits `tools/fmr/agencies_bootstrap.xml`
+   and, only when `WB` is missing, submits `pipeline/tools/fmr/agencies_bootstrap.xml`
    (a SDMX-ML 3.0 message holding `SDMX:AGENCIES(1.0)` with the items `SDMX`
    and `WB`) to the same endpoint as step 4. The FMR superuser account from
    the install has the rights for this; no UI step is needed. On a fresh FMR
@@ -253,10 +253,10 @@ The script runs four steps:
 3. **Build the SDMX-ML 3.0 profile:**
 
    ```sh
-   Rscript pipeline/build_sdmx.R --root . --sdmx-ml-version 3.0 --out-root tmp/fmr/v30
+   Rscript pipeline/build_sdmx.R --sdmx-ml-version 3.0 --out-root ../tmp/fmr/v30
    ```
 
-   writes `tmp/fmr/v30/sdmx/structures/AFW360_structures.xml`: the 22
+   writes `tmp/fmr/v30/output/structures/AFW360_structures.xml`: the 22
    codelists, concept scheme, data structure, dataflow, provision agreement
    and agency and provider schemes with `v3_0` namespaces; no metadata
    structure, metadataflow or metadata provision agreement (their 3.0 XML
@@ -269,17 +269,17 @@ The script runs four steps:
    unchanged message returns HTTP 200 with an empty
    `SubmitStructureResponse` (nothing to replace), printed as `HTTP 200`.
 
-`Rscript tools/fmr/fmr_load.R --root . --file <message.xml>` skips steps 2
+`Rscript pipeline/tools/fmr/fmr_load.R --file <message.xml>` skips steps 2
 and 3 and loads the given message. The same load is possible in the web
 interface (*Load Structures*), with the 3.0 profile.
 
 ### 3. Validate the data
 
 ```sh
-Rscript tools/fmr/fmr_validate.R --root .
+Rscript pipeline/tools/fmr/fmr_validate.R
 ```
 
-Each `data/AFW360_HH_*_SURVEY.csv` is POSTed unchanged to
+Each `30-sdmx/data/AFW360_HH_*_SURVEY.csv` is POSTed unchanged to
 `POST /ws/public/data/validate` (no login needed) with
 `Content-Type: application/vnd.sdmx.data+csv;version=2.1.0`. FMR answers
 with a JSON report, saved as `tmp/fmr/<ISO3>_<YEAR>_SURVEY_validation.json`.
@@ -299,8 +299,8 @@ files need no change.
 ### 4. Export and round trip
 
 ```sh
-Rscript tools/fmr/fmr_export.R --root . --out tmp/fmr/export.xml
-Rscript pipeline/import_sdmx.R --root . --diff tmp/fmr/export.xml
+Rscript pipeline/tools/fmr/fmr_export.R --out ../tmp/fmr/export.xml
+Rscript pipeline/import_sdmx.R --diff ../tmp/fmr/export.xml
 ```
 
 `fmr_export.R` GETs `/sdmx/v2/structure/*/WB,WB.AFW360/*/*?detail=full`,
@@ -309,7 +309,7 @@ It asks for SDMX-ML 3.1 first; FMR 12.4.2 answers HTTP 406, so the script
 takes SDMX-ML 3.0 (`v3_0` namespaces), which `import_sdmx.R` reads. With
 the structures loaded as in step 2, the diff prints nothing on standard
 output: FMR returns every code, name, description and annotation that the
-CSVs under `metadata/` hold. `import_sdmx.R` notes on standard error that
+CSVs under `30-sdmx/data/metadata/` hold. `import_sdmx.R` notes on standard error that
 `CL_FIGURE`, `CL_SOURCE` and `CL_SURVEY` are derived from registries and are
 reported, not written; that is expected. What does not travel: the metadata
 structure, metadataflow and metadata provision agreement (not in the 3.0
@@ -319,9 +319,9 @@ sender).
 ### 5. Edit structures in FMR
 
 In FMR, work on a copy versioned `<next>-draft`; export it (step 4); run
-`Rscript pipeline/import_sdmx.R --root . --diff <export.xml>` to see the
+`Rscript pipeline/import_sdmx.R --diff <export.xml>` to see the
 changes against the CSVs, then `--apply`; commit through a pull request; at
-release, bump `metadata/VERSION`, regenerate (step 1) and reload (step 2).
+release, bump `data/metadata/VERSION`, regenerate (step 1) and reload (step 2).
 
 ### 6. Validation-only use
 
@@ -342,7 +342,7 @@ Steps 1 to 3.
 - FMR's default home folder is `<user home>\SDMX_IO\FMR`; with
   `-Duser.home` and `-DRegistryProperties` set as above, the only file it
   writes there, the generated `fmr.properties`, lands in
-  `tools/fmr/runtime/home/`, and no `SDMX_IO` folder appears in the user
-  profile. FMR's own logs go to `tools/fmr/runtime/tomcat/logs/`.
+  `30-sdmx/pipeline/tools/fmr/runtime/home/`, and no `SDMX_IO` folder appears in the user
+  profile. FMR's own logs go to `30-sdmx/pipeline/tools/fmr/runtime/tomcat/logs/`.
 - The setup page's calls need a session cookie from `install.html`; without
   it they return HTTP 401.
