@@ -1,26 +1,26 @@
 # fmr_load.R: load the AFW 360 structures into a running Fusion Metadata
 # Registry (FMR) through its structure submission web service.
 #
-# Usage (from the repository root):
-#   Rscript tools/fmr/fmr_load.R --root .
-#   Rscript tools/fmr/fmr_load.R --root . --file <message.xml>
+# Usage (from 30-sdmx/):
+#   Rscript pipeline/tools/fmr/fmr_load.R
+#   Rscript pipeline/tools/fmr/fmr_load.R --file <message.xml>
 #
 # Without --file the script
 #   1. checks that FMR answers at FMR_BASE;
 #   2. registers the top-level agency WB in FMR's SDMX:AGENCIES(1.0) scheme
-#      when it is missing, by submitting tools/fmr/agencies_bootstrap.xml
+#      when it is missing, by submitting pipeline/tools/fmr/agencies_bootstrap.xml
 #      (FMR cannot resolve WB:AGENCIES(1.0), which declares WB.AFW360,
 #      without it); nothing is sent when WB is already there;
-#   3. builds the SDMX-ML 3.0 profile into tmp/fmr/v30/ with
-#      Rscript pipeline/build_sdmx.R --root . --sdmx-ml-version 3.0 --out-root tmp/fmr/v30
+#   3. builds the SDMX-ML 3.0 profile into the repository's tmp/fmr/v30/ with
+#      Rscript pipeline/build_sdmx.R --sdmx-ml-version 3.0 --out-root ../tmp/fmr/v30
 #      (FMR 12.4 rejects SDMX-ML 3.1 with error 150; the 3.1 file under
-#      sdmx/ stays the canonical committed output);
-#   4. POSTs tmp/fmr/v30/sdmx/structures/AFW360_structures.xml.
+#      output/ stays the canonical committed output);
+#   4. POSTs tmp/fmr/v30/output/structures/AFW360_structures.xml.
 # With --file only steps 1 and 4 run, for the given message.
 #
 # Options:
-#   --root <dir>     repository root (default: .)
-#   --file <path>    message to load, relative to --root
+#   --root <dir>     the SDMX stage folder (default: the 30-sdmx/ of this script)
+#   --file <path>    message to load (relative to the current folder)
 #   --action <mode>  FMR ACTION header: APPEND, REPLACE (default), MERGE,
 #                    FULLREPLACE or DELETE
 #
@@ -29,10 +29,10 @@
 #   FMR_USER      FMR account with agency or admin rights
 #   FMR_PASSWORD  its password
 # When FMR_USER or FMR_PASSWORD is unset, the values FMR_ADMIN_USER and
-# FMR_ADMIN_PASSWORD are read from tools/fmr/runtime/secrets.txt (written by
+# FMR_ADMIN_PASSWORD are read from pipeline/tools/fmr/runtime/secrets.txt (written by
 # the local install, gitignored).
 #
-# Response bodies are saved under tmp/fmr/ (load_response.xml, and
+# Response bodies are saved under the repository's tmp/fmr/ (load_response.xml, and
 # agencies_response.xml when WB is registered). The script prints the HTTP
 # status line and exits 0 on HTTP 200, 1 otherwise (after printing the FMR
 # error text).
@@ -43,17 +43,24 @@ cli_arg <- function(flag, default) {
   if (length(i) > 0 && i[1] < length(args)) args[i[1] + 1] else default
 }
 
-root <- normalizePath(cli_arg("--root", "."), winslash = "/", mustWork = TRUE)
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
+}
+# This script is 30-sdmx/pipeline/tools/fmr/; locations come from pipeline/R/paths.R.
+source(file.path(.script_dir(), "..", "..", "R", "paths.R"))
+paths <- stage_paths_from_args(args, default_root = dirname(dirname(dirname(.script_dir()))))
+root <- stage_root(paths)
 file <- cli_arg("--file", NA_character_)
 action <- toupper(cli_arg("--action", "REPLACE"))
 base <- sub("/+$", "", Sys.getenv("FMR_BASE", "http://localhost:8080"))
-out_dir <- file.path(root, "tmp/fmr")
+out_dir <- stage_path(paths, "scratch", "fmr")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-fmr_credentials <- function(root) {
+fmr_credentials <- function(paths) {
   user <- Sys.getenv("FMR_USER")
   pass <- Sys.getenv("FMR_PASSWORD")
-  secrets <- file.path(root, "tools/fmr/runtime/secrets.txt")
+  secrets <- stage_path(paths, "fmr", "runtime", "secrets.txt")
   if ((!nzchar(user) || !nzchar(pass)) && file.exists(secrets)) {
     kv <- readLines(secrets, warn = FALSE)
     get <- function(key) {
@@ -86,7 +93,7 @@ post_structures <- function(path, label, response_file) {
   h <- curl::new_handle()
   curl::handle_setopt(h,
     post = TRUE, postfields = readBin(path, "raw", file.info(path)$size),
-    httpauth = 1L, userpwd = fmr_credentials(root), timeout = 600L
+    httpauth = 1L, userpwd = fmr_credentials(paths), timeout = 600L
   )
   curl::handle_setheaders(h, "Content-Type" = "application/xml", "ACTION" = action)
   res <- fetch(url, h)
@@ -102,7 +109,7 @@ post_structures <- function(path, label, response_file) {
     err <- gsub("&lt;", "<", sub("<com:Text>", "", err), fixed = TRUE)
     cat("FMR error:", substr(err, 1, 300), "\n")
   }
-  cat("Full response: tmp/fmr/", response_file, "\n", sep = "")
+  cat("Full response: ", file.path(out_dir, response_file), "\n", sep = "")
   FALSE
 }
 
@@ -116,7 +123,7 @@ if (up$status_code != 200) {
 cat(sprintf("FMR is up at %s\n", base))
 
 if (!is.na(file)) {
-  path <- file.path(root, file)
+  path <- normalizePath(file, winslash = "/", mustWork = FALSE)
   if (!file.exists(path)) {
     cat("Structure message not found:", path, "\n", file = stderr())
     quit(status = 1)
@@ -134,23 +141,24 @@ if (has_wb) {
   cat("Agency WB already in SDMX:AGENCIES(1.0)\n")
 } else {
   cat("Agency WB missing from SDMX:AGENCIES(1.0); registering it\n")
-  boot <- file.path(root, "tools/fmr/agencies_bootstrap.xml")
-  if (!post_structures(boot, "tools/fmr/agencies_bootstrap.xml", "agencies_response.xml")) {
+  boot <- stage_path(paths, "fmr", "agencies_bootstrap.xml")
+  if (!post_structures(boot, "pipeline/tools/fmr/agencies_bootstrap.xml", "agencies_response.xml")) {
     quit(status = 1)
   }
 }
 
 # 3. Build the SDMX-ML 3.0 profile.
-v30_root <- "tmp/fmr/v30"
+v30_root <- stage_path(paths, "scratch", "fmr", "v30")
 rscript <- file.path(R.home("bin"), "Rscript")
-status <- system2(rscript, c(shQuote(file.path(root, "pipeline/build_sdmx.R")), "--root", shQuote(root),
+status <- system2(rscript, c(shQuote(stage_path(paths, "pipeline", "build_sdmx.R")), "--root", shQuote(root),
                              "--sdmx-ml-version", "3.0",
-                             "--out-root", shQuote(file.path(root, v30_root))))
+                             "--out-root", shQuote(v30_root)))
 if (!identical(status, 0L)) {
   cat("build_sdmx.R --sdmx-ml-version 3.0 failed with exit", status, "\n", file = stderr())
   quit(status = 1)
 }
 
 # 4. Load it.
-rel <- file.path(v30_root, "sdmx/structures/AFW360_structures.xml")
-quit(status = if (post_structures(file.path(root, rel), rel, "load_response.xml")) 0 else 1)
+v30_file <- stage_rel(stage_paths(v30_root), "sdmx/structures/AFW360_structures.xml")
+quit(status = if (post_structures(v30_file, "tmp/fmr/v30/output/structures/AFW360_structures.xml",
+                                  "load_response.xml")) 0 else 1)

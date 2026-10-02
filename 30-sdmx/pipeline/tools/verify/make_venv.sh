@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Create tools/verify/.venv with Python 3.11 and install requirements.txt.
-# Usage (Git Bash, from anywhere): bash tools/verify/make_venv.sh
+# Create 30-sdmx/pipeline/tools/verify/.venv with Python 3.11 and install
+# requirements.txt.
+# Usage (Git Bash, from anywhere): bash 30-sdmx/pipeline/tools/verify/make_venv.sh
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd "$HERE/../.." && pwd)"
+ROOT="$(cd "$HERE/../../../.." && pwd)"  # the repository root
 VENV="$HERE/.venv"
 
 find_py311() {

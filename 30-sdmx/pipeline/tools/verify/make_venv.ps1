@@ -1,8 +1,9 @@
-# Create tools/verify/.venv with Python 3.11 and install requirements.txt.
-# Usage (PowerShell): powershell -ExecutionPolicy Bypass -File tools/verify/make_venv.ps1
+# Create 30-sdmx/pipeline/tools/verify/.venv with Python 3.11 and install
+# requirements.txt.
+# Usage (PowerShell): powershell -ExecutionPolicy Bypass -File 30-sdmx/pipeline/tools/verify/make_venv.ps1
 $ErrorActionPreference = 'Stop'
 $Here = $PSScriptRoot
-$Root = (Resolve-Path (Join-Path $Here '..\..')).Path
+$Root = (Resolve-Path (Join-Path $Here '..\..\..\..')).Path  # the repository root
 $Venv = Join-Path $Here '.venv'
 
 function Test-Py311([string]$exe) {

@@ -4,7 +4,7 @@ Every input the dashboard shows (observations, codelists, the series plan,
 indicator display rules, text, figures, boundaries) is read here, so a later
 change of data source touches this module only. Uses pandas and geopandas.
 
-The observation files are SDMX-CSV 2.1 (``data/AFW360_HH_<ISO3>_<YEAR>_<EST>.csv``).
+The observation files are SDMX-CSV 2.1 (``30-sdmx/data/AFW360_HH_<ISO3>_<YEAR>_<EST>.csv``).
 Every column is read as text first (``keep_default_na=False``) so that codes
 such as ``NA`` stay codes; numeric columns are then parsed explicitly, where the
 literal ``NaN`` (intentionally missing, OBS_STATUS O or M) and an empty cell
@@ -19,12 +19,14 @@ from pathlib import Path
 
 import pandas as pd
 
-# ROOT is the repository (data/, metadata/, geo/); DASHBOARD is the folder that
+# ROOT is the SDMX stage's data folder, 30-sdmx/data/: the observation files
+# and their manifests directly in it, the standard in metadata/ and the
+# boundaries in geo/ (override with AFW360_ROOT). DASHBOARD is the folder that
 # holds index.qmd (10-legacy-pipeline/AFW360/); DASHBOARD_DATA holds its content/
 # and assets/ (10-legacy-pipeline/data_dashboard/).
 DASHBOARD = Path(__file__).resolve().parents[1]
 DASHBOARD_DATA = DASHBOARD.parent / "data_dashboard"
-ROOT = Path(os.environ.get("AFW360_ROOT", DASHBOARD.parent.parent))
+ROOT = Path(os.environ.get("AFW360_ROOT", DASHBOARD.parent.parent / "30-sdmx" / "data"))
 
 FIXED_COLUMNS = ["STRUCTURE", "STRUCTURE_ID", "ACTION"]
 DATAFLOW = "WB.AFW360:AFW360_HH"
@@ -61,9 +63,9 @@ def expected_structure_id(root=None) -> str:
 
 
 def data_path(iso3: str, year=None, estimation: str = "SURVEY", root=None) -> Path:
-    """Path of the observation file; ``year=None`` picks the latest year available."""
+    """Path of the observation file (directly in ROOT); ``year=None`` picks the latest year."""
     iso3 = iso3.upper()
-    folder = _root(root) / "data"
+    folder = _root(root)
     if year is not None:
         path = folder / f"AFW360_HH_{iso3}_{year}_{estimation}.csv"
         if not path.exists():

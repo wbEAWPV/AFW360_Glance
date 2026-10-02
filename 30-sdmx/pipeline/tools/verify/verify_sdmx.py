@@ -1,15 +1,18 @@
 """Independent reader for the AFW360 SDMX outputs (pysdmx 1.20.0).
 
-Usage: python verify_sdmx.py --root <dir>
+Usage: python verify_sdmx.py [--root <30-sdmx>]
 
-1. Validates <root>/sdmx/structures/AFW360_structures.xml as is against the
+<root> is the SDMX stage folder (30-sdmx/; the default is the stage this
+script belongs to).
+
+1. Validates <root>/output/structures/AFW360_structures.xml as is against the
    vendored pipeline/xsd/sdmx-ml-3.1/SDMXMessage.xsd with lxml, then reads an
    in-memory copy with pysdmx (validate=True) in which each com:AnnotationValue
    (unsupported by pysdmx 1.20.0) is rewritten to com:AnnotationTitle, and
    prints artefact counts by type. Skipped with a message while absent.
 2. Reads every <root>/data/*.csv except *_manifest.csv with the pysdmx
    SDMX-CSV 2.1 reader and prints the observation count per file.
-3. Parses every <root>/sdmx/metadata/*.csv with the csv module (pysdmx 1.20.0
+3. Parses every <root>/output/metadata/*.csv with the csv module (pysdmx 1.20.0
    has no SDMX-CSV reference-metadata reader) and checks the header: first five
    cells MDSTRUCTURE, MDSTRUCTURE_ID, METADATASET_ID, TARGET_TYPES, TARGET_IDS;
    MDSTRUCTURE is `metadataflow` on every row; TARGET_IDS names an artefact of
@@ -32,9 +35,12 @@ from lxml import etree
 from pysdmx.io import read_sdmx
 from pysdmx.io.csv.sdmx21.reader import read as read_csv21
 
-STRUCTURE_REL = Path("sdmx") / "structures" / "AFW360_structures.xml"
+STRUCTURE_REL = Path("output") / "structures" / "AFW360_structures.xml"
+METADATA_REL = Path("output") / "metadata"
+# this script is 30-sdmx/pipeline/tools/verify/verify_sdmx.py
+STAGE_DIR = Path(__file__).resolve().parents[3]
 # vendored schema, located from this script (not from --root)
-XSD_PATH = (Path(__file__).resolve().parents[2] / "pipeline" / "xsd"
+XSD_PATH = (Path(__file__).resolve().parents[2] / "xsd"
             / "sdmx-ml-3.1" / "SDMXMessage.xsd")
 COM_NS = "http://www.sdmx.org/resources/sdmxml/schemas/v3_1/common"
 MD_HEADER = ["MDSTRUCTURE", "MDSTRUCTURE_ID", "METADATASET_ID",
@@ -172,9 +178,9 @@ def _target_resolves(target: str, keys: set[tuple[str, str]]) -> bool:
 
 
 def check_metadata(root: Path, msg, rep: Report) -> None:
-    files = sorted((root / "sdmx" / "metadata").glob("*.csv"))
+    files = sorted((root / METADATA_REL).glob("*.csv"))
     if not files:
-        print("metadata: no sdmx/metadata/*.csv files, skipped")
+        print(f"metadata: no {METADATA_REL.as_posix()}/*.csv files, skipped")
         return
     keys = _artefact_keys(msg) if msg is not None else set()
     attr_ids = _msd_attribute_ids(msg) if msg is not None else set()
@@ -221,7 +227,8 @@ def check_metadata(root: Path, msg, rep: Report) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--root", default=".", help="repository root")
+    ap.add_argument("--root", default=str(STAGE_DIR),
+                    help="the SDMX stage folder (30-sdmx/)")
     root = Path(ap.parse_args().root)
     rep = Report()
     msg = check_structures(root, rep)

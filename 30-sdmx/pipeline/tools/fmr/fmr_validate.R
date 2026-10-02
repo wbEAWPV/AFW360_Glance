@@ -1,19 +1,20 @@
 # fmr_validate.R: validate each AFW 360 data file against the structures
 # loaded in a running Fusion Metadata Registry (FMR).
 #
-# Usage (from the repository root, after tools/fmr/fmr_load.R):
-#   Rscript tools/fmr/fmr_validate.R --root .
+# Usage (from 30-sdmx/, after pipeline/tools/fmr/fmr_load.R):
+#   Rscript pipeline/tools/fmr/fmr_validate.R
 #
-# Every data/AFW360_HH_*_SURVEY.csv (SDMX-CSV 2.1, sent as is) is POSTed to
-# <FMR_BASE>/ws/public/data/validate. FMR answers with a JSON report; it is
-# saved as tmp/fmr/<ISO3>_<YEAR>_<SOURCE>_validation.json (for example
+# Every data/AFW360_HH_*_SURVEY.csv of the stage (SDMX-CSV 2.1, sent as is)
+# is POSTed to <FMR_BASE>/ws/public/data/validate. FMR answers with a JSON
+# report; it is saved in the repository's scratch folder as
+# tmp/fmr/<ISO3>_<YEAR>_<SOURCE>_validation.json (for example
 # tmp/fmr/SEN_2021_SURVEY_validation.json). The script prints one line per
 # file (format FMR detected, dataflow, observation count, error flag and the
 # number of reported errors) and exits 0 when every report says
 # "Errors": false, 1 otherwise.
 #
 # Options:
-#   --root <dir>   repository root (default: .)
+#   --root <dir>   the SDMX stage folder (default: the 30-sdmx/ of this script)
 # Environment:
 #   FMR_BASE       FMR address (default http://localhost:8080)
 
@@ -23,13 +24,20 @@ cli_arg <- function(flag, default) {
   if (length(i) > 0 && i[1] < length(args)) args[i[1] + 1] else default
 }
 
-root <- normalizePath(cli_arg("--root", "."), winslash = "/", mustWork = TRUE)
+.script_dir <- function() {
+  f <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+  dirname(normalizePath(f, winslash = "/", mustWork = TRUE))
+}
+# This script is 30-sdmx/pipeline/tools/fmr/; locations come from pipeline/R/paths.R.
+source(file.path(.script_dir(), "..", "..", "R", "paths.R"))
+paths <- stage_paths_from_args(args, default_root = dirname(dirname(dirname(.script_dir()))))
+root <- stage_root(paths)
 base <- sub("/+$", "", Sys.getenv("FMR_BASE", "http://localhost:8080"))
 url <- paste0(base, "/ws/public/data/validate")
-out_dir <- file.path(root, "tmp/fmr")
+out_dir <- stage_path(paths, "scratch", "fmr")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-files <- list.files(file.path(root, "data"), pattern = "^AFW360_HH_.*_SURVEY\\.csv$",
+files <- list.files(stage_dir(paths, "data"), pattern = "^AFW360_HH_.*_SURVEY\\.csv$",
                     full.names = TRUE)
 if (!length(files)) {
   cat("No data/AFW360_HH_*_SURVEY.csv files found.\n", file = stderr())
@@ -71,7 +79,7 @@ for (f in files) {
     quit(status = 1)
   }
   writeBin(res$content, report)
-  rel <- sub(paste0(root, "/"), "", report, fixed = TRUE)
+  rel <- sub(paste0(dirname(stage_dir(paths, "scratch")), "/"), "", report, fixed = TRUE)
   if (res$status_code != 200) {
     cat(sprintf("%s: HTTP %d, report %s\n", basename(f), res$status_code, rel))
     ok <- FALSE
