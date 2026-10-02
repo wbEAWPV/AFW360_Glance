@@ -76,3 +76,59 @@ blockquote {
   main table tbody tr:nth-child(odd) { background-color: rgba(255, 255, 255, 0.03); }
   code:not(.sourceCode) { background-color: rgba(255, 255, 255, 0.08); color: #d9a7e0; }
 }
+
+/* Dashboards and tools page: description on the left, a clickable
+   thumbnail of the dashboard on the right; stacked on narrow screens. */
+.tool-card {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.tool-text {
+  flex: 1 1 auto;
+}
+
+.tool-thumb {
+  flex: 0 0 300px;
+}
+
+.tool-thumb a {
+  position: relative;
+  display: block;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.tool-thumb a:hover,
+.tool-thumb a:focus-visible {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  transform: translateY(-2px);
+}
+
+.tool-thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.tool-thumb-badge {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--bs-primary, #2780e3);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (max-width: 767.98px) {
+  .tool-card { flex-direction: column; }
+  .tool-thumb { flex-basis: auto; width: 100%; }
+}

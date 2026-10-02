@@ -1,48 +1,55 @@
 ---
 title: "Dashboards and tools"
-subtitle: "Where to see the data, and the tools that build and check it"
+subtitle: "Where to see the data, and the tools planned around it"
 format:
   html:
     toc: true
 ---
 
-## Dashboards
+## Legacy dashboard
 
-| Dashboard | What it shows | Where |
-|-----------------------|--------------------------------------------------------|----------------------------------------|
-| **Shiny dashboard** (Python) | The interactive country dashboard for Senegal and Guinea-Bissau. It reads the original Excel tables. | Published on Posit Connect: <https://w0lxdrconn01.worldbank.org/content/57e0a46b-db8d-4eeb-acca-994a67bfeb4c/> (World Bank network) |
-| **Quarto dashboard** | The same country pages as a static website. It reads the harmonised SDMX data through one loader. | Built on your computer; see below |
+::: {.tool-card}
+::: {.tool-text}
+The original AFW 360 dashboard for Senegal and Guinea-Bissau, rebuilt as an
+interactive Shiny app. It reads the original Excel tables, unchanged, and
+serves as the reference that each later step is checked against.
 
-: The two dashboards {#tbl-dashboards}
+Published on the World Bank Posit Connect server (World Bank network or VPN
+needed): <https://datanalytics-int.worldbank.org/AFW360-v1/>
+:::
 
-Both dashboards live in the repository folder `10-legacy-pipeline/`, and its
-`README.md` has the full launch instructions. In short, from the repository
-folder in Git Bash:
+::: {.tool-thumb}
+<a href="https://datanalytics-int.worldbank.org/AFW360-v1/" target="_blank" rel="noopener" title="Open the legacy dashboard in a new window">
+<img src="figures/legacy-dashboard-thumb.png" alt="Screenshot of the legacy AFW 360 dashboard: Senegal overview with poverty rate, number poor, employment rate and electricity access">
+<span class="tool-thumb-badge">Open dashboard ↗</span>
+</a>
+:::
+:::
 
-```bash
-cd 10-legacy-pipeline
-[ -d .venv ] || python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt
+## Data API
 
-# Shiny dashboard, opens at http://127.0.0.1:8000
-.venv/Scripts/python -m shiny run app.py --launch-browser
+::: {.callout-note appearance="simple"}
+**Planned.** A web API that serves the harmonised SDMX data and metadata, so
+other tools and users can query them directly.
+:::
 
-# Quarto dashboard
-.venv/Scripts/python -m pip install -r AFW360/requirements.txt
-QUARTO_PYTHON="$PWD/.venv/Scripts/python.exe" quarto preview AFW360
-```
+## Data explorer
 
-## Tools
+::: {.callout-note appearance="simple"}
+**Planned.** An interactive page to browse, filter and download the
+indicators by country, year and breakdown.
+:::
 
-| Tool | What it does | How to run it |
-|----------------------|----------------------------------------------------------|----------------------------------------------|
-| **Validator** (R) | Checks every data file against the codelists, the structure and the verification rules, and writes its findings to a CSV. | `Rscript pipeline/validate.R --root . --out tmp/findings.csv` |
-| **SDMX generator** (R) | Writes the SDMX structure file and the SDMX metadata files from the CSV dictionaries. `--check` fails if the committed files are out of date. | `Rscript pipeline/build_sdmx.R --root . --check` |
-| **Docs tables** (R) | Regenerates the tables of the standard from the CSV dictionaries. | `Rscript pipeline/build_docs.R --root . --check` |
-| **Independent SDMX checks** (Python) | Re-checks the SDMX files with `pysdmx` and `lxml`, software that shares no code with the R pipeline. | `tools/verify/` (see its `README.md`) |
-| **Fusion Metadata Registry** (Java) | Loads, validates, edits and exports the SDMX structures in a full SDMX registry. | [FMR guide](fmr-guide.qmd) |
-| **Dashboard loader** (Python) | The one place the Quarto dashboard reads data from; a change of data source touches only this module. | `10-legacy-pipeline/AFW360/afw360/loader.py` |
+## MCP server
 
-: Tools that build and check the data {#tbl-tools}
+::: {.callout-note appearance="simple"}
+**Planned.** A Model Context Protocol server that lets AI assistants look up
+the AFW 360 data and metadata.
+:::
 
-Run the R commands from the repository root.
+## Static knowledge website and AI-ready skill
+
+::: {.callout-note appearance="simple"}
+**Planned.** A static website with the documentation and data of the
+standard, packaged as a skill that AI assistants can load.
+:::
