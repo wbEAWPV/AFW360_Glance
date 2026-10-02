@@ -52,14 +52,17 @@ website:
       collapse-level: 3
       contents:
         - section: "AFW360 Overview"
-          href: 10-full-pipeline.qmd
           contents:
+            - href: 10-full-pipeline.qmd
+              text: "Introduction"
             - href: 15-legacy-verification.qmd
               text: "Step 0 · Legacy dashboard"
             - href: 20-excel-to-sdmx.qmd
               text: "Step 1 · Excel to SDMX"
-            - href: 25-sdmx-standard.qmd
-              text: "SDMX in plain terms"
+            - section: "Annexes"
+              contents:
+                - href: 25-sdmx-standard.qmd
+                  text: "SDMX in plain terms"
     - id: standard
       title: "AFW360 SDMX Standard"
       style: docked
