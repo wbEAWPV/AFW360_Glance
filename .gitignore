@@ -22,7 +22,9 @@ _shinylive/
 # Agent worktrees (Claude Code, isolation: "worktree")
 .claude/worktrees/
 
-# SDMX transition scratch (logs, findings) and the verification venv
+# SDMX transition scratch (logs, findings), the verification venv, the local
+# FMR install, and the output folder of the Excel-to-SDMX-CSV stage
 tmp/
-tools/verify/.venv/
-tools/fmr/runtime/
+30-sdmx/pipeline/tools/verify/.venv/
+30-sdmx/pipeline/tools/fmr/runtime/
+20-excel-sdmx-csv/output/
