@@ -54,7 +54,7 @@ INDICATOR_META = loader.load_indicator_meta()
 
 # STEP 2: Table layouts (row label -> series id; column label -> cut code in loader)
 # A row spec is a series id, ("ONE_MINUS", series id) for a DERIVED row of
-# metadata/plans/LEGACY_LABELS.csv, or None for a row with no series yet.
+# 20-excel-sdmx-csv/plans/LEGACY_LABELS.csv, or None for a row with no series yet.
 
 POVERTY_ROWS = {
     "PL300": {

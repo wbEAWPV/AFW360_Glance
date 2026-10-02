@@ -12,7 +12,6 @@
 *.py text eol=lf
 *.ps1 text eol=lf
 requirements.txt text eol=lf
-metadata/VERSION text eol=lf
 VERSION text eol=lf
 
 # Raw legacy inputs are byte-frozen: never convert them.
