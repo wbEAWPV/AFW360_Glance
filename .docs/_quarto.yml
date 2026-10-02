@@ -15,13 +15,15 @@ project:
     - data-standard.qmd           # -> index.html (set in its own front matter)
     - 10-full-pipeline.qmd        # high-level map of the pipeline, step 0 to step 4
     - 15-legacy-verification.qmd  # step 0: the legacy dashboard as a reference
+    - 20-excel-to-sdmx.qmd        # step 1: converting the Excel tables to SDMX data
+    - 25-sdmx-standard.qmd        # SDMX in plain terms: components, breakdowns vs qualifiers, the two files
     - input-tables-findings.qmd   # -> Appendix A
     - transition.qmd              # -> Appendix B
     - sdmx-conformance.qmd        # SDMX conformance checklist with evidence
     - fmr-guide.qmd               # FMR install, load, validate, edit, export
 
 website:
-  title: "AFW 360 data standard"
+  title: "AFW360 - Platform Concept"
   search:
     location: navbar
     type: overlay
@@ -33,6 +35,10 @@ website:
         text: "Pipeline"
       - href: 15-legacy-verification.qmd
         text: "Step 0 · Legacy"
+      - href: 20-excel-to-sdmx.qmd
+        text: "Step 1 · Excel to SDMX"
+      - href: 25-sdmx-standard.qmd
+        text: "SDMX in plain terms"
       - href: input-tables-findings.qmd
         text: "Appendix A · Input tables"
       - href: transition.qmd

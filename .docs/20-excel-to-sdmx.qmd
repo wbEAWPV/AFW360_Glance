@@ -1,0 +1,93 @@
+---
+title: "Step 1: From Excel tables to SDMX data"
+subtitle: "Working back from the tables we have to the data structure we need"
+author: "Eduard Bukin"
+date: 2026-10-02
+format:
+  html:
+    toc: true
+    toc-location: left
+---
+
+## Where we started
+
+- Two Excel workbooks, one per country (`Tables_SEN.xlsx` and
+  `Tables_GNB.xlsx`), made to be read by people, not by machines. Rows carry
+  free-text labels, each column is a group ("Total", "Capital", "Dakar", …),
+  the two countries are laid out differently, and nothing says what a number
+  is: a share or a count, its unit, its survey or its year.
+
+## The problem in one sentence
+
+To make a standard, every number needs a full "address": what was measured,
+where, for whom, how and when. In the Excel files that address is only implied
+by where the number sits on the sheet.
+
+## What we did
+
+1. **We wrote the structure ourselves.** We did not start from an outside
+   template. We built the structure from what we already knew about the
+   indicators, their groupings and the geography, and from what the dashboard
+   needs to show. It breaks every number's address into separate parts
+   (dimensions in SDMX terms):
+   - **country and region**, written as official region codes instead of names;
+   - **indicator**, for example the poverty rate or livestock ownership;
+   - **who the number describes**: sex, age, urban or rural, and other
+     groupings such as consumption quintile or the sex of the household head;
+   - **qualifiers** of the measure, such as the poverty line used;
+   - **year and method** (survey or model).
+
+   Each number also carries a few notes (attributes in SDMX): its unit, its
+   status (for example "empty in the Excel file") and its source. How this
+   structure was designed is explained in
+   [The SDMX standard for AFW360](25-sdmx-standard.qmd).
+
+2. **We wrote down how the Excel files map to that structure.** Each Excel
+   column and each row label is matched to its place in the structure in a few
+   small CSV tables (`metadata/plans/`) that anyone can read and review. The
+   mapping is kept in these tables, not inside the code. For example:
+
+   | In the Excel file | In the standard |
+   |---|---|
+   | Sheet *National*, column "Capital" | whole country, area = capital city |
+   | Sheet *ADM 1*, column "DAKAR" | region = Dakar (code `SN01`) |
+   | Row "Access to electricity (grid)" | indicator = `EN_ELEC_ACCESS` |
+
+3. **We converted the files with one script.** `pipeline/convert_legacy.R`
+   reads the Excel files and writes one standard data file per country, survey
+   and year. The Excel files are never edited, and every value in the output
+   can be traced back to its sheet and cell.
+
+```{mermaid}
+flowchart LR
+  A["Excel tables<br/>(unchanged)"] --> C["Conversion script"]
+  B["Mapping tables<br/>(CSV, reviewable)"] --> C
+  C --> D["SDMX data files<br/>one per country and year"]
+  D --> E["Dashboard"]
+```
+
+## What we got
+
+- Two data files, `AFW360_HH_SEN_2021_SURVEY.csv` and
+  `AFW360_HH_GNB_2021_SURVEY.csv`, in one shared format: the same column names
+  and the same codes for both countries.
+- The dashboard now reads only these files. Moving to them uncovered mistakes
+  that the Excel layout had hidden; for example, the Guinea-Bissau page was
+  showing Senegal's numbers.
+
+## What we learned
+
+- The structure is our best reading of the tables, not a final answer. Every
+  code is still marked as a draft.
+- Some information was never in the Excel files and cannot be recovered, such
+  as standard errors and sample sizes. Those fields are left empty and marked
+  as missing.
+- Turning the tables into data forced decisions the Excel files left vague,
+  for example what counts as "other urban". Each decision is recorded in the
+  data standard.
+
+## What comes next
+
+- The structure is formalised as an SDMX standard (a Data Structure Definition
+  with its code lists) in [The SDMX standard for AFW360](25-sdmx-standard.qmd).
+- The converted data is then checked against that standard (Step 3).

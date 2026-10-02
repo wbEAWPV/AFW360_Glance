@@ -9,7 +9,7 @@ format:
     toc-location: left
 ---
 
-# Where we started
+## Where we started
 
 - The project began as a loose set of files at the top level of the project:
   Excel tables with the poverty figures for each country, map files, short text
@@ -18,8 +18,12 @@ format:
   dashboard.
 - These files sat in folders named "INPUT Tables", "INPUT shp", "INPUT Text"
   and "INPUT Figures". Test copies and stray files were mixed in with them.
+- Original version of the dashboard is deployed to the World Bank connect server
+  (VPN needed): <https://datanalytics-int.worldbank.org/AFW360-v1/>
+- How to run and republish it: `10-legacy-pipeline/DEPLOY.md`
 
-# What we did
+
+## What we did
 
 1. **We moved everything old into one folder, `10-legacy-pipeline/`.** All the
    original files now live in one place, apart from the new work. Nothing
@@ -38,32 +42,29 @@ format:
    Connect).** It sends only the files the app needs and leaves behind the
    large map files and the test files.
 
-# Why this matters
+## Why this matters
 
 We now have a working, unchanged copy of the original dashboard. Each later
 step can be compared against it.
 
-# Limitations
+## Limitations
 
-- **The original data contain many errors and inaccuracies** (see
+- **The original data contain errors and inaccuracies** (see
   [Appendix A](input-tables-findings.qmd)). For example:
   - In Guinea-Bissau, the column labelled "Capital" holds the figures of a
-    different zone, not Bissau, so the capital appears far poorer than it is.
+    different zone.
   - In Guinea-Bissau, cultivated land is reported in the millions of hectares
     for some groups, which is impossible.
   - Some indicators are empty, show the same value everywhere, or repeat
     others.
   - Senegal's file includes an older regional table that disagrees with the
     main one and contains impossible values.
-- **So the dashboard should not be used for real analysis or decisions as it
-  is.** We keep it only as a record of what existed and as a point of
-  comparison.
 - **We keep the data exactly as received, errors included.** We do not fix
   them in the original files. Many of these problems are likely to show up,
   and be properly fixed, once the new pipeline works and the figures are
   rebuilt from the underlying survey data.
 
-# Links
+## Links
 
 - Live app (World Bank network or VPN needed):
   <https://datanalytics-int.worldbank.org/AFW360-v1/>

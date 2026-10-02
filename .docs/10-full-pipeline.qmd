@@ -9,7 +9,7 @@ format:
     toc-location: left
 ---
 
-# Introduction
+## Introduction
 
 This page is the map of the whole (ideal) process of data transformation for
 the Africa West 360 (AFW360) project. The goal of AFW360 is to operationalize
@@ -23,7 +23,7 @@ microdata for daily use by country economists and analysts through:
 This is a concept note with a few prototypes to prove the concept.
 
 
-## Where we have started
+### Where we have started
 
 Our starting point is a set of Excel files produced from the raw data. It gives an
 overview of a fragment of the pipeline as well as the initial version of the
@@ -33,7 +33,7 @@ folder `10-legacy-pipeline/`. @fig-legacy-pipeline shows how they connect.
 
 ![Legacy Pipeline](figures/legacy-pipeline.svg){#fig-legacy-pipeline}
 
-## Where are we going
+### Where are we going
 
 Our goal is to create a sustainable data transformation pipeline, where data
 provenance is transparent and the produced indicators are accessible to machines
@@ -145,7 +145,7 @@ This pipeline could be implemented in any statistical software, but its
 advantages show most in a scalable working environment such as Databricks.
 We could also borrow implementation best practices from the GLD.
 
-# Implementing AFW360 data pipeline
+## Implementing AFW360 data pipeline
 
 It is a challenge that requires commitment and investment. Yet modern AI tools
 make it more feasible than it used to be. The following steps
@@ -162,7 +162,7 @@ are proposed to implement the pipeline:
 - Step 8: MCP server for AFW360 data
 - Step 9: Dedicated AI chat that operationalizes data and knowledge
 
-## Implementation tracking
+### Implementation tracking
 
 | Step | Short description | Status |
 |---|---|---|
