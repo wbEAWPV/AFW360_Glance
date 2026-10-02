@@ -6,12 +6,10 @@ format:
   html:
     toc: true
     toc-depth: 2
-    toc-location: left
     toc-title: Contents
     number-sections: true
     number-depth: 2
     tbl-colwidths: auto
-    output-file: index.html
 ---
 
 This document defines how data for the West Africa Micro Data 360 platform (AFW 360) are structured, coded and documented, how producers create data files, and how the database is extended to new countries, indicators and breakdowns. It follows the SDMX information model (the ISO standard statistical agencies use to exchange data) and borrows the World Bank Data360 dimension layout, stored as plain CSV files in git.

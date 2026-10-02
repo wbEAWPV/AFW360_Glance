@@ -6,7 +6,6 @@ date: 2026-10-02
 format:
   html:
     toc: true
-    toc-location: left
 ---
 
 SDMX (Statistical Data and Metadata eXchange) is the ISO standard that
@@ -22,7 +21,7 @@ read it**. Every column of that row is one of four kinds, which SDMX calls
 *component types*.
 
 | Component type | The question it answers | In our data |
-|---|---|---|
+|-------------|-------------------------|---------------------------------------------------------------|
 | **Dimension** | What is this number about? | Country, region, urban or rural, indicator, poverty line, quintile, … |
 | **Time dimension** | When? | The reference year |
 | **Measure** | How much, and how reliable? | The value, its standard error, confidence interval and sample size |
@@ -49,7 +48,7 @@ how this works. Only the key columns that change are shown. In every row the cou
 is `SEN`, the year is `2021`, and the estimation method is `SURVEY`.
 
 | The number | Value | `URBANISATION` | `INDICATOR` | `MEASURE_QUAL_1` | `MEASURE_QUAL_2` | `COMP_BREAKDOWN_1` |
-|---|---|---|---|---|---|---|
+|---------------------------------------------|----|----------|--------|----------|----------|------------|
 | Poverty rate at \$3.00 (2021 PPP), whole country | 0.18 | `_T` | `POV_HC` | `POVLINE_PL300` | `PPP_2021` | `_T` |
 | …the same, rural areas only | 0.30 | **`R`** | `POV_HC` | `POVLINE_PL300` | `PPP_2021` | `_T` |
 | …the same, at the \$4.20 line | 0.37 | `_T` | `POV_HC` | **`POVLINE_PL420`** | `PPP_2021` | `_T` |
@@ -95,7 +94,7 @@ The quickest test is to ask whether the categories add up:
   the same households' consumption, and the 13 of them sum to 1.
 
 |  | **Breakdown** | **Qualifier** |
-|---|---|---|
+|------------------|-----------------------------------------------------|-----------------------------|
 | Answers | *Who* is counted | *What* is measured |
 | Categories cover | Different parts of the population | The same population every time |
 | Population check | Categories **add up** to the whole | Each category **equals** the whole |
@@ -209,7 +208,7 @@ The data file is an ordinary CSV, one row per number. Here is one complete
 row, rural poverty at \$3.00 from @tbl-examples, read column by column:
 
 | Group | Column | Value | Meaning |
-|---|---|---|---|
+|-----------|-----------------------------|-------------------|----------------------------------------|
 | Fixed | `STRUCTURE` | `dataflow` | The row follows a dataflow… |
 |  | `STRUCTURE_ID` | `WB.AFW360:AFW360_HH(0.3.0)` | …this one, version 0.3.0 |
 |  | `ACTION` | `R` | Replace any earlier value with this one |

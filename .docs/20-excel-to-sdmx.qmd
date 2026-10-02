@@ -6,7 +6,6 @@ date: 2026-10-02
 format:
   html:
     toc: true
-    toc-location: left
 ---
 
 ## Where we started
@@ -48,7 +47,7 @@ by where the number sits on the sheet.
    mapping is kept in these tables, not inside the code. For example:
 
    | In the Excel file | In the standard |
-   |---|---|
+|--------------------------------------------------|--------------------------------------------------|
    | Sheet *National*, column "Capital" | whole country, area = capital city |
    | Sheet *ADM 1*, column "DAKAR" | region = Dakar (code `SN01`) |
    | Row "Access to electricity (grid)" | indicator = `EN_ELEC_ACCESS` |

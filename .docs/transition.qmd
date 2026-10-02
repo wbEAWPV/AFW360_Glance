@@ -5,7 +5,6 @@ date: 2026-09-29
 format:
   html:
     toc: true
-    toc-location: left
 ---
 
 In September 2026 the dashboard's inputs were converted, without changing a single number, into the files defined by the [data standard](data-standard.qmd). This page summarises what was done, which part was done by code and which by hand, and where each piece lives.

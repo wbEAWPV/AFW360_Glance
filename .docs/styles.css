@@ -18,10 +18,21 @@ main table tbody tr:nth-child(odd) {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Wide codelist tables must not widen the page. */
-main > div.cell > div.cell-output-display > table,
+/* Tables span the content width; columns keep the relative widths set in
+   the source (pipe-table dashes), text is left-aligned, and a wide table
+   scrolls inside its own box instead of pushing the page sideways. */
 main table {
-  display: block;
+  width: 100%;
+}
+
+main table th,
+main table td {
+  text-align: left;
+}
+
+main .quarto-float,
+main div.cell-output-display,
+main div[id^="tbl-"] {
   max-width: 100%;
   overflow-x: auto;
 }
@@ -36,20 +47,21 @@ code:not(.sourceCode) {
   color: #6a2c70;
 }
 
-/* The left-hand TOC is long in all three documents. */
+/* The page TOC (right) is long on the reference pages. */
 #TOC, nav[role="doc-toc"] {
   font-size: 0.85rem;
 }
 
 /* Section headings: a little more air above than Bootstrap's default, so the
    numbered sections read as real breaks in a 900-line document. */
-main h1 {
+main h1,
+main h2 {
   margin-top: 2.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--bs-border-color, #dee2e6);
 }
 
-main h2 {
+main h3 {
   margin-top: 1.75rem;
 }
 

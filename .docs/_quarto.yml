@@ -1,4 +1,4 @@
-# Quarto project for the AFW 360 data standard site.
+# Quarto project for the AFW 360 documentation site.
 #
 # This is a nested project, separate from the dashboard project at the repo
 # root. The root project cannot see it: Quarto skips directories whose name
@@ -7,20 +7,25 @@
 #
 # `render:` lists the pages explicitly, so notes such as shiny-port-plan.md
 # stay out of the site.
+#
+# Layout: three top-level areas in the navbar (Overview, Standard,
+# Dashboards and tools). Each area has its own docked sidebar on the left;
+# the page TOC sits on the right.
 
 project:
   type: website
   output-dir: _site
   render:
-    - data-standard.qmd           # -> index.html (set in its own front matter)
-    - 10-full-pipeline.qmd        # high-level map of the pipeline, step 0 to step 4
+    - 10-full-pipeline.qmd        # -> index.html (set in its own front matter); landing page
     - 15-legacy-verification.qmd  # step 0: the legacy dashboard as a reference
     - 20-excel-to-sdmx.qmd        # step 1: converting the Excel tables to SDMX data
     - 25-sdmx-standard.qmd        # SDMX in plain terms: components, breakdowns vs qualifiers, the two files
-    - input-tables-findings.qmd   # -> Appendix A
-    - transition.qmd              # -> Appendix B
+    - data-standard.qmd           # the AFW 360 SDMX standard
     - sdmx-conformance.qmd        # SDMX conformance checklist with evidence
+    - transition.qmd              # the transition record
+    - input-tables-findings.qmd   # findings on the legacy input tables
     - fmr-guide.qmd               # FMR install, load, validate, edit, export
+    - tools.qmd                   # dashboards and tools
 
 website:
   title: "AFW360 - Platform Concept"
@@ -28,32 +33,59 @@ website:
     location: navbar
     type: overlay
   navbar:
+    background: primary
     left:
+      - href: 10-full-pipeline.qmd
+        text: "Overview"
       - href: data-standard.qmd
         text: "Standard"
-      - href: 10-full-pipeline.qmd
-        text: "Pipeline"
-      - href: 15-legacy-verification.qmd
-        text: "Step 0 · Legacy"
-      - href: 20-excel-to-sdmx.qmd
-        text: "Step 1 · Excel to SDMX"
-      - href: 25-sdmx-standard.qmd
-        text: "SDMX in plain terms"
-      - href: input-tables-findings.qmd
-        text: "Appendix A · Input tables"
-      - href: transition.qmd
-        text: "Appendix B · Transition"
-      - href: sdmx-conformance.qmd
-        text: "SDMX conformance"
-      - href: fmr-guide.qmd
-        text: "FMR guide"
+      - href: tools.qmd
+        text: "Dashboards and tools"
     right:
       - icon: github
         href: https://github.com/wbEAWPV/AFW360_Glance
         aria-label: "Source repository on GitHub"
+  sidebar:
+    - id: overview
+      title: "AFW360 Overview"
+      style: docked
+      collapse-level: 3
+      contents:
+        - section: "AFW360 Overview"
+          href: 10-full-pipeline.qmd
+          contents:
+            - href: 15-legacy-verification.qmd
+              text: "Step 0 · Legacy dashboard"
+            - href: 20-excel-to-sdmx.qmd
+              text: "Step 1 · Excel to SDMX"
+            - href: 25-sdmx-standard.qmd
+              text: "SDMX in plain terms"
+    - id: standard
+      title: "AFW360 SDMX Standard"
+      style: docked
+      contents:
+        - section: "AFW360 SDMX Standard"
+          href: data-standard.qmd
+          contents:
+            - section: "Technical documentation"
+              contents:
+                - href: sdmx-conformance.qmd
+                  text: "SDMX conformance"
+                - href: transition.qmd
+                  text: "Transition record"
+                - href: input-tables-findings.qmd
+                  text: "Input tables findings"
+                - href: fmr-guide.qmd
+                  text: "FMR guide"
+    - id: tools
+      title: "Dashboards and tools"
+      style: docked
+      contents:
+        - href: tools.qmd
+          text: "Dashboards and tools"
   page-footer:
     left: "© 2026 World Bank Group"
-    center: "AFW 360 data standard · draft v0.6"
+    center: "AFW360 - Platform Concept · draft v0.6"
     right: "[Source](https://github.com/wbEAWPV/AFW360_Glance)"
 
 format:
@@ -61,8 +93,12 @@ format:
     theme: cosmo
     css: styles.css
     toc: true
-    toc-location: left
+    toc-location: right
     tbl-colwidths: auto
     link-external-newwindow: true
+    # 200px wider than Quarto's default body (800px). On narrow screens the
+    # sidebar and TOC collapse and the body takes the full width.
+    grid:
+      body-width: 1000px
     # `embed-resources` is not supported in a website project. Each page's
     # front matter carried it; it was removed when this project was added.

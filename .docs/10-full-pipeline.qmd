@@ -6,7 +6,7 @@ date: 2026-09-30
 format:
   html:
     toc: true
-    toc-location: left
+    output-file: index.html
 ---
 
 ## Introduction
@@ -165,7 +165,7 @@ are proposed to implement the pipeline:
 ### Implementation tracking
 
 | Step | Short description | Status |
-|---|---|---|
+|----|----------------------------------------------------------------------------------------|--------|
 | 0 | Verify the legacy Excel-to-dashboard pipeline as a reference | Planned |
 | 1 | Reverse engineer Silver-to-Gold: convert existing Excel files into SDMX-based data | Planned |
 | 2 | Establish an SDMX Data Structure Definition (DSD) for the indicators | Planned |

@@ -1,0 +1,48 @@
+---
+title: "Dashboards and tools"
+subtitle: "Where to see the data, and the tools that build and check it"
+format:
+  html:
+    toc: true
+---
+
+## Dashboards
+
+| Dashboard | What it shows | Where |
+|-----------------------|--------------------------------------------------------|----------------------------------------|
+| **Shiny dashboard** (Python) | The interactive country dashboard for Senegal and Guinea-Bissau. It reads the original Excel tables. | Published on Posit Connect: <https://w0lxdrconn01.worldbank.org/content/57e0a46b-db8d-4eeb-acca-994a67bfeb4c/> (World Bank network) |
+| **Quarto dashboard** | The same country pages as a static website. It reads the harmonised SDMX data through one loader. | Built on your computer; see below |
+
+: The two dashboards {#tbl-dashboards}
+
+Both dashboards live in the repository folder `10-legacy-pipeline/`, and its
+`README.md` has the full launch instructions. In short, from the repository
+folder in Git Bash:
+
+```bash
+cd 10-legacy-pipeline
+[ -d .venv ] || python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements.txt
+
+# Shiny dashboard, opens at http://127.0.0.1:8000
+.venv/Scripts/python -m shiny run app.py --launch-browser
+
+# Quarto dashboard
+.venv/Scripts/python -m pip install -r AFW360/requirements.txt
+QUARTO_PYTHON="$PWD/.venv/Scripts/python.exe" quarto preview AFW360
+```
+
+## Tools
+
+| Tool | What it does | How to run it |
+|----------------------|----------------------------------------------------------|----------------------------------------------|
+| **Validator** (R) | Checks every data file against the codelists, the structure and the verification rules, and writes its findings to a CSV. | `Rscript pipeline/validate.R --root . --out tmp/findings.csv` |
+| **SDMX generator** (R) | Writes the SDMX structure file and the SDMX metadata files from the CSV dictionaries. `--check` fails if the committed files are out of date. | `Rscript pipeline/build_sdmx.R --root . --check` |
+| **Docs tables** (R) | Regenerates the tables of the standard from the CSV dictionaries. | `Rscript pipeline/build_docs.R --root . --check` |
+| **Independent SDMX checks** (Python) | Re-checks the SDMX files with `pysdmx` and `lxml`, software that shares no code with the R pipeline. | `tools/verify/` (see its `README.md`) |
+| **Fusion Metadata Registry** (Java) | Loads, validates, edits and exports the SDMX structures in a full SDMX registry. | [FMR guide](fmr-guide.qmd) |
+| **Dashboard loader** (Python) | The one place the Quarto dashboard reads data from; a change of data source touches only this module. | `10-legacy-pipeline/AFW360/afw360/loader.py` |
+
+: Tools that build and check the data {#tbl-tools}
+
+Run the R commands from the repository root.
