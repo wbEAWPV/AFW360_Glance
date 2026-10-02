@@ -19,6 +19,7 @@ project:
     - 10-full-pipeline.qmd        # -> index.html (set in its own front matter); landing page
     - 15-legacy-verification.qmd  # step 0: the legacy dashboard as a reference
     - 20-excel-to-sdmx.qmd        # step 1: converting the Excel tables to SDMX data
+    - 30-dsd.qmd                  # step 2: the Data Structure Definition, read from the structure message
     - 25-sdmx-standard.qmd        # SDMX in plain terms: components, breakdowns vs qualifiers, the two files
     - data-standard.qmd           # the AFW 360 SDMX standard
     - sdmx-conformance.qmd        # SDMX conformance checklist with evidence
@@ -59,6 +60,8 @@ website:
               text: "Step 0 · Legacy dashboard"
             - href: 20-excel-to-sdmx.qmd
               text: "Step 1 · Excel to SDMX"
+            - href: 30-dsd.qmd
+              text: "Step 2 · Data Structure Definition"
             - section: "Annexes"
               contents:
                 - href: 25-sdmx-standard.qmd
