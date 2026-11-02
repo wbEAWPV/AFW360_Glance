@@ -54,7 +54,7 @@ Two repositories replace `AFW360_Glance`.
 afw360-data/
   00_config/          config_template.do (committed); config_local.do (gitignored)
   01_harmonize/       ehcvm_2021.do, ehcvm_2021_SEN.do, ehcvm_2021_GNB.do
-                      dictionary/variables.csv, breakdowns.csv, qualifiers.csv
+                      dictionary/variables.csv, breakdowns.csv
   02_indicators/      POV_HC.do, AGR_CULTIVATES.do, ... (one per family)
                       _helpers/afw360_tabulate.ado
                       legacy_excel/convert.py, mapping.csv
@@ -103,7 +103,7 @@ Column meanings and rules:
 - `REF_AREA` is the ISO 3166-1 alpha-3 country code for national rows (`SEN`) or the OCHA COD p-code for ADM1 rows (`SN01` Dakar, `GW01` Bafatá). The national total has `URBANISATION=_T`; `URBANISATION` splits may exist at both levels. There is no separate "country total" code.
 - `TIME_PERIOD` is the survey's reference year from `surveys.csv`, even when fieldwork spans two calendar years.
 - `SEX` and `AGE` describe the individuals counted. Household-level series carry `_Z`; individual-level series carry `_T` for the total and codes for the split. `AGE` codes follow SDMX (`Y_GE15`, `Y15T24`), as in Data360.
-- `URBANISATION`: `CAP` (capital city), `U` (other urban), `R` (rural), `_T`.
+- `URBANISATION`: `CAP` (capital city), `OU` (other urban), `R` (rural), `_T`. `U` (urban, the parent of `CAP` and `OU`) is in the code list for an urban total; no row carries it today.
 - `COMP_BREAKDOWN_1..3` hold household or group characteristics with self-describing codes (`HHH_SEX_F`, `QUINTILE_Q1`, `EMP_SECTOR_AGR`). Slots are filled from slot 1 with no gaps, in the order the family YAML lists its breakdowns; unused slots are `_T`. Crossings are limited by the family's `max_cross`.
 - `QUAL_1..3` hold measurement parameters (`PL420`, `PPP21`, `CP01`, `ACQ_OWNPROD`), in the order the family YAML lists its qualifiers; unused slots are `_Z`.
 - `OBS_VALUE` is numeric; rates are shares between 0 and 1.
@@ -130,6 +130,7 @@ REF_AREA,SEN,Senegal,Sénégal,,1,active,,ISO 3166-1 alpha-3
 REF_AREA,SN01,Dakar,Dakar,SEN,1,active,,
 URBANISATION,CAP,Capital city,Capitale,U,1,active,,
 URBANISATION,U,Urban,Urbain,,2,active,,
+URBANISATION,OU,Other urban,Autre urbain,U,2,active,,
 URBANISATION,R,Rural,Rural,,3,active,,
 SEX,F,Female,Femme,,1,active,,sex of the individuals counted
 BREAKDOWN,HHH_SEX_F,Female household head,Chef de ménage femme,HHH_SEX,1,active,,
@@ -177,7 +178,7 @@ definition_long: >
   is below {POVLINE} per person per day, weighted by individual survey weights.
 measurement_unit: Share of individuals (0-1)
 unit_code: SHARE
-level: ind                      # hh or ind; fixes the _Z rule for SEX and AGE
+level: ind                      # hh or ind: the unit the statistic is computed over (the _Z rule for SEX and AGE is deferred, section 13)
 statistic: PROPORTION
 universe: Individuals in ordinary households
 methodology: >
@@ -194,7 +195,7 @@ display: {as: PERCENT, decimals: 1, higher_is: WORSE, valid_min: 0, valid_max: 1
 status: active                  # planned, active, retired
 ```
 
-Which qualifier combinations exist is whatever rows the data holds, not a declared cross product (a 2017 PPP line never pairs with `PPP21`). The catalogue builder expands each family into one World Bank `timeseries` record per observed combination (idno `POV_HC_PL420_PPP21`, name "Poverty headcount rate at $4.20 a day (2021 PPP)") plus one family record whose `dimensions` list the qualifiers and breakdowns, and one `indicators_db` record for the whole store. It also writes a schema.org `Dataset` JSON-LD, a Frictionless `datapackage.json` for the data files, and a flat `series_overview.csv` for Excel users and for the Stata helper. All of this goes to a generated `build/` folder and is never edited.
+Which qualifier combinations exist is whatever rows the data holds, not a declared cross product (a 2017 PPP line never pairs with `PPP21`). The catalogue builder expands each family into one World Bank `timeseries` record per observed combination (idno `POV_HC_PL420_PPP21`, name "Poverty headcount rate at $4.20 a day (2021 PPP)") plus one family record whose `dimensions` list the qualifiers and breakdowns (for a family without qualifiers the two coincide: one record), and one `indicators_db` record for the whole store. It also writes a schema.org `Dataset` JSON-LD, a Frictionless `datapackage.json` for the data files, and a flat `series_overview.csv` for Excel users and for the Stata helper. All of this goes to a generated `build/` folder and is never edited.
 
 `03_store/catalog/surveys.csv` holds only what the pipeline needs; everything else is in the Microdata Library record that the id resolves to:
 
@@ -212,7 +213,7 @@ A survey not yet in the Microdata Library uses the id its producer gave it (NSO 
 
 - `variables.csv`: one row per harmonised variable (`name`, `level` hh or ind, `type`, `codelist`, `description`). Survey design variables have fixed names: `strata`, `psu`, `w_hh`, `w_ind`, so the helper always runs the same `svyset`. Breakdown variables already hold store codes (`hhh_sex` takes `HHH_SEX_F`/`HHH_SEX_M`).
 - `breakdowns.csv`: one row per breakdown (`breakdown`, `name_en`, `level`, `variable`, `codes`, `source_note`).
-- `qualifiers.csv`: one row per qualifier concept with the list it draws from.
+- A qualifier is named by the code list it draws from (`POVLINE`, `PPP`, `COICOP`), so it needs no dictionary file.
 
 Reusing the Global Monitoring Database or the official EHCVM welfare files was considered and set aside for now; whether AFW360 poverty rates must match PIP and GMD exactly is a question for the team.
 
@@ -240,11 +241,11 @@ Each fact has one home: code labels only in `codelists.csv`; what a harmonised v
 
 **Add a code** (`docs/recipes/add-a-code.md`): decide the list; pick a code following the rules; add the row with `name_en`; if it is a breakdown category, register the variable in `breakdowns.csv` when new; run `afw360 validate`; open a pull request.
 
-**Add a breakdown** (example: household has a member with a disability): add `HH_DISAB_Y` and `HH_DISAB_N` to `codelists.csv`; add the row `HH_DISAB` to `breakdowns.csv`; build `hh_disab` in `ehcvm_2021.do` and describe it in `variables.csv`; add `HH_DISAB` to the `breakdowns` list of the families it applies to; re-run those families. No indicator code changes.
+**Add a breakdown** (example: household has a member with a disability): add `HH_DISAB_Y` and `HH_DISAB_N` to `codelists.csv`; add the row `HH_DISAB` to `breakdowns.csv`; build `hh_disab` in `ehcvm_2021.do` and describe it in `variables.csv`; add `HH_DISAB` to the `breakdowns` list of the families it applies to, in their YAML and in the `breakdowns()` option of their do-files; re-run those families; `afw360 ingest`; `afw360 validate`; pull request.
 
-**Add a qualifier value** (example: a new poverty line): add the row to `codelists.csv` and `povlines.csv`; re-run the families that use `POVLINE`. No YAML changes, because the family text is templated.
+**Add a qualifier value** (example: a new poverty line): add the row to `codelists.csv` and `povlines.csv`; add the code to the `foreach` list of each do-file that uses `POVLINE` (unless the loop reads `povlines.csv`, as `povline_value()` does); re-run those families; `afw360 ingest`; `afw360 validate`; pull request. No YAML changes, because the family text is templated.
 
-**Add an indicator**: classify the new concept with the table below; write the family YAML; write the do-file; run it and `afw360 ingest`; `afw360 validate`; one pull request with the YAML, the do-file and the rows.
+**Add an indicator**: classify the new concept with the table below; write the family YAML; write the do-file; run it, save the dataset the helper returns as a CSV and pass that file to `afw360 ingest`; `afw360 validate`; one pull request with the YAML, the do-file and the rows.
 
 | The new thing... | Example | Goes in |
 |---|---|---|
@@ -261,7 +262,7 @@ Urbanisation is a breakdown; it has a named column only because SDMX and Data360
 
 **Gate.** Any analyst opens a pull request to `afw360-data`. CI runs `afw360 validate`: columns, codes in the lists, slot order, values within the family's `valid_min`/`valid_max`, no duplicate keys, `STD_ERR`/`N_OBS` present for microdata rows, every `SERIES` has a YAML and every active YAML has rows, every `SERIES` in the data has a producer (`02_indicators/<FAMILY>.do` or an active line in `legacy_excel/mapping.csv`, never both for the same survey). One maintainer from the DIP/POV team reviews the meaning and merges. The do-file that produced the rows is part of the same pull request.
 
-**Provenance.** No per-row producer column. At release, `03_store/MANIFEST.csv` records each data file with its sha256, the afw360-data commit, and the producer scripts that ran with their hashes. Per family and survey, the producer registries say whether rows are legacy or recomputed.
+**Provenance.** No per-row producer column. At release, `03_store/MANIFEST.csv` records each data file with its sha256 and the producer scripts that ran with their hashes; the release tag names the commit (a file cannot record the hash of the commit that contains it). Per family and survey, the producer registries say whether rows are legacy or recomputed.
 
 **Releases.** Date-based tags on afw360-data: `v2026.11.1` (year, month, sequence). A release is cut by the maintainer whenever something worth publishing is merged. The format (columns, YAML fields, code-list columns) has a separate integer version in `03_store/FORMAT.md` and in `datapackage.json`; a change to it comes with a migration note and a tools release that reads both. afw360-tools has its own semantic version and declares the format versions it reads. The release script (`afw360 release`) validates, tags, writes the manifest and the revisions log, and uploads the pin when a Connect key is configured.
 
@@ -271,7 +272,7 @@ Urbanisation is a breakdown; it has a named column only because SDMX and Data360
 
 The 5,271 Senegal and Guinea-Bissau observations enter the new store through a fresh converter, `02_indicators/legacy_excel/convert.py` (Python), with a `mapping.csv` (sheet, row label to `SERIES` and `QUAL_*`/`COMP_BREAKDOWN_*`; column header to `REF_AREA`/`URBANISATION`). The R code of `20-excel-sdmx-csv/` is not reused. Its rows have no `STD_ERR` or `N_OBS`.
 
-The Excel workbooks stay byte-frozen on the `legacy` branch of `AFW360_Glance`; the converter reads them from `AFW360_LEGACY_XLSX`. A workbook correction is committed on that branch, never in afw360-data; the converter holds no value overrides.
+The Excel workbooks are frozen at `legacy-final`; the converter reads them from `AFW360_LEGACY_XLSX`, a checkout of the `legacy` branch of `AFW360_Glance`. A workbook correction is a commit on that branch, never in afw360-data; the converter holds no value overrides.
 
 The old SDMX CSVs (`30-sdmx/data/AFW360_HH_*_2021_SURVEY.csv`) are used once as a test oracle: after the converter runs, every value is compared and every difference explained. Then the SDMX repository is archived.
 
@@ -304,8 +305,25 @@ The old SDMX CSVs (`30-sdmx/data/AFW360_HH_*_2021_SURVEY.csv`) are used once as 
 ## 15. Milestones
 
 1. **Freeze.** Merge `restructure/pipeline-20-30` into `master`, tag `legacy-final`, create `legacy`, point the README to the new repositories, stop FMR.
-2. **Provisional store.** Create afw360-data: `FORMAT.md`, code lists and family YAMLs migrated from `CL_INDICATOR.csv`, `SERIES_PLAN.csv` and the other codelists, `surveys.csv`, the Excel converter, and in afw360-tools the validator and `build_catalog`. Acceptance: the store for Senegal and Guinea-Bissau matches the SDMX values cell by cell, `afw360 validate` passes, every generated JSON validates against the World Bank schemas and the cookbook profile.
+2. **Provisional store.** Create afw360-data: `FORMAT.md`, code lists and family YAMLs migrated from `CL_INDICATOR.csv`, `SERIES_PLAN.csv` and the other codelists, `surveys.csv`, the Excel converter, and in afw360-tools the validator and `build_catalog`. Acceptance: the store for Senegal and Guinea-Bissau is compared with the SDMX values cell by cell and every difference is explained (section 11), `afw360 validate` passes, every generated JSON validates against the World Bank schemas and the cookbook profile.
 3. **Row-level rules session** (deferred item 1) on the provisional data; recipes written.
 4. **Tools, API and dashboard.** Client interface with both backends, API on Connect, dashboard rebuilt, sync and pins.
 5. **Microdata path.** Harmonisation and helper, first families recomputed and legacy rows replaced.
 6. **Content and agent.**
+
+## 16. Review corrections (2026-11-02)
+
+Design review before implementation (simplicity audit, consistency, hand maintainability, guideline alignment). Only unambiguous corrections were applied; everything else was returned to the data lead as findings and questions. Finding numbers refer to the review report.
+
+| # | Section | What changed | Why | Resolves |
+|---|---|---|---|---|
+| C1 | 5, 6 | `URBANISATION` codes are `CAP`, `OU`, `R`, `_T`, with `U` as the parent of `CAP` and `OU`; an `OU` row added to the `codelists.csv` example. | Section 5 called `U` "other urban" while section 6 made `U` the parent of `CAP` ("Urban"). The legacy list and data (`CL_URBANISATION.csv`: `U`, `R`, `CAP`, `OU`; rows carry `CAP`, `OU`, `R`) use `OU`, and the converter must reproduce them. | F11 |
+| C2 | 11 | "stay byte-frozen on the `legacy` branch" replaced by "frozen at `legacy-final`; a correction is a commit on the `legacy` branch". | A branch that receives corrections is not byte-frozen; section 4 already says the branch exists for corrections. | F14 |
+| C3 | 7 | The `level` comment no longer says it "fixes the `_Z` rule for SEX and AGE"; it names the unit the statistic is computed over and points to section 13. | Section 13 defers the `_Z` rule, and the design's own example (`DEM_AGE_GINI_HH`: a household statistic with `SEX=F`) cannot follow a rule keyed on `level`. | F6 |
+| C4 | 7 | Added: for a family without qualifiers the family record and the series record coincide (one record). | The text asked for one record per observed combination plus one family record, which for `AGR_CULTIVATES` gave two records with the same idno. | F26 |
+| C5 | 4, 8 | `01_harmonize/dictionary/qualifiers.csv` removed from the layout and the dictionary; a qualifier is named by the code list it draws from. | The file held one fact (qualifier concept = code list) that the YAML `qualifiers:` list and the code-list names already carry. Dead weight. | Simplicity table, row `qualifiers.csv` |
+| C6 | 9 | "Add a breakdown": the do-files' `breakdowns()` option is edited too; ingest, validate and pull request added; "No indicator code changes" removed. | Section 8's do-file example lists the breakdowns in the helper call, so the YAML edit alone does nothing; the workflow also stopped before the rows reached the store. | F2, F22 |
+| C7 | 9 | "Add a qualifier value": the do-file `foreach` list is edited (unless the loop reads `povlines.csv`); ingest, validate and pull request added. | Section 8's do-file hardcodes `PL300 PL420 PL830`, so "re-run the families" alone does not compute a new line. | F2, F22 |
+| C8 | 9 | "Add an indicator": the helper's result is saved as a CSV and that file is passed to `afw360 ingest`. | The helper "returns a dataset" in memory and ingest is a CLI command; the hand-off step was missing. The file's location is still a question (F10). | F10 |
+| C9 | 10 | `MANIFEST.csv` no longer records "the afw360-data commit"; the release tag names the commit. | A file inside a commit cannot contain that commit's hash. | F12 |
+| C10 | 15 | Milestone 2 acceptance: "compared with the SDMX values cell by cell and every difference is explained (section 11)" instead of "matches ... cell by cell". | Section 11 expects explained differences (the converter holds no overrides, and the SDMX files withheld Guinea-Bissau cells that the workbooks contain), so an exact match is impossible by design. | F13 |
