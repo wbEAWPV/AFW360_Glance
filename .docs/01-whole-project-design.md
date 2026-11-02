@@ -352,7 +352,42 @@ The old SDMX CSVs (`30-sdmx/data/AFW360_HH_*_2021_SURVEY.csv`) are used once as 
 5. **Microdata path.** Harmonisation and helper, `run_all.do`, first families recomputed and legacy rows replaced.
 6. **Content, API and agent.** API with OpenAPI, the second client backend and its identity test, MCP server, guidance resource, evaluation set, JSON-LD on the series pages, switch-off test.
 
-## 16. Review corrections (2026-11-02)
+## 16. Execution: one plan per milestone, orchestrated
+
+The design is not implemented at once. Each milestone of section 15 gets its own plan, is implemented by agents under an orchestrator, is verified, is reported to the user, and only then does the next milestone start, with a fresh orchestrator.
+
+**The milestone plan.** One Markdown file per milestone, `docs/plans/milestone-<n>-<name>.md`, in the repository where the work happens (milestone 1 in `AFW360_Glance/.docs/plans/`, the others in afw360-data or afw360-tools). It is written by the orchestrator session together with the user and approved by the user before any agent starts. It is self-contained: an agent starts with no memory of this page or of any chat, so the plan carries every fact the agent needs, copied in, not linked: the sections of this design that apply, the file layouts and column lists, the code rules, the commands to run, the acceptance checks. Its headings, in this order:
+
+1. *Context*: what the milestone builds and why, in the agent's own terms.
+2. *Inputs*: every file and location an agent may need, with its path, and what it must never touch (`data_raw/`, the `legacy` branch, anything outside the repository).
+3. *Tasks*: a table, one row per task: id, goal, files to read, files to write, the verification (a command and its expected result, never "looks right"), the tasks it depends on. A task is small: one file or one function group, finishable by one agent well inside its budget.
+4. *Waves*: which tasks run in parallel and which must wait.
+5. *Verification batches*: which 3 to 5 finished tasks one verifier checks together.
+6. *Acceptance*: the milestone's acceptance from section 15, as commands with expected output.
+7. *Budget*: the token budget per agent and for the orchestrator, and the compression point.
+8. *Status*: a table the orchestrator updates as tasks finish and verifiers report, with each agent's reported token use.
+9. *Report*: written at the end for the user (see below).
+
+**Roles and budgets.**
+
+- The **orchestrator** is a Fable-level session. It writes the plan and the briefs, launches agents, reads their reports, groups verifications, decides what runs next, and writes the report. It never writes code or data files, and it never reads code or data files itself: when it needs a fact from the repository, it asks an agent. Its budget is 250,000 tokens for the whole milestone, plan included. At about 200,000 it writes a handover note into the plan's *Status* section (every task's state, what is verified, what is open, the next wave) and the user starts a fresh orchestrator from that note. It never exceeds 250,000.
+- An **implementer** is an Opus-level agent, one task per agent (or a short chain of dependent tasks), with a budget of 100,000 tokens including everything it reads. Its brief is the task row plus the plan sections it needs, nothing else. It runs the task's verification itself before handing back, commits its work on the milestone branch, and reports: files changed, the verification output, open questions. If it cannot finish inside the budget it stops, reports what is done and what is not, and leaves nothing half-written.
+- A **verifier** is an Opus-level agent with the same 100,000-token budget. It checks a batch of 3 to 5 finished tasks together, against the plan's verification column and nothing else: it runs the commands, reads the outputs, and reports pass or fail per task with the evidence. Tasks are not verified one at a time; batches are.
+- Every agent is launched with an explicit model; none runs on Fable.
+
+**The flow of a milestone.**
+
+1. The orchestrator session and the user write the plan; the user approves it.
+2. The orchestrator launches the first wave: every task with no unmet dependency, in parallel. Dependent tasks wait for the report of what they depend on.
+3. As implementers report, the orchestrator groups 3 to 5 finished tasks into a batch and launches one verifier for it. Waves and verifications overlap.
+4. A failed task goes back to a fresh implementer with the verifier's evidence in its brief, as a new task row.
+5. When every task has passed, one last verifier runs the *Acceptance* commands.
+6. The orchestrator writes the *Report*: what was built, what the verifiers found and how it was fixed, what is open, the token spend per agent and in total.
+7. The user reads the report. The next milestone starts with a fresh orchestrator session that reads only this design, the previous report and the next milestone plan; the user starts it, or tells the finishing orchestrator to start it automatically.
+
+**What the next steps are, from here.** Milestone 1 (freeze) is a handful of git operations plus two `git init`; it is done in a session with the user, not orchestrated. Milestone 2 is the first orchestrated milestone: its plan is written next, in a fresh session, from sections 5 to 11 and 15 of this page.
+
+## 17. Review corrections (2026-11-02)
 
 Design review before implementation (simplicity audit, consistency, hand maintainability, guideline alignment). Only unambiguous corrections were applied; everything else was returned to the data lead as findings and questions. Finding numbers refer to the review report.
 
