@@ -1,5 +1,7 @@
 # AFW 360 At A Glance
 
+> **Frozen on 2026-11-02 as the legacy design**, tagged `legacy-final`. The project continues in two repositories: [afw360-data](https://github.com/worldbank/afw360-data), the Stata producers and the store, and [afw360-tools](https://github.com/worldbank/afw360-tools), the validator, catalogue, dashboard, API and agent. The design that replaces this one is [`.docs/01-whole-project-design.md`](.docs/01-whole-project-design.md). The `legacy` branch of this repository exists only for corrections to the Excel workbooks under `10-legacy-pipeline/data_raw/`; everything below describes the frozen pipeline.
+
 A one-page poverty and welfare profile for each country in Western and Central Africa, built by the World Bank AFW Poverty team (DIP/POV). This is a pilot covering **Senegal** and **Guinea-Bissau** (EHCVM 2021/22).
 
 Each country page shows:

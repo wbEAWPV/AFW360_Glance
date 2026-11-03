@@ -1,5 +1,7 @@
 # AFW 360 At A Glance
 
+> **Frozen (2026-11-02).** This repository is the legacy design, tagged `legacy-final`. New work happens in `worldbank/afw360-data` and `worldbank/afw360-tools`, which have their own `CLAUDE.md`; the design they follow is `.docs/01-whole-project-design.md`. The `legacy` branch takes only corrections to the Excel workbooks under `10-legacy-pipeline/data_raw/`. The rules below describe the frozen pipeline.
+
 ## What this project is
 
 A pilot dashboard from the World Bank's AFW DIP/POV team that gives a one-page view of poverty and welfare for each country: international poverty rates, regional poverty maps, household profiles (consumption, jobs, agriculture, energy), fiscal equity, and key messages. It currently covers Senegal and Guinea-Bissau.
